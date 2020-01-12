@@ -38,7 +38,7 @@ stages:
           #   displayName: 'helm lint'
 
           - script: |
-             helm package --destination $(Build.ArtifactStagingDirectory)/artifacts/helm --version $(Build.BuildNumber) --app-version 1.0.3 helm/azure-pipelines-agent
+             helm package --destination $(Build.ArtifactStagingDirectory)/artifacts/helm --version $(Build.BuildNumber) --app-version $(Build.BuildNumber) helm/azure-pipelines-agent
              mkdir -p artifacts/kubectl
             displayName: 'Create Artifacts directories'
 
@@ -191,9 +191,9 @@ stages:
           - script: |
               docker pull $(imageRepository):build-$(Build.BuildNumber)-amd64
               docker pull $(imageRepository):build-$(Build.BuildNumber)-arm32
-              docker manifest create $(imageRepository):release-$(Build.BuildNumber) $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):build-$(Build.BuildNumber)-arm32
+              docker manifest create $(imageRepository):$(Build.BuildNumber) $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):build-$(Build.BuildNumber)-arm32
               docker manifest create $(imageRepository):latest                       $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):build-$(Build.BuildNumber)-arm32
-              docker manifest push $(imageRepository):release-$(Build.BuildNumber)
+              docker manifest push $(imageRepository):$(Build.BuildNumber)
               docker manifest push $(imageRepository):latest
             displayName: 'docker pull, tag and push'
 
