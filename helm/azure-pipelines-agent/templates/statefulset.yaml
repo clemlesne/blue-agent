@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "azure-pipelines-agent.fullname" . }}
+  labels:
+    {{- include "azure-pipelines-agent.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "azure-pipelines-agent.selectorLabels" . | nindent 6 }}
+  serviceName: test
+  template:
+    metadata:
+      labels:
+        {{- include "azure-pipelines-agent.selectorLabels" . | nindent 8 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ template "azure-pipelines-agent.serviceAccountName" . }}
+      
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          {{- if .Values.pipelines.agent.mountDocker }}
+          securityContext:
+            privileged: true
+            {{- with .Values.securityContext }}
+            {{- toYaml . | nindent 8 }}
+            {{- end }}
+          {{- else }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 8 }}
+          {{- end }}
+          {{- if .Values.image.tag }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          {{- else }}
+          image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+          {{- end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: AZP_AGENT_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: AZP_URL
+              value: {{ .Values.pipelines.url | quote }}
+            - name: AZP_POOL
+              value: {{ .Values.pipelines.pool | quote  }}
+            - name: AZP_WORK
+              value: {{ .Values.pipelines.agent.workDir | quote  }}
+            - name: AZP_TOKEN
+              value: {{ .Values.pipelines.pat | quote }}
+          {{- if .Values.pipelines.agent.mountDocker }}
+          volumeMounts:
+            - name: dockersock
+              mountPath: "/var/run/docker.sock"
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- if .Values.pipelines.agent.mountDocker }}
+      volumes:
+        - name: dockersock
+          hostPath:
+            path: /var/run/docker.sock
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
