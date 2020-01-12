@@ -20,7 +20,6 @@ version: 0.1.0
 # incremented each time you make changes to the application.
 appVersion: 1.16.0
 
-
 icon: https://raw.githubusercontent.com/emberstack/CDN/master/Projects/docker-azure-pipelines-agent/azure-pipelines.png
 keywords:
 - azure
