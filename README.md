@@ -39,7 +39,6 @@ You can customize the values of the helm deployment by using the following Value
 | `pipelines.url`                      | The Azure base URL for your organization                    | `""`                                                    |
 | `pipelines.pat`                      | Personal Access Token (PAT) used by the agent to connect.   | `""`                                                    |
 | `pipelines.pool`                     | Agent pool to which the Agent should register.              | `""`                                                    |
-| `pipelines.agent.name`               | The agent name                                              | `""` - By default it takes the pod name                 |
 | `pipelines.agent.mountDocker`        | Enable to mount the host `docker.sock`                      | `false`                                                 |
 | `pipelines.agent.workDir`            | The work directory the agent should use                     | `_work`                                                 |
 | `serviceAccount.create`              | Create ServiceAccount                                       | `true`                                                  |
