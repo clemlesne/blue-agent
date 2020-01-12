@@ -25,7 +25,6 @@ stages:
 
           - script: |
              mkdir -p artifacts/helm
-             mkdir -p artifacts/kubectl
             workingDirectory: '$(Build.ArtifactStagingDirectory)'
             displayName: 'Create Artifacts directories'
 
@@ -33,14 +32,10 @@ stages:
             inputs:
               helmVersionToInstall: 'latest'
 
-          # - script: 'helm lint'
-          #   workingDirectory: helm/azure-pipelines-agent
-          #   displayName: 'helm lint'
-
           - script: |
              helm package --destination $(Build.ArtifactStagingDirectory)/artifacts/helm --version $(Build.BuildNumber) --app-version $(Build.BuildNumber) helm/azure-pipelines-agent
              mkdir -p artifacts/kubectl
-            displayName: 'Create Artifacts directories'
+            displayName: 'Helm Package'
 
           - publish: '$(Build.ArtifactStagingDirectory)/artifacts/helm'
             artifact: 'helm'
@@ -192,7 +187,7 @@ stages:
               docker pull $(imageRepository):build-$(Build.BuildNumber)-amd64
               docker pull $(imageRepository):build-$(Build.BuildNumber)-arm32
               docker manifest create $(imageRepository):$(Build.BuildNumber) $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):build-$(Build.BuildNumber)-arm32
-              docker manifest create $(imageRepository):latest                       $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):build-$(Build.BuildNumber)-arm32
+              docker manifest create $(imageRepository):latest               $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):build-$(Build.BuildNumber)-arm32
               docker manifest push $(imageRepository):$(Build.BuildNumber)
               docker manifest push $(imageRepository):latest
             displayName: 'docker pull, tag and push'

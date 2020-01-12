@@ -21,7 +21,7 @@ version: 0.1.0
 appVersion: 1.16.0
 
 
-icon: https://raw.githubusercontent.com/emberstack/CDN/master/Projects/ES.FX/es.fx.1.0.0.0.png
+icon: https://raw.githubusercontent.com/emberstack/CDN/master/Projects/docker-azure-pipelines-agent/azure-pipelines.png
 keywords:
 - azure
 - pipelines
