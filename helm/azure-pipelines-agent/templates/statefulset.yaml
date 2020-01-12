@@ -5,6 +5,7 @@ metadata:
   labels:
     {{- include "azure-pipelines-agent.labels" . | nindent 4 }}
 spec:
+  podManagementPolicy: Parallel
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
