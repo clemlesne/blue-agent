@@ -21,20 +21,25 @@ spec:
         {{- toYaml . | nindent 8 }}
     {{- end }}
       serviceAccountName: {{ template "azure-pipelines-agent.serviceAccountName" . }}
-      
+      {{- if .Values.securityContext }}
       securityContext:
         {{- toYaml .Values.securityContext | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           {{- if .Values.pipelines.agent.mountDocker }}
           securityContext:
             privileged: true
+            {{- if .Values.securityContext }}
             {{- with .Values.securityContext }}
-            {{- toYaml . | nindent 8 }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
             {{- end }}
           {{- else }}
+            {{- if .Values.securityContext }}
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 8 }}
+            {{- toYaml .Values.securityContext | nindent 12 }}
+            {{- end }}
           {{- end }}
           {{- if .Values.image.tag }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
