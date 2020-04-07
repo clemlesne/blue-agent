@@ -1,7 +1,7 @@
 name: $(version).$(Rev:r)
 
 variables:
-  version: 1.0
+  version: 1.1
   buildConfiguration: "Release"
   imageRepository: "emberstack/azure-pipelines-agent"
   DOCKER_CLI_EXPERIMENTAL: 'enabled'
@@ -10,6 +10,10 @@ trigger:
   branches:
     include:
       - "*"
+  paths:
+    include:
+    - src/*
+    - azure-pipelines.yaml
 
 stages:
 
@@ -30,11 +34,14 @@ stages:
 
           - task: HelmInstaller@1
             inputs:
-              helmVersionToInstall: 'latest'
+              helmVersionToInstall: '3.1.1'
 
           - script: |
-             helm package --destination $(Build.ArtifactStagingDirectory)/artifacts/helm --version $(Build.BuildNumber) --app-version $(Build.BuildNumber) helm/azure-pipelines-agent
-             mkdir -p artifacts/kubectl
+             cp README.md src/helm/azure-pipelines-agent/README.md
+            displayName: 'import README'
+
+          - script: |
+             helm package --destination $(Build.ArtifactStagingDirectory)/artifacts/helm --version $(Build.BuildNumber) --app-version $(Build.BuildNumber) src/helm/azure-pipelines-agent
             displayName: 'Helm Package'
 
           - publish: '$(Build.ArtifactStagingDirectory)/artifacts/helm'
@@ -58,9 +65,9 @@ stages:
             inputs:
               containerRegistry: 'Emberstack Docker Hub'
               repository: $(imageRepository)
-              Dockerfile: docker/Dockerfile
+              Dockerfile: src/docker/Dockerfile
               command: build
-              buildContext: docker
+              buildContext: src/docker
               tags: 'build-$(Build.BuildNumber)-amd64'
 
           - task: Docker@2
@@ -104,9 +111,9 @@ stages:
             inputs:
               containerRegistry: 'Emberstack Docker Hub'
               repository: $(imageRepository)
-              Dockerfile: docker/Dockerfile
+              Dockerfile: src/docker/Dockerfile
               command: build
-              buildContext: docker
+              buildContext: src/docker
               tags: 'build-$(Build.BuildNumber)-arm32'
 
           - task: Docker@2
