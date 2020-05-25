@@ -1,7 +1,7 @@
 # Introduction
 [Azure Pipelines Agent](https://github.com/emberstack/docker-azure-pipelines-agent) is self-hosted agent that you can run in a container with Docker.
 
-> Supports `amd64`, `arm`
+> Supports `amd64`, `arm`, `arm64`
 
 ## Installing the Chart
 
