@@ -64,12 +64,10 @@ stages:
               docker buildx create --name builder --driver docker-container --use
               docker buildx inspect --bootstrap
               docker buildx build --push --platform linux/amd64 -t $(imageRepository):build-$(Build.BuildNumber)-amd64 -f src/docker/Dockerfile src/docker
-              docker buildx build --push --platform linux/arm64 -t $(imageRepository):build-$(Build.BuildNumber)-arm64 -f src/docker/Dockerfile src/docker
               docker buildx build --push --platform linux/arm   -t $(imageRepository):build-$(Build.BuildNumber)-arm   -f src/docker/Dockerfile src/docker
               docker pull $(imageRepository):build-$(Build.BuildNumber)-amd64
-              docker pull $(imageRepository):build-$(Build.BuildNumber)-arm64
               docker pull $(imageRepository):build-$(Build.BuildNumber)-arm
-              docker manifest create  $(imageRepository):build-$(Build.BuildNumber) $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):build-$(Build.BuildNumber)-arm $(imageRepository):build-$(Build.BuildNumber)-arm64
+              docker manifest create  $(imageRepository):build-$(Build.BuildNumber) $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):build-$(Build.BuildNumber)-arm
               docker manifest inspect $(imageRepository):build-$(Build.BuildNumber)
               docker manifest push    $(imageRepository):build-$(Build.BuildNumber)
             displayName: "Create and push multi-arch manifest"
@@ -104,10 +102,9 @@ stages:
 
           - script: |
               docker pull $(imageRepository):build-$(Build.BuildNumber)-amd64
-              docker pull $(imageRepository):build-$(Build.BuildNumber)-arm64
               docker pull $(imageRepository):build-$(Build.BuildNumber)-arm
-              docker manifest create  $(imageRepository):$(Build.BuildNumber) $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):build-$(Build.BuildNumber)-arm $(imageRepository):build-$(Build.BuildNumber)-arm64
-              docker manifest create  $(imageRepository):latest               $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):build-$(Build.BuildNumber)-arm $(imageRepository):build-$(Build.BuildNumber)-arm64
+              docker manifest create  $(imageRepository):$(Build.BuildNumber) $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):build-$(Build.BuildNumber)-arm
+              docker manifest create  $(imageRepository):latest               $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):build-$(Build.BuildNumber)-arm
               docker manifest push    $(imageRepository):$(Build.BuildNumber)
               docker manifest push    $(imageRepository):latest
               docker manifest push $(imageRepository):$(Build.BuildNumber)
