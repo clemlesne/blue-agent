@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 # To make it easier for build and release pipelines to run apt-get,
 # configure apt to not require confirmation (assume the -y argument by default)
@@ -12,8 +12,8 @@ RUN apt-get update \
         jq \
         git \
         iputils-ping \
-        libcurl3 \
-        libicu55 \
+        libcurl4 \
+        libicu60 \
         libunwind8 \
         netcat \
 		zip \

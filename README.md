@@ -8,7 +8,7 @@
 [![license](https://img.shields.io/github/license/emberstack/docker-azure-pipelines-agent.svg?style=flat-square)](LICENSE)
 [![slack](https://img.shields.io/badge/join-emberstack%20on%20Slack-gray.svg?style=flat-square&longCache=true&logo=slack&colorB=green)](https://join.slack.com/t/emberstack/shared_invite/zt-8qyutopg-9ghwTq3OnHSm2tY9Sk5ULA)
 
-> Supports `amd64`, `arm`
+> Supports `amd64`, `arm` and `arm64`
 
 ## Deployment
 

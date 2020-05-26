@@ -1,10 +1,13 @@
 #!/bin/bash
 set -e
 
-PLATFORM="$(arch)"
+ARCHITECTURE="$(arch)"
+PLATFORM=$ARCHITECTURE
 if [[ $PLATFORM == x86_64 ]]; then
   PLATFORM="linux-x64"
 elif [[ $PLATFORM == arm* ]]; then
+  PLATFORM="linux-arm"
+elif [[ $PLATFORM == aarch64 ]]; then
   PLATFORM="linux-arm"
 else 
   echo 1>&2 "Unsupported architecture"
@@ -75,6 +78,11 @@ if [ -z "$AZP_AGENTPACKAGE_URL" -o "$AZP_AGENTPACKAGE_URL" == "null" ]; then
 fi
 
 print_header "2. Downloading and installing Azure Pipelines agent..."
+if [[ $ARCHITECTURE == aarch64 ]]; then
+  ARM_AGENT="vsts-agent-linux-arm64"
+  AZP_AGENTPACKAGE_URL="${AZP_AGENTPACKAGE_URL/vsts-agent-linux-arm/$ARM_AGENT}"
+fi
+print_header "Agent package: $AZP_AGENTPACKAGE_URL"
 
 curl -LsS $AZP_AGENTPACKAGE_URL | tar -xz & wait $!
 
@@ -84,6 +92,8 @@ trap 'cleanup; exit 130' INT
 trap 'cleanup; exit 143' TERM
 
 print_header "3. Configuring Azure Pipelines agent..."
+
+./bin/installdependencies.sh
 
 ./config.sh --unattended \
   --agent "${AZP_AGENT_NAME:-$(hostname)}" \
