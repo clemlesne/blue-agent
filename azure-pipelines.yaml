@@ -4,7 +4,7 @@ variables:
   version: 2.0
   buildConfiguration: "Release"
   imageRepository: "emberstack/azure-pipelines-agent"
-  DOCKER_CLI_EXPERIMENTAL: 'enabled'
+  DOCKER_CLI_EXPERIMENTAL: "enabled"
 
 trigger:
   branches:
@@ -12,11 +12,10 @@ trigger:
       - "*"
   paths:
     include:
-    - src/*
-    - azure-pipelines.yaml
+      - src/*
+      - azure-pipelines.yaml
 
 stages:
-
   - stage: ci
     displayName: "CI"
     jobs:
@@ -25,11 +24,10 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
-
           - task: DockerInstaller@0
-            displayName: 'Docker install'
+            displayName: "Docker install"
             inputs:
-              dockerVersion: '19.03.9'
+              dockerVersion: "19.03.9"
 
           - task: Docker@2
             displayName: "Docker login"
@@ -37,28 +35,27 @@ stages:
               containerRegistry: "Emberstack Docker Hub"
               command: login
 
-
           - script: |
-             mkdir -p artifacts/helm
-            workingDirectory: '$(Build.ArtifactStagingDirectory)'
-            displayName: 'Create Artifacts directories'
+              mkdir -p artifacts/helm
+            workingDirectory: "$(Build.ArtifactStagingDirectory)"
+            displayName: "Create Artifacts directories"
 
           - task: HelmInstaller@1
             inputs:
-              helmVersionToInstall: '3.2.4'
+              helmVersionToInstall: "3.2.4"
             displayName: "Helm install"
 
           - script: |
-             cp README.md src/helm/azure-pipelines-agent/README.md
-            displayName: 'Import README in helm chart'
+              cp README.md src/helm/azure-pipelines-agent/README.md
+            displayName: "Import README in helm chart"
 
           - script: |
-             helm package --destination $(Build.ArtifactStagingDirectory)/artifacts/helm --version $(Build.BuildNumber) --app-version $(Build.BuildNumber) src/helm/azure-pipelines-agent
-            displayName: 'Helm Package'
+              helm package --destination $(Build.ArtifactStagingDirectory)/artifacts/helm --version $(Build.BuildNumber) --app-version $(Build.BuildNumber) src/helm/azure-pipelines-agent
+            displayName: "Helm Package"
 
-          - publish: '$(Build.ArtifactStagingDirectory)/artifacts/helm'
-            artifact: 'helm'
-            displayName: 'Publish helm artifact'
+          - publish: "$(Build.ArtifactStagingDirectory)/artifacts/helm"
+            artifact: "helm"
+            displayName: "Publish helm artifact"
 
           - script: |
               docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
@@ -78,7 +75,7 @@ stages:
 
   - stage: cd
     displayName: "CD"
-    dependsOn: 'ci'
+    dependsOn: "ci"
     condition: and(succeeded(), in(variables['Build.Reason'], 'IndividualCI', 'Manual'), in(variables['Build.SourceBranchName'], 'master'))
     jobs:
       - job: release
@@ -88,17 +85,16 @@ stages:
         variables:
           - group: "OpenSource.GitHub"
         steps:
-
           - checkout: none
 
           - download: current
-            artifact: 'helm'
-            displayName: "Download helm artifact"    
+            artifact: "helm"
+            displayName: "Download helm artifact"
 
           - task: DockerInstaller@0
-            displayName: 'Docker install'
+            displayName: "Docker install"
             inputs:
-              dockerVersion: '19.03.9'
+              dockerVersion: "19.03.9"
 
           - task: Docker@2
             displayName: "Docker login"
@@ -108,7 +104,7 @@ stages:
 
           - task: HelmInstaller@1
             inputs:
-              helmVersionToInstall: '3.1.1'
+              helmVersionToInstall: "3.1.1"
             displayName: "Helm install"
 
           - script: |
@@ -127,16 +123,16 @@ stages:
               docker push $(imageRepository):$(Build.BuildNumber)-amd64
               docker push $(imageRepository):$(Build.BuildNumber)-arm
               docker push $(imageRepository):$(Build.BuildNumber)-arm64
-            displayName: 'Build and push multi-arch Docker image'
+            displayName: "Build and push multi-arch Docker image"
 
           - script: |
               git config --global user.email "$(emberstack-agent-email)"
               git config --global user.name "$(emberstack-agent-name)"
               git clone https://$(emberstack-agent-username):$(emberstack-agent-pat)@github.com/emberstack/helm-charts.git
-              
+
               mkdir -p helm-charts/charts
               cp $(Pipeline.Workspace)/helm/azure-pipelines-agent-$(Build.BuildNumber).tgz  helm-charts/charts
-              
+
               cd helm-charts
               rm index.yaml
               helm repo index ./
@@ -144,16 +140,15 @@ stages:
               git status
               git commit -m "Added azure-pipelines-agent-$(Build.BuildNumber).tgz"
               git push
-            displayName: 'Create chart release'
+            displayName: "Create chart release"
 
           - task: GitHubRelease@1
-            displayName: 'Create GitHub release'
+            displayName: "Create GitHub release"
             inputs:
               gitHubConnection: GitHub
-              repositoryName: 'EmberStack/docker-azure-pipelines-agent'
+              repositoryName: "EmberStack/docker-azure-pipelines-agent"
               tagSource: userSpecifiedTag
-              tag: 'v$(Build.BuildNumber)'
-              title: 'Release v$(Build.BuildNumber)'
+              tag: "v$(Build.BuildNumber)"
+              title: "Release v$(Build.BuildNumber)"
               releaseNotesSource: inline
-              releaseNotes: 'The release process is automated.'
-    
+              releaseNotes: "The release process is automated."
