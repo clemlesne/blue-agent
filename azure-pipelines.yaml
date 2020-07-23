@@ -115,11 +115,11 @@ stages:
               docker manifest create  $(imageRepository):latest               $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):build-$(Build.BuildNumber)-arm $(imageRepository):build-$(Build.BuildNumber)-arm64
               docker manifest push    $(imageRepository):$(Build.BuildNumber)
               docker manifest push    $(imageRepository):latest
-              docker manifest push $(imageRepository):$(Build.BuildNumber)
-              docker manifest push $(imageRepository):latest
-              docker tag $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):$(Build.BuildNumber)-amd64
-              docker tag $(imageRepository):build-$(Build.BuildNumber)-arm64 $(imageRepository):$(Build.BuildNumber)-arm64
-              docker tag $(imageRepository):build-$(Build.BuildNumber)-arm   $(imageRepository):$(Build.BuildNumber)-arm
+              docker manifest push    $(imageRepository):$(Build.BuildNumber)
+              docker manifest push    $(imageRepository):latest
+              docker tag  $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):$(Build.BuildNumber)-amd64
+              docker tag  $(imageRepository):build-$(Build.BuildNumber)-arm64 $(imageRepository):$(Build.BuildNumber)-arm64
+              docker tag  $(imageRepository):build-$(Build.BuildNumber)-arm   $(imageRepository):$(Build.BuildNumber)-arm
               docker push $(imageRepository):$(Build.BuildNumber)-amd64
               docker push $(imageRepository):$(Build.BuildNumber)-arm
               docker push $(imageRepository):$(Build.BuildNumber)-arm64
