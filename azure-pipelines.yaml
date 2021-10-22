@@ -45,7 +45,7 @@ stages:
 
 
           - script: |
-              cp README.md src/helm/reflector/README.md
+              cp README.md src/helm/azure-pipelines-agent/README.md
             displayName: "helm - import README"
           - script: |
               helm package --destination $(Build.ArtifactStagingDirectory)/artifacts/helm --version $(Build.BuildNumber) --app-version $(Build.BuildNumber) src/helm/azure-pipelines-agent
@@ -59,9 +59,9 @@ stages:
               docker buildx rm builder
               docker buildx create --name builder --driver docker-container --use
               docker buildx inspect --bootstrap
-              docker buildx build --push --platform linux/amd64 -t $(imageRepository):build-$(Build.BuildNumber)-amd64   -f src/ES.Kubernetes.Reflector/Dockerfile src/
-              docker buildx build --push --platform linux/arm   -t $(imageRepository):build-$(Build.BuildNumber)-arm32v7 -f src/ES.Kubernetes.Reflector/Dockerfile src/
-              docker buildx build --push --platform linux/arm64 -t $(imageRepository):build-$(Build.BuildNumber)-arm64v8 -f src/ES.Kubernetes.Reflector/Dockerfile src/
+              docker buildx build --push --platform linux/amd64 -t $(imageRepository):build-$(Build.BuildNumber)-amd64   -f src/docker/Dockerfile src/docker 
+              docker buildx build --push --platform linux/arm   -t $(imageRepository):build-$(Build.BuildNumber)-arm32v7 -f src/docker/Dockerfile src/docker
+              docker buildx build --push --platform linux/arm64 -t $(imageRepository):build-$(Build.BuildNumber)-arm64v8 -f src/docker/Dockerfile src/docker
               docker pull $(imageRepository):build-$(Build.BuildNumber)-amd64
               docker pull $(imageRepository):build-$(Build.BuildNumber)-arm32v7
               docker pull $(imageRepository):build-$(Build.BuildNumber)-arm64v8
