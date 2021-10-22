@@ -1,7 +1,7 @@
 # Azure Pipelines Agent
 [Azure Pipelines Agent](https://github.com/emberstack/docker-azure-pipelines-agent) is self-hosted agent that you can run in a container with Docker.
 
-[![Build Status](https://dev.azure.com/emberstack/OpenSource/_apis/build/status/docker-azure-pipelines-agent?branchName=master)](https://dev.azure.com/emberstack/OpenSource/_build/latest?definitionId=17&branchName=master)
+[![Build Status](https://dev.azure.com/emberstack/OpenSource/_apis/build/status/docker-azure-pipelines-agent?branchName=main)](https://dev.azure.com/emberstack/OpenSource/_build/latest?definitionId=17&branchName=main)
 [![Release](https://img.shields.io/github/release/emberstack/docker-azure-pipelines-agent.svg?style=flat-square)](https://github.com/emberstack/docker-azure-pipelines-agent/releases/latest)
 [![Docker Image](https://img.shields.io/docker/image-size/emberstack/azure-pipelines-agent/latest?style=flat-square)](https://hub.docker.com/r/emberstack/azure-pipelines-agent)
 [![Docker Pulls](https://img.shields.io/docker/pulls/emberstack/azure-pipelines-agent.svg?style=flat-square)](https://hub.docker.com/r/emberstack/azure-pipelines-agent)
@@ -16,9 +16,6 @@ The Azure Pipeliens agent can be deployed either manually or using Helm (recomme
 
 ### Support
 If you need help or found a bug, please feel free to open an issue on the [emberstack/docker-azure-pipelines-agent](https://github.com/emberstack/docker-azure-pipelines-agent) GitHub project.  
-  
-You can also join our Slack workspace and talk to us:  
-[![slack](https://img.shields.io/badge/join-emberstack%20on%20Slack-gray.svg?style=flat-square&longCache=true&logo=slack&colorB=green)](https://join.slack.com/t/emberstack/shared_invite/zt-8qyutopg-9ghwTq3OnHSm2tY9Sk5ULA)
 
 #### Deployment using Helm
 

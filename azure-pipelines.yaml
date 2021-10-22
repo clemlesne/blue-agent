@@ -24,13 +24,16 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
-          - task: DockerInstaller@0
-            displayName: "Docker install"
+          - task: HelmInstaller@1
             inputs:
-              dockerVersion: "19.03.9"
-
+              helmVersionToInstall: "3.7.0"
+            displayName: "tools - helm - install"
+          - task: DockerInstaller@0
+            displayName: "tools - docker - install"
+            inputs:
+              dockerVersion: "20.10.9"
           - task: Docker@2
-            displayName: "Docker login"
+            displayName: "tools - docker - login"
             inputs:
               containerRegistry: "Emberstack Docker Hub"
               command: login
@@ -38,117 +41,112 @@ stages:
           - script: |
               mkdir -p artifacts/helm
             workingDirectory: "$(Build.ArtifactStagingDirectory)"
-            displayName: "Create Artifacts directories"
+            displayName: "artifacts - prepare directories"
 
-          - task: HelmInstaller@1
-            inputs:
-              helmVersionToInstall: "3.2.4"
-            displayName: "Helm install"
 
           - script: |
-              cp README.md src/helm/azure-pipelines-agent/README.md
-            displayName: "Import README in helm chart"
-
+              cp README.md src/helm/reflector/README.md
+            displayName: "helm - import README"
           - script: |
               helm package --destination $(Build.ArtifactStagingDirectory)/artifacts/helm --version $(Build.BuildNumber) --app-version $(Build.BuildNumber) src/helm/azure-pipelines-agent
-            displayName: "Helm Package"
-
+            displayName: "helm - template chart"
           - publish: "$(Build.ArtifactStagingDirectory)/artifacts/helm"
             artifact: "helm"
-            displayName: "Publish helm artifact"
+            displayName: "artifacts - publish - helm chart"
 
           - script: |
               docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
               docker buildx rm builder
               docker buildx create --name builder --driver docker-container --use
               docker buildx inspect --bootstrap
-              docker buildx build --push --platform linux/amd64 -t $(imageRepository):build-$(Build.BuildNumber)-amd64 -f src/docker/Dockerfile src/docker
-              docker buildx build --push --platform linux/arm   -t $(imageRepository):build-$(Build.BuildNumber)-arm   -f src/docker/Dockerfile src/docker
-              docker buildx build --push --platform linux/arm64 -t $(imageRepository):build-$(Build.BuildNumber)-arm64 -f src/docker/Dockerfile src/docker
+              docker buildx build --push --platform linux/amd64 -t $(imageRepository):build-$(Build.BuildNumber)-amd64   -f src/ES.Kubernetes.Reflector/Dockerfile src/
+              docker buildx build --push --platform linux/arm   -t $(imageRepository):build-$(Build.BuildNumber)-arm32v7 -f src/ES.Kubernetes.Reflector/Dockerfile src/
+              docker buildx build --push --platform linux/arm64 -t $(imageRepository):build-$(Build.BuildNumber)-arm64v8 -f src/ES.Kubernetes.Reflector/Dockerfile src/
               docker pull $(imageRepository):build-$(Build.BuildNumber)-amd64
-              docker pull $(imageRepository):build-$(Build.BuildNumber)-arm
-              docker pull $(imageRepository):build-$(Build.BuildNumber)-arm64
-              docker manifest create  $(imageRepository):build-$(Build.BuildNumber) $(imageRepository):build-$(Build.BuildNumber)-amd64  $(imageRepository):build-$(Build.BuildNumber)-arm  $(imageRepository):build-$(Build.BuildNumber)-arm64
+              docker pull $(imageRepository):build-$(Build.BuildNumber)-arm32v7
+              docker pull $(imageRepository):build-$(Build.BuildNumber)-arm64v8
+              docker manifest create  $(imageRepository):build-$(Build.BuildNumber) $(imageRepository):build-$(Build.BuildNumber)-amd64  $(imageRepository):build-$(Build.BuildNumber)-arm32v7  $(imageRepository):build-$(Build.BuildNumber)-arm64v8
               docker manifest inspect $(imageRepository):build-$(Build.BuildNumber)
               docker manifest push    $(imageRepository):build-$(Build.BuildNumber)
-            displayName: "Build and push multi-arch Docker image"
+            displayName: "docker - build and publish"
 
-  - stage: cd
-    displayName: "CD"
-    dependsOn: "ci"
-    condition: and(succeeded(), in(variables['Build.Reason'], 'IndividualCI', 'Manual'), in(variables['Build.SourceBranchName'], 'master'))
-    jobs:
-      - job: release
-        displayName: "Release Job"
-        pool:
-          vmImage: ubuntu-latest
-        variables:
-          - group: "OpenSource.GitHub"
-        steps:
-          - checkout: none
+  - ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
+    - stage: cd
+      displayName: "CD"
+      dependsOn: "ci"
+      condition: and(succeeded(), in(variables['Build.Reason'], 'IndividualCI', 'Manual'), in(variables['Build.SourceBranchName'], 'master'))
+      jobs:
+        - job: release
+          displayName: "Release"
+          pool:
+            vmImage: ubuntu-latest
+          variables:
+            - group: "OpenSource.GitHub"
+          steps:
+            - checkout: none
 
-          - download: current
-            artifact: "helm"
-            displayName: "Download helm artifact"
 
-          - task: DockerInstaller@0
-            displayName: "Docker install"
-            inputs:
-              dockerVersion: "19.03.9"
+            - task: HelmInstaller@1
+              inputs:
+                helmVersionToInstall: "3.7.0"
+              displayName: "tools - helm - install"
+            - task: DockerInstaller@0
+              displayName: "tools - docker - install"
+              inputs:
+                dockerVersion: "20.10.9"
+            - task: Docker@2
+              displayName: "tools - docker - login"
+              inputs:
+                containerRegistry: "Emberstack Docker Hub"
+                command: login
 
-          - task: Docker@2
-            displayName: "Docker login"
-            inputs:
-              containerRegistry: "Emberstack Docker Hub"
-              command: login
 
-          - task: HelmInstaller@1
-            inputs:
-              helmVersionToInstall: "3.1.1"
-            displayName: "Helm install"
+            - download: current
+              artifact: "helm"
+              displayName: "artifacts - download - helm chart"
 
-          - script: |
-              docker pull $(imageRepository):build-$(Build.BuildNumber)-amd64
-              docker pull $(imageRepository):build-$(Build.BuildNumber)-arm
-              docker pull $(imageRepository):build-$(Build.BuildNumber)-arm64
-              docker manifest create  $(imageRepository):$(Build.BuildNumber) $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):build-$(Build.BuildNumber)-arm $(imageRepository):build-$(Build.BuildNumber)-arm64
-              docker manifest create  $(imageRepository):latest               $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):build-$(Build.BuildNumber)-arm $(imageRepository):build-$(Build.BuildNumber)-arm64
-              docker manifest push    $(imageRepository):$(Build.BuildNumber)
-              docker manifest push    $(imageRepository):latest
-              docker manifest push    $(imageRepository):$(Build.BuildNumber)
-              docker manifest push    $(imageRepository):latest
-              docker tag  $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):$(Build.BuildNumber)-amd64
-              docker tag  $(imageRepository):build-$(Build.BuildNumber)-arm64 $(imageRepository):$(Build.BuildNumber)-arm64
-              docker tag  $(imageRepository):build-$(Build.BuildNumber)-arm   $(imageRepository):$(Build.BuildNumber)-arm
-              docker push $(imageRepository):$(Build.BuildNumber)-amd64
-              docker push $(imageRepository):$(Build.BuildNumber)-arm
-              docker push $(imageRepository):$(Build.BuildNumber)-arm64
-            displayName: "Build and push multi-arch Docker image"
 
-          - script: |
-              git config --global user.email "$(emberstack-agent-email)"
-              git config --global user.name "$(emberstack-agent-name)"
-              git clone https://$(emberstack-agent-username):$(emberstack-agent-pat)@github.com/emberstack/helm-charts.git
+            - script: |
+                docker pull $(imageRepository):build-$(Build.BuildNumber)-amd64
+                docker pull $(imageRepository):build-$(Build.BuildNumber)-arm32v7
+                docker pull $(imageRepository):build-$(Build.BuildNumber)-arm64v8
+                docker manifest create  $(imageRepository):$(Build.BuildNumber) $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):build-$(Build.BuildNumber)-arm32v7 $(imageRepository):build-$(Build.BuildNumber)-arm64v8
+                docker manifest create  $(imageRepository):latest               $(imageRepository):build-$(Build.BuildNumber)-amd64 $(imageRepository):build-$(Build.BuildNumber)-arm32v7 $(imageRepository):build-$(Build.BuildNumber)-arm64v8
+                docker manifest push    $(imageRepository):$(Build.BuildNumber)
+                docker manifest push    $(imageRepository):latest
+                docker manifest push    $(imageRepository):$(Build.BuildNumber)
+                docker manifest push    $(imageRepository):latest
+                docker tag  $(imageRepository):build-$(Build.BuildNumber)-amd64     $(imageRepository):$(Build.BuildNumber)-amd64
+                docker tag  $(imageRepository):build-$(Build.BuildNumber)-arm32v7   $(imageRepository):$(Build.BuildNumber)-arm32v7
+                docker tag  $(imageRepository):build-$(Build.BuildNumber)-arm64v8   $(imageRepository):$(Build.BuildNumber)-arm64v8
+                docker push $(imageRepository):$(Build.BuildNumber)-amd64
+                docker push $(imageRepository):$(Build.BuildNumber)-arm32v7
+                docker push $(imageRepository):$(Build.BuildNumber)-arm64v8
+              displayName: "Build and push multi-arch Docker image"
+            - script: |
+                git config --global user.email "$(emberstack-agent-email)"
+                git config --global user.name "$(emberstack-agent-name)"
+                git clone https://$(emberstack-agent-username):$(emberstack-agent-pat)@github.com/emberstack/helm-charts.git
 
-              mkdir -p helm-charts/charts
-              cp $(Pipeline.Workspace)/helm/azure-pipelines-agent-$(Build.BuildNumber).tgz  helm-charts/charts
+                mkdir -p helm-charts/charts
+                cp $(Pipeline.Workspace)/helm/azure-pipelines-agent-$(Build.BuildNumber).tgz  helm-charts/charts
 
-              cd helm-charts
-              rm index.yaml
-              helm repo index ./
-              git add .
-              git status
-              git commit -m "Added azure-pipelines-agent-$(Build.BuildNumber).tgz"
-              git push
-            displayName: "Create chart release"
+                cd helm-charts
+                rm index.yaml
+                helm repo index ./
+                git add .
+                git status
+                git commit -m "Added azure-pipelines-agent-$(Build.BuildNumber).tgz"
+                git push
+              displayName: "github - release - chart"
 
-          - task: GitHubRelease@1
-            displayName: "Create GitHub release"
-            inputs:
-              gitHubConnection: GitHub
-              repositoryName: "EmberStack/docker-azure-pipelines-agent"
-              tagSource: userSpecifiedTag
-              tag: "v$(Build.BuildNumber)"
-              title: "Release v$(Build.BuildNumber)"
-              releaseNotesSource: inline
-              releaseNotes: "The release process is automated."
+            - task: GitHubRelease@1
+              displayName: "github - create release"
+              inputs:
+                gitHubConnection: GitHub
+                repositoryName: "EmberStack/docker-azure-pipelines-agent"
+                tagSource: userSpecifiedTag
+                tag: "v$(Build.BuildNumber)"
+                title: "Release v$(Build.BuildNumber)"
+                releaseNotesSource: inline
+                releaseNotes: "The release process is automated."

@@ -6,8 +6,9 @@ replicaCount: 1
 
 image:
   repository: emberstack/azure-pipelines-agent
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
   tag: ""
-  pullPolicy: Always
 
 imagePullSecrets: []
 nameOverride: ""
