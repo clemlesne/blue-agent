@@ -9,14 +9,21 @@
 
 > Supports `amd64`, `arm` and `arm64`
 
-## Deployment
-
-The Azure Pipeliens agent can be deployed either manually or using Helm (recommended).
-
 ### Support
 If you need help or found a bug, please feel free to open an issue on the [emberstack/docker-azure-pipelines-agent](https://github.com/emberstack/docker-azure-pipelines-agent) GitHub project.  
 
-#### Deployment using Helm
+## Deployment
+
+The Azure Pipeliens agent can be deployed in Docker using either `docker run` or `docker compose` or in Kubernetes using Helm (recommended).
+
+#### Deployment in `docker`
+
+```
+docker run -d -e AZP_AGENT_NAME="<agent name>" -e AZP_URL="https://dev.azure.com/<your org.>" -e AZP_POOL="<agent pool>" -e AZP_TOKEN="<PAT>" emberstack/azure-pipelines-agent
+```
+
+
+#### Deployment in `Kubernetes` using `Helm`
 
 Use Helm to install the latest released chart:
 ```shellsession
