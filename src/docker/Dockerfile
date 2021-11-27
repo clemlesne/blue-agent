@@ -16,8 +16,13 @@ RUN apt-get update \
         libicu60 \
         libunwind8 \
         netcat \
+        libssl1.0 \
 		zip \
-		unzip
+		unzip \
+&& rm -rf /var/lib/apt/lists/*
+
+RUN curl -LsS https://aka.ms/InstallAzureCLIDeb | bash \
+  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /azp
 

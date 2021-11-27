@@ -1,8 +1,7 @@
 name: $(version).$(Rev:r)
 
 variables:
-  version: 2.0
-  buildConfiguration: "Release"
+  version: 2.1
   imageRepository: "emberstack/azure-pipelines-agent"
   DOCKER_CLI_EXPERIMENTAL: "enabled"
 
