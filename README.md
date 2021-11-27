@@ -9,6 +9,10 @@
 
 > Supports `amd64`, `arm` and `arm64`
 
+## Agent Version
+
+This image will automatically pull and install the latest Azure DevOps version at startup.
+
 ### Support
 If you need help or found a bug, please feel free to open an issue on the [emberstack/docker-azure-pipelines-agent](https://github.com/emberstack/docker-azure-pipelines-agent) GitHub project.  
 
