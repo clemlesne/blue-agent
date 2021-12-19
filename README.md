@@ -1,7 +1,7 @@
 # Azure Pipelines Agent
 [Azure Pipelines Agent](https://github.com/emberstack/docker-azure-pipelines-agent) is self-hosted agent that you can run in a container with Docker.
 
-[![Build Status](https://dev.azure.com/emberstack/OpenSource/_apis/build/status/docker-azure-pipelines-agent?branchName=main)](https://dev.azure.com/emberstack/OpenSource/_build/latest?definitionId=17&branchName=main)
+[![Pipeline](https://github.com/emberstack/docker-azure-pipelines-agent/actions/workflows/pipeline.yaml/badge.svg)](https://github.com/emberstack/docker-azure-pipelines-agent/actions/workflows/pipeline.yaml)
 [![Release](https://img.shields.io/github/release/emberstack/docker-azure-pipelines-agent.svg?style=flat-square)](https://github.com/emberstack/docker-azure-pipelines-agent/releases/latest)
 [![Docker Image](https://img.shields.io/docker/image-size/emberstack/azure-pipelines-agent/latest?style=flat-square)](https://hub.docker.com/r/emberstack/azure-pipelines-agent)
 [![Docker Pulls](https://img.shields.io/docker/pulls/emberstack/azure-pipelines-agent.svg?style=flat-square)](https://hub.docker.com/r/emberstack/azure-pipelines-agent)
@@ -59,4 +59,3 @@ You can customize the values of the helm deployment by using the following Value
 | `affinity`                           | Node affinity for pod assignment                            | `{}`                                                    |
 
 > Find us on [Artifact Hub](https://artifacthub.io/packages/helm/emberstack/azure-pipelines-agent)
-
