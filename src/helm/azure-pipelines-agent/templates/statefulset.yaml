@@ -10,6 +10,7 @@ spec:
   selector:
     matchLabels:
       {{- include "azure-pipelines-agent.selectorLabels" . | nindent 6 }}
+  serviceName: {{ include "azure-pipelines-agent.fullname" . }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
