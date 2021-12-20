@@ -61,12 +61,12 @@ jobs:
           username: ${{ secrets.ES_DOCKERHUB_USERNAME }}
           password: ${{ secrets.ES_DOCKERHUB_PAT }}
 
-      - name: "docker - push"
+      - name: "docker - build and  push"
         if: github.event_name == 'push'
         run: |
-          docker push ${{env.imageRepository}}:build-${{env.version}}-amd64
-          docker push ${{env.imageRepository}}:build-${{env.version}}-arm32v7
-          docker push ${{env.imageRepository}}:build-${{env.version}}-arm64v8
+          docker buildx build --push --platform linux/amd64 -t ${{env.imageRepository}}:build-${{env.version}}-amd64   -f src/docker/Dockerfile src/docker 
+          docker buildx build --push --platform linux/arm   -t ${{env.imageRepository}}:build-${{env.version}}-arm32v7 -f src/docker/Dockerfile src/docker
+          docker buildx build --push --platform linux/arm64 -t ${{env.imageRepository}}:build-${{env.version}}-arm64v8 -f src/docker/Dockerfile src/docker
           docker manifest create  ${{env.imageRepository}}:build-${{env.version}} ${{env.imageRepository}}:build-${{env.version}}-amd64  ${{env.imageRepository}}:build-${{env.version}}-arm32v7  ${{env.imageRepository}}:build-${{env.version}}-arm64v8
           docker manifest inspect ${{env.imageRepository}}:build-${{env.version}}
           docker manifest push    ${{env.imageRepository}}:build-${{env.version}}
