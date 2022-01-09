@@ -14,9 +14,21 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+
+# Pat: Can be either a string or a reference to a secret.
+# If it is a string, it is used as the value of the secret:
+#
+# value: "my-secret"
+#
+# If it is a reference to a secret:
+# secretRef:
+#   name: my-secret
+#   key: my-key
 pipelines:
   url: ""
-  pat: ""
+  pat:
+    value: ""
+    #secretRef: {}
   pool: "Default"
   agent:
     name: ""
@@ -33,7 +45,7 @@ serviceAccount:
   name: ""
 
 podSecurityContext: {}
-  # fsGroup: 2000
+# fsGroup: 2000
 
 securityContext: {}
   # capabilities:
@@ -41,7 +53,7 @@ securityContext: {}
   #   - ALL
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
-  # runAsUser: 1000
+# runAsUser: 1000
 
 
 resources: {}
@@ -54,10 +66,51 @@ resources: {}
   #   memory: 128Mi
   # requests:
   #   cpu: 100m
-  #   memory: 128Mi
+#   memory: 128Mi
 
 nodeSelector: {}
 
 tolerations: []
 
 affinity: {}
+
+# Additional environment variables for the agent container.
+# Like:
+# - name: XXX
+#   value: "YYY"
+#
+# or reference to a secret or configmap:
+# - name: SPECIAL_LEVEL_KEY
+#   valueFrom:
+#     configMapKeyRef:
+#       name: special-config
+#       key: special.how
+#
+# - name: SECRET_KEY
+#   valueFrom:
+#     secretKeyRef:
+#       name: secret-name
+#       key: secret.key
+additionalEnv: []
+
+# Additional volumes for the agent pod.
+# extraVolumes:
+#   - name: config-volume
+#     configMap:
+#      name: special-config
+extraVolumes: []
+
+# Additional volume mounts for the agent container.
+# extraVolumeMounts:
+#   - name: config-volume
+#     mountPath: /etc/special
+#     readOnly: true
+extraVolumeMounts: []
+
+# InitContainers for the agent pod.
+#
+# initContainers:
+#   - name: init-container
+#     image: busybox
+#     command: ["/bin/sh", "-c", "echo Hello World"]
+initContainers: []

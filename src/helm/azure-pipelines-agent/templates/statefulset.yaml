@@ -27,6 +27,10 @@ spec:
       serviceAccountName: {{ include "azure-pipelines-agent.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           {{- if .Values.pipelines.agent.mountDocker }}
@@ -58,20 +62,22 @@ spec:
             - name: AZP_WORK
               value: {{ .Values.pipelines.agent.workDir | quote  }}
             - name: AZP_TOKEN
-              value: {{ .Values.pipelines.pat | quote }}
-          {{- if .Values.pipelines.agent.mountDocker }}
-          volumeMounts:
-            - name: dockersock
-              mountPath: "/var/run/docker.sock"
-          {{- end }}
+              {{- if .Values.pipelines.pat.secretRef }}
+              {{- with .Values.pipelines.pat.secretRef }}
+              valueFrom:
+                secretKeyRef:
+                  {{- toYaml . | nindent 18 }}
+              {{- end }}
+              {{- else }}
+              value: {{ .Values.pipelines.pat.value | quote }}
+              {{- end }}
+            {{- with .Values.additionalEnv }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-      {{- if .Values.pipelines.agent.mountDocker }}
-      volumes:
-        - name: dockersock
-          hostPath:
-            path: /var/run/docker.sock
-      {{- end }}
+          {{- include "azure-pipelines-agent.volumeMounts" . | nindent 10 -}}
+      {{- include "azure-pipelines-agent.volumes" . | nindent 6 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

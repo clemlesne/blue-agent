@@ -60,3 +60,41 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Add volumes to the agent pod.
+*/}}
+{{- define "azure-pipelines-agent.volumes" -}}
+{{- if or .Values.pipelines.agent.mountDocker .Values.extraVolumes -}}
+volumes:
+{{- if .Values.extraVolumes }}
+{{- with .Values.extraVolumes }}
+{{ toYaml . }}
+{{- end }}
+{{- end }}
+{{- if .Values.pipelines.agent.mountDocker }}
+- name: dockersock
+  hostPath:
+    path: /var/run/docker.sock
+{{- end }}
+{{- end }}
+{{- end }}
+
+
+{{/*
+Add volume mounts to the agent container.
+*/}}
+{{- define "azure-pipelines-agent.volumeMounts" -}}
+{{- if or .Values.pipelines.agent.mountDocker .Values.extraVolumeMounts -}}
+volumeMounts:
+{{- if .Values.pipelines.agent.mountDocker }}
+- name: dockersock
+  mountPath: /var/run/docker.sock
+{{- end }}
+{{- if .Values.extraVolumeMounts }}
+{{- with .Values.extraVolumeMounts }}
+{{ toYaml . }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
