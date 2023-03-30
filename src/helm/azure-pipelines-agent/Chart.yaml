@@ -28,4 +28,4 @@ maintainers:
     email: clemlesne@users.noreply.github.com
 annotations:
   artifacthub.io/category: integration-delivery
-  artifacthub.io/license: MIT
+  artifacthub.io/license: Apache-2.0
