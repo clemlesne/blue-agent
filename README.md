@@ -67,6 +67,8 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 | `initContainers` | InitContainers for the agent pod. | `[]` |
 | `nameOverride` | Overrides release name | `""` |
 | `nodeSelector` | Node labels for pod assignment | `{}` |
+| `pipelines.cacheSize` | Total cache the pipeline can take during execution, by default [the same amount as the Microsoft Hosted agents](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&tabs=yaml#hardware). | `10Gi` |
+| `pipelines.cacheType` | Disk type to attach to the agents, see your cloud provider for mor details  ([Azure](https://learn.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes), [AWS](https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html)). | `managed-csi` (Azure compatible) |
 | `pipelines.pat` | Personal Access Token (PAT) used by the agent to connect. | *None* |
 | `pipelines.pool` | Agent pool to which the Agent should register. | *None* |
 | `pipelines.url` | The Azure base URL for your organization | *None* |
