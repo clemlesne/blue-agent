@@ -14,7 +14,7 @@ Features:
 - Compatible with all Debian and Ubuntu LTS releases.
 - Container security updates are applied every week.
 - SBOM (Software Bill of Materials) is packaged with each container image.
-- Systems are based on [Microsoft official .NET images](https://hub.docker.com/_/microsoft-dotnet-aspnet).
+- Systems are based on [Microsoft official .NET images](https://mcr.microsoft.com/en-us/product/dotnet/aspnet/about).
 
 ## Usage
 
