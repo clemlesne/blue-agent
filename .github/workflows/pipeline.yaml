@@ -8,13 +8,13 @@ on:
       - develop
       - feat/*
       - hotfix/*
-      - master
+      - main
   pull_request:
     branches:
       - develop
       - feat/*
       - hotfix/*
-      - master
+      - main
 
 env:
   CONTAINER_NAME: ${{ github.repository }}
@@ -59,7 +59,7 @@ jobs:
   deploy-helm:
     name: Deploy Helm chart
     needs: build-helm
-    if: github.ref == 'refs/heads/master' # Only deploy on master branch, as there is only one Helm repo
+    if: github.ref == 'refs/heads/main' # Only deploy on main branch, as there is only one Helm repo
     runs-on: ubuntu-22.04
     steps:
       - name: checkout
