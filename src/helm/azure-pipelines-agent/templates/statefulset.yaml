@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "azure-pipelines-agent.fullname" . }}
+  name: {{ include "this.fullname" . }}
   labels:
-    {{- include "azure-pipelines-agent.labels" . | nindent 4 }}
+    {{- include "this.labels" . | nindent 4 }}
 spec:
   podManagementPolicy: Parallel
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "azure-pipelines-agent.selectorLabels" . | nindent 6 }}
-  serviceName: {{ include "azure-pipelines-agent.fullname" . }}
+      {{- include "this.selectorLabels" . | nindent 6 }}
+  serviceName: {{ include "this.fullname" . }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,13 +18,13 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "azure-pipelines-agent.selectorLabels" . | nindent 8 }}
+        {{- include "this.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "azure-pipelines-agent.serviceAccountName" . }}
+      serviceAccountName: {{ include "this.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       {{- with .Values.initContainers }}
@@ -76,8 +76,8 @@ spec:
             {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- include "azure-pipelines-agent.volumeMounts" . | nindent 10 -}}
-      {{- include "azure-pipelines-agent.volumes" . | nindent 6 }}
+          {{- include "this.volumeMounts" . | nindent 10 -}}
+      {{- include "this.volumes" . | nindent 6 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
