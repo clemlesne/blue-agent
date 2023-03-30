@@ -6,9 +6,16 @@
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/azure-pipelines-agent-container)](https://artifacthub.io/packages/search?repo=azure-pipelines-agent-container)
 [![Pipeline](https://github.com/clemlesne/azure-pipelines-agent/actions/workflows/pipeline.yaml/badge.svg)](https://github.com/clemlesne/azure-pipelines-agent/actions/workflows/pipeline.yaml)
 
-## Usage
+Features:
 
-- This image will automatically pull and install the latest Azure DevOps version at startup.
+- Agent register itself with the Azure DevOps server.
+- Agent restart itself if it crashes.
+- Agent update itself to the latest version.
+- Compatible with all Debian and Ubuntu LTS releases.
+- Container security updates are applied every week.
+- SBOM (Software Bill of Materials) is packaged with each container image.
+
+## Usage
 
 ### Deployment in Kubernetes using Helm
 
@@ -20,9 +27,19 @@ helm repo update
 helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-agent
 ```
 
-> Find us on [Artifact Hub](https://artifacthub.io/packages/helm/clemlesne/azure-pipelines-agent)
+## Compatibility
 
-You can customize the values of the helm deployment by using the following Values:
+| Ref | OS | Arch | Support |
+|-|-|-|-|
+| `docker pull ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main` | Debian Bullseye (11) slim | `linux/amd64`, `linux/arm/v5`, `linux/arm/v7`, `linux/arm64/v8` | [See Debian LTS wiki.](https://wiki.debian.org/LTS) |
+| `docker pull ghcr.io/clemlesne/azure-pipelines-agent:buster-main` | Debian Buster (10) slim | `linux/amd64`, `linux/arm/v7`, `linux/arm64/v8` | [See Debian LTS wiki.](https://wiki.debian.org/LTS) |
+| `docker pull ghcr.io/clemlesne/azure-pipelines-agent:bionic-main` | Ubuntu Bionic (18.04) minimal | `linux/amd64`, `linux/arm/v7`, `linux/arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases) |
+| `docker pull ghcr.io/clemlesne/azure-pipelines-agent:focal-main` | Ubuntu Focal (20.04) minimal | `linux/amd64`, `linux/arm/v7`, `linux/arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases) |
+| `docker pull ghcr.io/clemlesne/azure-pipelines-agent:jammy-main` | Ubuntu Jammy (22.04) minimal | `linux/amd64`, `linux/arm/v7`, `linux/arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases) |
+
+## Advanced usage
+
+### Helm values
 
 | Parameter | Description | Default |
 |-|-|-|
@@ -48,16 +65,6 @@ You can customize the values of the helm deployment by using the following Value
 | `serviceAccount.create` | Create ServiceAccount | `true` |
 | `serviceAccount.name` | ServiceAccount name | _release name_ |
 | `tolerations` | Toleration labels for pod assignment | `[]` |
-
-### Compatibility
-
-| Ref | OS | Arch | Support |
-|-|-|-|-|
-| `docker pull ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main` | Debian Bullseye (11) slim | `linux/amd64`, `linux/arm/v5`, `linux/arm/v7`, `linux/arm64/v8` | [See Debian LTS wiki.](https://wiki.debian.org/LTS) |
-| `docker pull ghcr.io/clemlesne/azure-pipelines-agent:buster-main` | Debian Buster (10) slim | `linux/amd64`, `linux/arm/v7`, `linux/arm64/v8` | [See Debian LTS wiki.](https://wiki.debian.org/LTS) |
-| `docker pull ghcr.io/clemlesne/azure-pipelines-agent:bionic-main` | Ubuntu Bionic (18.04) minimal | `linux/amd64`, `linux/arm/v7`, `linux/arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases) |
-| `docker pull ghcr.io/clemlesne/azure-pipelines-agent:focal-main` | Ubuntu Focal (20.04) minimal | `linux/amd64`, `linux/arm/v7`, `linux/arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases) |
-| `docker pull ghcr.io/clemlesne/azure-pipelines-agent:jammy-main` | Ubuntu Jammy (22.04) minimal | `linux/amd64`, `linux/arm/v7`, `linux/arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases) |
 
 ## Support
 
