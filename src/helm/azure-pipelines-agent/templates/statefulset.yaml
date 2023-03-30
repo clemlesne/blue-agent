@@ -47,7 +47,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
             {{- end }}
           {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}-{{ .Values.image.tagSuffix | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: AZP_AGENT_NAME
