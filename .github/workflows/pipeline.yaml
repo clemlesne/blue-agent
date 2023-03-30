@@ -154,6 +154,8 @@ jobs:
       - name: Build/push container
         uses: docker/build-push-action@v4
         with:
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           context: src/docker
           file: src/docker/Dockerfile-${{ matrix.os }}
           labels: ${{ steps.meta.outputs.labels }}
