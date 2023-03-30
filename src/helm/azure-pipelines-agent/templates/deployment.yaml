@@ -28,7 +28,10 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: AZP_AGENT_NAME
-              value: {{ include "this.fullname" . }}
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
             - name: AZP_URL
               valueFrom:
                 secretKeyRef:

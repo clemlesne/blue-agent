@@ -30,6 +30,5 @@ spec:
     - type: azure-pipelines
       metadata:
         poolName: {{ .Values.pipelines.pool }}
-        parent: {{ include "this.fullname" . }}
       authenticationRef:
         name: {{ include "this.fullname" . }}
