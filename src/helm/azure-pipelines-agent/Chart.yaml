@@ -7,6 +7,7 @@ appVersion: 0.0.0
 icon: https://raw.githubusercontent.com/clemlesne/azure-pipelines-agent/master/logo.svg
 keywords:
   - agent
+  - auto-scale
   - azure
   - azure-devops
   - azure-pipelines
@@ -14,8 +15,11 @@ keywords:
   - devops
   - docker
   - helm
+  - keda
   - kubernetes
   - pipelines
+  - self-hosted
+  - self-hosted-agent
 home: https://github.com/clemlesne/azure-pipelines-agent
 sources:
   - https://github.com/clemlesne/azure-pipelines-agent

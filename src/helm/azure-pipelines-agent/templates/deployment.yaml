@@ -5,6 +5,9 @@ metadata:
   labels:
     {{- include "this.labels" . | nindent 4 }}
 spec:
+  {{- if not (and (.Values.autoscaling.enabled) (.Capabilities.APIVersions.Has "keda.sh/v1alpha1")) }}
+  replicas: {{ .Values.autoscaling.minReplicas }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "this.selectorLabels" . | nindent 6 }}
@@ -20,6 +23,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "this.serviceAccountName" . }}
+      terminationGracePeriodSeconds: {{ .Values.autoscaling.cooldown }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -38,9 +42,9 @@ spec:
                   name: {{ include "this.fullname" . }}
                   key: url
             - name: AZP_POOL
-              value: {{ .Values.pipelines.pool | quote  }}
+              value: {{ .Values.pipelines.pool | quote | required "A value for .Values.pipelines.pool is required" }}
             - name: AZP_WORK
-              value: {{ .Values.pipelines.agent.workDir | quote  }}
+              value: {{ .Values.pipelines.workDir | quote  }}
             - name: AZP_TOKEN
               valueFrom:
                 secretKeyRef:

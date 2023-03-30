@@ -1,6 +1,6 @@
 # Azure Pipelines Agent
 
-[Azure Pipelines Agent](https://github.com/clemlesne/azure-pipelines-agent) is self-hosted agent that you can run in a container with Kubernetes.
+[Azure Pipelines Agent](https://github.com/clemlesne/azure-pipelines-agent) is self-hosted agent in Kubernetes, cheap to run, secure, auto-scaled and easy to deploy.
 
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/azure-pipelines-agent)](https://artifacthub.io/packages/search?repo=azure-pipelines-agent)
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/azure-pipelines-agent-container)](https://artifacthub.io/packages/search?repo=azure-pipelines-agent-container)
@@ -11,6 +11,8 @@ Features:
 - Agent register itself with the Azure DevOps server.
 - Agent restart itself if it crashes.
 - Agent update itself to the latest version.
+- Auto-scale based on Pipeline usage (requires [KEDA](https://keda.sh)).
+- Cheap to run (dynamic provisioning of agents, can scale to 0 and in few seconds 100+).
 - Compatible with all Debian and Ubuntu LTS releases.
 - Container security updates are applied every week.
 - SBOM (Software Bill of Materials) is packaged with each container image.
@@ -19,6 +21,15 @@ Features:
 ## Usage
 
 ### Deployment in Kubernetes using Helm
+
+Minimal configuration:
+
+```yaml
+pipelines:
+  url: https://dev.azure.com/your-organization
+  pat: your-pat
+  pool: your-pool
+```
 
 Use Helm to install the latest released chart:
 
@@ -44,6 +55,10 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 |-|-|-|
 | `additionalEnv` | Additional environment variables for the agent container. | `[]` |
 | `affinity` | Node affinity for pod assignment | `{}` |
+| `autoscaling.cooldown` | Time in seconds the automation will wait until there is no more pipeline asking for an agent. Same time is then applied for system termination. | `60` |
+| `autoscaling.enabled` | Enable the auto-scaling, requires [KEDA](https://keda.sh). | `true` |
+| `autoscaling.maxReplicas` | Maximum number of pods, remaining jobs will be kept in queue. | `100` |
+| `autoscaling.minReplicas` | Minimum number of pods. If autoscaling not enabled, the number of replicas to run. | `1` |
 | `extraVolumeMounts` | Additional volume mounts for the agent container. | `[]` |
 | `extraVolumes` | Additional volumes for the agent pod. | `[]` |
 | `fullnameOverride` | Overrides release fullname | `""` |
@@ -52,15 +67,15 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 | `initContainers` | InitContainers for the agent pod. | `[]` |
 | `nameOverride` | Overrides release name | `""` |
 | `nodeSelector` | Node labels for pod assignment | `{}` |
-| `pipelines.agent.workDir` | The work directory the agent should use | `_work` |
-| `pipelines.pat` | Personal Access Token (PAT) used by the agent to connect. | `""` |
-| `pipelines.pool` | Agent pool to which the Agent should register. | `""` |
-| `pipelines.url` | The Azure base URL for your organization | `""` |
-| `resources` | Resource limits | `{}` |
+| `pipelines.pat` | Personal Access Token (PAT) used by the agent to connect. | *None* |
+| `pipelines.pool` | Agent pool to which the Agent should register. | *None* |
+| `pipelines.url` | The Azure base URL for your organization | *None* |
+| `pipelines.workDir` | The work directory the agent should use | `_work` |
+| `resources` | Resource limits | `{ "resources": { "limits": { "cpu": 2, "memory": "4Gi" }, "requests": { "cpu": 1, "memory": "2Gi" } }}` |
 | `serviceAccount.create` | Create ServiceAccount | `true` |
-| `serviceAccount.name` | ServiceAccount name | _release name_ |
-| `tagSuffix` | Container image tag | `""` (same version as the chart) |
-| `tolerations` | Toleration labels for pod assignment | `[]` |
+| `serviceAccount.name` | ServiceAccount name | *Release name* |
+| `tagSuffix` | Container image tag | *App version* |
+| `tolerations` | Toleration labels for pod assignment. | `[]` |
 
 ## Support
 

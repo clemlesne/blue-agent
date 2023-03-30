@@ -1,3 +1,4 @@
+{{- if and (.Values.autoscaling.enabled) (.Capabilities.APIVersions.Has "keda.sh/v1alpha1") }}
 apiVersion: keda.sh/v1alpha1
 kind: TriggerAuthentication
 metadata:
@@ -25,10 +26,11 @@ spec:
   maxReplicaCount: {{ .Values.autoscaling.maxReplicas }}
   minReplicaCount: {{ .Values.autoscaling.minReplicas }}
   pollingInterval: 5
-  cooldownPeriod: 60
+  cooldownPeriod: {{ .Values.autoscaling.cooldown }}
   triggers:
     - type: azure-pipelines
       metadata:
-        poolName: {{ .Values.pipelines.pool }}
+        poolName: {{ .Values.pipelines.pool | required "A value for .Values.pipelines.pool is required" }}
       authenticationRef:
         name: {{ include "this.fullname" . }}
+{{- end }}
