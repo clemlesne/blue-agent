@@ -1,16 +1,18 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "this.fullname" . }}
   labels:
     {{- include "this.labels" . | nindent 4 }}
 spec:
+  podManagementPolicy: Parallel
   {{- if not (and (.Values.autoscaling.enabled) (.Capabilities.APIVersions.Has "keda.sh/v1alpha1")) }}
   replicas: {{ .Values.autoscaling.minReplicas }}
   {{- end }}
   selector:
     matchLabels:
       {{- include "this.selectorLabels" . | nindent 6 }}
+  serviceName: {{ include "this.fullname" . }}
   template:
     metadata:
       labels:
@@ -23,6 +25,12 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "this.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       terminationGracePeriodSeconds: {{ .Values.autoscaling.cooldown }}
       containers:
         - name: {{ .Chart.Name }}
@@ -44,7 +52,7 @@ spec:
             - name: AZP_POOL
               value: {{ .Values.pipelines.pool | quote | required "A value for .Values.pipelines.pool is required" }}
             - name: AZP_WORK
-              value: {{ .Values.pipelines.workDir | quote  }}
+              value: {{ .Values.pipelines.workDir | quote }}
             - name: AZP_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -55,10 +63,12 @@ spec:
             {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- if .Values.extraVolumeMounts }}
           volumeMounts:
-            {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
-          {{- end }}
+            - name: workdir
+              mountPath: {{ .Values.pipelines.workDir | quote }}
+            {{- with .Values.extraVolumeMounts }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
       {{- if .Values.extraVolumes }}
       volumes:
         {{- toYaml .Values.extraVolumes | nindent 8 }}
@@ -75,3 +85,12 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: workdir
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: {{ .Values.pipelines.cacheType }}
+        resources:
+          requests:
+            storage: {{ .Values.pipelines.cacheSize }}

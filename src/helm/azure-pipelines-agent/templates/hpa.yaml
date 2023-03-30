@@ -22,6 +22,7 @@ metadata:
     {{- include "this.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
+    kind: StatefulSet
     name: {{ include "this.fullname" . }}
   maxReplicaCount: {{ .Values.autoscaling.maxReplicas }}
   minReplicaCount: {{ .Values.autoscaling.minReplicas }}

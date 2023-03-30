@@ -16,9 +16,11 @@ autoscaling:
   cooldown: 60
 
 pipelines:
-  url: null
+  cacheSize: 10Gi
+  cacheType: managed-csi
   pat: null
   pool: null
+  url: null
   workDir: _work
 
 serviceAccount:
