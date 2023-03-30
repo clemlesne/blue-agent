@@ -1,34 +1,24 @@
 apiVersion: v2
 name: azure-pipelines-agent
-description: A Helm chart for Azure Pipelines Agent
-
-# A chart can be either an 'application' or a 'library' chart.
-#
-# Application charts are a collection of templates that can be packaged into versioned archives
-# to be deployed.
-#
-# Library charts provide useful utilities or functions for the chart developer. They're included as
-# a dependency of application charts to inject those utilities and functions into the rendering
-# pipeline. Library charts do not define any templates and therefore cannot be deployed.
+description: Deploy Azure Pipelines agent on Kubernetes. Easy way.
 type: application
-
-# This is the chart version. This version number should be incremented each time you make changes
-# to the chart and its templates, including the app version.
-version: 0.1.0
-
-# This is the version number of the application being deployed. This version number should be
-# incremented each time you make changes to the application.
-appVersion: 1.16.0
-
-icon: https://raw.githubusercontent.com/emberstack/CDN/master/Projects/docker-azure-pipelines-agent/azure-pipelines.png
+version: 0.0.0
+appVersion: 0.0.0
+icon: https://raw.githubusercontent.com/clemlesne/azure-pipelines-agent/master/logo.svg
 keywords:
-- azure
-- pipelines
-- devops
 - agent
-home: https://github.com/emberstack/docker-azure-pipelines-agent
+- azure
+- azure-devops
+- azure-pipelines
+- container
+- devops
+- docker
+- helm
+- kubernetes
+- pipelines
+home: https://github.com/clemlesne/azure-pipelines-agent
 sources:
-- https://github.com/emberstack/docker-azure-pipelines-agent
+- https://github.com/clemlesne/azure-pipelines-agent
 maintainers:
-- name: winromulus
-  email: helm-charts@emberstack.com
+- name: clemlesne
+  email: clemence@lesne.pro

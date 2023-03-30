@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "azure-pipelines-agent.name" -}}
+{{- define "this.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "azure-pipelines-agent.fullname" -}}
+{{- define "this.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "azure-pipelines-agent.chart" -}}
+{{- define "this.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "azure-pipelines-agent.labels" -}}
-helm.sh/chart: {{ include "azure-pipelines-agent.chart" . }}
-{{ include "azure-pipelines-agent.selectorLabels" . }}
+{{- define "this.labels" -}}
+helm.sh/chart: {{ include "this.chart" . }}
+{{ include "this.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,17 +45,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "azure-pipelines-agent.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "azure-pipelines-agent.name" . }}
+{{- define "this.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "this.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "azure-pipelines-agent.serviceAccountName" -}}
+{{- define "this.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "azure-pipelines-agent.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "this.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
@@ -64,7 +64,7 @@ Create the name of the service account to use
 {{/*
 Add volumes to the agent pod.
 */}}
-{{- define "azure-pipelines-agent.volumes" -}}
+{{- define "this.volumes" -}}
 {{- if or .Values.pipelines.agent.mountDocker .Values.extraVolumes -}}
 volumes:
 {{- if .Values.extraVolumes }}
@@ -80,11 +80,10 @@ volumes:
 {{- end }}
 {{- end }}
 
-
 {{/*
 Add volume mounts to the agent container.
 */}}
-{{- define "azure-pipelines-agent.volumeMounts" -}}
+{{- define "this.volumeMounts" -}}
 {{- if or .Values.pipelines.agent.mountDocker .Values.extraVolumeMounts -}}
 volumeMounts:
 {{- if .Values.pipelines.agent.mountDocker }}
