@@ -44,6 +44,7 @@ jobs:
 
       - name: Package Helm chart
         run: |
+          cp README.md src/helm/azure-pipelines-agent/
           helm package \
             --version ${{ steps.version.outputs.version }} \
             --app-version ${{ steps.version.outputs.version }} \
