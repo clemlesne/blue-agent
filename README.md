@@ -48,21 +48,18 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 | `extraVolumes` | Additional volumes for the agent pod. | `[]` |
 | `fullnameOverride` | Overrides release fullname | `""` |
 | `image.pullPolicy` | Container image pull policy | `Always` if `image.tag` is `latest`, else `IfNotPresent` |
-| `image.repository` | Container image repository | `clemlesne/azure-pipelines-agent` |
-| `image.tag` | Container image tag | `""` (same version as the chart) |
+| `image.repository` | Container image repository | `ghcr.io/clemlesne/azure-pipelines-agent:bullseye` |
 | `initContainers` | InitContainers for the agent pod. | `[]` |
 | `nameOverride` | Overrides release name | `""` |
 | `nodeSelector` | Node labels for pod assignment | `{}` |
-| `pipelines.agent.mountDocker` | Enable to mount the host `docker.sock` | `false` |
 | `pipelines.agent.workDir` | The work directory the agent should use | `_work` |
-| `pipelines.pat.secretRef` | The reference to the secret storing the Personal Access Token (PAT) used by the agent to connect. | `""` |
-| `pipelines.pat.value` | Personal Access Token (PAT) used by the agent to connect. | `""` |
+| `pipelines.pat` | Personal Access Token (PAT) used by the agent to connect. | `""` |
 | `pipelines.pool` | Agent pool to which the Agent should register. | `""` |
 | `pipelines.url` | The Azure base URL for your organization | `""` |
 | `resources` | Resource limits | `{}` |
-| `serviceAccount.clusterAdmin` | Sets the service account as a cluster admin | _release name_ |
 | `serviceAccount.create` | Create ServiceAccount | `true` |
 | `serviceAccount.name` | ServiceAccount name | _release name_ |
+| `tagSuffix` | Container image tag | `""` (same version as the chart) |
 | `tolerations` | Toleration labels for pod assignment | `[]` |
 
 ## Support
