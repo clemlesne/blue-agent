@@ -1,5 +1,5 @@
 Check your Azure DevOps portal at to manage the Azure Pipelines Agent:
 
-{{ .Values.pipelines.url | quote }}/_settings/agentpools
+{{ .Values.pipelines.url }}/_settings/agentpools
 
-Happy building!
+Happy pipelines! 🙂

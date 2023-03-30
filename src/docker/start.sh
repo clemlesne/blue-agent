@@ -26,7 +26,7 @@ if [ -z "$AZP_TOKEN_FILE" ]; then
   fi
 
   AZP_TOKEN_FILE=/azp/.token
-  echo -n $AZP_TOKEN > "$AZP_TOKEN_FILE"
+  echo -n $AZP_TOKEN >"$AZP_TOKEN_FILE"
 fi
 
 unset AZP_TOKEN
@@ -64,9 +64,9 @@ export VSO_AGENT_IGNORE=AZP_TOKEN,AZP_TOKEN_FILE
 print_header "1. Determining matching Azure Pipelines agent..."
 
 AZP_AGENT_PACKAGES=$(curl -LsS \
-    -u user:$(cat "$AZP_TOKEN_FILE") \
-    -H 'Accept:application/json;' \
-    "$AZP_URL/_apis/distributedtask/packages/agent?platform=$TARGETARCH&top=1")
+  -u user:$(cat "$AZP_TOKEN_FILE") \
+  -H 'Accept:application/json;' \
+  "$AZP_URL/_apis/distributedtask/packages/agent?platform=$TARGETARCH&top=1")
 
 AZP_AGENT_PACKAGE_LATEST_URL=$(echo "$AZP_AGENT_PACKAGES" | jq -r '.value[0].downloadUrl')
 
@@ -78,7 +78,8 @@ fi
 
 print_header "2. Downloading and extracting Azure Pipelines agent..."
 
-curl -LsS $AZP_AGENT_PACKAGE_LATEST_URL | tar -xz & wait $!
+curl -LsS $AZP_AGENT_PACKAGE_LATEST_URL | tar -xz &
+wait $!
 
 source ./env.sh
 
@@ -96,16 +97,22 @@ print_header "3. Configuring Azure Pipelines agent..."
   --pool "${AZP_POOL:-Default}" \
   --work "${AZP_WORK:-_work}" \
   --replace \
-  --acceptTeeEula & wait $!
+  --acceptTeeEula &
+wait $!
 
 print_header "4. Running Azure Pipelines agent..."
 
-trap 'cleanup; exit 0' EXIT
-trap 'cleanup; exit 130' INT
-trap 'cleanup; exit 143' TERM
+if ! grep -q "template" <<<"$AZP_AGENT_NAME"; then
+  echo "Cleanup Traps Enabled"
 
-chmod +x ./run.sh
+  trap 'cleanup; exit 0' EXIT
+  trap 'cleanup; exit 130' INT
+  trap 'cleanup; exit 143' TERM
+fi
+
+chmod +x ./run-docker.sh
 
 # To be aware of TERM and INT signals call run.sh
 # Running it with the --once flag at the end will shut down the agent after the build is executed
-./run.sh "$@" & wait $!
+./run-docker.sh "$@" --once &
+wait $!

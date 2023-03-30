@@ -1,92 +1,70 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: {{ include "this.fullname" . }}
   labels:
     {{- include "this.labels" . | nindent 4 }}
 spec:
-  podManagementPolicy: Parallel
-  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       {{- include "this.selectorLabels" . | nindent 6 }}
-  serviceName: {{ include "this.fullname" . }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
         {{- include "this.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "this.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- with .Values.initContainers }}
-      initContainers:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
-          {{- if .Values.pipelines.agent.mountDocker }}
-          securityContext:
-            privileged: true
-            {{- if .Values.securityContext }}
-            {{- with .Values.securityContext }}
-            {{- toYaml . | nindent 12 }}
-            {{- end }}
-            {{- end }}
-          {{- else }}
-            {{- if .Values.securityContext }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-            {{- end }}
-          {{- end }}
           image: "{{ .Values.image.repository }}-{{ .Values.image.tagSuffix | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: AZP_AGENT_NAME
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.name
+              value: {{ include "this.fullname" . }}
             - name: AZP_URL
-              value: {{ .Values.pipelines.url | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "this.fullname" . }}
+                  key: url
             - name: AZP_POOL
               value: {{ .Values.pipelines.pool | quote  }}
             - name: AZP_WORK
               value: {{ .Values.pipelines.agent.workDir | quote  }}
             - name: AZP_TOKEN
-              {{- if .Values.pipelines.pat.secretRef }}
-              {{- with .Values.pipelines.pat.secretRef }}
               valueFrom:
                 secretKeyRef:
-                  {{- toYaml . | nindent 18 }}
-              {{- end }}
-              {{- else }}
-              value: {{ .Values.pipelines.pat.value | quote }}
-              {{- end }}
+                  name: {{ include "this.fullname" . }}
+                  key: pat
             {{- with .Values.additionalEnv }}
               {{- toYaml . | nindent 12 }}
             {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- include "this.volumeMounts" . | nindent 10 -}}
-      {{- include "this.volumes" . | nindent 6 }}
+          {{- if .Values.extraVolumeMounts }}
+          volumeMounts:
+            {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
+          {{- end }}
+      {{- if .Values.extraVolumes }}
+      volumes:
+        {{- toYaml .Values.extraVolumes | nindent 8 }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-    {{- with .Values.affinity }}
+      {{- with .Values.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
-    {{- end }}
-    {{- with .Values.tolerations }}
+      {{- end }}
+      {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
-    {{- end }}
+      {{- end }}

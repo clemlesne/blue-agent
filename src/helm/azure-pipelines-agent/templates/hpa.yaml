@@ -1,0 +1,35 @@
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: {{ include "this.fullname" . }}
+  labels:
+    {{- include "this.labels" . | nindent 4 }}
+spec:
+  secretTargetRef:
+    - parameter: organizationURL
+      name: {{ include "this.fullname" . }}
+      key: url
+    - parameter: personalAccessToken
+      name: {{ include "this.fullname" . }}
+      key: pat
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "this.fullname" . }}
+  labels:
+    {{- include "this.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    name: {{ include "this.fullname" . }}
+  maxReplicaCount: {{ .Values.autoscaling.maxReplicas }}
+  minReplicaCount: {{ .Values.autoscaling.minReplicas }}
+  pollingInterval: 5
+  cooldownPeriod: 60
+  triggers:
+    - type: azure-pipelines
+      metadata:
+        poolName: {{ .Values.pipelines.pool }}
+        parent: {{ include "this.fullname" . }}
+      authenticationRef:
+        name: {{ include "this.fullname" . }}
