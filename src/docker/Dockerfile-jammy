@@ -6,7 +6,6 @@ RUN apt-get update
 RUN apt-get upgrade -y
 
 RUN apt-get install -y -qq --no-install-recommends \
-		unzip \
     apt-transport-https \
     apt-utils \
     build-essential \
@@ -17,8 +16,11 @@ RUN apt-get install -y -qq --no-install-recommends \
     jq \
     lsb-release \
     software-properties-common \
+    tar \
+    unzip \
     zip
 
+# Install Azure CLI
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 WORKDIR /azp
