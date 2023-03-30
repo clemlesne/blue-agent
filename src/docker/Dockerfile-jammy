@@ -9,6 +9,7 @@ RUN apt-get install -y -qq --no-install-recommends \
 		unzip \
     apt-transport-https \
     apt-utils \
+    build-essential \
     ca-certificates \
     curl \
     git \
