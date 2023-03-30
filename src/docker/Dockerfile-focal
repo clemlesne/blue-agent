@@ -1,4 +1,4 @@
-FROM docker.io/library/ubuntu:focal
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-focal
 
 ENV DEBIAN_FRONTEND=noninteractive
 

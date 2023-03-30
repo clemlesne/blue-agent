@@ -94,10 +94,6 @@ jobs:
       matrix:
         include:
           - os: bullseye
-            arch: linux/amd64,linux/arm/v5,linux/arm/v7,linux/arm64/v8
-          - os: buster
-            arch: linux/amd64,linux/arm/v7,linux/arm64/v8
-          - os: bionic
             arch: linux/amd64,linux/arm/v7,linux/arm64/v8
           - os: focal
             arch: linux/amd64,linux/arm/v7,linux/arm64/v8
