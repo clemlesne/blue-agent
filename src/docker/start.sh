@@ -1,19 +1,6 @@
 #!/bin/bash
 set -e
 
-ARCHITECTURE="$(arch)"
-PLATFORM=$ARCHITECTURE
-if [[ $PLATFORM == x86_64 ]]; then
-  PLATFORM="linux-x64"
-elif [[ $PLATFORM == arm* ]]; then
-  PLATFORM="linux-arm"
-elif [[ $PLATFORM == aarch64 ]]; then
-  PLATFORM="linux-arm64"
-else 
-  echo 1>&2 "Unsupported architecture"
-  exit 1
-fi
-
 if [ -z "$AZP_URL" ]; then
   echo 1>&2 "error: missing AZP_URL environment variable"
   exit 1
@@ -34,29 +21,6 @@ unset AZP_TOKEN
 if [ -n "$AZP_WORK" ]; then
   mkdir -p "$AZP_WORK"
 fi
-
-
-
-echo "Setup - Determining matching Azure Pipelines agent..."
-AZP_AGENT_RESPONSE=$(curl -LsS \
-  -u user:$(cat "$AZP_TOKEN_FILE") \
-  -H 'Accept:application/json' \
-  "$AZP_URL/_apis/distributedtask/packages/agent?platform=$PLATFORM")
-if echo "$AZP_AGENT_RESPONSE" | jq . >/dev/null 2>&1; then
-  AZP_AGENTPACKAGE_URL=$(echo "$AZP_AGENT_RESPONSE" \
-    | jq -r '.value | map([.version.major,.version.minor,.version.patch,.downloadUrl]) | sort | .[length-1] | .[3]')
-fi
-if [ -z "$AZP_AGENTPACKAGE_URL" -o "$AZP_AGENTPACKAGE_URL" == "null" ]; then
-  echo 1>&2 "Setup - Could not determine a matching Azure Pipelines agent. Check that account '$AZP_URL' is correct and the token is valid for that account"
-  exit 1
-fi
-echo "Setup - Latest agent package will be downloaded from $AZP_AGENTPACKAGE_URL"
-echo "Setup - Downloading and unpacking Azure Pipelines agent..."
-curl -LsS $AZP_AGENTPACKAGE_URL | tar -xz & wait $!
-echo "Setup - Completed download and unpack"
-
-
-
 
 export AGENT_ALLOW_RUNASROOT="1"
 
@@ -84,11 +48,32 @@ print_header() {
 # Let the agent ignore the token env variables
 export VSO_AGENT_IGNORE=AZP_TOKEN,AZP_TOKEN_FILE
 
+print_header "1. Determining matching Azure Pipelines agent..."
+
+AZP_AGENT_PACKAGES=$(curl -LsS \
+    -u user:$(cat "$AZP_TOKEN_FILE") \
+    -H 'Accept:application/json;' \
+    "$AZP_URL/_apis/distributedtask/packages/agent?platform=$TARGETARCH&top=1")
+
+AZP_AGENT_PACKAGE_LATEST_URL=$(echo "$AZP_AGENT_PACKAGES" | jq -r '.value[0].downloadUrl')
+
+if [ -z "$AZP_AGENT_PACKAGE_LATEST_URL" -o "$AZP_AGENT_PACKAGE_LATEST_URL" == "null" ]; then
+  echo 1>&2 "error: could not determine a matching Azure Pipelines agent"
+  echo 1>&2 "check that account '$AZP_URL' is correct and the token is valid for that account"
+  exit 1
+fi
+
+print_header "2. Downloading and extracting Azure Pipelines agent..."
+
+curl -LsS $AZP_AGENT_PACKAGE_LATEST_URL | tar -xz & wait $!
+
 source ./env.sh
 
-print_header "1. Configuring Azure Pipelines agent..."
+trap 'cleanup; exit 0' EXIT
+trap 'cleanup; exit 130' INT
+trap 'cleanup; exit 143' TERM
 
-cleanup;
+print_header "3. Configuring Azure Pipelines agent..."
 
 ./config.sh --unattended \
   --agent "${AZP_AGENT_NAME:-$(hostname)}" \
@@ -100,14 +85,14 @@ cleanup;
   --replace \
   --acceptTeeEula & wait $!
 
-print_header "2. Running Azure Pipelines agent..."
+print_header "4. Running Azure Pipelines agent..."
 
 trap 'cleanup; exit 0' EXIT
 trap 'cleanup; exit 130' INT
 trap 'cleanup; exit 143' TERM
 
+chmod +x ./run.sh
+
 # To be aware of TERM and INT signals call run.sh
 # Running it with the --once flag at the end will shut down the agent after the build is executed
-./run.sh "$@" &
-
-wait $!
+./run.sh "$@" & wait $!
