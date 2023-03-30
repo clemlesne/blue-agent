@@ -70,8 +70,8 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
 
       - name: Download Helm chart
         uses: actions/download-artifact@v3
@@ -112,8 +112,8 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
 
       - name: Version
         id: version
@@ -150,6 +150,13 @@ jobs:
             type=schedule
             type=semver,pattern={{version}},value=${{ steps.version.outputs.version_full }}
             type=sha
+          labels: |
+            io.artifacthub.package.category=integration-delivery
+            io.artifacthub.package.keywords=agent,azure,azure-devops,azure-pipelines,container,devops,docker,helm,kubernetes,pipelines
+            io.artifacthub.package.logo-url=https://raw.githubusercontent.com/${{ env.CONTAINER_NAME }}/${{ github.sha }}/logo.svg
+            io.artifacthub.package.maintainers=[{"name":"${{ github.actor }}","email":"${{ github.actor }}@users.noreply.github.com"}]
+            io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ env.CONTAINER_NAME }}/${{ github.sha }}/README.md
+            io.artifacthub.package.license=MIT
 
       - name: Build/push container
         uses: docker/build-push-action@v4

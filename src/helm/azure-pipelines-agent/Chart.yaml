@@ -6,19 +6,22 @@ version: 0.0.0
 appVersion: 0.0.0
 icon: https://raw.githubusercontent.com/clemlesne/azure-pipelines-agent/master/logo.svg
 keywords:
-- agent
-- azure
-- azure-devops
-- azure-pipelines
-- container
-- devops
-- docker
-- helm
-- kubernetes
-- pipelines
+  - agent
+  - azure
+  - azure-devops
+  - azure-pipelines
+  - container
+  - devops
+  - docker
+  - helm
+  - kubernetes
+  - pipelines
 home: https://github.com/clemlesne/azure-pipelines-agent
 sources:
-- https://github.com/clemlesne/azure-pipelines-agent
+  - https://github.com/clemlesne/azure-pipelines-agent
 maintainers:
-- name: clemlesne
-  email: clemence@lesne.pro
+  - name: clemlesne
+    email: clemlesne@users.noreply.github.com
+annotations:
+  artifacthub.io/category: integration-delivery
+  artifacthub.io/license: MIT
