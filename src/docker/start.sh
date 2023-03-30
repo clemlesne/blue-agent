@@ -1,6 +1,19 @@
 #!/bin/bash
 set -e
 
+ARCHITECTURE="$(arch)"
+TARGETARCH=$ARCHITECTURE
+if [[ $TARGETARCH == x86_64 ]]; then
+  TARGETARCH="linux-x64"
+elif [[ $TARGETARCH == arm* ]]; then
+  TARGETARCH="linux-arm"
+elif [[ $TARGETARCH == aarch64 ]]; then
+  TARGETARCH="linux-arm64"
+else
+  echo 1>&2 "Unsupported architecture"
+  exit 1
+fi
+
 if [ -z "$AZP_URL" ]; then
   echo 1>&2 "error: missing AZP_URL environment variable"
   exit 1
