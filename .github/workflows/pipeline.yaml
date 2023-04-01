@@ -2,7 +2,7 @@ name: pipeline
 
 on:
   schedule:
-    - cron: 0 0 * * 1
+    - cron: 0 0 * * *
   push:
     branches:
       - develop
@@ -59,7 +59,9 @@ jobs:
 
   deploy-helm:
     name: Deploy Helm chart
-    needs: build-helm
+    needs:
+      - build-deploy-docker
+      - build-helm
     if: github.ref == 'refs/heads/main' # Only deploy on main branch, as there is only one Helm repo
     runs-on: ubuntu-22.04
     steps:
@@ -100,6 +102,8 @@ jobs:
             arch: linux/amd64,linux/arm/v7,linux/arm64/v8
           - os: jammy
             arch: linux/amd64,linux/arm/v7,linux/arm64/v8
+          - os: ubi8
+            arch: linux/amd64,linux/arm64/v8
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -145,15 +149,20 @@ jobs:
             type=ref,event=branch
             type=ref,event=pr
             type=schedule
+            type=schedule,pattern={{date 'YYYYMMDD'}}
             type=semver,pattern={{version}},value=${{ steps.version.outputs.version_full }}
             type=sha
           labels: |
             io.artifacthub.package.category=integration-delivery
             io.artifacthub.package.keywords=agent,azure,azure-devops,azure-pipelines,container,devops,docker,helm,kubernetes,pipelines,self-hosted,self-hosted-agent,auto-scale,keda
+            io.artifacthub.package.license=Apache-2.0
             io.artifacthub.package.logo-url=https://raw.githubusercontent.com/${{ env.CONTAINER_NAME }}/${{ github.sha }}/logo.svg
             io.artifacthub.package.maintainers=[{"name":"${{ github.actor }}","email":"${{ github.actor }}@users.noreply.github.com"}]
             io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ env.CONTAINER_NAME }}/${{ github.sha }}/README.md
-            io.artifacthub.package.license=Apache-2.0
+            org.opencontainers.image.created={{date 'YYYY-MM-DDTHH:mm:ssZ'}}
+            org.opencontainers.image.documentation=https://github.com/${{ env.CONTAINER_NAME }}
+            org.opencontainers.image.vendor=${{ github.actor }}
+            org.opencontainers.image.version=${{ steps.version.outputs.version_full }}
 
       - name: Build/push container
         uses: docker/build-push-action@v4

@@ -13,8 +13,8 @@ Features:
 - Agent update itself to the latest version.
 - Auto-scale based on Pipeline usage (requires [KEDA](https://keda.sh)).
 - Cheap to run (dynamic provisioning of agents, can scale to 0 and in few seconds 100+).
-- Compatible with all Debian and Ubuntu LTS releases.
-- Container security updates are applied every week.
+- Compatible with Debian, Ubuntu and Red Hat LTS releases.
+- System updates are applied every days.
 - SBOM (Software Bill of Materials) is packaged with each container image.
 - Systems are based on [Microsoft official .NET images](https://mcr.microsoft.com/en-us/product/dotnet/aspnet/about).
 
@@ -43,11 +43,30 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 
 | Ref | OS | Arch | Support |
 |-|-|-|-|
-| `docker pull ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main` | Debian Bullseye (11) slim | `linux/amd64`, `linux/arm/v5`, `linux/arm/v7`, `linux/arm64/v8` | [See Debian LTS wiki.](https://wiki.debian.org/LTS) |
+| `docker pull ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main` | Debian Bullseye (11) slim | `linux/amd64`, `linux/arm/v7`, `linux/arm64/v8` | [See Debian LTS wiki.](https://wiki.debian.org/LTS) |
 | `docker pull ghcr.io/clemlesne/azure-pipelines-agent:focal-main` | Ubuntu Focal (20.04) minimal | `linux/amd64`, `linux/arm/v7`, `linux/arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases) |
 | `docker pull ghcr.io/clemlesne/azure-pipelines-agent:jammy-main` | Ubuntu Jammy (22.04) minimal | `linux/amd64`, `linux/arm/v7`, `linux/arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases) |
+| `docker pull ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main` | Red Hat UBI 8 | `linux/amd64`, `linux/arm64/v8` | [See Red Hat product life cycles.](https://access.redhat.com/product-life-cycles/?product=Red%20Hat%20Enterprise%20Linux) |
 
-## Advanced usage
+## Advanced topics
+
+### Security & reliability notes
+
+Systems are built every days. Each image is accompanied by a SBOM (Software Bill of Materials) which allows to verify that the installed packages are those expected. This speed has the advantage of minimizing exposure to security flaws, which will then be corrected on the build environments in 24 hours. To do this, by default, Kubernetes downloads the image at each pod deployment.
+
+Nevertheless:
+
+- These downloads may incur network costs.
+- It can happen that a package provider (e.g. Debian, Canonical, Red Hat) deploys a system update that introduces a bug. This is difficult to predict.
+
+So it is possible to change the `image.pullPolicy` property to `IfNotPresent`, but these updates will not be downloaded automatically. Each image is pushed with a unique tag, which corresponds to the date of the last update (example: `bullseye-20230313` for a build on March 13, 2023). It is therefore possible to fix the download of a version by modifying the `image.version` property to `20230313`.
+
+### Provided software
+
+- [Azure Pipelines agent system requirements](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux)
+- [ASP.NET Core](https://github.com/dotnet/aspnetcore) runtime (required by the Azure Pipelines agent)
+- [Azure CLI](https://github.com/Azure/azure-cli) (required by the Azure Pipelines agent)
+- "make, tar, unzip, zip, zstd" (for developer ease-of-life)
 
 ### Helm values
 
@@ -62,8 +81,10 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 | `extraVolumeMounts` | Additional volume mounts for the agent container. | `[]` |
 | `extraVolumes` | Additional volumes for the agent pod. | `[]` |
 | `fullnameOverride` | Overrides release fullname | `""` |
+| `image.flavor` | Container image tag | `bullseye` |
 | `image.pullPolicy` | Container image pull policy | `Always` if `image.tag` is `latest`, else `IfNotPresent` |
 | `image.repository` | Container image repository | `ghcr.io/clemlesne/azure-pipelines-agent:bullseye` |
+| `image.version` | Container image tag | *App version* |
 | `initContainers` | InitContainers for the agent pod. | `[]` |
 | `nameOverride` | Overrides release name | `""` |
 | `nodeSelector` | Node labels for pod assignment | `{}` |
@@ -76,7 +97,6 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 | `resources` | Resource limits | `{ "resources": { "limits": { "cpu": 2, "memory": "4Gi" }, "requests": { "cpu": 1, "memory": "2Gi" } }}` |
 | `serviceAccount.create` | Create ServiceAccount | `true` |
 | `serviceAccount.name` | ServiceAccount name | *Release name* |
-| `tagSuffix` | Container image tag | *App version* |
 | `tolerations` | Toleration labels for pod assignment. | `[]` |
 
 ## Support

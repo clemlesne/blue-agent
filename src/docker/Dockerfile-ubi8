@@ -1,0 +1,34 @@
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.7
+
+RUN microdnf upgrade -y --setopt=install_weak_deps=0
+
+# Install:
+# - Azure Pipelines agent system requirements
+# - ASP.NET Core runtime
+# - "make, tar, unzip, zip, zstd" for developer ease-of-life
+RUN microdnf install -y --setopt=install_weak_deps=0 \
+    aspnetcore-runtime-6.0 \
+    autoconf \
+    automake \
+    binutils \
+    ca-certificates \
+    curl \
+    make \
+    perl-generators \
+    unzip \
+    yum-utils \
+    zip \
+    zstd
+
+# Install Azure CLI
+RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc \
+    && dnf install -y https://packages.microsoft.com/config/rhel/8/packages-microsoft-prod.rpm
+RUN microdnf install -y --setopt=install_weak_deps=0 \
+    azure-cli
+
+WORKDIR /azp
+
+COPY ./start.sh .
+RUN chmod +x start.sh
+
+CMD ["./start.sh"]
