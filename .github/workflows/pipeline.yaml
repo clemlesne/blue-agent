@@ -159,7 +159,6 @@ jobs:
             io.artifacthub.package.logo-url=https://raw.githubusercontent.com/${{ env.CONTAINER_NAME }}/${{ github.sha }}/logo.svg
             io.artifacthub.package.maintainers=[{"name":"${{ github.actor }}","email":"${{ github.actor }}@users.noreply.github.com"}]
             io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ env.CONTAINER_NAME }}/${{ github.sha }}/README.md
-            org.opencontainers.image.created={{date 'YYYY-MM-DDTHH:mm:ssZ'}}
             org.opencontainers.image.documentation=https://github.com/${{ env.CONTAINER_NAME }}
             org.opencontainers.image.vendor=${{ github.actor }}
             org.opencontainers.image.version=${{ steps.version.outputs.version_full }}
