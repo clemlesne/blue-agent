@@ -59,7 +59,9 @@ jobs:
 
   deploy-helm:
     name: Deploy Helm chart
-    needs: build-helm
+    needs:
+      - build-deploy-docker
+      - build-helm
     if: github.ref == 'refs/heads/main' # Only deploy on main branch, as there is only one Helm repo
     runs-on: ubuntu-22.04
     steps:
