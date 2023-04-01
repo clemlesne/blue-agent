@@ -48,7 +48,14 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 | `docker pull ghcr.io/clemlesne/azure-pipelines-agent:jammy-main` | Ubuntu Jammy (22.04) minimal | `linux/amd64`, `linux/arm/v7`, `linux/arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases) |
 | `docker pull ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main` | Red Hat UBI 8 | `linux/amd64`, `linux/arm64/v8` | [See Red Hat product life cycles.](https://access.redhat.com/product-life-cycles/?product=Red%20Hat%20Enterprise%20Linux) |
 
-## Advanced usage
+## Advanced topics
+
+### Provided software
+
+- [Azure Pipelines agent system requirements](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux)
+- [ASP.NET Core](https://github.com/dotnet/aspnetcore) runtime (required by the Azure Pipelines agent)
+- [Azure CLI](https://github.com/Azure/azure-cli) (required by the Azure Pipelines agent)
+- "make, tar, unzip, zip, zstd" (for developer ease-of-life)
 
 ### Helm values
 

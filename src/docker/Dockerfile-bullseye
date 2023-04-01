@@ -2,23 +2,27 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update
-RUN apt-get upgrade -y
+RUN apt-get update -q
+RUN apt-get upgrade -y -q --no-install-recommends
 
-RUN apt-get install -y -qq --no-install-recommends \
+# Install:
+# - Azure Pipelines agent system requirements
+# - "make, tar, unzip, zip, zstd" for developer ease-of-life
+RUN apt-get install -y -q --no-install-recommends \
     apt-transport-https \
     apt-utils \
-    build-essential \
     ca-certificates \
     curl \
     git \
     iputils-ping \
     jq \
     lsb-release \
+    make \
     software-properties-common \
     tar \
     unzip \
-    zip
+    zip \
+    zstd
 
 # Install Azure CLI
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
