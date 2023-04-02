@@ -176,6 +176,8 @@ jobs:
             io.artifacthub.package.maintainers=[{"name":"${{ github.actor }}","email":"${{ github.actor }}@users.noreply.github.com"}]
             io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ env.CONTAINER_NAME }}/${{ github.sha }}/README.md
             org.opencontainers.image.documentation=https://github.com/${{ env.CONTAINER_NAME }}
+            org.opencontainers.image.source=https://github.com/clemlesne/azure-pipelines-agent/tree/${{ github.sha }}
+            org.opencontainers.image.title=Azure Pipelines Agent
             org.opencontainers.image.vendor=${{ github.actor }}
             org.opencontainers.image.version=${{ steps.version.outputs.version_full }}
 
