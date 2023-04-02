@@ -62,7 +62,8 @@ jobs:
     needs:
       - build-deploy-docker
       - build-helm
-    if: github.ref == 'refs/heads/main' # Only deploy on main branch, as there is only one Helm repo
+    # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
+    if: (github.event_name == 'schedule') && (github.ref == 'refs/heads/main')
     runs-on: ubuntu-22.04
     steps:
       - name: checkout
@@ -82,10 +83,25 @@ jobs:
           name: helm-chart
           path: .cr-release-packages
 
+      - name: Prepare GPG key for Helm chart
+        run: |
+          gpg_dir=.cr-gpg
+          mkdir "$gpg_dir"
+          keyring="$gpg_dir/secring.gpg"
+          base64 -d <<< "$GPG_KEYRING_BASE64" > "$keyring"
+          passphrase_file="$gpg_dir/passphrase"
+          echo "$GPG_PASSPHRASE" > "$passphrase_file"
+          echo "CR_PASSPHRASE_FILE=$passphrase_file" >> "$GITHUB_ENV"
+          echo "CR_KEYRING=$keyring" >> "$GITHUB_ENV"
+        env:
+          GPG_KEYRING_BASE64: "${{ secrets.GPG_KEYRING_BASE64 }}"
+          GPG_PASSPHRASE: "${{ secrets.GPG_PASSPHRASE }}"
+
       - name: Archive Helm chart
         uses: helm/chart-releaser-action@v1.5.0
         with:
           charts_dir: src/helm
+          config: src/helm/cr.yaml
           skip_packaging: true
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
