@@ -63,7 +63,7 @@ jobs:
       - build-deploy-docker
       - build-helm
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
-    if: (github.event_name == 'schedule') && (github.ref == 'refs/heads/main')
+    if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
     runs-on: ubuntu-22.04
     steps:
       - name: checkout
