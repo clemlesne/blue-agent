@@ -4,7 +4,7 @@ description: Deploy Azure Pipelines agent on Kubernetes. Easy way.
 type: application
 version: 0.0.0
 appVersion: 0.0.0
-icon: https://raw.githubusercontent.com/clemlesne/azure-pipelines-agent/master/logo.svg
+icon: https://raw.githubusercontent.com/clemlesne/azure-pipelines-agent/master/logo-1024.png
 keywords:
   - agent
   - auto-scale

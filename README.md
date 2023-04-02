@@ -1,5 +1,7 @@
 # Azure Pipelines Agent
 
+<img src="logo-4096.png" width="100">
+
 [Azure Pipelines Agent](https://github.com/clemlesne/azure-pipelines-agent) is self-hosted agent in Kubernetes, cheap to run, secure, auto-scaled and easy to deploy.
 
 <!-- github.com badges -->
