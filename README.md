@@ -81,7 +81,7 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 | `image.flavor` | Container image tag | `bullseye` |
 | `image.pullPolicy` | Container image pull policy | `Always` if `image.tag` is `latest`, else `IfNotPresent` |
 | `image.repository` | Container image repository | `ghcr.io/clemlesne/azure-pipelines-agent:bullseye` |
-| `image.version` | Container image tag | *App version* |
+| `image.version` | Container image tag | *Version* |
 | `initContainers` | InitContainers for the agent pod. | `[]` |
 | `nameOverride` | Overrides release name | `""` |
 | `nodeSelector` | Node labels for pod assignment | `{}` |
