@@ -17,12 +17,12 @@ Features:
 
 - Agent register itself with the Azure DevOps server.
 - Agent restart itself if it crashes.
-- Agent update itself to the latest version.
-- Auto-scale based on Pipeline usage (requires [KEDA](https://keda.sh)).
+- Auto-scale based on Pipeline usage (with [KEDA](https://keda.sh), not required).
+- Can run air-gapped (no internet access).
 - Cheap to run (scale to 0, dynamic provisioning of agents, can scale from 0 to 100+ in few seconds).
 - Compatible with Debian, Ubuntu and Red Hat LTS releases.
-- System updates are applied every days.
 - SBOM (Software Bill of Materials) is packaged with each container image.
+- System updates are applied every days.
 - Systems are based on [Microsoft official .NET images](https://mcr.microsoft.com/en-us/product/dotnet/aspnet/about).
 
 ## Usage
@@ -59,10 +59,11 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 
 ### Provided software
 
-- [Azure Pipelines agent system requirements](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux)
+- [Azure Pipelines agent](https://github.com/microsoft/azure-pipelines-agent), see env var `AGENT_VERSION` on the container images
+- [Azure Pipelines system requirements](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux)
 - [ASP.NET Core](https://github.com/dotnet/aspnetcore) runtime (required by the Azure Pipelines agent)
 - [Azure CLI](https://github.com/Azure/azure-cli) (required by the Azure Pipelines agent)
-- "make, tar, unzip, zip, zstd" (for developer ease-of-life)
+- "make, tar, unzip, gzip, zip, zstd" (for developer ease-of-life)
 
 ### Helm values
 

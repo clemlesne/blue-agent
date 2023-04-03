@@ -5,7 +5,7 @@ RUN microdnf upgrade -y --setopt=install_weak_deps=0
 # Install:
 # - Azure Pipelines agent system requirements
 # - ASP.NET Core runtime
-# - "make, tar, unzip, zip, zstd" for developer ease-of-life
+# - "make, tar, unzip, gzip, zip, zstd" for developer ease-of-life
 RUN microdnf install -y --setopt=install_weak_deps=0 \
     aspnetcore-runtime-6.0 \
     autoconf \
@@ -13,8 +13,10 @@ RUN microdnf install -y --setopt=install_weak_deps=0 \
     binutils \
     ca-certificates \
     curl \
+    gzip \
     make \
     perl-generators \
+    tar \
     unzip \
     yum-utils \
     zip \
@@ -28,7 +30,13 @@ RUN microdnf install -y --setopt=install_weak_deps=0 \
 
 WORKDIR /azp
 
-COPY ./start.sh .
+COPY init.sh .
+ARG AGENT_VERSION
+ENV AGENT_VERSION ${AGENT_VERSION}
+RUN chmod +x init.sh \
+    && ./init.sh $AGENT_VERSION
+
+COPY start.sh .
 RUN chmod +x start.sh
 
 CMD ["./start.sh"]

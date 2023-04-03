@@ -1,5 +1,5 @@
 pipelines:
-  pat: 2coa3fghbqdbpzdq889xc8mmvt3yozen6yrxv64jo6fgfo8jc929
+  pat: ojemi3pd7adocbqeeuzr5o7ldz2jlwxxbmtrrj7gq5mifhmafpsa
   pool: Kubernetes
   url: https://dev.azure.com/shopping-cart-devops-demo
 
