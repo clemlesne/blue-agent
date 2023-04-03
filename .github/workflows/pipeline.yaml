@@ -17,6 +17,7 @@ on:
       - main
 
 env:
+  AGENT_VERSION: 3.218.0
   CONTAINER_NAME: ${{ github.repository }}
   CONTAINER_REGISTRY: ghcr.io
 
@@ -51,7 +52,7 @@ jobs:
           cp README.md src/helm/azure-pipelines-agent/
 
           helm package \
-            --app-version ${{ steps.version.outputs.version }} \
+            --app-version ${{ env.AGENT_VERSION }} \
             --destination .cr-release-packages \
             --key 'Clémence Lesné' \
             --keyring keyring.gpg \
@@ -177,6 +178,8 @@ jobs:
       - name: Build/push container
         uses: docker/build-push-action@v4
         with:
+          build-args: |
+            "AGENT_VERSION=${{ env.AGENT_VERSION }}"
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: src/docker

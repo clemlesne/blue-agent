@@ -7,13 +7,14 @@ RUN apt-get upgrade -y -q --no-install-recommends
 
 # Install:
 # - Azure Pipelines agent system requirements
-# - "make, tar, unzip, zip, zstd" for developer ease-of-life
+# - "make, tar, unzip, gzip, zip, zstd" for developer ease-of-life
 RUN apt-get install -y -q --no-install-recommends \
     apt-transport-https \
     apt-utils \
     ca-certificates \
     curl \
     git \
+    gzip \
     iputils-ping \
     jq \
     lsb-release \
@@ -29,7 +30,13 @@ RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 WORKDIR /azp
 
-COPY ./start.sh .
+COPY init.sh .
+ARG AGENT_VERSION
+ENV AGENT_VERSION ${AGENT_VERSION}
+RUN chmod +x init.sh \
+    && ./init.sh $AGENT_VERSION
+
+COPY start.sh .
 RUN chmod +x start.sh
 
 CMD ["./start.sh"]

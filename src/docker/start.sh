@@ -1,19 +1,6 @@
 #!/bin/bash
 set -e
 
-ARCHITECTURE="$(arch)"
-TARGETARCH=$ARCHITECTURE
-if [[ $TARGETARCH == x86_64 ]]; then
-  TARGETARCH="linux-x64"
-elif [[ $TARGETARCH == arm* ]]; then
-  TARGETARCH="linux-arm"
-elif [[ $TARGETARCH == aarch64 ]]; then
-  TARGETARCH="linux-arm64"
-else
-  echo 1>&2 "Unsupported architecture"
-  exit 1
-fi
-
 if [ -z "$AZP_URL" ]; then
   echo 1>&2 "error: missing AZP_URL environment variable"
   exit 1
@@ -61,46 +48,20 @@ print_header() {
 # Let the agent ignore the token env variables
 export VSO_AGENT_IGNORE=AZP_TOKEN,AZP_TOKEN_FILE
 
-print_header "1. Determining matching Azure Pipelines agent..."
-
-AZP_AGENT_PACKAGES=$(curl -LsS \
-  -u user:$(cat "$AZP_TOKEN_FILE") \
-  -H 'Accept:application/json;' \
-  "$AZP_URL/_apis/distributedtask/packages/agent?platform=$TARGETARCH&top=1")
-
-AZP_AGENT_PACKAGE_LATEST_URL=$(echo "$AZP_AGENT_PACKAGES" | jq -r '.value[0].downloadUrl')
-
-if [ -z "$AZP_AGENT_PACKAGE_LATEST_URL" -o "$AZP_AGENT_PACKAGE_LATEST_URL" == "null" ]; then
-  echo 1>&2 "error: could not determine a matching Azure Pipelines agent"
-  echo 1>&2 "check that account '$AZP_URL' is correct and the token is valid for that account"
-  exit 1
-fi
-
-print_header "2. Downloading and extracting Azure Pipelines agent..."
-
-curl -LsS $AZP_AGENT_PACKAGE_LATEST_URL | tar -xz &
-wait $!
-
-source ./env.sh
-
-trap 'cleanup; exit 0' EXIT
-trap 'cleanup; exit 130' INT
-trap 'cleanup; exit 143' TERM
-
-print_header "3. Configuring Azure Pipelines agent..."
+print_header "Configuring Azure Pipelines agent..."
 
 ./config.sh --unattended \
+  --acceptTeeEula \
   --agent "${AZP_AGENT_NAME:-$(hostname)}" \
-  --url "$AZP_URL" \
   --auth PAT \
-  --token $(cat "$AZP_TOKEN_FILE") \
   --pool "${AZP_POOL:-Default}" \
-  --work "${AZP_WORK:-_work}" \
   --replace \
-  --acceptTeeEula &
+  --token $(cat "$AZP_TOKEN_FILE") \
+  --url "$AZP_URL" \
+  --work "${AZP_WORK:-_work}" &
 wait $!
 
-print_header "4. Running Azure Pipelines agent..."
+print_header "Running Azure Pipelines agent..."
 
 if ! grep -q "template" <<<"$AZP_AGENT_NAME"; then
   echo "Cleanup Traps Enabled"
