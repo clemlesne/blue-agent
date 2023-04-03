@@ -23,7 +23,7 @@ Features:
 - Compatible with Debian, Ubuntu and Red Hat LTS releases.
 - SBOM (Software Bill of Materials) is packaged with each container image.
 - System updates are applied every days.
-- Systems are based on [Microsoft official .NET images](https://mcr.microsoft.com/en-us/product/dotnet/aspnet/about).
+- Systems are based on [Microsoft official .NET images](https://mcr.microsoft.com/en-us/product/dotnet/aspnet/about) and [Red Hat Universal Base Image](https://catalog.redhat.com/software/containers/ubi8/ubi-minimal/5c359a62bed8bd75a2c3fba8).
 
 ## Usage
 
@@ -81,7 +81,7 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 | `image.flavor` | Container image tag | `bullseye` |
 | `image.pullPolicy` | Container image pull policy | `Always` if `image.tag` is `latest`, else `IfNotPresent` |
 | `image.repository` | Container image repository | `ghcr.io/clemlesne/azure-pipelines-agent:bullseye` |
-| `image.version` | Container image tag | *App version* |
+| `image.version` | Container image tag | *Version* |
 | `initContainers` | InitContainers for the agent pod. | `[]` |
 | `nameOverride` | Overrides release name | `""` |
 | `nodeSelector` | Node labels for pod assignment | `{}` |
