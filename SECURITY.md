@@ -1,5 +1,9 @@
 # Security Policy
 
+## Chain of trust
+
+The Helm chart is signed with a GPG key. [The public key is available on Keybase at the following address.](https://keybase.io/clemlesne/pgp_keys.asc)
+
 ## Reliability notes
 
 Systems are built every days. Each image is accompanied by a SBOM (Software Bill of Materials) which allows to verify that the installed packages are those expected. This speed has the advantage of minimizing exposure to security flaws, which will then be corrected on the build environments in 24 hours. To do this, by default, Kubernetes downloads the image at each pod deployment.

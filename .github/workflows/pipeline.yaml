@@ -42,16 +42,24 @@ jobs:
         with:
           version: v3.11.2
 
+      - name: Prepare GPG key for Helm chart
+        run: |
+          echo "${{ secrets.GPG_KEYRING }}" | gpg --dearmor > keyring.gpg
+
       - name: Package Helm chart
         run: |
           cp README.md src/helm/azure-pipelines-agent/
+
           helm package \
-            --version ${{ steps.version.outputs.version }} \
             --app-version ${{ steps.version.outputs.version }} \
             --destination .cr-release-packages \
+            --key 'Clémence Lesné' \
+            --keyring keyring.gpg \
+            --sign \
+            --version ${{ steps.version.outputs.version }} \
             src/helm/azure-pipelines-agent
 
-      - name: Upload Helm chart
+      - name: Cache Helm chart
         uses: actions/upload-artifact@v3
         with:
           name: helm-chart
