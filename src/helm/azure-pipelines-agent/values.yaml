@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/clemlesne/azure-pipelines-agent
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   flavor: bullseye
   # Overrides the image tag whose default is the chart appVersion.
   version: ""
