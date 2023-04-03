@@ -2,7 +2,7 @@
 
 ## Chain of trust
 
-The Helm chart is signed with a GPG key. [The public key is available at the following address.](https://raw.githubusercontent.com/clemlesne/azure-pipelines-agent/main/src/helm/pubring.gpg)
+The Helm chart is signed with a GPG key. [The public key is available on Keybase at the following address.](https://keybase.io/clemlesne/pgp_keys.asc)
 
 ## Reliability notes
 

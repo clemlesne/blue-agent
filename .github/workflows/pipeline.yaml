@@ -42,16 +42,24 @@ jobs:
         with:
           version: v3.11.2
 
+      - name: Prepare GPG key for Helm chart
+        run: |
+          echo "${{ secrets.GPG_KEYRING }}" | gpg --dearmor > keyring.gpg
+
       - name: Package Helm chart
         run: |
           cp README.md src/helm/azure-pipelines-agent/
+
           helm package \
-            --version ${{ steps.version.outputs.version }} \
             --app-version ${{ steps.version.outputs.version }} \
             --destination .cr-release-packages \
+            --key 'Clémence Lesné' \
+            --keyring keyring.gpg \
+            --sign \
+            --version ${{ steps.version.outputs.version }} \
             src/helm/azure-pipelines-agent
 
-      - name: Upload Helm chart
+      - name: Cache Helm chart
         uses: actions/upload-artifact@v3
         with:
           name: helm-chart
@@ -83,25 +91,10 @@ jobs:
           name: helm-chart
           path: .cr-release-packages
 
-      - name: Prepare GPG key for Helm chart
-        run: |
-          gpg_dir=.cr-gpg
-          mkdir "$gpg_dir"
-          keyring="$gpg_dir/secring.gpg"
-          base64 -d <<< "$GPG_KEYRING_BASE64" > "$keyring"
-          passphrase_file="$gpg_dir/passphrase"
-          echo "$GPG_PASSPHRASE" > "$passphrase_file"
-          echo "CR_PASSPHRASE_FILE=$passphrase_file" >> "$GITHUB_ENV"
-          echo "CR_KEYRING=$keyring" >> "$GITHUB_ENV"
-        env:
-          GPG_KEYRING_BASE64: "${{ secrets.GPG_KEYRING_BASE64 }}"
-          GPG_PASSPHRASE: "${{ secrets.GPG_PASSPHRASE }}"
-
       - name: Archive Helm chart
         uses: helm/chart-releaser-action@v1.5.0
         with:
           charts_dir: src/helm
-          config: src/helm/cr.yaml
           skip_packaging: true
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
