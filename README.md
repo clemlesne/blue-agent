@@ -23,7 +23,7 @@ Features:
 - Compatible with Debian, Ubuntu and Red Hat LTS releases.
 - SBOM (Software Bill of Materials) is packaged with each container image.
 - System updates are applied every days.
-- Systems are based on [Microsoft official .NET images](https://mcr.microsoft.com/en-us/product/dotnet/aspnet/about).
+- Systems are based on [Microsoft official .NET images](https://mcr.microsoft.com/en-us/product/dotnet/aspnet/about) and [Red Hat Universal Base Image](https://catalog.redhat.com/software/containers/ubi8/ubi-minimal/5c359a62bed8bd75a2c3fba8).
 
 ## Usage
 
