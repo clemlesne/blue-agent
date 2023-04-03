@@ -186,6 +186,7 @@ jobs:
           file: src/docker/Dockerfile-${{ matrix.os }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: ${{ matrix.arch }}
+          provenance: true
           push: true
           sbom: true
           tags: ${{ steps.meta.outputs.tags }}
