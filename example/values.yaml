@@ -1,0 +1,7 @@
+pipelines:
+  pat: 2coa3fghbqdbpzdq889xc8mmvt3yozen6yrxv64jo6fgfo8jc929
+  pool: Kubernetes
+  url: https://dev.azure.com/shopping-cart-devops-demo
+
+autoscaling:
+  minReplicas: 0
