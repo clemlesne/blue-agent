@@ -5,28 +5,21 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install:
 # - Azure Pipelines agent system requirements
-# - Azure CLI system requirements (Python 3.9, plus C/Rust build tools for libs non pre-built on this platform)
-# - "tar, unzip, gzip, zip, zsh, zstd" for developer ease-of-life
+# - "gzip, make, tar, unzip, wget, zip, zsh, zstd" for developer ease-of-life
 RUN apt-get update -q \
     && apt-get install -y -q --no-install-recommends \
-        build-essential \
         ca-certificates \
-        cargo \
         curl \
         git \
+        git-lfs \
+        gnupg \
         gzip \
         iputils-ping \
         jq \
-        libffi-dev \
-        libssl-dev \
-        lsb-release \
-        pkg-config \
-        python3-dev=3.9.* \
-        python3-pip \
-        python3=3.9.* \
-        software-properties-common \
+        make \
         tar \
         unzip \
+        wget \
         zip \
         zsh \
         zstd \
@@ -34,9 +27,14 @@ RUN apt-get update -q \
     && rm -rf /var/lib/apt/lists
 
 # Install Azure CLI, then verify installation
-RUN python3 -m pip install --upgrade pip setuptools wheel \
-    && python3 -m pip install azure-cli \
-    && rm -rf $HOME/.cache/pip \
+RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.asc.gpg \
+    && mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/ \
+    && echo "deb [arch=$(dpkg --print-architecture)] https://packages.microsoft.com/repos/azure-cli/ $(. /etc/os-release; echo $VERSION_CODENAME) main" > /etc/apt/sources.list.d/azure-cli.list \
+    && apt-get update -q \
+    && apt-get install -y -q --no-install-recommends \
+        azure-cli \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists \
     && az --version
 
 WORKDIR /azp
