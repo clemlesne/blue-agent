@@ -1,49 +1,52 @@
 # Fetch the vendor with the builder platform to avoid QEMU issues
 FROM --platform=$BUILDPLATFORM registry.access.redhat.com/ubi8/ubi-minimal:8.7
 
-RUN microdnf upgrade -y --setopt=install_weak_deps=0
-
 # Install:
 # - Azure Pipelines agent system requirements
 # - Azure CLI system requirements (Python 3.9, plus C/Rust build tools for libs non pre-built on this platform)
 # - ASP.NET Core runtime
 # - "tar, unzip, gzip, zip, zsh, zstd" for developer ease-of-life
-RUN microdnf install -y --nodocs --setopt=install_weak_deps=0 \
-    aspnetcore-runtime-6.0 \
-    ca-certificates \
-    cargo \
-    curl \
-    gcc \
-    gcc-c++ \
-    gzip \
-    hostname \
-    iputils \
-    make \
-    openssl-devel \
-    pkg-config \
-    python39 \
-    python39-devel \
-    python39-pip \
-    tar \
-    unzip \
-    zip \
-    zsh \
-    zstd
+RUN microdnf install -y --refresh --nodocs --setopt=install_weak_deps=0 \
+        aspnetcore-runtime-6.0 \
+        ca-certificates \
+        cargo \
+        curl \
+        gcc \
+        gcc-c++ \
+        gzip \
+        hostname \
+        iputils \
+        make \
+        openssl-devel \
+        pkg-config \
+        python39 \
+        python39-devel \
+        python39-pip \
+        tar \
+        unzip \
+        zip \
+        zsh \
+        zstd \
+    && microdnf clean all \
+    && rm -rf /var/cache/yum
 
-# Install Azure CLI
-RUN python3 -m pip install --no-cache-dir --upgrade pip \
-    && python3 -m pip install --no-cache-dir setuptools wheel \
-    && python3 -m pip install --no-cache-dir azure-cli \
+# Install Azure CLI, then verify installation
+RUN python3 -m pip install --upgrade pip setuptools wheel \
+    && python3 -m pip install azure-cli \
+    && rm -rf $HOME/.cache/pip \
     && az --version
 
 WORKDIR /azp
 
-COPY init.sh .
+# Install Azure Pipelines Agent sources, then verify installation
 ARG AGENT_VERSION
 ENV AGENT_VERSION ${AGENT_VERSION}
+COPY init.sh .
 RUN chmod +x init.sh \
-    && ./init.sh $AGENT_VERSION
+    && ./init.sh $AGENT_VERSION \
+    && AGENT_ALLOW_RUNASROOT="1" ./run-docker.sh --version
 
+# Install Azure Pipelines Agent startup script
 COPY start.sh .
 RUN chmod +x start.sh
 

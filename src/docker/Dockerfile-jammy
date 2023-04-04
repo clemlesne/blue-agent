@@ -3,50 +3,53 @@ FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:6.0-jammy
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update -q
-RUN apt-get upgrade -y -q --no-install-recommends
-
 # Install:
 # - Azure Pipelines agent system requirements
 # - Azure CLI system requirements (Python 3.10, plus C/Rust build tools for libs non pre-built on this platform)
 # - "tar, unzip, gzip, zip, zsh, zstd" for developer ease-of-life
-RUN apt-get install -y -q --no-install-recommends \
-    build-essential \
-    ca-certificates \
-    cargo \
-    curl \
-    git \
-    gzip \
-    iputils-ping \
-    jq \
-    libffi-dev \
-    libssl-dev \
-    lsb-release \
-    pkg-config \
-    python3-dev=3.10.* \
-    python3-pip \
-    python3=3.10.* \
-    software-properties-common \
-    tar \
-    unzip \
-    zip \
-    zsh \
-    zstd
+RUN apt-get update -q \
+    && apt-get install -y -q --no-install-recommends \
+        build-essential \
+        ca-certificates \
+        cargo \
+        curl \
+        git \
+        gzip \
+        iputils-ping \
+        jq \
+        libffi-dev \
+        libssl-dev \
+        lsb-release \
+        pkg-config \
+        python3-dev=3.10.* \
+        python3-pip \
+        python3=3.10.* \
+        software-properties-common \
+        tar \
+        unzip \
+        zip \
+        zsh \
+        zstd \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists
 
-# Install Azure CLI
-RUN python3 -m pip install --no-cache-dir --upgrade pip \
-    && python3 -m pip install --no-cache-dir setuptools wheel \
-    && python3 -m pip install --no-cache-dir azure-cli \
+# Install Azure CLI, then verify installation
+RUN python3 -m pip install --upgrade pip setuptools wheel \
+    && python3 -m pip install azure-cli \
+    && rm -rf $HOME/.cache/pip \
     && az --version
 
 WORKDIR /azp
 
-COPY init.sh .
+# Install Azure Pipelines Agent sources, then verify installation
 ARG AGENT_VERSION
 ENV AGENT_VERSION ${AGENT_VERSION}
+COPY init.sh .
 RUN chmod +x init.sh \
-    && ./init.sh $AGENT_VERSION
+    && ./init.sh $AGENT_VERSION \
+    && AGENT_ALLOW_RUNASROOT="1" ./run-docker.sh --version
 
+# Install Azure Pipelines Agent startup script
 COPY start.sh .
 RUN chmod +x start.sh
 
