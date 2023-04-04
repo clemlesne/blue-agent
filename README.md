@@ -62,8 +62,8 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 
 - [Azure Pipelines agent](https://github.com/microsoft/azure-pipelines-agent) (see env var `AGENT_VERSION` on the container images) + [requirements](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux)
 - [ASP.NET Core](https://github.com/dotnet/aspnetcore) runtime (required by the Azure Pipelines agent)
-- [Azure CLI](https://github.com/Azure/azure-cli) (required by the Azure Pipelines agent) + requirements ([Python 3.8](https://www.python.org/downloads/release/python-380), [Python 3.9](https://www.python.org/downloads/release/python-390), [Python 3.10](https://www.python.org/downloads/release/python-3100), depending of the system, plus C/Rust build tools for libs non pre-built on the platforms)
-- "tar, unzip, gzip, zip, zsh, zstd" (for developer ease-of-life)
+- [Azure CLI](https://github.com/Azure/azure-cli) (required by the Azure Pipelines agent)
+- "gzip, make, tar, unzip, wget, zip, zsh, zstd" (for developer ease-of-life)
 
 ### Helm values
 

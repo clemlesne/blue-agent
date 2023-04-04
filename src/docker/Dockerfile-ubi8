@@ -3,37 +3,36 @@ FROM --platform=$BUILDPLATFORM registry.access.redhat.com/ubi8/ubi-minimal:8.7
 
 # Install:
 # - Azure Pipelines agent system requirements
-# - Azure CLI system requirements (Python 3.9, plus C/Rust build tools for libs non pre-built on this platform)
 # - ASP.NET Core runtime
-# - "tar, unzip, gzip, zip, zsh, zstd" for developer ease-of-life
+# - "gzip, make, tar, unzip, wget, zip, zsh, zstd" for developer ease-of-life
 RUN microdnf install -y --refresh --nodocs --setopt=install_weak_deps=0 \
         aspnetcore-runtime-6.0 \
         ca-certificates \
-        cargo \
         curl \
-        gcc \
-        gcc-c++ \
+        git-core \
+        git-lfs \
+        gnupg \
         gzip \
         hostname \
         iputils \
+        jq \
         make \
-        openssl-devel \
-        pkg-config \
-        python39 \
-        python39-devel \
-        python39-pip \
         tar \
         unzip \
+        wget \
         zip \
         zsh \
         zstd \
     && microdnf clean all \
     && rm -rf /var/cache/yum
 
-# Install Azure CLI, then verify installation
-RUN python3 -m pip install --upgrade pip setuptools wheel \
-    && python3 -m pip install azure-cli \
-    && rm -rf $HOME/.cache/pip \
+# Install Azure CLI with RPM, then verify installation
+RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc \
+    && curl -sL https://packages.microsoft.com/config/rhel/8/prod.repo > /etc/yum.repos.d/azure-cli.repo \
+    && microdnf install -y --refresh --nodocs --setopt=install_weak_deps=0 \
+        azure-cli \
+    && microdnf clean all \
+    && rm -rf /var/cache/yum \
     && az --version
 
 WORKDIR /azp
