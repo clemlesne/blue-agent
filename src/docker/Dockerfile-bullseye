@@ -1,4 +1,5 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim
+# Fetch the vendor with the builder platform to avoid QEMU issues
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -7,26 +8,36 @@ RUN apt-get upgrade -y -q --no-install-recommends
 
 # Install:
 # - Azure Pipelines agent system requirements
-# - "make, tar, unzip, gzip, zip, zstd" for developer ease-of-life
+# - Azure CLI system requirements (Python 3.9, plus C/Rust build tools for libs non pre-built on this platform)
+# - "tar, unzip, gzip, zip, zsh, zstd" for developer ease-of-life
 RUN apt-get install -y -q --no-install-recommends \
-    apt-transport-https \
-    apt-utils \
+    build-essential \
     ca-certificates \
+    cargo \
     curl \
     git \
     gzip \
     iputils-ping \
     jq \
+    libffi-dev \
+    libssl-dev \
     lsb-release \
-    make \
+    pkg-config \
+    python3-dev=3.9.* \
+    python3-pip \
+    python3=3.9.* \
     software-properties-common \
     tar \
     unzip \
     zip \
+    zsh \
     zstd
 
 # Install Azure CLI
-RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+RUN python3 -m pip install --no-cache-dir --upgrade pip \
+    && python3 -m pip install --no-cache-dir setuptools wheel \
+    && python3 -m pip install --no-cache-dir azure-cli \
+    && az --version
 
 WORKDIR /azp
 
