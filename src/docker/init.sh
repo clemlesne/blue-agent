@@ -28,4 +28,6 @@ AGENT_PACKAGE_URL="https://vstsagentpackage.azureedge.net/agent/$AGENT_VERSION/p
 curl -LsS $AGENT_PACKAGE_URL | tar -xz &
 wait $!
 
+chmod +x ./run-docker.sh ./config.sh
+
 echo "Agent v$AGENT_VERSION for $AGENT_ARCH installed"

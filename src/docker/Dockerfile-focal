@@ -3,50 +3,51 @@ FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:6.0-focal
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update -q
-RUN apt-get upgrade -y -q --no-install-recommends
-
 # Install:
 # - Azure Pipelines agent system requirements
-# - Azure CLI system requirements (Python 3.8, plus C/Rust build tools for libs non pre-built on this platform)
-# - "tar, unzip, gzip, zip, zsh, zstd" for developer ease-of-life
-RUN apt-get install -y -q --no-install-recommends \
-    build-essential \
-    ca-certificates \
-    cargo \
-    curl \
-    git \
-    gzip \
-    iputils-ping \
-    jq \
-    libffi-dev \
-    libssl-dev \
-    lsb-release \
-    pkg-config \
-    python3-dev=3.8.* \
-    python3-pip \
-    python3=3.8.* \
-    software-properties-common \
-    tar \
-    unzip \
-    zip \
-    zsh \
-    zstd
+# - "gzip, make, tar, unzip, wget, zip, zsh, zstd" for developer ease-of-life
+RUN apt-get update -q \
+    && apt-get install -y -q --no-install-recommends \
+        ca-certificates \
+        curl \
+        git \
+        git-lfs \
+        gnupg \
+        gzip \
+        iputils-ping \
+        jq \
+        make \
+        tar \
+        unzip \
+        wget \
+        zip \
+        zsh \
+        zstd \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists
 
-# Install Azure CLI
-RUN python3 -m pip install --no-cache-dir --upgrade pip \
-    && python3 -m pip install --no-cache-dir setuptools wheel \
-    && python3 -m pip install --no-cache-dir azure-cli \
+# Install Azure CLI, then verify installation
+RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.asc.gpg \
+    && mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/ \
+    && echo "deb [arch=$(dpkg --print-architecture)] https://packages.microsoft.com/repos/azure-cli/ $(. /etc/os-release; echo $VERSION_CODENAME) main" > /etc/apt/sources.list.d/azure-cli.list \
+    && apt-get update -q \
+    && apt-get install -y -q --no-install-recommends \
+        azure-cli \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists \
     && az --version
 
 WORKDIR /azp
 
-COPY init.sh .
+# Install Azure Pipelines Agent sources, then verify installation
 ARG AGENT_VERSION
 ENV AGENT_VERSION ${AGENT_VERSION}
+COPY init.sh .
 RUN chmod +x init.sh \
-    && ./init.sh $AGENT_VERSION
+    && ./init.sh $AGENT_VERSION \
+    && AGENT_ALLOW_RUNASROOT="1" ./run-docker.sh --version
 
+# Install Azure Pipelines Agent startup script
 COPY start.sh .
 RUN chmod +x start.sh
 
