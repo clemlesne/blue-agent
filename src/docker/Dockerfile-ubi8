@@ -1,32 +1,40 @@
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.7
+# Fetch the vendor with the builder platform to avoid QEMU issues
+FROM --platform=$BUILDPLATFORM registry.access.redhat.com/ubi8/ubi-minimal:8.7
 
 RUN microdnf upgrade -y --setopt=install_weak_deps=0
 
 # Install:
 # - Azure Pipelines agent system requirements
+# - Azure CLI system requirements (Python 3.9, plus C/Rust build tools for libs non pre-built on this platform)
 # - ASP.NET Core runtime
-# - "make, tar, unzip, gzip, zip, zstd" for developer ease-of-life
-RUN microdnf install -y --setopt=install_weak_deps=0 \
+# - "tar, unzip, gzip, zip, zsh, zstd" for developer ease-of-life
+RUN microdnf install -y --nodocs --setopt=install_weak_deps=0 \
     aspnetcore-runtime-6.0 \
-    autoconf \
-    automake \
-    binutils \
     ca-certificates \
+    cargo \
     curl \
+    gcc \
+    gcc-c++ \
     gzip \
+    hostname \
+    iputils \
     make \
-    perl-generators \
+    openssl-devel \
+    pkg-config \
+    python39 \
+    python39-devel \
+    python39-pip \
     tar \
     unzip \
-    yum-utils \
     zip \
+    zsh \
     zstd
 
 # Install Azure CLI
-RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc \
-    && dnf install -y https://packages.microsoft.com/config/rhel/8/packages-microsoft-prod.rpm
-RUN microdnf install -y --setopt=install_weak_deps=0 \
-    azure-cli
+RUN python3 -m pip install --no-cache-dir --upgrade pip \
+    && python3 -m pip install --no-cache-dir setuptools wheel \
+    && python3 -m pip install --no-cache-dir azure-cli \
+    && az --version
 
 WORKDIR /azp
 

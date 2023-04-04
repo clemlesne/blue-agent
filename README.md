@@ -6,8 +6,9 @@
 [Azure Pipelines Agent](https://github.com/clemlesne/azure-pipelines-agent) is self-hosted agent in Kubernetes, cheap to run, secure, auto-scaled and easy to deploy.
 
 <!-- github.com badges -->
-![GitHub Release Date](https://img.shields.io/github/release-date/clemlesne/azure-pipelines-agent)
-![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/clemlesne/azure-pipelines-agent/pipeline.yaml?branch=main)
+[![GitHub Release Date](https://img.shields.io/github/release-date/clemlesne/azure-pipelines-agent)](https://github.com/clemlesne/azure-pipelines-agent/releases)
+[![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/clemlesne/azure-pipelines-agent/pipeline.yaml?branch=main)](https://github.com/clemlesne/azure-pipelines-agent/actions/workflows/pipeline.yaml)
+[![GitHub all releases](https://img.shields.io/github/downloads/clemlesne/azure-pipelines-agent/total)](https://github.com/clemlesne/azure-pipelines-agent/pkgs/container/azure-pipelines-agent)
 
 <!-- artifacthub.io badges -->
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/azure-pipelines-agent)](https://artifacthub.io/packages/search?repo=azure-pipelines-agent)
@@ -59,11 +60,10 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 
 ### Provided software
 
-- [Azure Pipelines agent](https://github.com/microsoft/azure-pipelines-agent), see env var `AGENT_VERSION` on the container images
-- [Azure Pipelines system requirements](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux)
+- [Azure Pipelines agent](https://github.com/microsoft/azure-pipelines-agent) (see env var `AGENT_VERSION` on the container images) + [requirements](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux)
 - [ASP.NET Core](https://github.com/dotnet/aspnetcore) runtime (required by the Azure Pipelines agent)
-- [Azure CLI](https://github.com/Azure/azure-cli) (required by the Azure Pipelines agent)
-- "make, tar, unzip, gzip, zip, zstd" (for developer ease-of-life)
+- [Azure CLI](https://github.com/Azure/azure-cli) (required by the Azure Pipelines agent) + requirements ([Python 3.8](https://www.python.org/downloads/release/python-380), [Python 3.9](https://www.python.org/downloads/release/python-390), [Python 3.10](https://www.python.org/downloads/release/python-3100), depending of the system, plus C/Rust build tools for libs non pre-built on the platforms)
+- "tar, unzip, gzip, zip, zsh, zstd" (for developer ease-of-life)
 
 ### Helm values
 
