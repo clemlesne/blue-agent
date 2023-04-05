@@ -18,6 +18,7 @@ RUN apt-get update -q \
         iputils-ping \
         jq \
         make \
+        sudo \
         tar \
         unzip \
         wget \
