@@ -17,10 +17,13 @@ on:
       - main
 
 env:
-  AGENT_VERSION: 3.218.0
   CONTAINER_NAME: ${{ github.repository }}
   CONTAINER_REGISTRY: ghcr.io
+  # https://github.com/microsoft/azure-pipelines-agent/releases
+  AGENT_VERSION: 3.218.0
+  # https://github.com/PowerShell/PowerShell/releases
   POWERSHELL_VERSION: 7.2.10
+  # https://github.com/mikefarah/yq/releases
   YQ_VERSION: 4.33.2
 
 jobs:
