@@ -4,8 +4,8 @@ FROM --platform=$BUILDPLATFORM registry.access.redhat.com/ubi8/ubi-minimal:8.7
 # Install:
 # - Azure Pipelines agent system requirements
 # - ASP.NET Core runtime
-# - "zsh", for inter-operability
-# - "gzip, make, tar, unzip, wget, zip, zstd" for developer ease-of-life
+# - zsh, for inter-operability
+# - gzip, make, tar, unzip, wget, yq, zip, zstd for developer ease-of-life
 RUN microdnf install -y --refresh --nodocs --setopt=install_weak_deps=0 \
         aspnetcore-runtime-6.0 \
         ca-certificates \
@@ -27,25 +27,25 @@ RUN microdnf install -y --refresh --nodocs --setopt=install_weak_deps=0 \
     && microdnf clean all \
     && rm -rf /var/cache/yum
 
-# Copy helper script, then verify installation
-COPY arch.sh .
-RUN chmod +x arch.sh \
-    && ./arch.sh
-
 # Install Azure CLI with RPM, then verify installation
 RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc \
-    && curl -LsS https://packages.microsoft.com/config/rhel/8/prod.repo > /etc/yum.repos.d/azure-cli.repo \
+    && curl -LsSf https://packages.microsoft.com/config/rhel/8/prod.repo > /etc/yum.repos.d/azure-cli.repo \
     && microdnf install -y --refresh --nodocs --setopt=install_weak_deps=0 \
         azure-cli \
     && microdnf clean all \
     && rm -rf /var/cache/yum \
     && az --version
 
+# Copy helper script, then verify installation
+COPY arch.sh .
+RUN chmod +x arch.sh \
+    && ./arch.sh
+
 # Install Powershell, then verify installation
 ARG POWERSHELL_VERSION
 ENV POWERSHELL_VERSION ${POWERSHELL_VERSION}
 RUN mkdir -p /opt/microsoft/powershell \
-    && curl -LsS https://github.com/PowerShell/PowerShell/releases/download/v${POWERSHELL_VERSION}/powershell-${POWERSHELL_VERSION}-$(./arch.sh).tar.gz | tar -xz -C /opt/microsoft/powershell \
+    && curl -LsSf https://github.com/PowerShell/PowerShell/releases/download/v${POWERSHELL_VERSION}/powershell-${POWERSHELL_VERSION}-linux-$(./arch.sh).tar.gz | tar -xz -C /opt/microsoft/powershell \
     && chmod +x /opt/microsoft/powershell/pwsh \
     && ln -s /opt/microsoft/powershell/pwsh /usr/bin/pwsh \
     && pwsh -Version
@@ -55,10 +55,17 @@ ARG AGENT_VERSION
 ENV AGENT_VERSION ${AGENT_VERSION}
 ENV AGENT_HOME /azp
 RUN mkdir -p ${AGENT_HOME} \
-    && curl -LsS https://vstsagentpackage.azureedge.net/agent/${AGENT_VERSION}/pipelines-agent-$(./arch.sh)-${AGENT_VERSION}.tar.gz | tar -xz -C ${AGENT_HOME} \
+    && curl -LsSf https://vstsagentpackage.azureedge.net/agent/${AGENT_VERSION}/pipelines-agent-linux-$(./arch.sh)-${AGENT_VERSION}.tar.gz | tar -xz -C ${AGENT_HOME} \
     && cd $AGENT_HOME \
     && chmod +x ./run-docker.sh ./config.sh \
     && AGENT_ALLOW_RUNASROOT="1" ./run-docker.sh --version
+
+# Install YQ, then verify installation
+ARG YQ_VERSION
+ENV YQ_VERSION ${YQ_VERSION}
+RUN curl -LsSf https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_$(ARCH_AMD64=amd64 ./arch.sh) -o /usr/bin/yq \
+    && chmod +x /usr/bin/yq \
+    && yq --version
 
 # Cleanup helper script
 RUN rm arch.sh
