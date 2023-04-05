@@ -5,8 +5,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install:
 # - Azure Pipelines agent system requirements
-# - "zsh", for inter-operability
-# - "gzip, make, tar, unzip, wget, zip, zstd" for developer ease-of-life
+# - zsh, for inter-operability
+# - gzip, make, tar, unzip, wget, yq, zip, zstd for developer ease-of-life
 RUN apt-get update -q \
     && apt-get install -y -q --no-install-recommends \
         ca-certificates \
@@ -33,8 +33,8 @@ RUN chmod +x arch.sh \
     && ./arch.sh
 
 # Install Azure CLI, then verify installation
-RUN curl -LsS https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/microsoft.asc.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture)] https://packages.microsoft.com/repos/azure-cli $(. /etc/os-release; echo ${VERSION_CODENAME}) main" > /etc/apt/sources.list.d/azure-cli.list \
+RUN curl -LsSf https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/microsoft.asc.gpg \
+    && echo "deb [arch=$(./arch.sh)] https://packages.microsoft.com/repos/azure-cli $(. /etc/os-release; echo ${VERSION_CODENAME}) main" > /etc/apt/sources.list.d/azure-cli.list \
     && apt-get update -q \
     && apt-get install -y -q --no-install-recommends \
         azure-cli \
@@ -46,7 +46,7 @@ RUN curl -LsS https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor 
 ARG POWERSHELL_VERSION
 ENV POWERSHELL_VERSION ${POWERSHELL_VERSION}
 RUN mkdir -p /opt/microsoft/powershell \
-    && curl -LsS https://github.com/PowerShell/PowerShell/releases/download/v${POWERSHELL_VERSION}/powershell-${POWERSHELL_VERSION}-$(./arch.sh).tar.gz | tar -xz -C /opt/microsoft/powershell \
+    && curl -LsSf https://github.com/PowerShell/PowerShell/releases/download/v${POWERSHELL_VERSION}/powershell-${POWERSHELL_VERSION}-linux-$(./arch.sh).tar.gz | tar -xz -C /opt/microsoft/powershell \
     && chmod +x /opt/microsoft/powershell/pwsh \
     && ln -s /opt/microsoft/powershell/pwsh /usr/bin/pwsh \
     && pwsh -Version
@@ -56,10 +56,17 @@ ARG AGENT_VERSION
 ENV AGENT_VERSION ${AGENT_VERSION}
 ENV AGENT_HOME /azp
 RUN mkdir -p ${AGENT_HOME} \
-    && curl -LsS https://vstsagentpackage.azureedge.net/agent/${AGENT_VERSION}/pipelines-agent-$(./arch.sh)-${AGENT_VERSION}.tar.gz | tar -xz -C ${AGENT_HOME} \
+    && curl -LsSf https://vstsagentpackage.azureedge.net/agent/${AGENT_VERSION}/pipelines-agent-linux-$(./arch.sh)-${AGENT_VERSION}.tar.gz | tar -xz -C ${AGENT_HOME} \
     && cd $AGENT_HOME \
     && chmod +x ./run-docker.sh ./config.sh \
     && AGENT_ALLOW_RUNASROOT="1" ./run-docker.sh --version
+
+# Install YQ, then verify installation
+ARG YQ_VERSION
+ENV YQ_VERSION ${YQ_VERSION}
+RUN curl -LsSf https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_$(ARCH_AMD64=amd64 ./arch.sh) -o /usr/bin/yq \
+    && chmod +x /usr/bin/yq \
+    && yq --version
 
 # Cleanup helper script
 RUN rm arch.sh
