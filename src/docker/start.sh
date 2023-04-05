@@ -22,8 +22,6 @@ if [ -n "$AZP_WORK" ]; then
   mkdir -p "$AZP_WORK"
 fi
 
-export AGENT_ALLOW_RUNASROOT="1"
-
 cleanup() {
   if [ -e config.sh ]; then
     print_header "Cleanup. Removing Azure Pipelines agent..."
@@ -45,10 +43,12 @@ print_header() {
   echo -e "${lightcyan}$1${nocolor}"
 }
 
+print_header "Configuring Azure Pipelines agent..."
+
+# Allow the agent to run as root (only feasible because the agent is running in a not-reused container)
+export AGENT_ALLOW_RUNASROOT="1"
 # Let the agent ignore the token env variables
 export VSO_AGENT_IGNORE=AZP_TOKEN,AZP_TOKEN_FILE
-
-print_header "Configuring Azure Pipelines agent..."
 
 ./config.sh --unattended \
   --acceptTeeEula \
