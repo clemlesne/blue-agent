@@ -5,7 +5,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install:
 # - Azure Pipelines agent system requirements
-# - "gzip, make, tar, unzip, wget, zip, zsh, zstd" for developer ease-of-life
+# - "zsh", for inter-operability
+# - "gzip, make, tar, unzip, wget, zip, zstd" for developer ease-of-life
 RUN apt-get update -q \
     && apt-get install -y -q --no-install-recommends \
         ca-certificates \
@@ -26,10 +27,14 @@ RUN apt-get update -q \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists
 
+# Copy helper script, then verify installation
+COPY arch.sh .
+RUN chmod +x arch.sh \
+    && ./arch.sh
+
 # Install Azure CLI, then verify installation
-RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.asc.gpg \
-    && mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/ \
-    && echo "deb [arch=$(dpkg --print-architecture)] https://packages.microsoft.com/repos/azure-cli/ $(. /etc/os-release; echo $VERSION_CODENAME) main" > /etc/apt/sources.list.d/azure-cli.list \
+RUN curl -LsS https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/microsoft.asc.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture)] https://packages.microsoft.com/repos/azure-cli $(. /etc/os-release; echo ${VERSION_CODENAME}) main" > /etc/apt/sources.list.d/azure-cli.list \
     && apt-get update -q \
     && apt-get install -y -q --no-install-recommends \
         azure-cli \
@@ -37,15 +42,30 @@ RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor >
     && rm -rf /var/lib/apt/lists \
     && az --version
 
-WORKDIR /azp
+# Install Powershell, then verify installation
+ARG POWERSHELL_VERSION
+ENV POWERSHELL_VERSION ${POWERSHELL_VERSION}
+RUN mkdir -p /opt/microsoft/powershell \
+    && curl -LsS https://github.com/PowerShell/PowerShell/releases/download/v${POWERSHELL_VERSION}/powershell-${POWERSHELL_VERSION}-$(./arch.sh).tar.gz | tar -xz -C /opt/microsoft/powershell \
+    && chmod +x /opt/microsoft/powershell/pwsh \
+    && ln -s /opt/microsoft/powershell/pwsh /usr/bin/pwsh \
+    && pwsh -Version
 
 # Install Azure Pipelines Agent sources, then verify installation
 ARG AGENT_VERSION
 ENV AGENT_VERSION ${AGENT_VERSION}
-COPY init.sh .
-RUN chmod +x init.sh \
-    && ./init.sh $AGENT_VERSION \
+ENV AGENT_HOME /azp
+RUN mkdir -p ${AGENT_HOME} \
+    && curl -LsS https://vstsagentpackage.azureedge.net/agent/${AGENT_VERSION}/pipelines-agent-$(./arch.sh)-${AGENT_VERSION}.tar.gz | tar -xz -C ${AGENT_HOME} \
+    && cd $AGENT_HOME \
+    && chmod +x ./run-docker.sh ./config.sh \
     && AGENT_ALLOW_RUNASROOT="1" ./run-docker.sh --version
+
+# Cleanup helper script
+RUN rm arch.sh
+
+# Set agent home as working directory
+WORKDIR ${AGENT_HOME}
 
 # Install Azure Pipelines Agent startup script
 COPY start.sh .

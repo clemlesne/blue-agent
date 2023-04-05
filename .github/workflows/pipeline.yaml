@@ -20,6 +20,7 @@ env:
   AGENT_VERSION: 3.218.0
   CONTAINER_NAME: ${{ github.repository }}
   CONTAINER_REGISTRY: ghcr.io
+  POWERSHELL_VERSION: 7.2.10
 
 jobs:
   build-helm:
@@ -180,6 +181,7 @@ jobs:
         with:
           build-args: |
             "AGENT_VERSION=${{ env.AGENT_VERSION }}"
+            "POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}"
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: src/docker
