@@ -1,5 +1,4 @@
-# Fetch the vendor with the builder platform to avoid QEMU issues
-FROM --platform=$BUILDPLATFORM registry.access.redhat.com/ubi8/ubi-minimal:8.7
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.7
 
 # Install:
 # - Azure Pipelines agent system requirements
