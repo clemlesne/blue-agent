@@ -29,7 +29,7 @@ cleanup() {
     # If the agent has some running jobs, the configuration removal process will fail.
     # So, give it some time to finish the job.
     while true; do
-      ./config.sh remove --unattended --auth PAT --token $(cat "$AZP_TOKEN_FILE") && break
+      bash config.sh remove --unattended --auth PAT --token $(cat "$AZP_TOKEN_FILE") && break
 
       echo "Retrying in 30 seconds..."
       sleep 30
@@ -50,7 +50,7 @@ export AGENT_ALLOW_RUNASROOT="1"
 # Let the agent ignore the token env variables
 export VSO_AGENT_IGNORE=AZP_TOKEN,AZP_TOKEN_FILE
 
-./config.sh \
+bash config.sh \
   --acceptTeeEula \
   --agent "${AZP_AGENT_NAME:-$(hostname)}" \
   --auth PAT \
@@ -72,4 +72,4 @@ if ! grep -q "template" <<<"$AZP_AGENT_NAME"; then
 fi
 
 # To be aware of TERM and INT signals call "run-docker.sh", running it with the --once flag at the end will shut down the agent after the build is executed
-./run-docker.sh "$@" --once
+bash run-docker.sh "$@" --once
