@@ -45,13 +45,13 @@ RUN python3 -m pip install --upgrade pip setuptools wheel \
 # Copy helper script, then verify installation
 COPY arch.sh .
 RUN chmod +x arch.sh \
-    && ./arch.sh
+    && bash arch.sh
 
 # Install Powershell, then verify installation
 ARG POWERSHELL_VERSION
 ENV POWERSHELL_VERSION ${POWERSHELL_VERSION}
 RUN mkdir -p /opt/microsoft/powershell \
-    && curl -LsSf https://github.com/PowerShell/PowerShell/releases/download/v${POWERSHELL_VERSION}/powershell-${POWERSHELL_VERSION}-linux-$(./arch.sh).tar.gz | tar -xz -C /opt/microsoft/powershell \
+    && curl -LsSf https://github.com/PowerShell/PowerShell/releases/download/v${POWERSHELL_VERSION}/powershell-${POWERSHELL_VERSION}-linux-$(bash arch.sh).tar.gz | tar -xz -C /opt/microsoft/powershell \
     && chmod +x /opt/microsoft/powershell/pwsh \
     && ln -s /opt/microsoft/powershell/pwsh /usr/bin/pwsh \
     && pwsh -Version
@@ -61,15 +61,15 @@ ARG AGENT_VERSION
 ENV AGENT_VERSION ${AGENT_VERSION}
 ENV AGENT_HOME /azp
 RUN mkdir -p ${AGENT_HOME} \
-    && curl -LsSf https://vstsagentpackage.azureedge.net/agent/${AGENT_VERSION}/pipelines-agent-linux-$(./arch.sh)-${AGENT_VERSION}.tar.gz | tar -xz -C ${AGENT_HOME} \
+    && curl -LsSf https://vstsagentpackage.azureedge.net/agent/${AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AGENT_VERSION}.tar.gz | tar -xz -C ${AGENT_HOME} \
     && cd $AGENT_HOME \
-    && chmod +x ./run-docker.sh ./config.sh \
-    && AGENT_ALLOW_RUNASROOT="1" ./run-docker.sh --version
+    && chmod +x run-docker.sh config.sh \
+    && AGENT_ALLOW_RUNASROOT="1" bash run-docker.sh --version
 
 # Install YQ, then verify installation
 ARG YQ_VERSION
 ENV YQ_VERSION ${YQ_VERSION}
-RUN curl -LsSf https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_$(ARCH_AMD64=amd64 ./arch.sh) -o /usr/bin/yq \
+RUN curl -LsSf https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_$(ARCH_AMD64=amd64 bash arch.sh) -o /usr/bin/yq \
     && chmod +x /usr/bin/yq \
     && yq --version
 
@@ -83,4 +83,4 @@ WORKDIR ${AGENT_HOME}
 COPY start.sh .
 RUN chmod +x start.sh
 
-CMD ["./start.sh"]
+CMD bash start.sh

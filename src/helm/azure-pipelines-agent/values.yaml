@@ -14,7 +14,6 @@ autoscaling:
   # If autoscaling not enabled, the number of replicas to run
   minReplicas: 1
   maxReplicas: 100
-  cooldown: 60
 
 pipelines:
   cacheSize: 10Gi
@@ -24,6 +23,7 @@ pipelines:
   url: null
   workDir: _work
   capabiliies: []
+  timeout: 3600
 
 serviceAccount:
   create: true
