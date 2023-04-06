@@ -84,8 +84,6 @@ Take the assumption we want to host a specific instance pool to ARM servers.
 # values.yaml
 pipelines:
   pool: Kubernetes
-  capabiliies:
-    - arch-arm64
 
 affinity:
   nodeAffinity:
@@ -112,7 +110,7 @@ pool:
   name: Kubernetes
   demands:
     - Agent.OS -equals Linux
-    - arch-arm64
+    - Agent.OSArchitecture -equals ARM64
 
 stages:
   ...
@@ -143,6 +141,7 @@ stages:
 | `pipelines.capabiliies` | Add [demands/capabilities](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/demands?view=azure-devops&tabs=yaml) to the agent | `[]` |
 | `pipelines.pat` | Personal Access Token (PAT) used by the agent to connect. | *None* |
 | `pipelines.pool` | Agent pool to which the Agent should register. | *None* |
+| `pipelines.timeout` | Time in seconds after a agent will be stopped, the same amount of time is applied as a timeout for the system to shut down. | `3600` (1 hour) |
 | `pipelines.url` | The Azure base URL for your organization | *None* |
 | `pipelines.workDir` | The work directory the agent should use | `_work` |
 | `resources` | Resource limits | `{ "resources": { "limits": { "cpu": 2, "memory": "4Gi" }, "requests": { "cpu": 1, "memory": "2Gi" } }}` |
