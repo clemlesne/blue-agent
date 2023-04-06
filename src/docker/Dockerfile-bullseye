@@ -1,5 +1,4 @@
-# Fetch the vendor with the builder platform to avoid QEMU issues
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
