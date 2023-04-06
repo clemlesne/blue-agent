@@ -1,5 +1,4 @@
-# Fetch the vendor with the builder platform to avoid QEMU issues
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -7,9 +6,12 @@ ENV DEBIAN_FRONTEND=noninteractive
 # - Azure Pipelines agent system requirements
 # - zsh, for inter-operability
 # - gzip, make, tar, unzip, wget, yq, zip, zstd for developer ease-of-life
+# - Azure CLI system requirements (Python 3.9, plus C/Rust build tools for libs non pre-built on this platform)
 RUN apt-get update -q \
     && apt-get install -y -q --no-install-recommends \
+        build-essential \
         ca-certificates \
+        cargo \
         curl \
         git \
         git-lfs \
@@ -17,7 +19,15 @@ RUN apt-get update -q \
         gzip \
         iputils-ping \
         jq \
+        libffi-dev \
+        libssl-dev \
+        lsb-release \
         make \
+        pkg-config \
+        python3-dev=3.9.* \
+        python3-pip \
+        python3=3.9.* \
+        software-properties-common \
         sudo \
         tar \
         unzip \
@@ -34,13 +44,9 @@ RUN chmod +x arch.sh \
     && ./arch.sh
 
 # Install Azure CLI, then verify installation
-RUN curl -LsSf https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/microsoft.asc.gpg \
-    && echo "deb [arch=$(./arch.sh)] https://packages.microsoft.com/repos/azure-cli $(. /etc/os-release; echo ${VERSION_CODENAME}) main" > /etc/apt/sources.list.d/azure-cli.list \
-    && apt-get update -q \
-    && apt-get install -y -q --no-install-recommends \
-        azure-cli \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists \
+RUN python3 -m pip install --upgrade pip setuptools wheel \
+    && python3 -m pip install azure-cli \
+    && rm -rf $HOME/.cache/pip \
     && az --version
 
 # Install Powershell, then verify installation

@@ -20,7 +20,7 @@ Features:
 - Agent restart itself if it crashes.
 - Auto-scale based on Pipeline usage (with [KEDA](https://keda.sh), not required).
 - Can run air-gapped (no internet access).
-- Cheap to run (scale to 0, dynamic provisioning of agents, can scale from 0 to 100+ in few seconds).
+- Cheap to run (dynamic provisioning of agents, can scale from 0 to 100+ in few seconds).
 - Compatible with Debian, Ubuntu and Red Hat LTS releases.
 - SBOM (Software Bill of Materials) is packaged with each container image.
 - System updates are applied every days.
@@ -62,9 +62,61 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 
 - [Azure Pipelines agent](https://github.com/microsoft/azure-pipelines-agent) (see env var `AGENT_VERSION` on the container images) + [requirements](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux)
 - [ASP.NET Core](https://github.com/dotnet/aspnetcore) runtime (required by the Azure Pipelines agent)
-- [Azure CLI](https://github.com/Azure/azure-cli) (required by the Azure Pipelines agent)
+- [Azure CLI](https://github.com/Azure/azure-cli) (required by the Azure Pipelines agent) + requirements ([Python 3.8](https://www.python.org/downloads/release/python-380), [Python 3.9](https://www.python.org/downloads/release/python-390), [Python 3.10](https://www.python.org/downloads/release/python-3100), depending of the system, plus C/Rust build tools for libs non pre-built on the platforms)
 - [Powershell](https://github.com/PowerShell/PowerShell), [bash](https://www.gnu.org/software/bash) and [zsh](https://www.zsh.org) (for inter-operability)
 - [gzip](https://www.gnu.org/software/gzip), [make](https://www.gnu.org/software/make), [tar](https://www.gnu.org/software/tar), [unzip](https://infozip.sourceforge.net/UnZip.html), [wget](https://www.gnu.org/software/wget), [yq](https://github.com/mikefarah/yq), [zip](https://infozip.sourceforge.net/Zip.html), [zstd](https://github.com/facebook/zstd) (for developer ease-of-life)
+
+### Capabilities
+
+Capabilities are declarative variables you can add to the agents, to allow developers to select the right agent for their pipeline ([official documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/demands?view=azure-devops&tabs=yaml)).
+
+Note, you can add multiple Helm instances to the same agent pool. Then, disctinct them by capabilities. For examples:
+
+- A pool of AMD64 agents, and a pool of ARM64 agents
+- A pool of agents with GPU, and a pool of agents without GPU
+- A pool of agents with low performance (standard usage), and a pool of agents with high performance (IA training, intensive C/Rust/GraalVM compilation, ...), with distinct Kubernetes Node pool, scaling to 0 when not used ([AKS documentation](https://learn.microsoft.com/en-us/azure/aks/cluster-autoscaler))
+
+#### Example: ARM64 agents
+
+Take the assumption we want to host a specific instance pool to ARM servers.
+
+```yaml
+# values.yaml
+pipelines:
+  pool: Kubernetes
+  capabiliies:
+    - arch-arm64
+
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+          - key: kubernetes.io/arch
+            operator: In
+            values:
+              - arm64
+```
+
+Deploy the Helm instance:
+
+```bash
+❯ helm upgrade --install agent-arm64 clemlesne-azure-pipelines-agent/azure-pipelines-agent -f values.yaml
+```
+
+Update the Azure Pipelines file in the repository to use the new pool:
+
+```yaml
+# azure-pipelines.yaml
+pool:
+  name: Kubernetes
+  demands:
+    - Agent.OS -equals Linux
+    - arch-arm64
+
+stages:
+  ...
+```
 
 ### Helm values
 
@@ -75,7 +127,7 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 | `autoscaling.cooldown` | Time in seconds the automation will wait until there is no more pipeline asking for an agent. Same time is then applied for system termination. | `60` |
 | `autoscaling.enabled` | Enable the auto-scaling, requires [KEDA](https://keda.sh). | `true` |
 | `autoscaling.maxReplicas` | Maximum number of pods, remaining jobs will be kept in queue. | `100` |
-| `autoscaling.minReplicas` | Minimum number of pods. If autoscaling not enabled, the number of replicas to run. If auto-scaling is enabled, it is recommended to set the value to `0`. | `1` |
+| `autoscaling.minReplicas` | Minimum number of pods. If autoscaling not enabled, the number of replicas to run. If `pipelines.capabiliies` is defined, cannot be set to `0`. | `1` |
 | `extraVolumeMounts` | Additional volume mounts for the agent container. | `[]` |
 | `extraVolumes` | Additional volumes for the agent pod. | `[]` |
 | `fullnameOverride` | Overrides release fullname | `""` |
@@ -88,6 +140,7 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 | `nodeSelector` | Node labels for pod assignment | `{}` |
 | `pipelines.cacheSize` | Total cache the pipeline can take during execution, by default [the same amount as the Microsoft Hosted agents](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&tabs=yaml#hardware). | `10Gi` |
 | `pipelines.cacheType` | Disk type to attach to the agents, see your cloud provider for mor details  ([Azure](https://learn.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes), [AWS](https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html)). | `managed-csi` (Azure compatible) |
+| `pipelines.capabiliies` | Add [demands/capabilities](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/demands?view=azure-devops&tabs=yaml) to the agent | `[]` |
 | `pipelines.pat` | Personal Access Token (PAT) used by the agent to connect. | *None* |
 | `pipelines.pool` | Agent pool to which the Agent should register. | *None* |
 | `pipelines.url` | The Azure base URL for your organization | *None* |

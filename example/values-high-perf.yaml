@@ -1,0 +1,17 @@
+pipelines:
+  pat: ojemi3pd7adocbqeeuzr5o7ldz2jlwxxbmtrrj7gq5mifhmafpsa
+  pool: Kubernetes
+  url: https://dev.azure.com/shopping-cart-devops-demo
+  cacheType: azurefile-csi
+  capabiliies:
+    - node-high-perf
+
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+          - key: kubernetes.azure.com/agentpool
+            operator: In
+            values:
+              - highperf

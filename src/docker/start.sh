@@ -24,7 +24,7 @@ fi
 
 cleanup() {
   if [ -e config.sh ]; then
-    print_header "Cleanup. Removing Azure Pipelines agent..."
+    print_header "Cleanup, removing agent..."
 
     # If the agent has some running jobs, the configuration removal process will fail.
     # So, give it some time to finish the job.
@@ -43,35 +43,33 @@ print_header() {
   echo -e "${lightcyan}$1${nocolor}"
 }
 
-print_header "Configuring Azure Pipelines agent..."
+print_header "Configuring agent..."
 
 # Allow the agent to run as root (only feasible because the agent is running in a not-reused container)
 export AGENT_ALLOW_RUNASROOT="1"
 # Let the agent ignore the token env variables
 export VSO_AGENT_IGNORE=AZP_TOKEN,AZP_TOKEN_FILE
 
-./config.sh --unattended \
+./config.sh \
   --acceptTeeEula \
   --agent "${AZP_AGENT_NAME:-$(hostname)}" \
   --auth PAT \
   --pool "${AZP_POOL:-Default}" \
   --replace \
   --token $(cat "$AZP_TOKEN_FILE") \
+  --unattended \
   --url "$AZP_URL" \
-  --work "${AZP_WORK:-_work}" &
-wait $!
+  --work "${AZP_WORK:-_work}"
 
-print_header "Running Azure Pipelines agent..."
+print_header "Running agent..."
 
 if ! grep -q "template" <<<"$AZP_AGENT_NAME"; then
-  echo "Cleanup Traps Enabled"
+  echo "Cleanup traps enabled."
 
   trap 'cleanup; exit 0' EXIT
   trap 'cleanup; exit 130' INT
   trap 'cleanup; exit 143' TERM
 fi
 
-# To be aware of TERM and INT signals call run.sh
-# Running it with the --once flag at the end will shut down the agent after the build is executed
-./run-docker.sh "$@" --once &
-wait $!
+# To be aware of TERM and INT signals call "run-docker.sh", running it with the --once flag at the end will shut down the agent after the build is executed
+./run-docker.sh "$@" --once
