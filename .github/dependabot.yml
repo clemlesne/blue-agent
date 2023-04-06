@@ -4,4 +4,7 @@ updates:
     directory: src/docker
     schedule:
       interval: daily
-    target-branch: develop
+  - package-ecosystem: gitsubmodule
+    schedule:
+        interval: daily
+    directory: cicd/version
