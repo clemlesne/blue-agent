@@ -22,21 +22,6 @@ if [ -n "$AZP_WORK" ]; then
   mkdir -p "$AZP_WORK"
 fi
 
-cleanup() {
-  if [ -e config.sh ]; then
-    print_header "Cleanup, removing agent..."
-
-    # If the agent has some running jobs, the configuration removal process will fail.
-    # So, give it some time to finish the job.
-    while true; do
-      bash config.sh remove --unattended --auth PAT --token $(cat "$AZP_TOKEN_FILE") && break
-
-      echo "Retrying in 30 seconds..."
-      sleep 30
-    done
-  fi
-}
-
 print_header() {
   lightcyan='\033[1;36m'
   nocolor='\033[0m'
@@ -59,17 +44,17 @@ bash config.sh \
   --token $(cat "$AZP_TOKEN_FILE") \
   --unattended \
   --url "$AZP_URL" \
-  --work "${AZP_WORK:-_work}"
+  --work "${AZP_WORK:-_work}" &
+
+# Fake the exit code of the agent for the prevent Kubernetes to detect the pod as failed (this is intended)
+# See: https://stackoverflow.com/a/62183992/12732154
+wait $!
 
 print_header "Running agent..."
 
-if ! grep -q "template" <<<"$AZP_AGENT_NAME"; then
-  echo "Cleanup traps enabled."
+# Running it with the --once flag at the end will shut down the agent after the build is executed
+bash run-docker.sh "$@" --once &
 
-  trap 'cleanup; exit 0' EXIT
-  trap 'cleanup; exit 130' INT
-  trap 'cleanup; exit 143' TERM
-fi
-
-# To be aware of TERM and INT signals call "run-docker.sh", running it with the --once flag at the end will shut down the agent after the build is executed
-bash run-docker.sh "$@" --once
+# Fake the exit code of the agent for the prevent Kubernetes to detect the pod as failed (this is intended)
+# See: https://stackoverflow.com/a/62183992/12732154
+wait $!

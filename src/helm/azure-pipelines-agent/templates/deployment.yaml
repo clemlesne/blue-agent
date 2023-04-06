@@ -1,18 +1,19 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: {{ include "this.fullname" . }}
   labels:
     {{- include "this.labels" . | nindent 4 }}
 spec:
-  podManagementPolicy: Parallel
-  {{- if not (and (.Values.autoscaling.enabled) (.Capabilities.APIVersions.Has "keda.sh/v1alpha1")) }}
-  replicas: {{ .Values.autoscaling.minReplicas }}
-  {{- end }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 0
+  replicas: {{ .Values.autoscaling.minReplicas | int | required "A value for .Values.autoscaling.minReplicas is required" }}
   selector:
     matchLabels:
       {{- include "this.selectorLabels" . | nindent 6 }}
-  serviceName: {{ include "this.fullname" . }}
   template:
     metadata:
       labels:
@@ -31,7 +32,7 @@ spec:
       initContainers:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      terminationGracePeriodSeconds: {{ .Values.autoscaling.cooldown }}
+      terminationGracePeriodSeconds: {{ .Values.pipelines.timeout | int | required "A value for .Values.pipelines.timeout is required" }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -66,15 +67,18 @@ spec:
             {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          volumeMounts:
-            - name: workdir
-              mountPath: {{ .Values.pipelines.workDir | quote }}
-            {{- with .Values.extraVolumeMounts }}
-              {{- toYaml . | nindent 12 }}
-            {{- end }}
-      {{- if .Values.extraVolumes }}
       volumes:
-        {{- toYaml .Values.extraVolumes | nindent 8 }}
+        - name: workdir
+          ephemeral:
+            volumeClaimTemplate:
+              spec:
+                accessModes: [ "ReadWriteOnce" ]
+                storageClassName: {{ .Values.pipelines.cacheType | required "A value for .Values.pipelines.cacheType is required" }}
+                resources:
+                  requests:
+                    storage: {{ .Values.pipelines.cacheSize | required "A value for .Values.pipelines.cacheSize is required" }}
+      {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -88,12 +92,3 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-  volumeClaimTemplates:
-    - metadata:
-        name: workdir
-      spec:
-        accessModes: [ "ReadWriteOnce" ]
-        storageClassName: {{ .Values.pipelines.cacheType | required "A value for .Values.pipelines.cacheType is required" }}
-        resources:
-          requests:
-            storage: {{ .Values.pipelines.cacheSize | required "A value for .Values.pipelines.cacheSize is required" }}
