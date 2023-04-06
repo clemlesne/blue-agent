@@ -24,14 +24,16 @@ spec:
   scaleTargetRef:
     kind: StatefulSet
     name: {{ include "this.fullname" . }}
-  maxReplicaCount: {{ .Values.autoscaling.maxReplicas }}
-  minReplicaCount: {{ .Values.autoscaling.minReplicas }}
+  maxReplicaCount: {{ .Values.autoscaling.maxReplicas | required "A value for .Values.autoscaling.maxReplicas is required" }}
+  minReplicaCount: {{ .Values.autoscaling.minReplicas | required "A value for .Values.autoscaling.minReplicas is required" }}
   pollingInterval: 5
-  cooldownPeriod: {{ .Values.autoscaling.cooldown }}
+  cooldownPeriod: {{ .Values.autoscaling.cooldown | required "A value for .Values.autoscaling.cooldown is required" }}
   triggers:
     - type: azure-pipelines
       metadata:
         poolName: {{ .Values.pipelines.pool | required "A value for .Values.pipelines.pool is required" }}
+        demands: {{ join "," .Values.pipelines.capabiliies | default "" }}
+        parent: {{ include "this.fullname" . }}-0
       authenticationRef:
         name: {{ include "this.fullname" . }}
 {{- end }}

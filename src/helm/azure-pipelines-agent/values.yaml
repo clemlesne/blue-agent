@@ -23,6 +23,7 @@ pipelines:
   pool: null
   url: null
   workDir: _work
+  capabiliies: []
 
 serviceAccount:
   create: true

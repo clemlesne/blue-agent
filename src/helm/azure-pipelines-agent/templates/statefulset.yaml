@@ -36,7 +36,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.flavor }}-{{ .Values.image.version | default .Chart.Version }}"
+          image: "{{ .Values.image.repository | required "A value for .Values.image.repository is required" }}:{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}-{{ .Values.image.version | default .Chart.Version }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: AZP_AGENT_NAME
@@ -58,6 +58,9 @@ spec:
                 secretKeyRef:
                   name: {{ include "this.fullname" . }}
                   key: pat
+            {{- range .Values.pipelines.capabiliies }}
+            - name: {{ . }}
+            {{- end }}
             {{- with .Values.additionalEnv }}
               {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -90,7 +93,7 @@ spec:
         name: workdir
       spec:
         accessModes: [ "ReadWriteOnce" ]
-        storageClassName: {{ .Values.pipelines.cacheType }}
+        storageClassName: {{ .Values.pipelines.cacheType | required "A value for .Values.pipelines.cacheType is required" }}
         resources:
           requests:
-            storage: {{ .Values.pipelines.cacheSize }}
+            storage: {{ .Values.pipelines.cacheSize | required "A value for .Values.pipelines.cacheSize is required" }}
