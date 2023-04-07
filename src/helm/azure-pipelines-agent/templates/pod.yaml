@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "this.fullname" . }}-{{ .Release.Revision }}
+  labels:
+    {{- include "this.labels" . | nindent 4 }}
+spec:
+  {{- with .Values.imagePullSecrets }}
+  imagePullSecrets:
+    {{- toYaml . | nindent 8 }}
+  {{- end }}
+  serviceAccountName: {{ include "this.serviceAccountName" . }}
+  securityContext:
+    {{- toYaml .Values.podSecurityContext | nindent 8 }}
+  {{- with .Values.initContainers }}
+  initContainers:
+    {{- toYaml . | nindent 8 }}
+  {{- end }}
+  terminationGracePeriodSeconds: {{ .Values.pipelines.timeout | int | required "A value for .Values.pipelines.timeout is required" }}
+  # This agent is a template, we privilegiate Jobs instead of it, but we need to run it first
+  restartPolicy: Never
+  containers:
+    - name: {{ .Chart.Name }}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 12 }}
+      image: "{{ .Values.image.repository | required "A value for .Values.image.repository is required" }}:{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}-{{ .Values.image.version | default .Chart.Version }}"
+      imagePullPolicy: {{ .Values.image.pullPolicy }}
+      lifecycle:
+        preStop:
+          exec:
+            command: [bash, -c, "./config.sh remove --auth PAT --token $AZP_TOKEN"]
+      env:
+        - name: VSO_AGENT_IGNORE
+          value: AZP_TOKEN
+        - name: AGENT_ALLOW_RUNASROOT
+          value: "1"
+        - name: AZP_AGENT_NAME
+          value: {{ include "this.fullname" . }}-template
+        - name: AZP_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "this.fullname" . }}
+              key: url
+        - name: AZP_POOL
+          value: {{ .Values.pipelines.pool | quote | required "A value for .Values.pipelines.pool is required" }}
+        - name: AZP_WORK
+          value: _work
+        - name: AZP_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "this.fullname" . }}
+              key: pat
+        {{- range .Values.pipelines.capabilities }}
+        - name: {{ . }}
+        {{- end }}
+        {{- with .Values.additionalEnv }}
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+      resources:
+        {{- toYaml .Values.resources | nindent 12 }}
+      volumeMounts:
+        - name: workdir
+          mountPath: _work
+      {{- with .Values.extraVolumeMounts }}
+        {{- toYaml . | nindent 14 }}
+      {{- end }}
+  volumes:
+    - name: workdir
+      ephemeral:
+        volumeClaimTemplate:
+          spec:
+            accessModes: [ "ReadWriteOnce" ]
+            storageClassName: {{ .Values.pipelines.cacheType | required "A value for .Values.pipelines.cacheType is required" }}
+            resources:
+              requests:
+                storage: {{ .Values.pipelines.cacheSize | required "A value for .Values.pipelines.cacheSize is required" }}
+  {{- with .Values.extraVolumes }}
+    {{- toYaml . | nindent 8 }}
+  {{- end }}
+  {{- with .Values.nodeSelector }}
+  nodeSelector:
+    {{- toYaml . | nindent 8 }}
+  {{- end }}
+  {{- with .Values.affinity }}
+  affinity:
+    {{- toYaml . | nindent 8 }}
+  {{- end }}
+  {{- with .Values.tolerations }}
+  tolerations:
+    {{- toYaml . | nindent 8 }}
+  {{- end }}

@@ -11,6 +11,21 @@ if [ -z "$AZP_TOKEN" ]; then
   exit 1
 fi
 
+if [ -z "$AZP_POOL" ]; then
+  echo 1>&2 "error: missing AZP_POOL environment variable"
+  exit 1
+fi
+
+if [ -z "$AZP_AGENT_NAME" ]; then
+  echo 1>&2 "error: missing AZP_AGENT_NAME environment variable"
+  exit 1
+fi
+
+if [ -z "$AZP_AGENT_NAME" ]; then
+  echo 1>&2 "error: missing AZP_AGENT_NAME environment variable"
+  exit 1
+fi
+
 if [ -n "$AZP_WORK" ]; then
   mkdir -p "$AZP_WORK"
 fi
@@ -25,16 +40,24 @@ print_header "Configuring agent..."
 
 bash config.sh \
   --acceptTeeEula \
-  --agent "${AZP_AGENT_NAME:-$(hostname)}" \
+  --agent "$AZP_AGENT_NAME" \
   --auth PAT \
-  --pool "${AZP_POOL:-Default}" \
+  --pool "$AZP_POOL" \
   --replace \
   --token "$AZP_TOKEN" \
   --unattended \
   --url "$AZP_URL" \
-  --work "${AZP_WORK:-_work}"
+  --work "$AZP_WORK" &
+
+# Fake the exit code of the agent for the prevent Kubernetes to detect the pod as failed (this is intended)
+# See: https://stackoverflow.com/a/62183992/12732154
+wait $!
 
 print_header "Running agent..."
 
 # Running it with the --once flag at the end will shut down the agent after the build is executed
-bash run-docker.sh "$@" --once
+bash run-docker.sh "$@" --once &
+
+# Fake the exit code of the agent for the prevent Kubernetes to detect the pod as failed (this is intended)
+# See: https://stackoverflow.com/a/62183992/12732154
+wait $!
