@@ -70,7 +70,9 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 
 Capabilities are declarative variables you can add to the agents, to allow developers to select the right agent for their pipeline ([official documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/demands?view=azure-devops&tabs=yaml)).
 
-Note, you can add multiple Helm instances to the same agent pool. Then, disctinct them by capabilities. For examples:
+> Note, you can add multiple Helm instances to the same agent pool. It will result in a single pool with multiple capabilities. Be warning, if a capability is not unique accross the pool, all the agents will scale. This will create "zoombies" agents, scaled for nothing, waiting their timeout.
+
+Disctinct the agents by capabilities. For examples:
 
 - A pool of AMD64 agents, and a pool of ARM64 agents
 - A pool of agents with GPU, and a pool of agents without GPU
@@ -84,6 +86,8 @@ Take the assumption we want to host a specific instance pool to ARM servers.
 # values.yaml
 pipelines:
   pool: Kubernetes
+  capabiliies:
+    - arch-arm64
 
 affinity:
   nodeAffinity:
@@ -110,7 +114,7 @@ pool:
   name: Kubernetes
   demands:
     - Agent.OS -equals Linux
-    - Agent.OSArchitecture -equals ARM64
+    - arch-arm64
 
 stages:
   ...
