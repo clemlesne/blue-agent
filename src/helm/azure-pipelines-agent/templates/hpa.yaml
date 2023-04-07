@@ -47,7 +47,15 @@ spec:
               {{- toYaml .Values.securityContext | nindent 14 }}
             image: "{{ .Values.image.repository | required "A value for .Values.image.repository is required" }}:{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}-{{ .Values.image.version | default .Chart.Version }}"
             imagePullPolicy: {{ .Values.image.pullPolicy }}
+            lifecycle:
+              preStop:
+                exec:
+                  command: [bash, -c, "./config.sh remove --auth PAT --token $AZP_TOKEN"]
             env:
+              - name: VSO_AGENT_IGNORE
+                value: AZP_TOKEN
+              - name: AGENT_ALLOW_RUNASROOT
+                value: "1"
               - name: AZP_AGENT_NAME
                 valueFrom:
                   fieldRef:
