@@ -69,13 +69,13 @@ spec:
               - name: AZP_POOL
                 value: {{ .Values.pipelines.pool | quote | required "A value for .Values.pipelines.pool is required" }}
               - name: AZP_WORK
-                value: {{ .Values.pipelines.workDir | quote }}
+                value: _work
               - name: AZP_TOKEN
                 valueFrom:
                   secretKeyRef:
                     name: {{ include "this.fullname" . }}
                     key: pat
-              {{- range .Values.pipelines.capabiliies }}
+              {{- range .Values.pipelines.capabilities }}
               - name: {{ . }}
               {{- end }}
             {{- with .Values.additionalEnv }}
@@ -85,7 +85,7 @@ spec:
               {{- toYaml .Values.resources | nindent 14 }}
             volumeMounts:
               - name: workdir
-                mountPath: {{ .Values.pipelines.workDir | quote }}
+                mountPath: _work
             {{- with .Values.extraVolumeMounts }}
               {{- toYaml . | nindent 14 }}
             {{- end }}
@@ -116,14 +116,17 @@ spec:
         {{- end }}
   maxReplicaCount: {{ sub (.Values.autoscaling.maxReplicas | int | required "A value for .Values.autoscaling.maxReplicas is required") (.Values.autoscaling.minReplicas | int | required "A value for .Values.autoscaling.minReplicas is required") }}
   minReplicaCount: 0
-  pollingInterval: 5
+  pollingInterval: 15
+  rollout:
+    # Do not delete executed jobs during upgrade
+    strategy: gradual
   scalingStrategy:
     strategy: accurate
   triggers:
     - type: azure-pipelines
       metadata:
-        poolName: {{ .Values.pipelines.pool | required "A value for .Values.pipelines.pool is required" }}
-        demands: {{ join "," .Values.pipelines.capabiliies | default "" }}
+        poolName: {{ .Values.pipelines.pool | quote | required "A value for .Values.pipelines.pool is required" }}
+        parent: {{ include "this.fullname" . }}-template
       authenticationRef:
         name: {{ include "this.fullname" . }}
 {{- end }}

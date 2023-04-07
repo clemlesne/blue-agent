@@ -1,9 +1,9 @@
 pipelines:
   pat: ojemi3pd7adocbqeeuzr5o7ldz2jlwxxbmtrrj7gq5mifhmafpsa
-  pool: Kubernetes
+  pool: onprem_aks
   url: https://dev.azure.com/shopping-cart-devops-demo
   cacheType: azurefile-csi
-  capabiliies:
+  capabilities:
     - node-high-perf
 
 affinity:

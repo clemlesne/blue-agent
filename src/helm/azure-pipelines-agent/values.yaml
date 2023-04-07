@@ -21,8 +21,7 @@ pipelines:
   pat: null
   pool: null
   url: null
-  workDir: _work
-  capabiliies: []
+  capabilities: []
   timeout: 3600
 
 serviceAccount:
