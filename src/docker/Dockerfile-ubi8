@@ -73,6 +73,14 @@ RUN curl -LsSf https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/
     && chmod +x /usr/bin/yq \
     && yq --version
 
+# Install Tini, then verify installation
+ARG TINI_VERSION
+ENV TINI_VERSION ${TINI_VERSION}
+RUN curl -LsSf https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$(ARCH_AMD64=amd64 bash arch.sh) -o /tini \
+    && chmod +x /tini \
+    && /tini --version
+ENTRYPOINT ["/tini", "--"]
+
 # Cleanup helper script
 RUN rm arch.sh
 
@@ -82,5 +90,4 @@ WORKDIR ${AGENT_HOME}
 # Install Azure Pipelines Agent startup script
 COPY start.sh .
 RUN chmod +x start.sh
-
 CMD bash start.sh
