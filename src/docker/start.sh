@@ -25,7 +25,7 @@ fi
 print_header() {
   lightcyan='\033[1;36m'
   nocolor='\033[0m'
-  echo -e "${lightcyan}$1${nocolor}"
+  echo -e "${lightcyan}➡️ $1${nocolor}"
 }
 
 print_header "Configuring agent..."
@@ -44,17 +44,9 @@ bash config.sh \
   --token $(cat "$AZP_TOKEN_FILE") \
   --unattended \
   --url "$AZP_URL" \
-  --work "${AZP_WORK:-_work}" &
-
-# Fake the exit code of the agent for the prevent Kubernetes to detect the pod as failed (this is intended)
-# See: https://stackoverflow.com/a/62183992/12732154
-wait $!
+  --work "${AZP_WORK:-_work}"
 
 print_header "Running agent..."
 
 # Running it with the --once flag at the end will shut down the agent after the build is executed
-bash run-docker.sh "$@" --once &
-
-# Fake the exit code of the agent for the prevent Kubernetes to detect the pod as failed (this is intended)
-# See: https://stackoverflow.com/a/62183992/12732154
-wait $!
+exec bash run-docker.sh "$@" --once
