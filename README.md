@@ -140,22 +140,23 @@ Those methods can be used to build a container image:
 
 | Parameter | Description | Default |
 |-|-|-|
-| `additionalEnv` | Additional environment variables for the agent container. | `[]` |
-| `affinity` | Node affinity for pod assignment | `{}` |
+| `additionalEnv` | Additional environment variables for the agent container. | `null` |
+| `affinity` | Node affinity for pod assignment | `null` |
 | `autoscaling.cooldown` | Time in seconds the automation will wait until there is no more pipeline asking for an agent. Same time is then applied for system termination. | `60` |
 | `autoscaling.enabled` | Enable the auto-scaling, requires [KEDA](https://keda.sh). | `true` |
 | `autoscaling.maxReplicas` | Maximum number of pods, remaining jobs will be kept in queue. | `100` |
 | `autoscaling.minReplicas` | Minimum number of pods. If autoscaling not enabled, the number of replicas to run. If `pipelines.capabilities` is defined, cannot be set to `0`. | `1` |
-| `extraVolumeMounts` | Additional volume mounts for the agent container. | `[]` |
-| `extraVolumes` | Additional volumes for the agent pod. | `[]` |
+| `extraVolumeMounts` | Additional volume mounts for the agent container. | `null` |
+| `extraVolumes` | Additional volumes for the agent pod. | `null` |
 | `fullnameOverride` | Overrides release fullname | `""` |
 | `image.flavor` | Container image tag | `bullseye` |
 | `image.pullPolicy` | Container image pull policy | `IfNotPresent` |
 | `image.repository` | Container image repository | `ghcr.io/clemlesne/azure-pipelines-agent:bullseye` |
 | `image.version` | Container image tag | *Version* |
-| `initContainers` | InitContainers for the agent pod. | `[]` |
+| `imagePullSecrets` | Use secrets to pull the container image. | `null` |
+| `initContainers` | InitContainers for the agent pod. | `null` |
 | `nameOverride` | Overrides release name | `""` |
-| `nodeSelector` | Node labels for pod assignment | `{}` |
+| `nodeSelector` | Node labels for pod assignment | `null` |
 | `pipelines.cacheSize` | Total cache the pipeline can take during execution, by default [the same amount as the Microsoft Hosted agents](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&tabs=yaml#hardware). | `10Gi` |
 | `pipelines.cacheType` | Disk type to attach to the agents, see your cloud provider for mor details  ([Azure](https://learn.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes), [AWS](https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html)). | `managed-csi` (Azure compatible) |
 | `pipelines.capabilities` | Add [demands/capabilities](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/demands?view=azure-devops&tabs=yaml) to the agent | `[]` |
@@ -166,7 +167,7 @@ Those methods can be used to build a container image:
 | `resources` | Resource limits | `{ "resources": { "limits": { "cpu": 2, "memory": "4Gi" }, "requests": { "cpu": 1, "memory": "2Gi" } }}` |
 | `serviceAccount.create` | Create ServiceAccount | `true` |
 | `serviceAccount.name` | ServiceAccount name | *Release name* |
-| `tolerations` | Toleration labels for pod assignment. | `[]` |
+| `tolerations` | Toleration labels for pod assignment. | `null` |
 
 ## [Security](./SECURITY.md)
 

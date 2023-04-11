@@ -5,7 +5,7 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   version: ""
 
-imagePullSecrets: []
+imagePullSecrets: null
 nameOverride: ""
 fullnameOverride: ""
 
@@ -32,13 +32,14 @@ serviceAccount:
 podSecurityContext: {}
 # fsGroup: 2000
 
+# securityContext:
+#   capabilities:
+#     drop:
+#     - ALL
+#   readOnlyRootFilesystem: true
+#   runAsNonRoot: true
+#   runAsUser: 1000
 securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-# runAsUser: 1000
 
 resources:
   limits:
@@ -48,18 +49,21 @@ resources:
     cpu: 1
     memory: 2Gi
 
-nodeSelector: {}
+nodeSelector: null
 
-tolerations: []
+tolerations: null
 
-affinity: {}
+affinity: null
 
 # Additional environment variables for the agent container.
+#
 # Like:
+#
 # - name: XXX
 #   value: YYY
 #
-# or reference to a secret or configmap:
+# Or, reference to a secret or configmap:
+#
 # - name: SPECIAL_LEVEL_KEY
 #   valueFrom:
 #     configMapKeyRef:
@@ -74,23 +78,25 @@ affinity: {}
 additionalEnv: []
 
 # Additional volumes for the agent pod.
+#
 # extraVolumes:
 #   - name: config-volume
 #     configMap:
 #      name: special-config
-extraVolumes: []
+extraVolumes: null
 
 # Additional volume mounts for the agent container.
+#
 # extraVolumeMounts:
 #   - name: config-volume
 #     mountPath: /etc/special
 #     readOnly: true
-extraVolumeMounts: []
+extraVolumeMounts: null
 
-# InitContainers for the agent pod.
+# Init containers for the agent pod.
 #
 # initContainers:
 #   - name: init-container
 #     image: busybox
 #     command: ["/bin/sh", "-c", "echo Hello World"]
-initContainers: []
+initContainers: null

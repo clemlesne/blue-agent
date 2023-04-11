@@ -7,14 +7,14 @@ metadata:
 spec:
   {{- with .Values.imagePullSecrets }}
   imagePullSecrets:
-    {{- toYaml . | nindent 8 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
   serviceAccountName: {{ include "this.serviceAccountName" . }}
   securityContext:
-    {{- toYaml .Values.podSecurityContext | nindent 8 }}
+    {{- toYaml .Values.podSecurityContext | nindent 4 }}
   {{- with .Values.initContainers }}
   initContainers:
-    {{- toYaml . | nindent 8 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
   terminationGracePeriodSeconds: {{ .Values.pipelines.timeout | int | required "A value for .Values.pipelines.timeout is required" }}
   # This agent is a template, we privilegiate Jobs instead of it, but we need to run it first
@@ -22,7 +22,7 @@ spec:
   containers:
     - name: {{ .Chart.Name }}
       securityContext:
-        {{- toYaml .Values.securityContext | nindent 12 }}
+        {{- toYaml .Values.securityContext | nindent 8 }}
       image: "{{ .Values.image.repository | required "A value for .Values.image.repository is required" }}:{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}-{{ .Values.image.version | default .Chart.Version }}"
       imagePullPolicy: {{ .Values.image.pullPolicy }}
       lifecycle:
@@ -54,15 +54,15 @@ spec:
         - name: {{ . }}
         {{- end }}
         {{- with .Values.additionalEnv }}
-          {{- toYaml . | nindent 12 }}
+          {{- toYaml . | nindent 10 }}
         {{- end }}
       resources:
-        {{- toYaml .Values.resources | nindent 12 }}
+        {{- toYaml .Values.resources | nindent 8 }}
       volumeMounts:
         - name: workdir
           mountPath: _work
       {{- with .Values.extraVolumeMounts }}
-        {{- toYaml . | nindent 14 }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
   volumes:
     - name: workdir
@@ -75,17 +75,17 @@ spec:
               requests:
                 storage: {{ .Values.pipelines.cacheSize | required "A value for .Values.pipelines.cacheSize is required" }}
   {{- with .Values.extraVolumes }}
-    {{- toYaml . | nindent 8 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
   {{- with .Values.nodeSelector }}
   nodeSelector:
-    {{- toYaml . | nindent 8 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
   {{- with .Values.affinity }}
   affinity:
-    {{- toYaml . | nindent 8 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
   {{- with .Values.tolerations }}
   tolerations:
-    {{- toYaml . | nindent 8 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
