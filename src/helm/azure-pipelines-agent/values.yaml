@@ -6,8 +6,8 @@ image:
   version: ""
 
 imagePullSecrets: null
-nameOverride: ""
-fullnameOverride: ""
+nameOverride: null
+fullnameOverride: null
 
 autoscaling:
   enabled: true

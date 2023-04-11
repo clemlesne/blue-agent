@@ -29,7 +29,7 @@ spec:
     - name: {{ .Chart.Name }}
       securityContext:
         {{- toYaml .Values.securityContext | nindent 8 }}
-      image: "{{ .Values.image.repository | required "A value for .Values.image.repository is required" }}:{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}-{{ .Values.image.version | default .Chart.Version }}"
+      image: "{{ .Values.image.repository | required "A value for .Values.image.repository is required" }}:{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}-{{ default .Chart.Version .Values.image.version }}"
       imagePullPolicy: {{ .Values.image.pullPolicy }}
       lifecycle:
         preStop:

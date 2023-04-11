@@ -149,14 +149,14 @@ Those methods can be used to build a container image:
 | `autoscaling.minReplicas` | Minimum number of pods. If autoscaling not enabled, the number of replicas to run. If `pipelines.capabilities` is defined, cannot be set to `0`. | `1` |
 | `extraVolumeMounts` | Additional volume mounts for the agent container. | `null` |
 | `extraVolumes` | Additional volumes for the agent pod. | `null` |
-| `fullnameOverride` | Overrides release fullname | `""` |
+| `fullnameOverride` | Overrides release fullname | `null` |
 | `image.flavor` | Container image tag | `bullseye` |
 | `image.pullPolicy` | Container image pull policy | `IfNotPresent` |
 | `image.repository` | Container image repository | `ghcr.io/clemlesne/azure-pipelines-agent:bullseye` |
 | `image.version` | Container image tag | *Version* |
 | `imagePullSecrets` | Use secrets to pull the container image. | `null` |
 | `initContainers` | InitContainers for the agent pod. | `null` |
-| `nameOverride` | Overrides release name | `""` |
+| `nameOverride` | Overrides release name | `null` |
 | `nodeSelector` | Node labels for pod assignment | `null` |
 | `pipelines.cacheSize` | Total cache the pipeline can take during execution, by default [the same amount as the Microsoft Hosted agents](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&tabs=yaml#hardware). | `10Gi` |
 | `pipelines.cacheType` | Disk type to attach to the agents, see your cloud provider for mor details  ([Azure](https://learn.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes), [AWS](https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html)). | `managed-csi` (Azure compatible) |
