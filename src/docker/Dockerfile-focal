@@ -71,14 +71,14 @@ RUN mkdir -p ${AGENT_HOME} \
 # Install YQ, then verify installation
 ARG YQ_VERSION
 ENV YQ_VERSION ${YQ_VERSION}
-RUN curl -LsSf https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_$(ARCH_AMD64=amd64 bash arch.sh) -o /usr/bin/yq \
+RUN curl -LsSf https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_$(ARCH_X64=amd64 bash arch.sh) -o /usr/bin/yq \
     && chmod +x /usr/bin/yq \
     && yq --version
 
 # Install Tini, then verify installation
 ARG TINI_VERSION
 ENV TINI_VERSION ${TINI_VERSION}
-RUN curl -LsSf https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$(ARCH_AMD64=amd64 bash arch.sh) -o /tini \
+RUN curl -LsSf https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$(ARCH_X64=amd64 bash arch.sh) -o /tini \
     && chmod +x /tini \
     && /tini --version
 ENTRYPOINT ["/tini", "--"]
