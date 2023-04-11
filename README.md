@@ -28,6 +28,11 @@ Features:
 
 ## Usage
 
+Deployment steps:
+
+1. [Prepare the token for allowing access from the Agent to Azure DevOps.](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/v2-linux?view=azure-devops#permissions)
+2. Deployment in Kubernetes using Helm
+
 ### Deployment in Kubernetes using Helm
 
 Minimal configuration:
