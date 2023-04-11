@@ -125,6 +125,17 @@ stages:
   ...
 ```
 
+### Build container images in the agent
+
+Those methods can be used to build a container image:
+
+| Software | Ease of use | Security impacts (sorted by) | Run location | Description |
+|-|-|-|-|-|
+| [Azure Container Registry task](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-tasks-overview#quick-task), [Google Cloud Build](https://cloud.google.com/build/docs/building/build-containers) | 🟩🟩🟥 | 🟩🟩🟩 | Managed environment | A managed service build the container image in a dedicated environment. |
+| [Kaniko](https://github.com/GoogleContainerTools/kaniko#running-kaniko-in-a-kubernetes-cluster) | 🟩🟥🟥 | 🟩🟩🟩 | Self-hosted Kubernetes | A Pod is created for each build, taking care of building and pushing the container to the registry. No security drawbacks. |
+| [img](https://github.com/genuinetools/img#running-with-kubernetes), [BuildKit](https://github.com/moby/buildkit) | 🟩🟩🟩 | 🟩🟥🟥 | Local CLI | Daemon-less CLI to build the images. Required [Seccomp](https://en.wikipedia.org/wiki/Seccomp) and [AppArmor](https://apparmor.net) to be disabled. |
+| Docker in docker | 🟩🟩🟩 | 🟥🟥🟥 | Local CLI | Before Kubernetes 1.20, it was possible to build container images in the agent, using the Docker socket. This is not possible anymore, as Kubernetes [deprecated the Docker socket](https://kubernetes.io/blog/2020/12/02/dont-panic-kubernetes-and-docker) in favor of the [Container Runtime Interface](https://kubernetes.io/blog/2016/12/container-runtime-interface-cri-in-kubernetes). |
+
 ### Helm values
 
 | Parameter | Description | Default |
