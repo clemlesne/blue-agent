@@ -4,6 +4,12 @@ metadata:
   name: {{ include "this.fullname" . }}-{{ .Release.Revision }}
   labels:
     {{- include "this.labels" . | nindent 4 }}
+  annotations:
+    # Cluster autoscaler never evicts this Pod
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+  {{- with .Values.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   {{- with .Values.imagePullSecrets }}
   imagePullSecrets:

@@ -28,6 +28,12 @@ spec:
       metadata:
         labels:
           {{- include "this.labels" . | nindent 10 }}
+        annotations:
+          # Cluster autoscaler never evicts this Pod
+          cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+        {{- with .Values.annotations }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
       spec:
         {{- with .Values.imagePullSecrets }}
         imagePullSecrets:

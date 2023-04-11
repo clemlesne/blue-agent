@@ -55,6 +55,8 @@ tolerations: null
 
 affinity: null
 
+annotations: null
+
 # Additional environment variables for the agent container.
 #
 # Like:

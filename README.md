@@ -142,6 +142,7 @@ Those methods can be used to build a container image:
 |-|-|-|
 | `additionalEnv` | Additional environment variables for the agent container. | `null` |
 | `affinity` | Node affinity for pod assignment | `null` |
+| `annotations` | Add custom annotations to the Pod. | `null` |
 | `autoscaling.cooldown` | Time in seconds the automation will wait until there is no more pipeline asking for an agent. Same time is then applied for system termination. | `60` |
 | `autoscaling.enabled` | Enable the auto-scaling, requires [KEDA](https://keda.sh). | `true` |
 | `autoscaling.maxReplicas` | Maximum number of pods, remaining jobs will be kept in queue. | `100` |
