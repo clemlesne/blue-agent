@@ -29,8 +29,13 @@ serviceAccount:
   # The name of the service account to use. If not set and create is true, a name is generated using the fullname template
   name: ""
 
+# Customize security context and policies.
+#
+# Like, to be used with img or BuildKit:
+#
+# podSecurityContext:
+#   procMount: Unmasked
 podSecurityContext: {}
-# fsGroup: 2000
 
 # securityContext:
 #   capabilities:
@@ -55,6 +60,13 @@ tolerations: null
 
 affinity: null
 
+# Annotation to customize various scheduling and security behaviors.
+#
+# Like, to be used with img or BuildKit:
+#
+# annotations:
+#   container.apparmor.security.beta.kubernetes.io/azp-agent: unconfined
+#   container.seccomp.security.alpha.kubernetes.io/azp-agent: unconfined
 annotations: null
 
 # Additional environment variables for the agent container.

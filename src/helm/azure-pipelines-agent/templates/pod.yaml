@@ -26,7 +26,7 @@ spec:
   # This agent is a template, we privilegiate Jobs instead of it, but we need to run it first
   restartPolicy: Never
   containers:
-    - name: {{ .Chart.Name }}
+    - name: azp-agent
       securityContext:
         {{- toYaml .Values.securityContext | nindent 8 }}
       image: "{{ .Values.image.repository | required "A value for .Values.image.repository is required" }}:{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}-{{ default .Chart.Version .Values.image.version }}"

@@ -48,7 +48,7 @@ spec:
         {{- end }}
         terminationGracePeriodSeconds: {{ .Values.pipelines.timeout | int | required "A value for .Values.pipelines.timeout is required" }}
         containers:
-          - name: {{ .Chart.Name }}
+          - name: azp-agent
             securityContext:
               {{- toYaml .Values.securityContext | nindent 14 }}
             image: "{{ .Values.image.repository | required "A value for .Values.image.repository is required" }}:{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}-{{ default .Chart.Version .Values.image.version }}"
