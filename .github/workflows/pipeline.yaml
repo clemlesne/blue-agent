@@ -33,8 +33,6 @@ env:
   ROOTLESSKIT_VERSION: 1.1.0
   # https://github.com/moby/buildkit/releases
   BUILDKIT_VERSION: 0.11.5
-  # https://github.com/shadow-maint/shadow/releases
-  SHADOW_VERSION: 4.12.3
 
 jobs:
   build-helm:
@@ -199,7 +197,6 @@ jobs:
             "GO_VERSION=${{ env.GO_VERSION }}"
             "POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}"
             "ROOTLESSKIT_VERSION=${{ env.ROOTLESSKIT_VERSION }}"
-            "SHADOW_VERSION=${{ env.SHADOW_VERSION }}"
             "TINI_VERSION=${{ env.TINI_VERSION }}"
             "YQ_VERSION=${{ env.YQ_VERSION }}"
           cache-from: type=gha
