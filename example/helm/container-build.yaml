@@ -1,0 +1,29 @@
+annotations:
+  container.apparmor.security.beta.kubernetes.io/azp-agent: unconfined
+
+extraVolumeMounts:
+  - mountPath: /home/root/.local/share/buildkit
+    name: buildkitd
+
+extraVolumes:
+  - emptyDir: {}
+    name: buildkitd
+
+securityContext:
+  seccompProfile:
+    type: Unconfined
+
+resources:
+  limits:
+    cpu: 4
+    memory: 8Gi
+  requests:
+    cpu: 2
+    memory: 4Gi
+
+pipelines:
+  capabilities:
+    - buildkit
+  pat: your-pat
+  pool: private_kube
+  url: https://dev.azure.com/shopping-cart-devops-demo

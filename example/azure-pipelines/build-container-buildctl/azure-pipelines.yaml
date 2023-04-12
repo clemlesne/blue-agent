@@ -1,0 +1,47 @@
+# Use ARM64 Linux agents because they are cheap
+pool:
+  name: onprem_aks
+  demands:
+    - flavor_bullseye
+    - nested_virtualization
+
+trigger:
+  - "*"
+
+variables:
+  - name: branch_sanitized
+    value: ${{ replace(replace(replace(variables['Build.SourceBranch'], 'refs/heads/', ''), '/', '-'), '_', '-') }}
+  - name: container_name
+    value: my-app
+  - name: container_registry_service_connection
+    value: my-app-registry
+  - name: container_registry_domain
+    value: my-app-registry.azurecr.io
+
+stages:
+  - stage: build
+    displayName: Build
+    jobs:
+      - job: build
+        displayName: Build
+        steps:
+          - template: step-checkout.yaml
+
+          - template: step-setup-docker.yaml
+
+          - task: Docker@2
+            displayName: Login to ACR
+            inputs:
+              command: login
+              containerRegistry: $(container_registry_service_connection)
+
+          - bash: |
+              buildctl build \
+                --export-cache type=inline \
+                --frontend dockerfile.v0 \
+                --import-cache type=registry,ref=$(container_registry_domain)/$(container_name):$(branch_sanitized) \
+                --local context=. \
+                --local dockerfile=. \
+                --opt platform=linux/amd64,linux/arm64/v8 \
+                --output type=image,\"name=$(container_registry_domain)/$(container_name):latest,$(container_registry_domain)/$(container_name):$(branch_sanitized)\",push=true
+            displayName: Build the image
