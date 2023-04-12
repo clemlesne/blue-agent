@@ -1,22 +1,29 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim as base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install:
 # - Azure Pipelines agent system requirements
 # - zsh, for inter-operability
+# - dbus-user-session, fuse-overlayfs, iptables, for BuildKit
 # - gzip, make, tar, unzip, wget, yq, zip, zstd for developer ease-of-life
 # - Azure CLI system requirements (Python 3.9, plus C/Rust build tools for libs non pre-built on this platform)
-RUN apt-get update -q \
+RUN rm -f /etc/apt/apt.conf.d/docker-clean \
+    && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/var/cache,type=cache,sharing=locked \
+    apt-get update -q \
     && apt-get install -y -q --no-install-recommends \
         build-essential \
         ca-certificates \
         cargo \
         curl \
+        dbus-user-session \
+        fuse-overlayfs \
         git \
         git-lfs \
         gnupg \
         gzip \
+        iptables \
         iputils-ping \
         jq \
         libffi-dev \
@@ -25,6 +32,7 @@ RUN apt-get update -q \
         make \
         pkg-config \
         python3-dev=3.9.* \
+        uidmap \
         python3-pip \
         python3=3.9.* \
         software-properties-common \
@@ -34,19 +42,65 @@ RUN apt-get update -q \
         wget \
         zip \
         zsh \
-        zstd \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists
+        zstd
 
 # Copy helper script, then verify installation
 COPY arch.sh .
 RUN chmod +x arch.sh \
     && bash arch.sh
 
+FROM base as rootlesskit
+
+# Install Go, then verify installation
+ARG GO_VERSION
+ENV GO_VERSION ${GO_VERSION}
+RUN rm -rf /usr/local/go \
+    && curl -LsSf https://go.dev/dl/go${GO_VERSION}.linux-$(ARCH_X64=amd64 bash arch.sh).tar.gz | tar -xz -C /usr/local
+ENV PATH="${PATH}:/usr/local/go/bin"
+RUN go version
+
+# Install RootlessKit, then verify installation
+ARG ROOTLESSKIT_VERSION
+ENV ROOTLESSKIT_VERSION ${ROOTLESSKIT_VERSION}
+RUN git clone --depth 1 --branch v${ROOTLESSKIT_VERSION} https://github.com/rootless-containers/rootlesskit.git rootlesskit \
+    && make --directory rootlesskit \
+    && make --directory rootlesskit install \
+    && rm -rf rootlesskit \
+    && rootlesskit --version \
+    && rootlessctl --version
+
+# FROM base as shadow
+
+# RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/var/cache,type=cache,sharing=locked \
+#     apt-get install -y -q --no-install-recommends \
+#         autoconf \
+#         automake \
+#         autopoint \
+#         autotools-dev \
+#         bison \
+#         csh \
+#         gawk \
+#         gettext \
+#         libtool \
+#         xsltproc
+
+# # Install shadow-utils, then verify installation
+# ARG SHADOW_VERSION
+# ENV SHADOW_VERSION ${SHADOW_VERSION}
+# RUN --mount=target=/root/.cache,type=cache \
+#     git clone --depth 1 --branch ${SHADOW_VERSION} https://github.com/shadow-maint/shadow.git shadow \
+#     && cd shadow \
+#     && bash autogen.sh --without-audit --without-selinux --without-acl --without-attr --without-tcb --without-nscd --without-sha-crypt \
+#     && make \
+#     && make install \
+#     && which newuidmap \
+#     && which newgidmap
+
+FROM base
+
 # Install Azure CLI, then verify installation
 RUN python3 -m pip install --upgrade pip setuptools wheel \
     && python3 -m pip install azure-cli \
-    && rm -rf $HOME/.cache/pip \
     && az --version
 
 # Install Powershell, then verify installation
@@ -57,16 +111,6 @@ RUN mkdir -p /opt/microsoft/powershell \
     && chmod +x /opt/microsoft/powershell/pwsh \
     && ln -s /opt/microsoft/powershell/pwsh /usr/bin/pwsh \
     && pwsh -Version
-
-# Install Azure Pipelines Agent sources, then verify installation
-ARG AGENT_VERSION
-ENV AGENT_VERSION ${AGENT_VERSION}
-ENV AGENT_HOME /azp
-RUN mkdir -p ${AGENT_HOME} \
-    && curl -LsSf https://vstsagentpackage.azureedge.net/agent/${AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AGENT_VERSION}.tar.gz | tar -xz -C ${AGENT_HOME} \
-    && cd $AGENT_HOME \
-    && chmod +x run-docker.sh config.sh \
-    && AGENT_ALLOW_RUNASROOT="1" bash run-docker.sh --version
 
 # Install YQ, then verify installation
 ARG YQ_VERSION
@@ -83,13 +127,53 @@ RUN curl -LsSf https://github.com/krallin/tini/releases/download/v${TINI_VERSION
     && /tini --version
 ENTRYPOINT ["/tini", "--"]
 
+# Install BuildKit, then verify installation
+ARG BUILDKIT_VERSION
+ENV BUILDKIT_VERSION ${BUILDKIT_VERSION}
+RUN mkdir buildkit \
+    && curl -LsSf https://github.com/moby/buildkit/releases/download/v${BUILDKIT_VERSION}/buildkit-v${BUILDKIT_VERSION}.linux-$(ARCH_X64=amd64 bash arch.sh).tar.gz | tar -xz -C buildkit \
+    && mv buildkit/bin/* /usr/local/bin \
+    && rm -rf buildkit \
+    && buildctl --version \
+    && buildkitd --version
+
+# Install RootlessKit, then verify installation
+COPY --from=rootlesskit /usr/local/bin/rootless* /usr/bin/
+RUN rootlesskit --version \
+    && rootlessctl --version
+
+# # Install shadow-utils, then verify installation
+# COPY --from=shadow /usr/bin/newuidmap /usr/bin/
+# COPY --from=shadow /usr/bin/newgidmap /usr/bin/
+# RUN which newuidmap \
+#     && which newgidmap
+
+# Install Azure Pipelines Agent sources, then verify installation
+ARG AGENT_VERSION
+ENV AGENT_VERSION ${AGENT_VERSION}
+ENV AGENT_HOME ${HOME}/azp
+RUN mkdir -p ${AGENT_HOME} \
+    && curl -LsSf https://vstsagentpackage.azureedge.net/agent/${AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AGENT_VERSION}.tar.gz | tar -xz -C ${AGENT_HOME} \
+    && cd $AGENT_HOME \
+    && chmod +x run-docker.sh config.sh \
+    && AGENT_ALLOW_RUNASROOT="1" bash run-docker.sh --version
+
 # Cleanup helper script
 RUN rm arch.sh
 
-# Set agent home as working directory
-WORKDIR ${AGENT_HOME}
+# Configure local user
+ENV USER root
+ENV HOME /home/${USER}
+RUN mkdir -p /run/${USER}/0 ${HOME}/.local/tmp ${HOME}/.local/share/buildkit \
+    && chown -R ${USER} /run/${USER}/0 ${HOME} \
+    && echo ${USER}:100000:65536 | tee /etc/subuid | tee /etc/subgid
+USER 0:0
+ENV XDG_RUNTIME_DIR=/run/${USER}/0
+ENV TMPDIR=${HOME}/.local/tmp
+ENV BUILDKIT_HOST=unix:///run/${USER}/0/buildkit/buildkitd.sock
+VOLUME ${HOME}/.local/share/buildkit
 
 # Install Azure Pipelines Agent startup script
-COPY start.sh .
-RUN chmod +x start.sh
-CMD bash start.sh
+COPY start.sh ${AGENT_HOME}
+RUN chmod +x ${AGENT_HOME}/start.sh
+CMD bash ${AGENT_HOME}/start.sh

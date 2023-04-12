@@ -16,15 +16,14 @@
 
 Features:
 
-- Agent register itself with the Azure DevOps server.
-- Agent restart itself if it crashes.
-- Auto-scale based on Pipeline usage (with [KEDA](https://keda.sh), not required).
+- Agent register and restart itself.
+- Allow to build containers inside the agent using [BuildKit](https://github.com/moby/buildkit).
 - Can run air-gapped (no internet access).
-- Cheap to run (dynamic provisioning of agents, can scale from 0 to 100+ in few seconds).
-- Compatible with Debian, Ubuntu and Red Hat LTS releases.
+- Cheap to run (dynamic provisioning of agents, can scale from 0 to 100+ in few seconds with [KEDA](https://keda.sh)).
+- Performances can be customized depending of the engineering needs, which goes far beyond the Microsoft-hosted agent.
+- Pre-built with Debian, Ubuntu and Red Hat Enterprise Linux releases.
 - SBOM (Software Bill of Materials) is packaged with each container image.
 - System updates are applied every days.
-- Systems are based on [Microsoft official .NET images](https://mcr.microsoft.com/en-us/product/dotnet/aspnet/about) and [Red Hat Universal Base Image](https://catalog.redhat.com/software/containers/ubi8/ubi-minimal/5c359a62bed8bd75a2c3fba8).
 
 ## Usage
 
@@ -69,6 +68,7 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 - [ASP.NET Core](https://github.com/dotnet/aspnetcore) runtime (required by the Azure Pipelines agent)
 - [Azure CLI](https://github.com/Azure/azure-cli) (required by the Azure Pipelines agent) + requirements ([Python 3.8](https://www.python.org/downloads/release/python-380), [Python 3.9](https://www.python.org/downloads/release/python-390), [Python 3.10](https://www.python.org/downloads/release/python-3100), depending of the system, plus C/Rust build tools for libs non pre-built on the platforms)
 - [Powershell](https://github.com/PowerShell/PowerShell), [bash](https://www.gnu.org/software/bash) and [zsh](https://www.zsh.org) (for inter-operability)
+- [BuildKit](https://github.com/moby/buildkit) + requirements ([dbus-user-session](https://dbus.freedesktop.org), [fuse-overlayfs](https://github.com/containers/fuse-overlayfs), [iptables](https://www.netfilter.org/projects/iptables/index.html), [shadow-utils](https://github.com/shadow-maint/shadow), [uidmap](https://github.com/shadow-maint/shadow))
 - [gzip](https://www.gnu.org/software/gzip), [make](https://www.gnu.org/software/make), [tar](https://www.gnu.org/software/tar), [unzip](https://infozip.sourceforge.net/UnZip.html), [wget](https://www.gnu.org/software/wget), [yq](https://github.com/mikefarah/yq), [zip](https://infozip.sourceforge.net/Zip.html), [zstd](https://github.com/facebook/zstd) (for developer ease-of-life)
 
 ### Capabilities
@@ -90,7 +90,7 @@ Take the assumption we want to host a specific instance pool to ARM servers.
 ```yaml
 # values.yaml
 pipelines:
-  pool: onprem_kubernetes
+  pool: private_kube
   capabilities:
     - arch_arm64
 
@@ -116,9 +116,8 @@ Update the Azure Pipelines file in the repository to use the new pool:
 ```yaml
 # azure-pipelines.yaml
 pool:
-  name: onprem_kubernetes
+  name: private_kube
   demands:
-    - Agent.OS -equals Linux
     - arch_arm64
 
 stages:
@@ -152,7 +151,7 @@ The developer can now use:
 ```yaml
 # azure-pipelines.yaml
 pool:
-  name: onprem_kubernetes
+  name: private_kube
   demands:
     - arch_arm64
     - perf_standard
@@ -164,7 +163,7 @@ stages:
         # Use X64 Linux agent because Semgrep is not available on ARM64
         # See: https://github.com/returntocorp/semgrep/issues/2252
         pool:
-          name: onprem_aks
+          name: private_kube
           demands:
             - arch_x64
             - perf_standard
@@ -172,7 +171,7 @@ stages:
       - job: container
         # Use high performance agent as Java GraalVM compilation is complex
         pool:
-          name: onprem_aks
+          name: private_kube
           demands:
             - arch_x64
             - perf_high
@@ -185,14 +184,49 @@ stages:
 
 ### Build container images in the agent
 
-Those methods can be used to build a container image:
+#### Introduction
 
-| Software | Ease of use | Security impacts (sorted by) | Run location | Description |
-|-|-|-|-|-|
-| [Azure Container Registry task](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-tasks-overview#quick-task), [Google Cloud Build](https://cloud.google.com/build/docs/building/build-containers) | 🟩🟩🟥 | 🟩🟩🟩 | Managed environment | A managed service build the container image in a dedicated environment. |
-| [Kaniko](https://github.com/GoogleContainerTools/kaniko#running-kaniko-in-a-kubernetes-cluster) | 🟩🟥🟥 | 🟩🟩🟩 | Self-hosted Kubernetes | A Pod is created for each build, taking care of building and pushing the container to the registry. No security drawbacks. |
-| [img](https://github.com/genuinetools/img#running-with-kubernetes), [BuildKit](https://github.com/moby/buildkit) | 🟩🟩🟩 | 🟩🟥🟥 | Local CLI | Daemon-less CLI to build the images. Required [Seccomp](https://en.wikipedia.org/wiki/Seccomp) and [AppArmor](https://apparmor.net) to be disabled. |
-| Docker in docker | 🟩🟩🟩 | 🟥🟥🟥 | Local CLI | Before Kubernetes 1.20, it was possible to build container images in the agent, using the Docker socket. This is not possible anymore, as Kubernetes [deprecated the Docker socket](https://kubernetes.io/blog/2020/12/02/dont-panic-kubernetes-and-docker) in favor of the [Container Runtime Interface](https://kubernetes.io/blog/2016/12/container-runtime-interface-cri-in-kubernetes). |
+These methods can be used to build a container image, at the time of writing:
+
+| Software | Ease | Security | Perf | Run location | Description |
+|-|-|-|-|-|-|
+| [Azure Container Registry task](https://learn.microsoft.com/en-us/azure/container-registry/container-registry-tasks-overview#quick-task), [Google Cloud Build](https://cloud.google.com/build/docs/building/build-containers) | 🟩🟩🟥 | 🟩🟩🟩 | 🟩🟩🟩 | Managed environment | A managed service build the container image in a dedicated environment. |
+| [Kaniko](https://github.com/GoogleContainerTools/kaniko#running-kaniko-in-a-kubernetes-cluster) | 🟩🟥🟥 | 🟩🟩🟩 | 🟩🟩🟥 | Self-hosted Kubernetes | A Pod is created for each build, taking care of building and pushing the container to the registry. No security drawbacks. |
+| [img](https://github.com/genuinetools/img#running-with-kubernetes), [BuildKit](https://github.com/moby/buildkit) | 🟩🟩🟩 | 🟩🟩🟥 | 🟩🟥🟥 | Local CLI | CLI to build the images. Can build different architectures on a single machine. Requires [Seccomp](https://en.wikipedia.org/wiki/Seccomp) disabled and [AppArmor](https://apparmor.net) disabled. |
+| Docker in docker | 🟩🟩🟩 | 🟥🟥🟥 | 🟩🟩🟩 | Local CLI | Before Kubernetes 1.20, it was possible to build container images in the agent, using the Docker socket. This is not possible anymore, as Kubernetes [deprecated the Docker socket](https://kubernetes.io/blog/2020/12/02/dont-panic-kubernetes-and-docker) in favor of the [Container Runtime Interface](https://kubernetes.io/blog/2016/12/container-runtime-interface-cri-in-kubernetes). |
+
+We choose [BuildKit](https://github.com/moby/buildkit) for this project. [Its licence](https://raw.githubusercontent.com/moby/buildkit/v0.11.5/LICENSE) allows commercial use, and the project and mainly maintained, as the time of writing, by Docker, Netlix and Microsoft.
+
+#### How to use the bundled BuildKit
+
+There are two components, the backend, `buildkitd`, and the CLI, `buildctl`.
+
+```yaml
+# azure-pipelines.yaml
+variables:
+  - name: container_name
+    value: my-app
+  - name: container_registry_domain
+    value: my-app-registry.azurecr.io
+
+steps:
+  - bash: |
+      # Start buildkitd
+      rootlesskit buildkitd --oci-worker-no-process-sandbox --addr $BUILDKIT_HOST &
+      # Wait for buildkitd to start
+      while ! buildctl debug workers; do sleep 1; done
+    displayName: Run BuildKit
+
+  - bash: |
+      buildctl build \
+        --frontend dockerfile.v0 \
+        --local context=. \
+        --local dockerfile=. \
+        --output type=image,name=$(container_registry_domain)/$(container_name):latest,push=true
+    displayName: Build and push the image
+```
+
+Out of the box, argument `--opt platform=linux/amd64,linux/arm64` can be added to build an image compatible with multiple architectures ([more can be specified](https://github.com/moby/buildkit/blob/v0.11.5/docs/multi-platform.md)). Multiple cache strategies [are available](https://github.com/moby/buildkit/tree/v0.11.5#cache) (including container registry, Azure Storage Blob, AWS S3).
 
 ### Helm values
 
@@ -202,7 +236,7 @@ Those methods can be used to build a container image:
 | `affinity` | Node affinity for pod assignment | `null` |
 | `annotations` | Add custom annotations to the Pod. | `null` |
 | `autoscaling.cooldown` | Time in seconds the automation will wait until there is no more pipeline asking for an agent. Same time is then applied for system termination. | `60` |
-| `autoscaling.enabled` | Enable the auto-scaling, requires [KEDA](https://keda.sh). | `true` |
+| `autoscaling.enabled` | Enable the auto-scaling. Requires [KEDA](https://keda.sh), but can be started without. | `true` |
 | `autoscaling.maxReplicas` | Maximum number of pods, remaining jobs will be kept in queue. | `100` |
 | `autoscaling.minReplicas` | Minimum number of pods. If autoscaling not enabled, the number of replicas to run. If `pipelines.capabilities` is defined, cannot be set to `0`. | `1` |
 | `extraVolumeMounts` | Additional volume mounts for the agent container. | `null` |
@@ -216,14 +250,18 @@ Those methods can be used to build a container image:
 | `initContainers` | InitContainers for the agent pod. | `null` |
 | `nameOverride` | Overrides release name | `null` |
 | `nodeSelector` | Node labels for pod assignment | `null` |
-| `pipelines.cacheSize` | Total cache the pipeline can take during execution, by default [the same amount as the Microsoft Hosted agents](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&tabs=yaml#hardware). | `10Gi` |
-| `pipelines.cacheType` | Disk type to attach to the agents, see your cloud provider for mor details  ([Azure](https://learn.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes), [AWS](https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html)). | `managed-csi` (Azure compatible) |
+| `pipelines.cacheSize` | Total cache to attach to the Azure Pipelines standard directory. By default, [same amount as the Microsoft Hosted agents](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&tabs=yaml#hardware). | `10Gi` |
+| `pipelines.cacheType` | Disk type to attach to the Azure Pipelines standard directory. See your cloud provider for types ([Azure](https://learn.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes), [AWS](https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html)). | `managed-csi` (Azure compatible) |
 | `pipelines.capabilities` | Add [demands/capabilities](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/demands?view=azure-devops&tabs=yaml) to the agent | `[]` |
-| `pipelines.pat` | Personal Access Token (PAT) used by the agent to connect. | *None* |
+| `pipelines.pat` | Personal Access Token (PAT) used by the agent to connect to the Azure DevOps server (both SaaS and self-hosted). | *None* |
 | `pipelines.pool` | Agent pool to which the Agent should register. | *None* |
 | `pipelines.timeout` | Time in seconds after a agent will be stopped, the same amount of time is applied as a timeout for the system to shut down. | `3600` (1 hour) |
+| `pipelines.tmpdirSize` | Total size of the [standard `TMPDIR` directory](https://en.wikipedia.org/wiki/TMPDIR).  | `1Gi` |
+| `pipelines.tmpdirType` | Disk type to attach to the [standard `TMPDIR` directory](https://en.wikipedia.org/wiki/TMPDIR). See your cloud provider for types ([Azure](https://learn.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes), [AWS](https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html)). | `managed-csi` (Azure compatible) |
 | `pipelines.url` | The Azure base URL for your organization | *None* |
+| `podSecurityContext` | Security rules applied to the Pod ([more details](https://kubernetes.io/docs/concepts/security/pod-security-standards)). | `null` |
 | `resources` | Resource limits | `{ "resources": { "limits": { "cpu": 2, "memory": "4Gi" }, "requests": { "cpu": 1, "memory": "2Gi" } }}` |
+| `securityContext` | Security rules applied to the container ([more details](https://kubernetes.io/docs/concepts/security/pod-security-standards)). | `null` |
 | `serviceAccount.create` | Create ServiceAccount | `true` |
 | `serviceAccount.name` | ServiceAccount name | *Release name* |
 | `tolerations` | Toleration labels for pod assignment. | `null` |
