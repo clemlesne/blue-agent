@@ -18,27 +18,35 @@ autoscaling:
 pipelines:
   cacheSize: 10Gi
   cacheType: managed-csi
+  capabilities: []
   pat: null
   pool: null
-  url: null
-  capabilities: []
   timeout: 3600
+  tmpdirSize: 1Gi
+  tmpdirType: managed-csi
+  url: null
 
 serviceAccount:
   create: true
   # The name of the service account to use. If not set and create is true, a name is generated using the fullname template
   name: ""
 
+# Customize security context and policies.
+#
+# Like, to be used with img or BuildKit:
+#
+# podSecurityContext:
+#   procMount: Unmasked
 podSecurityContext: {}
-# fsGroup: 2000
 
+# securityContext:
+#   capabilities:
+#     drop:
+#     - ALL
+#   readOnlyRootFilesystem: true
+#   runAsNonRoot: true
+#   runAsUser: 1000
 securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-# runAsUser: 1000
 
 resources:
   limits:
@@ -54,12 +62,24 @@ tolerations: []
 
 affinity: {}
 
+# Annotation to customize various scheduling and security behaviors.
+#
+# Like, to be used with img or BuildKit:
+#
+# annotations:
+#   container.apparmor.security.beta.kubernetes.io/azp-agent: unconfined
+#   container.seccomp.security.alpha.kubernetes.io/azp-agent: unconfined
+annotations: {}
+
 # Additional environment variables for the agent container.
+#
 # Like:
+#
 # - name: XXX
 #   value: YYY
 #
-# or reference to a secret or configmap:
+# Or, reference to a secret or configmap:
+#
 # - name: SPECIAL_LEVEL_KEY
 #   valueFrom:
 #     configMapKeyRef:
@@ -74,6 +94,7 @@ affinity: {}
 additionalEnv: []
 
 # Additional volumes for the agent pod.
+#
 # extraVolumes:
 #   - name: config-volume
 #     configMap:
@@ -81,13 +102,14 @@ additionalEnv: []
 extraVolumes: []
 
 # Additional volume mounts for the agent container.
+#
 # extraVolumeMounts:
 #   - name: config-volume
 #     mountPath: /etc/special
 #     readOnly: true
 extraVolumeMounts: []
 
-# InitContainers for the agent pod.
+# Init containers for the agent pod.
 #
 # initContainers:
 #   - name: init-container

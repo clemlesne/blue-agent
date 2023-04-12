@@ -36,6 +36,10 @@ print_header() {
   echo -e "${lightcyan}➡️ $1${nocolor}"
 }
 
+export AGENT_ALLOW_RUNASROOT=1
+
+cd $(dirname "$0")
+
 print_header "Configuring agent..."
 
 bash config.sh \

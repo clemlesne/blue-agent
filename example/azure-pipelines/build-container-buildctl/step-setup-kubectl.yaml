@@ -1,0 +1,30 @@
+steps:
+  - task: KubectlInstaller@0
+    inputs:
+      # https://github.com/kubernetes/kubectl/releases
+      kubectlVersion: 1.26.3
+
+  - bash: |
+      ARCH=$(ARCH_X64=amd64 bash cicd/arch.sh)
+
+      # Install
+      mkdir -p "$(Agent.TempDirectory)/kubelogin"
+      cd "$(Agent.TempDirectory)/kubelogin"
+      curl -LsSf https://github.com/Azure/kubelogin/releases/download/v${KUBELOGIN_VERSION}/kubelogin-linux-${ARCH}.zip -o kubelogin.zip
+      unzip kubelogin.zip -d .
+      mkdir -p /usr/local/kubelogin/bin
+      mv bin/linux_${ARCH}/kubelogin /usr/local/kubelogin/bin/kubelogin
+      ln -s /usr/local/kubelogin/bin/kubelogin /usr/local/bin
+
+      # Test the install
+      kubelogin --version
+    displayName: Setup Kubelogin
+    env:
+      # https://github.com/Azure/kubelogin/releases
+      KUBELOGIN_VERSION: 0.0.28
+
+  - task: HelmInstaller@1
+    displayName: Setup Helm
+    inputs:
+      # https://github.com/helm/helm/releases
+      helmVersionToInstall: 3.11.2

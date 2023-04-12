@@ -28,34 +28,43 @@ spec:
       metadata:
         labels:
           {{- include "this.labels" . | nindent 10 }}
+        annotations:
+          # Cluster autoscaler never evicts this Pod
+          cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+          {{- with .Values.annotations }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
       spec:
         {{- with .Values.imagePullSecrets }}
         imagePullSecrets:
           {{- toYaml . | nindent 10 }}
         {{- end }}
         serviceAccountName: {{ include "this.serviceAccountName" . }}
+        {{- with .Values.podSecurityContext }}
         securityContext:
-          {{- toYaml .Values.podSecurityContext | nindent 10 }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         {{- with .Values.initContainers }}
         initContainers:
           {{- toYaml . | nindent 10 }}
         {{- end }}
         terminationGracePeriodSeconds: {{ .Values.pipelines.timeout | int | required "A value for .Values.pipelines.timeout is required" }}
         containers:
-          - name: {{ .Chart.Name }}
+          - name: azp-agent
             securityContext:
-              {{- toYaml .Values.securityContext | nindent 14 }}
-            image: "{{ .Values.image.repository | required "A value for .Values.image.repository is required" }}:{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}-{{ .Values.image.version | default .Chart.Version }}"
+              runAsUser: 0
+              {{- with .Values.securityContext }}
+              {{- toYaml . | nindent 14 }}
+              {{- end }}
+            image: "{{ .Values.image.repository | required "A value for .Values.image.repository is required" }}:{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}-{{ default .Chart.Version .Values.image.version }}"
             imagePullPolicy: {{ .Values.image.pullPolicy }}
             lifecycle:
               preStop:
                 exec:
-                  command: [bash, -c, "./config.sh remove --auth PAT --token $AZP_TOKEN"]
+                  command: [bash, -c, "bash ${AGENT_HOME}/config.sh remove --auth PAT --token $AZP_TOKEN"]
             env:
               - name: VSO_AGENT_IGNORE
                 value: AZP_TOKEN
-              - name: AGENT_ALLOW_RUNASROOT
-                value: "1"
               - name: AZP_AGENT_NAME
                 valueFrom:
                   fieldRef:
@@ -75,20 +84,24 @@ spec:
                   secretKeyRef:
                     name: {{ include "this.fullname" . }}
                     key: pat
+              # Agent capabilities
+              - name: flavor_{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}
               {{- range .Values.pipelines.capabilities }}
               - name: {{ . }}
               {{- end }}
-            {{- with .Values.additionalEnv }}
+              {{- with .Values.additionalEnv }}
               {{- toYaml . | nindent 14 }}
-            {{- end }}
+              {{- end }}
             resources:
-              {{- toYaml .Values.resources | nindent 14 }}
+              {{- toYaml .Values.resources | nindent 14 | required "A value for .Values.resources is required" }}
             volumeMounts:
               - name: workdir
                 mountPath: _work
-            {{- with .Values.extraVolumeMounts }}
+              - mountPath: /home/root/.local/tmp
+                name: tmp
+              {{- with .Values.extraVolumeMounts }}
               {{- toYaml . | nindent 14 }}
-            {{- end }}
+              {{- end }}
         volumes:
           - name: workdir
             ephemeral:
@@ -99,9 +112,18 @@ spec:
                   resources:
                     requests:
                       storage: {{ .Values.pipelines.cacheSize | required "A value for .Values.pipelines.cacheSize is required" }}
-        {{- with .Values.extraVolumes }}
+          - name: tmp
+            ephemeral:
+              volumeClaimTemplate:
+                spec:
+                  accessModes: [ "ReadWriteOnce" ]
+                  storageClassName: {{ .Values.pipelines.tmpdirType | required "A value for .Values.pipelines.tmpdirType is required" }}
+                  resources:
+                    requests:
+                      storage: {{ .Values.pipelines.tmpdirSize | required "A value for .Values.pipelines.tmpdirSize is required" }}
+          {{- with .Values.extraVolumes }}
           {{- toYaml . | nindent 10 }}
-        {{- end }}
+          {{- end }}
         {{- with .Values.nodeSelector }}
         nodeSelector:
           {{- toYaml . | nindent 10 }}
