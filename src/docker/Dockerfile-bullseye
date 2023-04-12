@@ -69,33 +69,6 @@ RUN git clone --depth 1 --branch v${ROOTLESSKIT_VERSION} https://github.com/root
     && rootlesskit --version \
     && rootlessctl --version
 
-# FROM base as shadow
-
-# RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/var/cache,type=cache,sharing=locked \
-#     apt-get install -y -q --no-install-recommends \
-#         autoconf \
-#         automake \
-#         autopoint \
-#         autotools-dev \
-#         bison \
-#         csh \
-#         gawk \
-#         gettext \
-#         libtool \
-#         xsltproc
-
-# # Install shadow-utils, then verify installation
-# ARG SHADOW_VERSION
-# ENV SHADOW_VERSION ${SHADOW_VERSION}
-# RUN --mount=target=/root/.cache,type=cache \
-#     git clone --depth 1 --branch ${SHADOW_VERSION} https://github.com/shadow-maint/shadow.git shadow \
-#     && cd shadow \
-#     && bash autogen.sh --without-audit --without-selinux --without-acl --without-attr --without-tcb --without-nscd --without-sha-crypt \
-#     && make \
-#     && make install \
-#     && which newuidmap \
-#     && which newgidmap
-
 FROM base
 
 # Install Azure CLI, then verify installation
@@ -141,12 +114,6 @@ RUN mkdir buildkit \
 COPY --from=rootlesskit /usr/local/bin/rootless* /usr/bin/
 RUN rootlesskit --version \
     && rootlessctl --version
-
-# # Install shadow-utils, then verify installation
-# COPY --from=shadow /usr/bin/newuidmap /usr/bin/
-# COPY --from=shadow /usr/bin/newgidmap /usr/bin/
-# RUN which newuidmap \
-#     && which newgidmap
 
 # Install Azure Pipelines Agent sources, then verify installation
 ARG AGENT_VERSION
