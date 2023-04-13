@@ -26,8 +26,9 @@ if [ -z "$AZP_AGENT_NAME" ]; then
   exit 1
 fi
 
-if [ -n "$AZP_WORK" ]; then
-  mkdir -p "$AZP_WORK"
+if [ ! -w "$AZP_WORK" ]; then
+  echo 1>&2 "error: work dir AZP_WORK (${AZP_WORK}) is not writeable or does not exist"
+  exit 1
 fi
 
 print_header() {

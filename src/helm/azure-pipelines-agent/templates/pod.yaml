@@ -39,7 +39,7 @@ spec:
       lifecycle:
         preStop:
           exec:
-            command: [bash, -c, "bash ${AGENT_HOME}/config.sh remove --auth PAT --token $AZP_TOKEN"]
+            command: [bash, -c, "bash ${AZP_HOME}/config.sh remove --auth PAT --token $AZP_TOKEN"]
       env:
         - name: VSO_AGENT_IGNORE
           value: AZP_TOKEN
@@ -52,8 +52,6 @@ spec:
               key: url
         - name: AZP_POOL
           value: {{ .Values.pipelines.pool | quote | required "A value for .Values.pipelines.pool is required" }}
-        - name: AZP_WORK
-          value: _work
         - name: AZP_TOKEN
           valueFrom:
             secretKeyRef:
@@ -70,15 +68,15 @@ spec:
       resources:
         {{- toYaml .Values.resources | nindent 8 | required "A value for .Values.resources is required" }}
       volumeMounts:
-        - name: workdir
-          mountPath: _work
-        - mountPath: /home/root/.local/tmp
-          name: tmp
+        - name: azp-work
+          mountPath: /home/root/azp-work
+        - name: local-tmp
+          mountPath: /home/root/.local/tmp
         {{- with .Values.extraVolumeMounts }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
   volumes:
-    - name: workdir
+    - name: azp-work
       ephemeral:
         volumeClaimTemplate:
           spec:
@@ -87,7 +85,7 @@ spec:
             resources:
               requests:
                 storage: {{ .Values.pipelines.cacheSize | required "A value for .Values.pipelines.cacheSize is required" }}
-    - name: tmp
+    - name: local-tmp
       ephemeral:
         volumeClaimTemplate:
           spec:
