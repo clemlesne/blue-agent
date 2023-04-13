@@ -32,9 +32,9 @@ RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
         openssl-devel \
         pkg-config \
         python39 \
-        shadow-utils \
         python39-devel \
         python39-pip \
+        shadow-utils \
         sudo \
         tar \
         unzip \

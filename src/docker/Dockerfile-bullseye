@@ -36,12 +36,12 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/
         make \
         pkg-config \
         python3-dev=3.9.* \
-        uidmap \
         python3-pip \
         python3=3.9.* \
         software-properties-common \
         sudo \
         tar \
+        uidmap \
         unzip \
         wget \
         zip \
