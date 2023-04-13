@@ -9,10 +9,10 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+replicaCount: 3
+
 autoscaling:
   enabled: true
-  # If autoscaling not enabled, the number of replicas to run
-  minReplicas: 1
   maxReplicas: 100
 
 pipelines:

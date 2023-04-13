@@ -31,7 +31,6 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/
         jq \
         libffi-dev \
         libssl-dev \
-        libssl1.1 \
         lsb-release \
         make \
         pkg-config \

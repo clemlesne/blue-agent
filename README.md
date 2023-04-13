@@ -195,7 +195,7 @@ These methods can be used to build a container image, at the time of writing:
 | [img](https://github.com/genuinetools/img#running-with-kubernetes), [BuildKit](https://github.com/moby/buildkit) | 🟩🟩🟩 | 🟩🟩🟥 | 🟩🟥🟥 | Local CLI | CLI to build the images. Can build different architectures on a single machine. Requires [Seccomp](https://en.wikipedia.org/wiki/Seccomp) disabled and [AppArmor](https://apparmor.net) disabled. |
 | Docker in docker | 🟩🟩🟩 | 🟥🟥🟥 | 🟩🟩🟩 | Local CLI | Before Kubernetes 1.20, it was possible to build container images in the agent, using the Docker socket. This is not possible anymore, as Kubernetes [deprecated the Docker socket](https://kubernetes.io/blog/2020/12/02/dont-panic-kubernetes-and-docker) in favor of the [Container Runtime Interface](https://kubernetes.io/blog/2016/12/container-runtime-interface-cri-in-kubernetes). |
 
-We choose [BuildKit](https://github.com/moby/buildkit) for this project. [Its licence](https://raw.githubusercontent.com/moby/buildkit/v0.11.5/LICENSE) allows commercial use, and the project and mainly maintained, as the time of writing, by Docker, Netlix and Microsoft.
+We choose BuildKit for this project. [Its licence](https://raw.githubusercontent.com/moby/buildkit/v0.11.5/LICENSE) allows commercial use, and the project and mainly maintained, as the time of writing, by Docker, Netlix and Microsoft.
 
 #### How to use the bundled BuildKit
 
@@ -228,28 +228,31 @@ steps:
 
 Out of the box, argument `--opt platform=linux/amd64,linux/arm64` can be added to build an image compatible with multiple architectures ([more can be specified](https://github.com/moby/buildkit/blob/v0.11.5/docs/multi-platform.md)). Multiple cache strategies [are available](https://github.com/moby/buildkit/tree/v0.11.5#cache) (including container registry, Azure Storage Blob, AWS S3).
 
+#### BuildKit and the performance
+
+BuildKit works by virtualization in the user space. You can't expect build times as short as native (on your laptop for example). [QEMU](https://www.qemu.org) is used as a backend. This has the advantage of being able to create images for different architectures than your processor. Virtualization-wise, not all CPU models are equivalent, you can [refer to the official project documentation](https://www.qemu.org/docs/master/system/qemu-cpu-models.html) to select the most appropriated CPU model for your Kubernetes Node Pool.
+
 ### Helm values
 
 | Parameter | Description | Default |
 |-|-|-|
-| `additionalEnv` | Additional environment variables for the agent container. | `null` |
-| `affinity` | Node affinity for pod assignment | `null` |
-| `annotations` | Add custom annotations to the Pod. | `null` |
+| `additionalEnv` | Additional environment variables for the agent container. | `[]` |
+| `affinity` | Node affinity for pod assignment | `{}` |
+| `annotations` | Add custom annotations to the Pod. | `{}` |
 | `autoscaling.cooldown` | Time in seconds the automation will wait until there is no more pipeline asking for an agent. Same time is then applied for system termination. | `60` |
-| `autoscaling.enabled` | Enable the auto-scaling. Requires [KEDA](https://keda.sh), but can be started without. | `true` |
+| `autoscaling.enabled` | Enable the auto-scaling. Requires [KEDA](https://keda.sh), but can be started without. Be warning, disabling auto-scaling implies a shutdown of the existing agents during a Helm instance upgrade, according to `pipelines.timeout`. | `true` |
 | `autoscaling.maxReplicas` | Maximum number of pods, remaining jobs will be kept in queue. | `100` |
-| `autoscaling.minReplicas` | Minimum number of pods. If autoscaling not enabled, the number of replicas to run. If `pipelines.capabilities` is defined, cannot be set to `0`. | `1` |
-| `extraVolumeMounts` | Additional volume mounts for the agent container. | `null` |
-| `extraVolumes` | Additional volumes for the agent pod. | `null` |
-| `fullnameOverride` | Overrides release fullname | `null` |
-| `image.flavor` | Container image tag | `bullseye` |
+| `extraVolumeMounts` | Additional volume mounts for the agent container. | `[]` |
+| `extraVolumes` | Additional volumes for the agent pod. | `[]` |
+| `fullnameOverride` | Overrides release fullname | `""` |
+| `image.flavor` | Container image tag, can be `bullseye`, `focal`, `jammy`, or `ubi8`. | `bullseye` |
 | `image.pullPolicy` | Container image pull policy | `IfNotPresent` |
 | `image.repository` | Container image repository | `ghcr.io/clemlesne/azure-pipelines-agent:bullseye` |
 | `image.version` | Container image tag | *Version* |
-| `imagePullSecrets` | Use secrets to pull the container image. | `null` |
-| `initContainers` | InitContainers for the agent pod. | `null` |
-| `nameOverride` | Overrides release name | `null` |
-| `nodeSelector` | Node labels for pod assignment | `null` |
+| `imagePullSecrets` | Use secrets to pull the container image. | `[]` |
+| `initContainers` | InitContainers for the agent pod. | `[]` |
+| `nameOverride` | Overrides release name | `""` |
+| `nodeSelector` | Node labels for pod assignment | `{}` |
 | `pipelines.cacheSize` | Total cache to attach to the Azure Pipelines standard directory. By default, [same amount as the Microsoft Hosted agents](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&tabs=yaml#hardware). | `10Gi` |
 | `pipelines.cacheType` | Disk type to attach to the Azure Pipelines standard directory. See your cloud provider for types ([Azure](https://learn.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes), [AWS](https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html)). | `managed-csi` (Azure compatible) |
 | `pipelines.capabilities` | Add [demands/capabilities](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/demands?view=azure-devops&tabs=yaml) to the agent | `[]` |
@@ -259,12 +262,13 @@ Out of the box, argument `--opt platform=linux/amd64,linux/arm64` can be added t
 | `pipelines.tmpdirSize` | Total size of the [standard `TMPDIR` directory](https://en.wikipedia.org/wiki/TMPDIR).  | `1Gi` |
 | `pipelines.tmpdirType` | Disk type to attach to the [standard `TMPDIR` directory](https://en.wikipedia.org/wiki/TMPDIR). See your cloud provider for types ([Azure](https://learn.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes), [AWS](https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html)). | `managed-csi` (Azure compatible) |
 | `pipelines.url` | The Azure base URL for your organization | *None* |
-| `podSecurityContext` | Security rules applied to the Pod ([more details](https://kubernetes.io/docs/concepts/security/pod-security-standards)). | `null` |
+| `podSecurityContext` | Security rules applied to the Pod ([more details](https://kubernetes.io/docs/concepts/security/pod-security-standards)). | `{}` |
+| `replicaCount` | Default fixed amount of agents deployed. Those are not auto-scaled. | `3` |
 | `resources` | Resource limits | `{ "resources": { "limits": { "cpu": 2, "memory": "4Gi" }, "requests": { "cpu": 1, "memory": "2Gi" } }}` |
-| `securityContext` | Security rules applied to the container ([more details](https://kubernetes.io/docs/concepts/security/pod-security-standards)). | `null` |
+| `securityContext` | Security rules applied to the container ([more details](https://kubernetes.io/docs/concepts/security/pod-security-standards)). | `{}` |
 | `serviceAccount.create` | Create ServiceAccount | `true` |
 | `serviceAccount.name` | ServiceAccount name | *Release name* |
-| `tolerations` | Toleration labels for pod assignment. | `null` |
+| `tolerations` | Toleration labels for pod assignment. | `[]` |
 
 ## [Security](./SECURITY.md)
 
