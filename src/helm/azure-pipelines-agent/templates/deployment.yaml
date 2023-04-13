@@ -1,0 +1,27 @@
+{{- if not (and (.Values.autoscaling.enabled) (.Capabilities.APIVersions.Has "keda.sh/v1alpha1")) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "this.fullname" . }}-{{ .Release.Revision }}
+  labels:
+    {{- include "this.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "this.selectorLabels" . | nindent 6 }}
+  replicas: {{ .Values.replicaCount | int | required "A value for .Values.replicaCount is required" }}
+  template:
+    metadata:
+      labels:
+        {{- include "this.selectorLabels" . | nindent 8 }}
+      annotations:
+        # Cluster autoscaler never evicts this Pod
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+        {{- with .Values.annotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      # The pod will shut down at each run, we need to restart it
+      restartPolicy: Always
+      {{- include "this.podSharedTemplate" . | nindent 6 }}
+{{- end }}
