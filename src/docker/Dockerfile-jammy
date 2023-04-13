@@ -117,11 +117,11 @@ RUN rootlesskit --version \
     && rootlessctl --version
 
 # Install Azure Pipelines Agent sources, then verify installation
-ARG AGENT_VERSION
-ENV AGENT_VERSION ${AGENT_VERSION}
+ARG AZP_AGENT_VERSION
+ENV AZP_AGENT_VERSION ${AZP_AGENT_VERSION}
 ENV AGENT_HOME ${HOME}/azp
 RUN mkdir -p ${AGENT_HOME} \
-    && curl -LsSf https://vstsagentpackage.azureedge.net/agent/${AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AGENT_VERSION}.tar.gz | tar -xz -C ${AGENT_HOME} \
+    && curl -LsSf https://vstsagentpackage.azureedge.net/agent/${AZP_AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AZP_AGENT_VERSION}.tar.gz | tar -xz -C ${AGENT_HOME} \
     && cd $AGENT_HOME \
     && chmod +x run-docker.sh config.sh \
     && AGENT_ALLOW_RUNASROOT="1" bash run-docker.sh --version

@@ -20,7 +20,7 @@ env:
   CONTAINER_NAME: ${{ github.repository }}
   CONTAINER_REGISTRY: ghcr.io
   # https://github.com/microsoft/azure-pipelines-agent/releases
-  AGENT_VERSION: 3.218.0
+  AZP_AGENT_VERSION: 3.218.0
   # https://github.com/PowerShell/PowerShell/releases
   POWERSHELL_VERSION: 7.2.10
   # https://github.com/krallin/tini/releases
@@ -67,7 +67,7 @@ jobs:
           cp README.md src/helm/azure-pipelines-agent/
 
           helm package \
-            --app-version ${{ env.AGENT_VERSION }} \
+            --app-version ${{ env.AZP_AGENT_VERSION }} \
             --destination .cr-release-packages \
             --key 'Clémence Lesné' \
             --keyring keyring.gpg \
@@ -194,7 +194,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           build-args: |
-            "AGENT_VERSION=${{ env.AGENT_VERSION }}"
+            "AZP_AGENT_VERSION=${{ env.AZP_AGENT_VERSION }}"
             "AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}"
             "BUILDKIT_VERSION=${{ env.BUILDKIT_VERSION }}"
             "GO_VERSION=${{ env.GO_VERSION }}"
