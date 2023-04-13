@@ -16,6 +16,7 @@ RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
         aspnetcore-runtime-6.0 \
         ca-certificates \
         cargo \
+        compat-openssl10 \
         curl \
         fuse-overlayfs \
         gcc \
@@ -30,6 +31,7 @@ RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
         jq \
         make \
         openssl-devel \
+        openssl-libs \
         pkg-config \
         python39 \
         python39-devel \
