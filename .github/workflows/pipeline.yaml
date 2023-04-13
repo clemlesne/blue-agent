@@ -33,6 +33,8 @@ env:
   ROOTLESSKIT_VERSION: 1.1.0
   # https://github.com/moby/buildkit/releases
   BUILDKIT_VERSION: 0.11.5
+  # https://github.com/Azure/azure-cli/releases
+  AZURE_CLI_VERSION: 2.47.0
 
 jobs:
   build-helm:
@@ -193,6 +195,7 @@ jobs:
         with:
           build-args: |
             "AGENT_VERSION=${{ env.AGENT_VERSION }}"
+            "AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}"
             "BUILDKIT_VERSION=${{ env.BUILDKIT_VERSION }}"
             "GO_VERSION=${{ env.GO_VERSION }}"
             "POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}"
