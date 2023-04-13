@@ -27,3 +27,7 @@ pipelines:
   pat: your-pat
   pool: private_kube
   url: https://dev.azure.com/shopping-cart-devops-demo
+
+image:
+  # Ubuntu 22.04 use Kernel v5.15, more performant than the v5.10 in Debian 11
+  flavor: jammy

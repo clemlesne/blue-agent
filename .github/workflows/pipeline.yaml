@@ -20,21 +20,21 @@ env:
   CONTAINER_NAME: ${{ github.repository }}
   CONTAINER_REGISTRY: ghcr.io
   # https://github.com/microsoft/azure-pipelines-agent/releases
-  AGENT_VERSION: 3.218.0
+  AZP_AGENT_VERSION: 3.218.0
   # https://github.com/PowerShell/PowerShell/releases
   POWERSHELL_VERSION: 7.2.10
   # https://github.com/krallin/tini/releases
   TINI_VERSION: 0.19.0
   # https://github.com/mikefarah/yq/releases
-  YQ_VERSION: 4.33.2
+  YQ_VERSION: 4.33.3
   # https://go.dev/dl
   GO_VERSION: 1.20.3
   # https://github.com/rootless-containers/rootlesskit/releases
   ROOTLESSKIT_VERSION: 1.1.0
   # https://github.com/moby/buildkit/releases
   BUILDKIT_VERSION: 0.11.5
-  # https://github.com/shadow-maint/shadow/releases
-  SHADOW_VERSION: 4.12.3
+  # https://github.com/Azure/azure-cli/releases
+  AZURE_CLI_VERSION: 2.47.0
 
 jobs:
   build-helm:
@@ -67,7 +67,7 @@ jobs:
           cp README.md src/helm/azure-pipelines-agent/
 
           helm package \
-            --app-version ${{ env.AGENT_VERSION }} \
+            --app-version ${{ env.AZP_AGENT_VERSION }} \
             --destination .cr-release-packages \
             --key 'Clémence Lesné' \
             --keyring keyring.gpg \
@@ -194,12 +194,12 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           build-args: |
-            "AGENT_VERSION=${{ env.AGENT_VERSION }}"
+            "AZP_AGENT_VERSION=${{ env.AZP_AGENT_VERSION }}"
+            "AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}"
             "BUILDKIT_VERSION=${{ env.BUILDKIT_VERSION }}"
             "GO_VERSION=${{ env.GO_VERSION }}"
             "POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}"
             "ROOTLESSKIT_VERSION=${{ env.ROOTLESSKIT_VERSION }}"
-            "SHADOW_VERSION=${{ env.SHADOW_VERSION }}"
             "TINI_VERSION=${{ env.TINI_VERSION }}"
             "YQ_VERSION=${{ env.YQ_VERSION }}"
           cache-from: type=gha

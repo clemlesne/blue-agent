@@ -1,5 +1,9 @@
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.7 as base
 
+# Configure local user
+ENV USER root
+ENV HOME /home/${USER}
+
 # Install:
 # - Azure Pipelines agent system requirements
 # - Azure CLI system requirements (Python 3.9, plus C/Rust build tools for libs non pre-built on this platform)
@@ -12,6 +16,7 @@ RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
         aspnetcore-runtime-6.0 \
         ca-certificates \
         cargo \
+        compat-openssl10 \
         curl \
         fuse-overlayfs \
         gcc \
@@ -26,11 +31,12 @@ RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
         jq \
         make \
         openssl-devel \
+        openssl-libs \
         pkg-config \
         python39 \
-        shadow-utils \
         python39-devel \
         python39-pip \
+        shadow-utils \
         sudo \
         tar \
         unzip \
@@ -67,8 +73,10 @@ RUN git clone --depth 1 --branch v${ROOTLESSKIT_VERSION} https://github.com/root
 FROM base
 
 # Install Azure CLI, then verify installation
+ARG AZURE_CLI_VERSION
+ENV AZURE_CLI_VERSION ${AZURE_CLI_VERSION}
 RUN python3 -m pip install --upgrade pip setuptools wheel \
-    && python3 -m pip install azure-cli \
+    && python3 -m pip install "azure-cli==${AZURE_CLI_VERSION}" \
     && az --version
 
 # Install Powershell, then verify installation
@@ -111,21 +119,21 @@ RUN rootlesskit --version \
     && rootlessctl --version
 
 # Install Azure Pipelines Agent sources, then verify installation
-ARG AGENT_VERSION
-ENV AGENT_VERSION ${AGENT_VERSION}
-ENV AGENT_HOME ${HOME}/azp
-RUN mkdir -p ${AGENT_HOME} \
-    && curl -LsSf https://vstsagentpackage.azureedge.net/agent/${AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AGENT_VERSION}.tar.gz | tar -xz -C ${AGENT_HOME} \
-    && cd $AGENT_HOME \
+ARG AZP_AGENT_VERSION
+ENV AZP_AGENT_VERSION ${AZP_AGENT_VERSION}
+ENV AZP_HOME ${HOME}/azp-agent
+RUN mkdir -p ${AZP_HOME} \
+    && curl -LsSf https://vstsagentpackage.azureedge.net/agent/${AZP_AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AZP_AGENT_VERSION}.tar.gz | tar -xz -C ${AZP_HOME} \
+    && cd $AZP_HOME \
     && chmod +x run-docker.sh config.sh \
     && AGENT_ALLOW_RUNASROOT="1" bash run-docker.sh --version
+ENV AZP_WORK ${HOME}/azp-work
+VOLUME ${AZP_WORK}
 
 # Cleanup helper script
 RUN rm arch.sh
 
 # Configure local user
-ENV USER root
-ENV HOME /home/${USER}
 RUN mkdir -p /run/${USER}/0 ${HOME}/.local/tmp ${HOME}/.local/share/buildkit \
     && chown -R ${USER} /run/${USER}/0 ${HOME} \
     && echo ${USER}:100000:65536 | tee /etc/subuid | tee /etc/subgid
@@ -136,6 +144,6 @@ ENV BUILDKIT_HOST=unix:///run/${USER}/0/buildkit/buildkitd.sock
 VOLUME ${HOME}/.local/share/buildkit
 
 # Install Azure Pipelines Agent startup script
-COPY start.sh ${AGENT_HOME}
-RUN chmod +x ${AGENT_HOME}/start.sh
-CMD bash ${AGENT_HOME}/start.sh
+COPY start.sh ${AZP_HOME}
+RUN chmod +x ${AZP_HOME}/start.sh
+CMD bash ${AZP_HOME}/start.sh
