@@ -31,7 +31,6 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/
         jq \
         libffi-dev \
         libssl-dev \
-        libssl3 \
         lsb-release \
         make \
         pkg-config \
@@ -75,6 +74,13 @@ RUN git clone --depth 1 --branch v${ROOTLESSKIT_VERSION} https://github.com/root
 
 FROM base
 
+# Azure CLI doesn't work with OpenSSL 3.0 (https://github.com/Azure/azure-cli/issues/22230)
+COPY jammy-misc/libssl* .
+RUN dpkg -i libssl1.1_1.1.1f-1ubuntu2_$(ARCH_X64=amd64 bash arch.sh).deb \
+    && cat /etc/ssl/openssl.cnf \
+    && rm -rf libssl* \
+    # https://github.com/microsoft/azure-pipelines-agent/issues/3834#issuecomment-1164461892
+    && sed -i 's/openssl_conf = openssl_init/#openssl_conf = openssl_init/g' /etc/ssl/openssl.cnf
 # Install Azure CLI, then verify installation
 ARG AZURE_CLI_VERSION
 ENV AZURE_CLI_VERSION ${AZURE_CLI_VERSION}
