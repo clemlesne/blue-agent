@@ -61,6 +61,17 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
+{{/*
+Common definition for Pod object.
+
+Usage example:
+
+{{- $data := dict
+  "restartPolicy" "Always"
+  "azpAgentName" (dict "value" (printf "%s-%s" (include "this.fullname" .) "template"))
+}}
+{{- include "this.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 6 }}
+*/}}
 {{- define "this.podSharedTemplate" -}}
 {{- with .Values.imagePullSecrets }}
 imagePullSecrets:
@@ -76,6 +87,7 @@ initContainers:
   {{- toYaml . | nindent 2 }}
 {{- end }}
 terminationGracePeriodSeconds: {{ .Values.pipelines.timeout | int | required "A value for .Values.pipelines.timeout is required" }}
+restartPolicy: {{ .Args.restartPolicy }}
 containers:
   - name: azp-agent
     securityContext:
@@ -88,12 +100,12 @@ containers:
     lifecycle:
       preStop:
         exec:
-          command: [bash, -c, "bash ${AZP_HOME}/config.sh remove --auth PAT --token $AZP_TOKEN"]
+          command: [bash, -c, "bash ${AZP_HOME}/config.sh remove --auth PAT --token ${AZP_TOKEN}"]
     env:
       - name: VSO_AGENT_IGNORE
         value: AZP_TOKEN
       - name: AZP_AGENT_NAME
-        value: {{ include "this.fullname" . }}-template
+        {{- toYaml .Args.azpAgentName | nindent 8 }}
       - name: AZP_URL
         valueFrom:
           secretKeyRef:

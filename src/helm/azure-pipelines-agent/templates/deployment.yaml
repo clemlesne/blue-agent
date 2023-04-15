@@ -21,7 +21,9 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      # The pod will shut down at each run, we need to restart it
-      restartPolicy: Always
-      {{- include "this.podSharedTemplate" . | nindent 6 }}
+      {{- $data := dict
+        "restartPolicy" "Always"
+        "azpAgentName" (dict "valueFrom" (dict "fieldRef" (dict "apiVersion" "v1" "fieldPath" "metadata.name" )))
+      }}
+      {{- include "this.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 6 }}
 {{- end }}

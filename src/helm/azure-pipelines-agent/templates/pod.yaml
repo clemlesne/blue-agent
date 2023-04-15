@@ -12,7 +12,9 @@ metadata:
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
-  # This agent is a template, we privilegiate Jobs instead of it, but we need to run it first
-  restartPolicy: Never
-  {{- include "this.podSharedTemplate" . | nindent 2 }}
+  {{- $data := dict
+    "restartPolicy" "Never"
+    "azpAgentName" (dict "value" (printf "%s-%s" (include "this.fullname" .) "template"))
+  }}
+  {{- include "this.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 2 }}
 {{- end }}
