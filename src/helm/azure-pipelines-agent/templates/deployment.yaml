@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "this.fullname" . }}-{{ .Release.Revision }}
+  name: {{ include "this.fullname" . }}
   labels:
     {{- include "this.labels" . | nindent 4 }}
 spec:
@@ -10,6 +10,11 @@ spec:
     matchLabels:
       {{- include "this.selectorLabels" . | nindent 6 }}
   replicas: {{ .Values.replicaCount | int | required "A value for .Values.replicaCount is required" }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0
   template:
     metadata:
       labels:
@@ -21,7 +26,9 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      # The pod will shut down at each run, we need to restart it
-      restartPolicy: Always
-      {{- include "this.podSharedTemplate" . | nindent 6 }}
+      {{- $data := dict
+        "restartPolicy" "Always"
+        "azpAgentName" (dict "valueFrom" (dict "fieldRef" (dict "apiVersion" "v1" "fieldPath" "metadata.name" )))
+      }}
+      {{- include "this.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 6 }}
 {{- end }}

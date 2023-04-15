@@ -35,9 +35,11 @@ spec:
           {{- toYaml . | nindent 10 }}
           {{- end }}
       spec:
-        # The job cannot crash, this is not functionally intended; a shutdown is functionally a pipeline end
-        restartPolicy: Never
-        {{- include "this.podSharedTemplate" . | nindent 8 }}
+        {{- $data := dict
+          "restartPolicy" "Never"
+          "azpAgentName" (dict "valueFrom" (dict "fieldRef" (dict "apiVersion" "v1" "fieldPath" "metadata.name" )))
+        }}
+        {{- include "this.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 8 }}
   maxReplicaCount: {{ .Values.autoscaling.maxReplicas | int | required "A value for .Values.autoscaling.maxReplicas is required" }}
   minReplicaCount: 0
   pollingInterval: 15

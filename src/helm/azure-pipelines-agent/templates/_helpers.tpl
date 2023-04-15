@@ -7,8 +7,8 @@ Expand the name of the chart.
 
 {{/*
 Create a default fully qualified app name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-If release name contains chart name it will be used as a full name.
+
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec). If release name contains chart name it will be used as a full name.
 */}}
 {{- define "this.fullname" -}}
 {{- if .Values.fullnameOverride }}
@@ -31,7 +31,7 @@ Create chart name and version as used by the chart label.
 {{- end }}
 
 {{/*
-Common labels
+Common labels.
 */}}
 {{- define "this.labels" -}}
 helm.sh/chart: {{ include "this.chart" . }}
@@ -43,7 +43,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
-Selector labels
+Selector labels.
 */}}
 {{- define "this.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "this.name" . }}
@@ -51,7 +51,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-Create the name of the service account to use
+Create the name of the service account to use.
 */}}
 {{- define "this.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
@@ -61,6 +61,17 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
+{{/*
+Common definition for Pod object.
+
+Usage example:
+
+{{- $data := dict
+  "restartPolicy" "Always"
+  "azpAgentName" (dict "value" (printf "%s-%s" (include "this.fullname" .) "template"))
+}}
+{{- include "this.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 6 }}
+*/}}
 {{- define "this.podSharedTemplate" -}}
 {{- with .Values.imagePullSecrets }}
 imagePullSecrets:
@@ -76,6 +87,7 @@ initContainers:
   {{- toYaml . | nindent 2 }}
 {{- end }}
 terminationGracePeriodSeconds: {{ .Values.pipelines.timeout | int | required "A value for .Values.pipelines.timeout is required" }}
+restartPolicy: {{ .Args.restartPolicy }}
 containers:
   - name: azp-agent
     securityContext:
@@ -88,12 +100,12 @@ containers:
     lifecycle:
       preStop:
         exec:
-          command: [bash, -c, "bash ${AZP_HOME}/config.sh remove --auth PAT --token $AZP_TOKEN"]
+          command: [bash, -c, "bash ${AZP_HOME}/config.sh remove --auth PAT --token ${AZP_TOKEN}"]
     env:
       - name: VSO_AGENT_IGNORE
         value: AZP_TOKEN
       - name: AZP_AGENT_NAME
-        value: {{ include "this.fullname" . }}-template
+        {{- toYaml .Args.azpAgentName | nindent 8 }}
       - name: AZP_URL
         valueFrom:
           secretKeyRef:
