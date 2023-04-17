@@ -6,6 +6,41 @@ entries:
       artifacthub.io/license: Apache-2.0
     apiVersion: v2
     appVersion: 3.218.0
+    created: "2023-04-17T13:33:04.45673475Z"
+    description: Deploy Azure Pipelines agent on Kubernetes. Easy way.
+    digest: 05c148382a27c49730a1b529288adac67e9d507bd757e4e8abcc5b673ab32524
+    home: https://github.com/clemlesne/azure-pipelines-agent
+    icon: https://raw.githubusercontent.com/clemlesne/azure-pipelines-agent/master/logo-1024.png
+    keywords:
+    - agent
+    - auto-scale
+    - azure
+    - azure-devops
+    - azure-pipelines
+    - container
+    - devops
+    - docker
+    - helm
+    - keda
+    - kubernetes
+    - pipelines
+    - self-hosted
+    - self-hosted-agent
+    maintainers:
+    - email: clemence@lesne.pro
+      name: Clémence Lesné
+    name: azure-pipelines-agent
+    sources:
+    - https://github.com/clemlesne/azure-pipelines-agent
+    type: application
+    urls:
+    - https://github.com/clemlesne/azure-pipelines-agent/releases/download/azure-pipelines-agent-4.15.2/azure-pipelines-agent-4.15.2.tgz
+    version: 4.15.2
+  - annotations:
+      artifacthub.io/category: integration-delivery
+      artifacthub.io/license: Apache-2.0
+    apiVersion: v2
+    appVersion: 3.218.0
     created: "2023-04-15T19:54:37.213533696Z"
     description: Deploy Azure Pipelines agent on Kubernetes. Easy way.
     digest: ebdbc4d7b7f6432ec108920438c5d3f2359185334d22c55c1850a45f74af7126
@@ -1262,4 +1297,4 @@ entries:
     urls:
     - https://github.com/clemlesne/azure-pipelines-agent/releases/download/azure-pipelines-agent-0.1.0/azure-pipelines-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2023-04-15T19:54:37.214048501Z"
+generated: "2023-04-17T13:33:04.457757348Z"
