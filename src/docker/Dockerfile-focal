@@ -6,7 +6,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV USER root
 ENV HOME /home/${USER}
 
-# Install:
+# First, upgrade base image
+# Then, install:
 # - Azure Pipelines agent system requirements
 # - zsh, for inter-operability
 # - dbus-user-session, iptables, uidmap, for BuildKit
@@ -16,6 +17,7 @@ RUN rm -f /etc/apt/apt.conf.d/docker-clean \
     && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
 RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/var/cache,type=cache,sharing=locked \
     apt-get update -q \
+    && apt-get upgrade -y -q \
     && apt-get install -y -q --no-install-recommends \
         build-essential \
         ca-certificates \
