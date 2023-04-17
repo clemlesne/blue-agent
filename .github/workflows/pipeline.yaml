@@ -44,7 +44,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
+          # We need all Git history for "version.sh"
           fetch-depth: 0
+          # Ensure "version.sh" submodule us up-to-date
           submodules: recursive
 
       - name: Version
@@ -86,15 +88,13 @@ jobs:
     needs:
       - build-deploy-docker
       - build-helm
+      - semgrep
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          submodules: recursive
 
       - name: Configure Git
         run: |
@@ -117,6 +117,8 @@ jobs:
 
   build-deploy-docker:
     name: Build & deploy container image "${{ matrix.os }}"
+    needs:
+      - semgrep
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -133,7 +135,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
+          # We need all Git history for "version.sh"
           fetch-depth: 0
+          # Ensure "version.sh" submodule us up-to-date
           submodules: recursive
 
       - name: Configure Git
@@ -190,6 +194,11 @@ jobs:
             org.opencontainers.image.vendor=${{ github.actor }}
             org.opencontainers.image.version=${{ steps.version.outputs.version_full }}
 
+      - name: Store tag
+        id: tag
+        run: |
+          echo "tag=$(head -1 <<< "${{ steps.meta.outputs.tags }}")" >> $GITHUB_OUTPUT
+
       - name: Build/push container
         uses: docker/build-push-action@v4
         with:
@@ -212,3 +221,36 @@ jobs:
           push: true
           sbom: true
           tags: ${{ steps.meta.outputs.tags }}
+
+      - name: Run SAST Snyk
+        uses: snyk/actions/docker@0.3.0
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --file=src/docker/Dockerfile-${{ matrix.os }} --severity-threshold=high --fail-on=upgradable --sarif
+          image: ${{ steps.tag.outputs.tag }}
+
+      - name: Upload results to GitHub CodeQL
+        uses: github/codeql-action/upload-sarif@v2.2.12
+        with:
+          sarif_file: snyk.sarif
+
+  semgrep:
+    name: SAST Semgrep
+    runs-on: ubuntu-22.04
+    container:
+      image: returntocorp/semgrep
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Run tests
+        run: semgrep ci --sarif --output=semgrep.sarif
+        env:
+          SEMGREP_RULES: p/cwe-top-25 p/owasp-top-ten p/secrets p/kubernetes p/dockerfile
+
+      - name: Upload results to GitHub CodeQL
+        uses: github/codeql-action/upload-sarif@v2.2.12
+        if: always()
+        with:
+          sarif_file: semgrep.sarif
