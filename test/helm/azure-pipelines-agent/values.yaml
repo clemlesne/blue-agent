@@ -1,0 +1,4 @@
+pipelines:
+  pat: your-pat
+  pool: your-pool
+  url: https://dev.azure.com/your-org

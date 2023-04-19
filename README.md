@@ -202,6 +202,11 @@ We choose BuildKit for this project. [Its licence](https://raw.githubusercontent
 
 There are two components, the backend, `buildkitd`, and the CLI, `buildctl`.
 
+Requirements:
+
+- Setup special security requirements, you can find them [in the example file `container-build.yaml`](example/helm/container-build.yaml).
+- In the pipeline, run `buildkitd` before using `buildctl`.
+
 ```yaml
 # azure-pipelines.yaml
 variables:
