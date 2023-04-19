@@ -247,12 +247,14 @@ jobs:
           sbom: true
           tags: ${{ steps.meta.outputs.tags }}
 
-      - name: Run SAST Snyk
+      - name: Run SAST Snyk for container image
         uses: snyk/actions/docker@0.3.0
+        # Snyk can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub CodeQL.
+        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --file=src/docker/Dockerfile-${{ matrix.os }} --severity-threshold=high --fail-on=upgradable --sarif
+          args: --file=src/docker/Dockerfile-${{ matrix.os }} --severity-threshold=medium --fail-on=upgradable --sarif
           image: ${{ steps.tag.outputs.tag }}
 
       - name: Upload results to GitHub CodeQL
