@@ -12,6 +12,12 @@ extraVolumes:
 securityContext:
   seccompProfile:
     type: Unconfined
+  # Has to be true for allowing RootlessKit initializing the user namespace with "newuidmap" setuid binary
+  allowPrivilegeEscalation: true
+  capabilities:
+    # Requires more capabilities for allowing RootlessKit initializing the user namespace with "newuidmap" setuid binary.
+    # TODO: Capabilities could be narrowed by keeping drop=[ALL] and whitelist the required capabilities with add=[...].
+    drop: []
 
 resources:
   limits:

@@ -6,9 +6,10 @@
 [Azure Pipelines Agent](https://github.com/clemlesne/azure-pipelines-agent) is self-hosted agent in Kubernetes, cheap to run, secure, auto-scaled and easy to deploy.
 
 <!-- github.com badges -->
-[![GitHub Release Date](https://img.shields.io/github/release-date/clemlesne/azure-pipelines-agent)](https://github.com/clemlesne/azure-pipelines-agent/releases)
-[![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/clemlesne/azure-pipelines-agent/pipeline.yaml?branch=main)](https://github.com/clemlesne/azure-pipelines-agent/actions/workflows/pipeline.yaml)
-[![GitHub all releases](https://img.shields.io/github/downloads/clemlesne/azure-pipelines-agent/total)](https://github.com/clemlesne/azure-pipelines-agent/pkgs/container/azure-pipelines-agent)
+[![Project licence](https://img.shields.io/github/license/clemlesne/azure-pipelines-agent)](https://github.com/clemlesne/azure-pipelines-agent/blob/main/LICENCE)
+[![Last release date](https://img.shields.io/github/release-date/clemlesne/azure-pipelines-agent)](https://github.com/clemlesne/azure-pipelines-agent/releases)
+[![Workflow status](https://img.shields.io/github/actions/workflow/status/clemlesne/azure-pipelines-agent/pipeline.yaml?branch=main)](https://github.com/clemlesne/azure-pipelines-agent/actions/workflows/pipeline.yaml)
+[![All releases download counter](https://img.shields.io/github/downloads/clemlesne/azure-pipelines-agent/total)](https://github.com/clemlesne/azure-pipelines-agent/pkgs/container/azure-pipelines-agent)
 
 <!-- artifacthub.io badges -->
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/azure-pipelines-agent)](https://artifacthub.io/packages/search?repo=azure-pipelines-agent)
@@ -200,6 +201,11 @@ We choose BuildKit for this project. [Its licence](https://raw.githubusercontent
 #### How to use the bundled BuildKit
 
 There are two components, the backend, `buildkitd`, and the CLI, `buildctl`.
+
+Requirements:
+
+- Setup special security requirements, you can find them [in the example file `container-build.yaml`](example/helm/container-build.yaml).
+- In the pipeline, run `buildkitd` before using `buildctl`.
 
 ```yaml
 # azure-pipelines.yaml

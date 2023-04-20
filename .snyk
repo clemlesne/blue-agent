@@ -1,0 +1,10 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.0
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-CC-K8S-10:
+    - '*':
+        reason: Container is explicitely designed to be run as root.
+        expires: 2023-05-19T14:18:40.021Z
+        created: 2023-04-19T14:18:40.024Z
+patch: {}

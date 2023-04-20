@@ -62,6 +62,19 @@ Create the name of the service account to use.
 {{- end }}
 
 {{/*
+Default SecurytyContext object to apply to containers.
+
+Can be overriden by setting ".Values.securityContext".
+*/}}
+{{- define "this.defaultSecurityContext" -}}
+allowPrivilegeEscalation: false
+runAsNonRoot: false
+runAsUser: 0
+capabilities:
+  drop: ["ALL"]
+{{- end }}
+
+{{/*
 Common definition for Pod object.
 
 Usage example:
@@ -91,10 +104,7 @@ restartPolicy: {{ .Args.restartPolicy }}
 containers:
   - name: azp-agent
     securityContext:
-      runAsUser: 0
-      {{- with .Values.securityContext }}
-      {{- toYaml . | nindent 6 }}
-      {{- end }}
+      {{- toYaml (mustMergeOverwrite (include "this.defaultSecurityContext" . | fromYaml) .Values.securityContext) | nindent 6 }}
     image: "{{ .Values.image.repository | required "A value for .Values.image.repository is required" }}:{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}-{{ default .Chart.Version .Values.image.version }}"
     imagePullPolicy: {{ .Values.image.pullPolicy }}
     lifecycle:
