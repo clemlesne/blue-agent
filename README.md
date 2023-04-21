@@ -238,6 +238,28 @@ Out of the box, argument `--opt platform=linux/amd64,linux/arm64` can be added t
 
 BuildKit works by virtualization in the user space. You can't expect build times as short as native (on your laptop for example). [QEMU](https://www.qemu.org) is used as a backend. This has the advantage of being able to create images for different architectures than your processor. Virtualization-wise, not all CPU models are equivalent, you can [refer to the official project documentation](https://www.qemu.org/docs/master/system/qemu-cpu-models.html) to select the most appropriated CPU model for your Kubernetes Node Pool.
 
+### Build ASP.NET applications in the agent
+
+It was chosen arbitrarily to install the LTS non SDK version of ASNP.NET. Because :
+
+- LTS is better supported by Microsoft than STS
+- The non-SDK is lighter when included in a container, knowing that not everyone will use it for building purposes
+
+It is recommended that development teams to hard-code the framework version you want to use, in your pipeline. With this setup, the developer controls its environment, not the platform. If they decide to upgrade, they update the pipeline, if not, not. This is under the responsibility of the developer.
+
+The ASP.NET framework can be installed on the fly with [UseDotNet@2](https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/use-dotnet-v2?view=azure-pipelines):
+
+```yaml
+# azure-pipelines.yaml
+steps:
+  - task: UseDotNet@2
+    inputs:
+      packageType: sdk
+      version: 7.0.5
+```
+
+Same way, if you want to use multiple versions of the framework, re-execute the task with the new version. Installations are cached locally.
+
 ### Helm values
 
 | Parameter | Description | Default |
