@@ -278,4 +278,8 @@ BuildKit works by virtualization in the user space. You can't expect build times
 
 ## [Security](./SECURITY.md)
 
+## Support
+
+This project is open source and maintained by people like you. If you need help or found a bug, please feel free to open an issue on the [clemlesne/azure-pipelines-agent](https://github.com/clemlesne/azure-pipelines-agent) GitHub project.
+
 ## [Authors](./AUTHORS.md)

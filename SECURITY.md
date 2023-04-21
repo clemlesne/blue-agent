@@ -1,5 +1,15 @@
 # Security Policy
 
+## Proactive detection of vulnerabilities
+
+At each build, a vulnerability scan is performed on the system. If a vulnerability that can be upgraded is detected, the build is stopped and the image is not pushed to the registry. In any cases, the vulnerability is reported in [GitHub Security Code Scanning](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/about-code-scanning). The maintainers are alterts and have access to reports.
+
+Automation is supported by [Snyk](https://snyk.io) and [Semgrep](https://semgrep.dev). Helm chart, configuration files, and containers, are scanned for vulnerabilities and misconfigurations.
+
+## Reporting a vulnerability
+
+If you think you have found a vulnerability, please do not open an issue on GitHub. Instead, please send an email to [Clémence Lesné](mailto:clemence@lesne.pro).
+
 ## Chain of trust
 
 The Helm chart is signed with a GPG key. [The public key is available on Keybase at the following address.](https://keybase.io/clemlesne/pgp_keys.asc)
@@ -11,11 +21,3 @@ Systems are built every days. Each image is accompanied by a SBOM (Software Bill
 Nevertheless it can happen that a package provider (e.g. Debian, Canonical, Red Hat) deploys a system update that introduces a bug. This is difficult to predict.
 
 Each image is pushed with a unique tag, which corresponds to the date of the last update (example: `bullseye-20230313` for a build on March 13, 2023). It is therefore possible to fix the download of a version by modifying the `image.version` property to `20230313`.
-
-## Reporting a Vulnerability
-
-If you think you have found a vulnerability, please do not open an issue on GitHub. Instead, please send an email to [Clémence Lesné](mailto:clemence@lesne.pro).
-
-## Support
-
-If you need help or found a bug, please feel free to open an issue on the [clemlesne/azure-pipelines-agent](https://github.com/clemlesne/azure-pipelines-agent) GitHub project.
