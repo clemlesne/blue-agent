@@ -2,24 +2,24 @@
 apiVersion: keda.sh/v1alpha1
 kind: TriggerAuthentication
 metadata:
-  name: {{ include "this.fullname" . }}
+  name: {{ include "azure-pipelines-agent.fullname" . }}
   labels:
-    {{- include "this.labels" . | nindent 4 }}
+    {{- include "azure-pipelines-agent.labels" . | nindent 4 }}
 spec:
   secretTargetRef:
     - parameter: organizationURL
-      name: {{ include "this.fullname" . }}
+      name: {{ include "azure-pipelines-agent.fullname" . }}
       key: url
     - parameter: personalAccessToken
-      name: {{ include "this.fullname" . }}
+      name: {{ include "azure-pipelines-agent.fullname" . }}
       key: pat
 ---
 apiVersion: keda.sh/v1alpha1
 kind: ScaledJob
 metadata:
-  name: {{ include "this.fullname" . }}
+  name: {{ include "azure-pipelines-agent.fullname" . }}
   labels:
-    {{- include "this.labels" . | nindent 4 }}
+    {{- include "azure-pipelines-agent.labels" . | nindent 4 }}
 spec:
   jobTargetRef:
     parallelism: 1
@@ -27,7 +27,7 @@ spec:
     template:
       metadata:
         labels:
-          {{- include "this.labels" . | nindent 10 }}
+          {{- include "azure-pipelines-agent.labels" . | nindent 10 }}
         annotations:
           # Cluster autoscaler never evicts this Pod
           cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
@@ -39,7 +39,7 @@ spec:
           "restartPolicy" "Never"
           "azpAgentName" (dict "valueFrom" (dict "fieldRef" (dict "apiVersion" "v1" "fieldPath" "metadata.name" )))
         }}
-        {{- include "this.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 8 }}
+        {{- include "azure-pipelines-agent.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 8 }}
   maxReplicaCount: {{ .Values.autoscaling.maxReplicas | int | required "A value for .Values.autoscaling.maxReplicas is required" }}
   minReplicaCount: 0
   pollingInterval: 15
@@ -52,7 +52,7 @@ spec:
     - type: azure-pipelines
       metadata:
         poolName: {{ .Values.pipelines.pool | quote | required "A value for .Values.pipelines.pool is required" }}
-        parent: {{ include "this.fullname" . }}-template
+        parent: {{ include "azure-pipelines-agent.fullname" . }}-template
       authenticationRef:
-        name: {{ include "this.fullname" . }}
+        name: {{ include "azure-pipelines-agent.fullname" . }}
 {{- end }}

@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "this.name" -}}
+{{- define "azure-pipelines-agent.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec). If release name contains chart name it will be used as a full name.
 */}}
-{{- define "this.fullname" -}}
+{{- define "azure-pipelines-agent.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "this.chart" -}}
+{{- define "azure-pipelines-agent.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels.
 */}}
-{{- define "this.labels" -}}
-helm.sh/chart: {{ include "this.chart" . }}
-{{ include "this.selectorLabels" . }}
+{{- define "azure-pipelines-agent.labels" -}}
+helm.sh/chart: {{ include "azure-pipelines-agent.chart" . }}
+{{ include "azure-pipelines-agent.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,17 +45,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels.
 */}}
-{{- define "this.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "this.name" . }}
+{{- define "azure-pipelines-agent.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "azure-pipelines-agent.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use.
 */}}
-{{- define "this.serviceAccountName" -}}
+{{- define "azure-pipelines-agent.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "this.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "azure-pipelines-agent.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
@@ -66,7 +66,7 @@ Default SecurytyContext object to apply to containers.
 
 Can be overriden by setting ".Values.securityContext".
 */}}
-{{- define "this.defaultSecurityContext" -}}
+{{- define "azure-pipelines-agent.defaultSecurityContext" -}}
 allowPrivilegeEscalation: false
 runAsNonRoot: false
 runAsUser: 0
@@ -81,16 +81,16 @@ Usage example:
 
 {{- $data := dict
   "restartPolicy" "Always"
-  "azpAgentName" (dict "value" (printf "%s-%s" (include "this.fullname" .) "template"))
+  "azpAgentName" (dict "value" (printf "%s-%s" (include "azure-pipelines-agent.fullname" .) "template"))
 }}
-{{- include "this.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 6 }}
+{{- include "azure-pipelines-agent.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 6 }}
 */}}
-{{- define "this.podSharedTemplate" -}}
+{{- define "azure-pipelines-agent.podSharedTemplate" -}}
 {{- with .Values.imagePullSecrets }}
 imagePullSecrets:
   {{- toYaml . | nindent 2 }}
 {{- end }}
-serviceAccountName: {{ include "this.serviceAccountName" . }}
+serviceAccountName: {{ include "azure-pipelines-agent.serviceAccountName" . }}
 {{- with .Values.podSecurityContext }}
 securityContext:
   {{- toYaml . | nindent 2 }}
@@ -104,7 +104,7 @@ restartPolicy: {{ .Args.restartPolicy }}
 containers:
   - name: azp-agent
     securityContext:
-      {{- toYaml (mustMergeOverwrite (include "this.defaultSecurityContext" . | fromYaml) .Values.securityContext) | nindent 6 }}
+      {{- toYaml (mustMergeOverwrite (include "azure-pipelines-agent.defaultSecurityContext" . | fromYaml) .Values.securityContext) | nindent 6 }}
     image: "{{ .Values.image.repository | required "A value for .Values.image.repository is required" }}:{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}-{{ default .Chart.Version .Values.image.version }}"
     imagePullPolicy: {{ .Values.image.pullPolicy }}
     lifecycle:
@@ -119,14 +119,14 @@ containers:
       - name: AZP_URL
         valueFrom:
           secretKeyRef:
-            name: {{ include "this.fullname" . }}
+            name: {{ include "azure-pipelines-agent.fullname" . }}
             key: url
       - name: AZP_POOL
         value: {{ .Values.pipelines.pool | quote | required "A value for .Values.pipelines.pool is required" }}
       - name: AZP_TOKEN
         valueFrom:
           secretKeyRef:
-            name: {{ include "this.fullname" . }}
+            name: {{ include "azure-pipelines-agent.fullname" . }}
             key: pat
       # Agent capabilities
       - name: flavor_{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}
