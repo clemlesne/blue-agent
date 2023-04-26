@@ -16,15 +16,19 @@ autoscaling:
   maxReplicas: 100
 
 pipelines:
-  cacheSize: 10Gi
-  cacheType: managed-csi
   capabilities: []
   pat: null
   pool: null
-  timeout: 3600
-  tmpdirSize: 1Gi
-  tmpdirType: managed-csi
   url: null
+  timeout: 3600
+  cache:
+    size: 10Gi
+    type: managed-csi
+    volumeEnabled: true
+  tmpdir:
+    size: 1Gi
+    type: managed-csi
+    volumeEnabled: true
 
 serviceAccount:
   create: true

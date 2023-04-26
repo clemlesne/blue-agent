@@ -149,22 +149,32 @@ containers:
 volumes:
   - name: azp-work
     ephemeral:
+      {{- if .Values.pipelines.cache.volumeEnabled }}
       volumeClaimTemplate:
         spec:
           accessModes: [ "ReadWriteOnce" ]
-          storageClassName: {{ .Values.pipelines.cacheType | required "A value for .Values.pipelines.cacheType is required" }}
+          storageClassName: {{ .Values.pipelines.cache.type | required "A value for .Values.pipelines.cache.type is required" }}
           resources:
             requests:
-              storage: {{ .Values.pipelines.cacheSize | required "A value for .Values.pipelines.cacheSize is required" }}
+              storage: {{ .Values.pipelines.cache.size | required "A value for .Values.pipelines.cache.size is required" }}
+      {{- else }}
+      emptyDir:
+        sizeLimit: {{ .Values.pipelines.cache.size | required "A value for .Values.pipelines.cache.size is required" }}
+      {{- end }}
   - name: local-tmp
     ephemeral:
+      {{- if .Values.pipelines.tmpdir.volumeEnabled }}
       volumeClaimTemplate:
         spec:
           accessModes: [ "ReadWriteOnce" ]
-          storageClassName: {{ .Values.pipelines.tmpdirType | required "A value for .Values.pipelines.tmpdirType is required" }}
+          storageClassName: {{ .Values.pipelines.tmpdir.type | required "A value for .Values.pipelines.tmpdir.type is required" }}
           resources:
             requests:
-              storage: {{ .Values.pipelines.tmpdirSize | required "A value for .Values.pipelines.tmpdirSize is required" }}
+              storage: {{ .Values.pipelines.tmpdir.size | required "A value for .Values.pipelines.tmpdir.size is required" }}
+      {{- else }}
+      emptyDir:
+        sizeLimit: {{ .Values.pipelines.tmpdir.size | required "A value for .Values.pipelines.tmpdir.size is required" }}
+      {{- end }}
   {{- with .Values.extraVolumes }}
   {{- toYaml . | nindent 2 }}
   {{- end }}

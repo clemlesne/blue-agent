@@ -2,7 +2,8 @@ pipelines:
   pat: your-pat
   pool: private_kube
   url: https://dev.azure.com/shopping-cart-devops-demo
-  cacheType: azurefile-csi
+  cache:
+    type: managed-csi-premium
   capabilities:
     - ml_training
 
