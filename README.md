@@ -22,7 +22,7 @@ Features:
 - Can run air-gapped (no internet access).
 - Cheap to run (dynamic provisioning of agents, can scale from 0 to 100+ in few seconds with [KEDA](https://keda.sh)).
 - Performances can be customized depending of the engineering needs, which goes far beyond the Microsoft-hosted agent.
-- Pre-built with Debian, Ubuntu and Red Hat Enterprise Linux releases.
+- Pre-built with Windows Server, Debian, Ubuntu, Red Hat Enterprise Linux.
 - SBOM (Software Bill of Materials) is packaged with each container image.
 - System updates are applied every days.
 
@@ -60,17 +60,29 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 | `docker pull ghcr.io/clemlesne/azure-pipelines-agent:focal-main` | Ubuntu Focal (20.04) minimal | `linux/amd64`, `linux/arm/v7`, `linux/arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases) |
 | `docker pull ghcr.io/clemlesne/azure-pipelines-agent:jammy-main` | Ubuntu Jammy (22.04) minimal | `linux/amd64`, `linux/arm/v7`, `linux/arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases) |
 | `docker pull ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main` | Red Hat UBI 8 (8.7) minimal | `linux/amd64`, `linux/arm64/v8` | [See Red Hat product life cycles.](https://access.redhat.com/product-life-cycles/?product=Red%20Hat%20Enterprise%20Linux) |
+| `docker pull ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019` | Windows Server 2019 Core | `linux/amd64` | [See base image servicing lifecycles.](https://learn.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/base-image-lifecycle) |
+| `docker pull ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022` | Windows Server 2022 Core | `linux/amd64` | [See base image servicing lifecycles.](https://learn.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/base-image-lifecycle) |
 
 ## Advanced topics
 
 ### Provided software
 
+#### Linux
+
 - [Azure Pipelines agent](https://github.com/microsoft/azure-pipelines-agent) (see env var `AZP_AGENT_VERSION` on the container images) + [requirements](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux)
 - [ASP.NET Core](https://github.com/dotnet/aspnetcore) runtime (required by the Azure Pipelines agent)
 - [Azure CLI](https://github.com/Azure/azure-cli) (required by the Azure Pipelines agent) + requirements ([Python 3.8](https://www.python.org/downloads/release/python-380), [Python 3.9](https://www.python.org/downloads/release/python-390), [Python 3.10](https://www.python.org/downloads/release/python-3100), depending of the system, plus C/Rust build tools for libs non pre-built on the platforms)
-- [Powershell](https://github.com/PowerShell/PowerShell), [bash](https://www.gnu.org/software/bash) and [zsh](https://www.zsh.org) (for inter-operability)
+- [PowerShell Core](https://github.com/PowerShell/PowerShell), [bash](https://www.gnu.org/software/bash) and [zsh](https://www.zsh.org) (for inter-operability)
 - [BuildKit](https://github.com/moby/buildkit) + requirements ([dbus-user-session](https://dbus.freedesktop.org), [fuse-overlayfs](https://github.com/containers/fuse-overlayfs), [iptables](https://www.netfilter.org/projects/iptables/index.html), [shadow-utils](https://github.com/shadow-maint/shadow), [uidmap](https://github.com/shadow-maint/shadow))
-- [gzip](https://www.gnu.org/software/gzip), [make](https://www.gnu.org/software/make), [tar](https://www.gnu.org/software/tar), [unzip](https://infozip.sourceforge.net/UnZip.html), [wget](https://www.gnu.org/software/wget), [yq](https://github.com/mikefarah/yq), [zip](https://infozip.sourceforge.net/Zip.html), [zstd](https://github.com/facebook/zstd) (for developer ease-of-life)
+- [gzip](https://www.gnu.org/software/gzip), [jq](https://github.com/stedolan/jq), [make](https://www.gnu.org/software/make), [tar](https://www.gnu.org/software/tar), [unzip](https://infozip.sourceforge.net/UnZip.html), [wget](https://www.gnu.org/software/wget), [yq](https://github.com/mikefarah/yq), [zip](https://infozip.sourceforge.net/Zip.html), [zstd](https://github.com/facebook/zstd) (for developer ease-of-life)
+
+#### Windows
+
+- [Azure Pipelines agent](https://github.com/microsoft/azure-pipelines-agent) (see env var `AZP_AGENT_VERSION` on the container images) + [requirements](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux)
+- [ASP.NET Core](https://github.com/dotnet/aspnetcore) runtime (required by the Azure Pipelines agent)
+- [Azure CLI](https://github.com/Azure/azure-cli) (required by the Azure Pipelines agent)
+- [PowerShell Core](https://github.com/PowerShell/PowerShell) (for inter-operability)
+- [git](https://github.com/git-for-windows/git), [jq](https://github.com/stedolan/jq), [yq](https://github.com/mikefarah/yq) (for developer ease-of-life)
 
 ### Capabilities
 

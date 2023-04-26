@@ -35,6 +35,10 @@ env:
   BUILDKIT_VERSION: 0.11.5
   # https://github.com/Azure/azure-cli/releases
   AZURE_CLI_VERSION: 2.47.0
+  # https://github.com/stedolan/jq/releases
+  JQ_VERSION: 1.6
+  # https://github.com/git-for-windows/git/releases
+  GIT_VERSION_WIN: 2.40.1
 
 jobs:
   build-helm:
@@ -42,7 +46,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.5.2
         with:
           # We need all Git history for "version.sh"
           fetch-depth: 0
@@ -52,11 +56,11 @@ jobs:
       - name: Version
         id: version
         run: |
-          echo "version=$(make version)" >> $GITHUB_OUTPUT
-          echo "version_full=$(make version-full)" >> $GITHUB_OUTPUT
+          echo "version=$(bash cicd/version/version.sh -g . -c)" >> $GITHUB_OUTPUT
+          echo "version_full=$(bash cicd/version/version.sh -g . -c -m)" >> $GITHUB_OUTPUT
 
       - name: Setup Helm
-        uses: azure/setup-helm@v3
+        uses: azure/setup-helm@v3.5
         with:
           version: v3.11.2
 
@@ -78,7 +82,7 @@ jobs:
             src/helm/azure-pipelines-agent
 
       - name: Cache Helm chart
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: helm-chart
           path: .cr-release-packages
@@ -91,7 +95,7 @@ jobs:
             .cr-release-packages/azure-pipelines-agent-${{ steps.version.outputs.version }}.tgz
 
       - name: Run SAST Snyk for Helm
-        uses: snyk/actions/iac@master
+        uses: snyk/actions/iac@0.3.0
         # Snyk can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub CodeQL.
         continue-on-error: true
         with:
@@ -108,7 +112,8 @@ jobs:
   deploy-helm:
     name: Deploy Helm chart
     needs:
-      - build-deploy-docker
+      - build-publish-linux
+      - build-publish-win
       - build-helm
       - semgrep
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
@@ -116,7 +121,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.5.2
         with:
           # Chart Releaser needs to have local access to "gh-pages" plus current branch
           fetch-depth: 0
@@ -127,7 +132,7 @@ jobs:
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
       - name: Download Helm chart
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v3.0.2
         with:
           name: helm-chart
           path: .cr-release-packages
@@ -140,8 +145,8 @@ jobs:
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  build-deploy-docker:
-    name: Build & deploy container image "${{ matrix.os }}"
+  build-publish-linux:
+    name: Build & deploy Linux image "${{ matrix.os }}"
     needs:
       - semgrep
     runs-on: ubuntu-22.04
@@ -158,7 +163,7 @@ jobs:
             arch: linux/amd64,linux/arm64/v8
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.5.2
         with:
           # We need all Git history for "version.sh"
           fetch-depth: 0
@@ -173,20 +178,20 @@ jobs:
       - name: Version
         id: version
         run: |
-          echo "version=$(make version)" >> $GITHUB_OUTPUT
-          echo "version_full=$(make version-full)" >> $GITHUB_OUTPUT
+          echo "version=$(bash cicd/version/version.sh -g . -c)" >> $GITHUB_OUTPUT
+          echo "version_full=$(bash cicd/version/version.sh -g . -c -m)" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         id: setup-qemu
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v2.1.0
         with:
           platforms: ${{ matrix.arch }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v2.5.0
 
       - name: Login to container registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v2.1.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY }}
           username: ${{ github.actor }}
@@ -194,7 +199,7 @@ jobs:
 
       - name: Container meta
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v4.4.0
         with:
           images: ${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_NAME }}
           flavor: |
@@ -222,16 +227,19 @@ jobs:
       - name: Store tag
         id: tag
         run: |
-          echo "tag=$(head -1 <<< "${{ steps.meta.outputs.tags }}")" >> $GITHUB_OUTPUT
+          branch=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
+          tag=$(echo "${{ steps.meta.outputs.tags }}" | grep $branch)
+          echo "tag=$tag" >> $GITHUB_OUTPUT
 
       - name: Build/push container
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v4.0.0
         with:
           build-args: |
             "AZP_AGENT_VERSION=${{ env.AZP_AGENT_VERSION }}"
             "AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}"
             "BUILDKIT_VERSION=${{ env.BUILDKIT_VERSION }}"
             "GO_VERSION=${{ env.GO_VERSION }}"
+            "JQ_VERSION=${{ env.JQ_VERSION }}"
             "POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}"
             "ROOTLESSKIT_VERSION=${{ env.ROOTLESSKIT_VERSION }}"
             "TINI_VERSION=${{ env.TINI_VERSION }}"
@@ -262,6 +270,110 @@ jobs:
         with:
           sarif_file: snyk.sarif
 
+  build-publish-win:
+    name: Build & deploy Windows image "${{ matrix.os }}"
+    needs:
+      - semgrep
+    runs-on: ${{ matrix.runs-on }}
+    strategy:
+      matrix:
+        include:
+          - os: win-ltsc2022
+            runs-on: windows-2022
+          - os: win-ltsc2019
+            runs-on: windows-2019
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.2
+        with:
+          # We need all Git history for "version.sh"
+          fetch-depth: 0
+          # Ensure "version.sh" submodule us up-to-date
+          submodules: recursive
+
+      - name: Configure Git
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Version
+        id: version
+        run: |
+          echo "version=$(powershell cicd/version/version.ps1 -g . -c)" >> $Env:GITHUB_OUTPUT
+          echo "version_full=$(powershell cicd/version/version.ps1 -g . -c -m)" >> $Env:GITHUB_OUTPUT
+
+      - name: Login to container registry
+        uses: docker/login-action@v2.1.0
+        with:
+          registry: ${{ env.CONTAINER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Container meta
+        id: meta
+        uses: docker/metadata-action@v4.4.0
+        with:
+          images: ${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_NAME }}
+          flavor: |
+            prefix=${{ matrix.os }}-
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=schedule
+            type=schedule,pattern={{date 'YYYYMMDD'}}
+            type=semver,pattern={{version}},value=${{ steps.version.outputs.version_full }}
+            type=sha
+          labels: |
+            io.artifacthub.package.category=integration-delivery
+            io.artifacthub.package.keywords=agent,azure,azure-devops,azure-pipelines,container,devops,docker,helm,kubernetes,pipelines,self-hosted,self-hosted-agent,auto-scale,keda
+            io.artifacthub.package.license=Apache-2.0
+            io.artifacthub.package.logo-url=https://raw.githubusercontent.com/${{ env.CONTAINER_NAME }}/${{ github.sha }}/logo-1024.png
+            io.artifacthub.package.maintainers=[{"name":"${{ github.actor }}","email":"${{ github.actor }}@users.noreply.github.com"}]
+            io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ env.CONTAINER_NAME }}/${{ github.sha }}/README.md
+            org.opencontainers.image.documentation=https://github.com/${{ env.CONTAINER_NAME }}
+            org.opencontainers.image.source=https://github.com/clemlesne/azure-pipelines-agent/tree/${{ github.sha }}
+            org.opencontainers.image.title=Azure Pipelines Agent
+            org.opencontainers.image.vendor=${{ github.actor }}
+            org.opencontainers.image.version=${{ steps.version.outputs.version_full }}
+
+      - name: Store tag
+        id: tag
+        run: |
+          $branch = "${{ github.ref_name }}".Replace("/", "-")
+          $tag = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine) | Where-Object { $_ -like "*$branch*" } | Select-Object -First 1
+          echo "tag=$tag" >> $Env:GITHUB_OUTPUT
+
+      - name: Build/push container
+        run: |
+          $params = @(
+            "--build-arg", "AZP_AGENT_VERSION=${{ env.AZP_AGENT_VERSION }}",
+            "--build-arg", "AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}",
+            "--build-arg", "GIT_VERSION=${{ env.GIT_VERSION_WIN }}",
+            "--build-arg", "JQ_VERSION=${{ env.JQ_VERSION }}",
+            "--build-arg", "POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}",
+            "--build-arg", "YQ_VERSION=${{ env.YQ_VERSION }}",
+            "--file", "src/docker/Dockerfile-${{ matrix.os }}"
+          )
+
+          $tags = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine)
+          foreach ($tag in $tags) {
+            $params += "--tag", $tag
+            $params += "--cache-from", $tag
+          }
+
+          $labels = ('${{ steps.meta.outputs.labels }}').Split([Environment]::NewLine)
+          foreach ($label in $labels) {
+            $params += "--label", $label
+          }
+
+          # Build
+          docker build @params src\docker
+
+          # Push
+          foreach ($tag in $tags) {
+            docker push $tag
+          }
+
   semgrep:
     name: SAST Semgrep
     runs-on: ubuntu-22.04
@@ -269,7 +381,7 @@ jobs:
       image: returntocorp/semgrep
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.5.2
 
       - name: Run tests
         run: semgrep ci --sarif --output=semgrep.sarif
