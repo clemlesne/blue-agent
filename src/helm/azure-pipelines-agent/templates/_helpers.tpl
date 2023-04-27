@@ -65,13 +65,20 @@ Create the name of the service account to use.
 Default SecurytyContext object to apply to containers.
 
 Can be overriden by setting ".Values.securityContext".
+
+See: https://kubernetes.io/docs/concepts/windows/intro/#compatibility-v1-pod-spec-containers
 */}}
 {{- define "this.defaultSecurityContext" -}}
-allowPrivilegeEscalation: false
 runAsNonRoot: false
+{{- if .Values.image.isWindows }}
+windowsOptions:
+  runAsUserName: ContainerAdministrator
+{{- else }}
+allowPrivilegeEscalation: false
 runAsUser: 0
 capabilities:
   drop: ["ALL"]
+{{- end }}
 {{- end }}
 
 {{/*
@@ -168,10 +175,15 @@ volumes:
   {{- with .Values.extraVolumes }}
   {{- toYaml . | nindent 2 }}
   {{- end }}
-{{- with .Values.nodeSelector }}
 nodeSelector:
+  {{- if .Values.image.isWindows }}
+  kubernetes.io/os: windows
+  {{- else }}
+  kubernetes.io/os: linux
+  {{- end }}
+  {{- with .Values.extraNodeSelectors }}
   {{- toYaml . | nindent 2 }}
-{{- end }}
+  {{- end }}
 {{- with .Values.affinity }}
 affinity:
   {{- toYaml . | nindent 2 }}
