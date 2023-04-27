@@ -21,13 +21,13 @@ RUN mkdir 'C:\Program Files\jq' \
     ; [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\Program Files\jq', [EnvironmentVariableTarget]::Machine)
 RUN jq --version
 
-# Install Azure CLI, then verify installation
+# Install Azure CLI, then upgrade the default installation
 ARG AZURE_CLI_VERSION
 ENV AZURE_CLI_VERSION ${AZURE_CLI_VERSION}
 RUN Invoke-WebRequest -Uri https://github.com/Azure/azure-cli/releases/download/azure-cli-$($Env:AZURE_CLI_VERSION)/azure-cli-$($Env:AZURE_CLI_VERSION).msi -OutFile azure-cli.msi \
     ; Start-Process msiexec.exe -Wait -ArgumentList '/I azure-cli.msi /qn /norestart' \
     ; Remove-Item azure-cli.msi
-RUN az --version
+RUN az upgrade --yes
 
 # Install Powershell, then verify installation
 ARG POWERSHELL_VERSION

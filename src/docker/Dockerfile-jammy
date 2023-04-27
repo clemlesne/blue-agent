@@ -84,12 +84,12 @@ RUN dpkg -i libssl1.1_1.1.1f-1ubuntu2_$(ARCH_X64=amd64 bash arch.sh).deb \
     && rm -rf libssl* \
     # https://github.com/microsoft/azure-pipelines-agent/issues/3834#issuecomment-1164461892
     && sed -i 's/openssl_conf = openssl_init/#openssl_conf = openssl_init/g' /etc/ssl/openssl.cnf
-# Install Azure CLI, then verify installation
+# Install Azure CLI, then upgrade the default installation
 ARG AZURE_CLI_VERSION
 ENV AZURE_CLI_VERSION ${AZURE_CLI_VERSION}
 RUN python3 -m pip install --upgrade pip setuptools wheel \
     && python3 -m pip install "azure-cli==${AZURE_CLI_VERSION}" \
-    && az --version
+    && az upgrade --yes
 
 # Install Powershell, then verify installation
 ARG POWERSHELL_VERSION
