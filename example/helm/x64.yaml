@@ -11,6 +11,6 @@ affinity:
 pipelines:
   capabilities:
     - arch_x64
-  pat: your-pat
-  pool: private_kube
-  url: https://dev.azure.com/shopping-cart-devops-demo
+  personalAccessToken: your-pat
+  poolName: private_kube
+  organizationURL: https://dev.azure.com/shopping-cart-devops-demo

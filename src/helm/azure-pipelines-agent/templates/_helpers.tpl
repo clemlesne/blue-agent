@@ -120,14 +120,14 @@ containers:
         valueFrom:
           secretKeyRef:
             name: {{ include "azure-pipelines-agent.fullname" . }}
-            key: url
+            key: organizationURL
       - name: AZP_POOL
-        value: {{ .Values.pipelines.pool | quote | required "A value for .Values.pipelines.pool is required" }}
+        value: {{ .Values.pipelines.poolName | quote | required "A value for .Values.pipelines.poolName is required" }}
       - name: AZP_TOKEN
         valueFrom:
           secretKeyRef:
             name: {{ include "azure-pipelines-agent.fullname" . }}
-            key: pat
+            key: personalAccessToken
       # Agent capabilities
       - name: flavor_{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}
       {{- range .Values.pipelines.capabilities }}

@@ -9,10 +9,10 @@ spec:
   secretTargetRef:
     - parameter: organizationURL
       name: {{ include "azure-pipelines-agent.fullname" . }}
-      key: url
+      key: organizationURL
     - parameter: personalAccessToken
       name: {{ include "azure-pipelines-agent.fullname" . }}
-      key: pat
+      key: personalAccessToken
 ---
 apiVersion: keda.sh/v1alpha1
 kind: ScaledJob
@@ -51,7 +51,7 @@ spec:
   triggers:
     - type: azure-pipelines
       metadata:
-        poolName: {{ .Values.pipelines.pool | quote | required "A value for .Values.pipelines.pool is required" }}
+        poolName: {{ .Values.pipelines.poolName | quote | required "A value for .Values.pipelines.poolName is required" }}
         parent: {{ include "azure-pipelines-agent.fullname" . }}-template
       authenticationRef:
         name: {{ include "azure-pipelines-agent.fullname" . }}

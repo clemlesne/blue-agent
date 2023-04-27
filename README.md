@@ -39,9 +39,9 @@ Minimal configuration:
 
 ```yaml
 pipelines:
-  url: https://dev.azure.com/your-organization
-  pat: your-pat
-  pool: your-pool
+  organizationURL: https://dev.azure.com/your-organization
+  personalAccessToken: your-pat
+  poolName: your-pool
 ```
 
 Use Helm to install the latest released chart:
@@ -91,7 +91,7 @@ Take the assumption we want to host a specific instance pool to ARM servers.
 ```yaml
 # values.yaml
 pipelines:
-  pool: private_kube
+  poolName: private_kube
   capabilities:
     - arch_arm64
 
@@ -285,13 +285,13 @@ Same way, if you want to use multiple versions of the framework, re-execute the 
 | `pipelines.cache.type` | Disk type to attach to the Azure Pipelines standard directory. See your cloud provider for types ([Azure](https://learn.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes), [AWS](https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html)). | `managed-csi` (Azure compatible) |
 | `pipelines.cache.volumeEnabled` | Enabled by default, can be disabled if your CSI driver doesn't support ephemeral storage ([exhaustive list](https://kubernetes-csi.github.io/docs/drivers.html)). | `true` |
 | `pipelines.capabilities` | Add [demands/capabilities](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/demands?view=azure-devops&tabs=yaml) to the agent | `[]` |
-| `pipelines.pat` | Personal Access Token (PAT) used by the agent to connect to the Azure DevOps server (both SaaS and self-hosted). | *None* |
-| `pipelines.pool` | Agent pool to which the Agent should register. | *None* |
+| `pipelines.organizationURL` | The Azure base URL for your organization | *None* |
+| `pipelines.personalAccessToken` | Personal Access Token (PAT) used by the agent to connect to the Azure DevOps server (both SaaS and self-hosted). | *None* |
+| `pipelines.poolName` | Agent pool name to which the agent should register. | *None* |
 | `pipelines.timeout` | Time in seconds after a agent will be stopped, the same amount of time is applied as a timeout for the system to shut down. | `3600` (1 hour) |
 | `pipelines.tmpdir.size` | Total size of the [standard `TMPDIR` directory](https://en.wikipedia.org/wiki/TMPDIR).  | `1Gi` |
 | `pipelines.tmpdir.type` | Disk type to attach to the [standard `TMPDIR` directory](https://en.wikipedia.org/wiki/TMPDIR). See your cloud provider for types ([Azure](https://learn.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes), [AWS](https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html)). | `managed-csi` (Azure compatible) |
 | `pipelines.tmpdir.volumeEnabled` | Enabled by default, can be disabled if your CSI driver doesn't support ephemeral storage ([exhaustive list](https://kubernetes-csi.github.io/docs/drivers.html)). | `true` |
-| `pipelines.url` | The Azure base URL for your organization | *None* |
 | `podSecurityContext` | Security rules applied to the Pod ([more details](https://kubernetes.io/docs/concepts/security/pod-security-standards)). | `{}` |
 | `replicaCount` | Default fixed amount of agents deployed. Those are not auto-scaled. | `3` |
 | `resources` | Resource limits | `{ "resources": { "limits": { "cpu": 2, "memory": "4Gi" }, "requests": { "cpu": 1, "memory": "2Gi" } }}` |

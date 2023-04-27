@@ -16,10 +16,10 @@ autoscaling:
   maxReplicas: 100
 
 pipelines:
+  poolName: null
   capabilities: []
-  pat: null
-  pool: null
-  url: null
+  organizationURL: null
+  personalAccessToken: null
   timeout: 3600
   cache:
     size: 10Gi
