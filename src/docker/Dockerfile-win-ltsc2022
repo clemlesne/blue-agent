@@ -61,4 +61,4 @@ VOLUME ${AZP_WORK}
 WORKDIR ${AZP_HOME}
 COPY start.ps1 .
 ENTRYPOINT ["powershell", "-Command"]
-CMD powershell $Env:AZP_HOME\start.ps1
+CMD ["powershell.exe", "$Env:AZP_HOME\start.ps1"]
