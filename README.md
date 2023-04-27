@@ -264,12 +264,12 @@ Same way, if you want to use multiple versions of the framework, re-execute the 
 
 | Parameter | Description | Default |
 |-|-|-|
-| `additionalEnv` | Additional environment variables for the agent container. | `[]` |
 | `affinity` | Node affinity for pod assignment | `{}` |
 | `annotations` | Add custom annotations to the Pod. | `{}` |
 | `autoscaling.cooldown` | Time in seconds the automation will wait until there is no more pipeline asking for an agent. Same time is then applied for system termination. | `60` |
 | `autoscaling.enabled` | Enable the auto-scaling. Requires [KEDA](https://keda.sh), but can be started without. Be warning, disabling auto-scaling implies a shutdown of the existing agents during a Helm instance upgrade, according to `pipelines.timeout`. | `true` |
 | `autoscaling.maxReplicas` | Maximum number of pods, remaining jobs will be kept in queue. | `100` |
+| `extraEnv` | Additional environment variables for the agent container. | `[]` |
 | `extraVolumeMounts` | Additional volume mounts for the agent container. | `[]` |
 | `extraVolumes` | Additional volumes for the agent pod. | `[]` |
 | `fullnameOverride` | Overrides release fullname | `""` |

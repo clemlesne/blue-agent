@@ -101,7 +101,7 @@ annotations: {}
 #     secretKeyRef:
 #       name: secret-name
 #       key: secret.key
-additionalEnv: []
+extraEnv: []
 
 # Additional volumes for the agent pod.
 #

@@ -144,7 +144,7 @@ containers:
       {{- range .Values.pipelines.capabilities }}
       - name: {{ . }}
       {{- end }}
-      {{- with .Values.additionalEnv }}
+      {{- with .Values.extraEnv }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
     resources:
