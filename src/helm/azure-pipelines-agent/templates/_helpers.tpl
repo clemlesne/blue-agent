@@ -62,6 +62,17 @@ Create the name of the ServiceAccount to use.
 {{- end }}
 
 {{/*
+Create the name of the Secret to use.
+*/}}
+{{- define "azure-pipelines-agent.secretName" -}}
+{{- if .Values.secret.create }}
+{{- default (include "azure-pipelines-agent.fullname" .) .Values.secret.name }}
+{{- else }}
+{{- default "default" .Values.secret.name }}
+{{- end }}
+{{- end }}
+
+{{/*
 Default SecurytyContext object to apply to containers.
 
 Can be overriden by setting ".Values.securityContext".
@@ -119,14 +130,14 @@ containers:
       - name: AZP_URL
         valueFrom:
           secretKeyRef:
-            name: {{ include "azure-pipelines-agent.fullname" . }}
+            name: {{ include "azure-pipelines-agent.secretName" . }}
             key: organizationURL
       - name: AZP_POOL
         value: {{ .Values.pipelines.poolName | quote | required "A value for .Values.pipelines.poolName is required" }}
       - name: AZP_TOKEN
         valueFrom:
           secretKeyRef:
-            name: {{ include "azure-pipelines-agent.fullname" . }}
+            name: {{ include "azure-pipelines-agent.secretName" . }}
             key: personalAccessToken
       # Agent capabilities
       - name: flavor_{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}

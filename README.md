@@ -295,6 +295,8 @@ Same way, if you want to use multiple versions of the framework, re-execute the 
 | `podSecurityContext` | Security rules applied to the Pod ([more details](https://kubernetes.io/docs/concepts/security/pod-security-standards)). | `{}` |
 | `replicaCount` | Default fixed amount of agents deployed. Those are not auto-scaled. | `3` |
 | `resources` | Resource limits | `{ "resources": { "limits": { "cpu": 2, "memory": "4Gi" }, "requests": { "cpu": 1, "memory": "2Gi" } }}` |
+| `secret.create` | Create Secret, must contains `personalAccessToken` and `organizationURL` variables. | `true` |
+| `secret.name` | Secret name | *Release name* |
 | `securityContext` | Security rules applied to the container ([more details](https://kubernetes.io/docs/concepts/security/pod-security-standards)). | `{}` |
 | `serviceAccount.annotations` | Custom annotations to give to the ServiceAccount. | `{}` |
 | `serviceAccount.create` | Create ServiceAccount | `true` |

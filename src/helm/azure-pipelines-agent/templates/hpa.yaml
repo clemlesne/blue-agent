@@ -8,10 +8,10 @@ metadata:
 spec:
   secretTargetRef:
     - parameter: organizationURL
-      name: {{ include "azure-pipelines-agent.fullname" . }}
+      name: {{ include "azure-pipelines-agent.secretName" . }}
       key: organizationURL
     - parameter: personalAccessToken
-      name: {{ include "azure-pipelines-agent.fullname" . }}
+      name: {{ include "azure-pipelines-agent.secretName" . }}
       key: personalAccessToken
 ---
 apiVersion: keda.sh/v1alpha1
