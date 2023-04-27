@@ -51,7 +51,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-Create the name of the service account to use.
+Create the name of the ServiceAccount to use.
 */}}
 {{- define "azure-pipelines-agent.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}

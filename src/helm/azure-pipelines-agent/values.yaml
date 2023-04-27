@@ -32,8 +32,9 @@ pipelines:
 
 serviceAccount:
   create: true
-  # The name of the service account to use. If not set and create is true, a name is generated using the fullname template
+  # The name of the ServiceAccount to use. If not set and create is true, a name is generated using the fullname template.
   name: ""
+  annotations: {}
 
 # Customize security context and policies.
 #

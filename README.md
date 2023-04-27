@@ -296,6 +296,7 @@ Same way, if you want to use multiple versions of the framework, re-execute the 
 | `replicaCount` | Default fixed amount of agents deployed. Those are not auto-scaled. | `3` |
 | `resources` | Resource limits | `{ "resources": { "limits": { "cpu": 2, "memory": "4Gi" }, "requests": { "cpu": 1, "memory": "2Gi" } }}` |
 | `securityContext` | Security rules applied to the container ([more details](https://kubernetes.io/docs/concepts/security/pod-security-standards)). | `{}` |
+| `serviceAccount.annotations` | Custom annotations to give to the ServiceAccount. | `{}` |
 | `serviceAccount.create` | Create ServiceAccount | `true` |
 | `serviceAccount.name` | ServiceAccount name | *Release name* |
 | `tolerations` | Toleration labels for pod assignment. | `[]` |
