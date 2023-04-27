@@ -1,4 +1,4 @@
-{{- if and (.Values.autoscaling.enabled) (.Capabilities.APIVersions.Has "keda.sh/v1alpha1") }}
+{{- if and (.Values.autoscaling.enabled) (.Capabilities.APIVersions.Has "keda.sh/v1alpha1") -}}
 apiVersion: keda.sh/v1alpha1
 kind: TriggerAuthentication
 metadata:

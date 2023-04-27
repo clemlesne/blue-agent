@@ -1,4 +1,4 @@
-{{- if not (and (.Values.autoscaling.enabled) (.Capabilities.APIVersions.Has "keda.sh/v1alpha1")) }}
+{{- if not (and (.Values.autoscaling.enabled) (.Capabilities.APIVersions.Has "keda.sh/v1alpha1")) -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
