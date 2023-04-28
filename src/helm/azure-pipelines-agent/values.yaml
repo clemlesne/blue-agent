@@ -4,6 +4,7 @@ image:
   flavor: bullseye
   # Overrides the image tag whose default is the chart appVersion.
   version: ""
+  isWindows: false
 
 imagePullSecrets: []
 nameOverride: ""
@@ -66,7 +67,7 @@ resources:
     cpu: 1
     memory: 2Gi
 
-nodeSelector: {}
+extraNodeSelectors: {}
 
 tolerations: []
 

@@ -6,6 +6,17 @@ At each build, a vulnerability scan is performed on the system. If a vulnerabili
 
 Automation is supported by [Snyk](https://snyk.io) and [Semgrep](https://semgrep.dev). Helm chart, configuration files, and containers, are scanned for vulnerabilities and misconfigurations.
 
+Linux systems are supported, but not Windows:
+
+| `Ref` | Container continuously tested with Snyk |
+|-|-|
+| `ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main` | ✅ |
+| `ghcr.io/clemlesne/azure-pipelines-agent:focal-main` | ✅ |
+| `ghcr.io/clemlesne/azure-pipelines-agent:jammy-main` | ✅ |
+| `ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main` | ✅ |
+| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019` | ❌ |
+| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022` | ❌ |
+
 ## Reporting a vulnerability
 
 If you think you have found a vulnerability, please do not open an issue on GitHub. Instead, please send an email to [Clémence Lesné](mailto:clemence@lesne.pro).

@@ -15,12 +15,5 @@ resources:
     cpu: 4
     memory: 16Gi
 
-affinity:
-  nodeAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-        - matchExpressions:
-          - key: kubernetes.azure.com/agentpool
-            operator: In
-            values:
-              - highperf
+extraNodeSelectors:
+  kubernetes.azure.com/agentpool: highperf

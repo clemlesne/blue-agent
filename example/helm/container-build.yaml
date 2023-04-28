@@ -2,7 +2,7 @@ annotations:
   container.apparmor.security.beta.kubernetes.io/azp-agent: unconfined
 
 extraVolumeMounts:
-  - mountPath: /home/root/.local/share/buildkit
+  - mountPath: /app-root/.local/share/buildkit
     name: buildkitd
 
 extraVolumes:
