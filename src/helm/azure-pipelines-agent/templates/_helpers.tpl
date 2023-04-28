@@ -129,7 +129,7 @@ containers:
       preStop:
         exec:
           {{- if .Values.image.isWindows }}
-          command: [powershell, -Command, ".\config.cmd remove --auth PAT --token $Env:AZP_TOKEN"]
+          command: [powershell, -Command, ".\\config.cmd remove --auth PAT --token $Env:AZP_TOKEN"]
           {{- else }}
           command: [bash, -c, "bash config.sh remove --auth PAT --token ${AZP_TOKEN}"]
           {{- end }}
