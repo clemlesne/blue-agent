@@ -4,7 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Configure local user
 ENV USER root
-ENV HOME /home/${USER}
+ENV HOME /app-root
 
 # First, upgrade base image
 # Then, install:
@@ -15,6 +15,7 @@ ENV HOME /home/${USER}
 # - Azure CLI system requirements (Python 3.8, plus C/Rust build tools for libs non pre-built on this platform)
 RUN rm -f /etc/apt/apt.conf.d/docker-clean \
     && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+ARG JQ_VERSION
 RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/var/cache,type=cache,sharing=locked \
     apt-get update -q \
     && apt-get upgrade -y -q \
@@ -30,7 +31,7 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/
         gzip \
         iptables \
         iputils-ping \
-        jq \
+        jq=${JQ_VERSION}-* \
         libffi-dev \
         libssl-dev \
         lsb-release \
@@ -128,7 +129,7 @@ ENV AZP_AGENT_VERSION ${AZP_AGENT_VERSION}
 ENV AZP_HOME ${HOME}/azp-agent
 RUN mkdir -p ${AZP_HOME} \
     && curl -LsSf https://vstsagentpackage.azureedge.net/agent/${AZP_AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AZP_AGENT_VERSION}.tar.gz | tar -xz -C ${AZP_HOME} \
-    && cd $AZP_HOME \
+    && cd ${AZP_HOME} \
     && chmod +x run-docker.sh config.sh \
     && AGENT_ALLOW_RUNASROOT="1" bash run-docker.sh --version
 ENV AZP_WORK ${HOME}/azp-work
@@ -148,6 +149,7 @@ ENV BUILDKIT_HOST=unix:///run/${USER}/0/buildkit/buildkitd.sock
 VOLUME ${HOME}/.local/share/buildkit
 
 # Install Azure Pipelines Agent startup script
-COPY start.sh ${AZP_HOME}
-RUN chmod +x ${AZP_HOME}/start.sh
-CMD bash ${AZP_HOME}/start.sh
+WORKDIR ${AZP_HOME}
+COPY start.sh .
+# Run as exec form, so that it can receive signals from Tini
+CMD ["bash", "start.sh"]

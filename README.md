@@ -22,7 +22,7 @@ Features:
 - Can run air-gapped (no internet access).
 - Cheap to run (dynamic provisioning of agents, can scale from 0 to 100+ in few seconds with [KEDA](https://keda.sh)).
 - Performances can be customized depending of the engineering needs, which goes far beyond the Microsoft-hosted agent.
-- Pre-built with Debian, Ubuntu and Red Hat Enterprise Linux releases.
+- Pre-built with Windows Server, Debian, Ubuntu, Red Hat Enterprise Linux.
 - SBOM (Software Bill of Materials) is packaged with each container image.
 - System updates are applied every days.
 
@@ -54,23 +54,35 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 
 ## Compatibility
 
-| Ref | OS | Arch | Support |
+| `Ref` | OS | `Arch` | Support |
 |-|-|-|-|
-| `docker pull ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main` | Debian Bullseye (11) slim | `linux/amd64`, `linux/arm/v7`, `linux/arm64/v8` | [See Debian LTS wiki.](https://wiki.debian.org/LTS) |
-| `docker pull ghcr.io/clemlesne/azure-pipelines-agent:focal-main` | Ubuntu Focal (20.04) minimal | `linux/amd64`, `linux/arm/v7`, `linux/arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases) |
-| `docker pull ghcr.io/clemlesne/azure-pipelines-agent:jammy-main` | Ubuntu Jammy (22.04) minimal | `linux/amd64`, `linux/arm/v7`, `linux/arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases) |
-| `docker pull ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main` | Red Hat UBI 8 (8.7) minimal | `linux/amd64`, `linux/arm64/v8` | [See Red Hat product life cycles.](https://access.redhat.com/product-life-cycles/?product=Red%20Hat%20Enterprise%20Linux) |
+| `ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main` | Debian Bullseye (11) slim | `amd64`, `arm/v7`, `arm64/v8` | [See Debian LTS wiki.](https://wiki.debian.org/LTS) |
+| `ghcr.io/clemlesne/azure-pipelines-agent:focal-main` | Ubuntu Focal (20.04) minimal | `amd64`, `arm/v7`, `arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases) |
+| `ghcr.io/clemlesne/azure-pipelines-agent:jammy-main` | Ubuntu Jammy (22.04) minimal | `amd64`, `arm/v7`, `arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases) |
+| `ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main` | Red Hat UBI 8 (8.7) minimal | `amd64`, `arm64/v8` | [See Red Hat product life cycles.](https://access.redhat.com/product-life-cycles/?product=Red%20Hat%20Enterprise%20Linux) |
+| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019` | Windows Server 2019 Core | `amd64` | [See base image servicing lifecycles.](https://learn.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/base-image-lifecycle) |
+| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022` | Windows Server 2022 Core | `amd64` | [See base image servicing lifecycles.](https://learn.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/base-image-lifecycle) |
 
 ## Advanced topics
 
 ### Provided software
 
+#### Linux
+
 - [Azure Pipelines agent](https://github.com/microsoft/azure-pipelines-agent) (see env var `AZP_AGENT_VERSION` on the container images) + [requirements](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux)
-- [ASP.NET Core](https://github.com/dotnet/aspnetcore) runtime (required by the Azure Pipelines agent)
+- [ASP.NET Core Runtime](https://github.com/dotnet/aspnetcore) (required by the Azure Pipelines agent)
 - [Azure CLI](https://github.com/Azure/azure-cli) (required by the Azure Pipelines agent) + requirements ([Python 3.8](https://www.python.org/downloads/release/python-380), [Python 3.9](https://www.python.org/downloads/release/python-390), [Python 3.10](https://www.python.org/downloads/release/python-3100), depending of the system, plus C/Rust build tools for libs non pre-built on the platforms)
-- [Powershell](https://github.com/PowerShell/PowerShell), [bash](https://www.gnu.org/software/bash) and [zsh](https://www.zsh.org) (for inter-operability)
+- [PowerShell Core](https://github.com/PowerShell/PowerShell), [bash](https://www.gnu.org/software/bash) and [zsh](https://www.zsh.org) (for inter-operability)
 - [BuildKit](https://github.com/moby/buildkit) + requirements ([dbus-user-session](https://dbus.freedesktop.org), [fuse-overlayfs](https://github.com/containers/fuse-overlayfs), [iptables](https://www.netfilter.org/projects/iptables/index.html), [shadow-utils](https://github.com/shadow-maint/shadow), [uidmap](https://github.com/shadow-maint/shadow))
-- [gzip](https://www.gnu.org/software/gzip), [make](https://www.gnu.org/software/make), [tar](https://www.gnu.org/software/tar), [unzip](https://infozip.sourceforge.net/UnZip.html), [wget](https://www.gnu.org/software/wget), [yq](https://github.com/mikefarah/yq), [zip](https://infozip.sourceforge.net/Zip.html), [zstd](https://github.com/facebook/zstd) (for developer ease-of-life)
+- [gzip](https://www.gnu.org/software/gzip), [jq](https://github.com/stedolan/jq), [make](https://www.gnu.org/software/make), [tar](https://www.gnu.org/software/tar), [unzip](https://infozip.sourceforge.net/UnZip.html), [wget](https://www.gnu.org/software/wget), [yq](https://github.com/mikefarah/yq), [zip](https://infozip.sourceforge.net/Zip.html), [zstd](https://github.com/facebook/zstd) (for developer ease-of-life)
+
+#### Windows
+
+- [Azure Pipelines agent](https://github.com/microsoft/azure-pipelines-agent) (see env var `AZP_AGENT_VERSION` on the container images) + [requirements](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux)
+- [.NET Framework Runtime](https://dotnet.microsoft.com) (required by the Azure Pipelines agent)
+- [Azure CLI](https://github.com/Azure/azure-cli) (required by the Azure Pipelines agent)
+- [PowerShell Core](https://github.com/PowerShell/PowerShell) (for inter-operability)
+- [git](https://github.com/git-for-windows/git), [jq](https://github.com/stedolan/jq), [yq](https://github.com/mikefarah/yq), [zstd](https://github.com/facebook/zstd) (for developer ease-of-life)
 
 ### Capabilities
 
@@ -131,7 +143,7 @@ In that example:
 
 - We are using a default agent on ARM64
 - Semgrep, our SAST tool, is not compatible with ARM64, let's use X64 pool
-- Our devs are working on a Java project, built with GraalVM, and the container is built locally with [img](https://github.com/genuinetools/img#running-with-kubernetes): we need a system lot of RAM and multipe CPUs for building the application
+- Our devs are working on a Java project, built with GraalVM, and the container is built locally with BuildKit: we need a system lot of RAM and multipe CPUs for building the application
 
 Our problematic:
 
@@ -197,6 +209,17 @@ These methods can be used to build a container image, at the time of writing:
 | Docker in docker | 🟩🟩🟩 | 🟥🟥🟥 | 🟩🟩🟩 | Local CLI | Before Kubernetes 1.20, it was possible to build container images in the agent, using the Docker socket. This is not possible anymore, as Kubernetes [deprecated the Docker socket](https://kubernetes.io/blog/2020/12/02/dont-panic-kubernetes-and-docker) in favor of the [Container Runtime Interface](https://kubernetes.io/blog/2016/12/container-runtime-interface-cri-in-kubernetes). |
 
 We choose BuildKit for this project. [Its licence](https://raw.githubusercontent.com/moby/buildkit/v0.11.5/LICENSE) allows commercial use, and the project and mainly maintained, as the time of writing, by Docker, Netlix and Microsoft.
+
+Linux systems are supported, but not Windows:
+
+| `Ref` | Container build inside of the agent with BuildKit |
+|-|-|
+| `ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main` | ✅ |
+| `ghcr.io/clemlesne/azure-pipelines-agent:focal-main` | ✅ |
+| `ghcr.io/clemlesne/azure-pipelines-agent:jammy-main` | ✅ |
+| `ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main` | ✅ |
+| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019` | ❌ |
+| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022` | ❌ |
 
 #### How to use the bundled BuildKit
 
@@ -270,17 +293,18 @@ Same way, if you want to use multiple versions of the framework, re-execute the 
 | `autoscaling.cooldown` | Time in seconds the automation will wait until there is no more pipeline asking for an agent. Same time is then applied for system termination. | `60` |
 | `autoscaling.enabled` | Enable the auto-scaling. Requires [KEDA](https://keda.sh), but can be started without. Be warning, disabling auto-scaling implies a shutdown of the existing agents during a Helm instance upgrade, according to `pipelines.timeout`. | `true` |
 | `autoscaling.maxReplicas` | Maximum number of pods, remaining jobs will be kept in queue. | `100` |
+| `extraNodeSelectors` | Additional node labels for pod assignment. | `{}` |
 | `extraVolumeMounts` | Additional volume mounts for the agent container. | `[]` |
 | `extraVolumes` | Additional volumes for the agent pod. | `[]` |
 | `fullnameOverride` | Overrides release fullname | `""` |
 | `image.flavor` | Container image tag, can be `bullseye`, `focal`, `jammy`, or `ubi8`. | `bullseye` |
+| `image.isWindows` | Turn on is the agent is a Windows-based system. | `false` |
 | `image.pullPolicy` | Container image pull policy | `IfNotPresent` |
 | `image.repository` | Container image repository | `ghcr.io/clemlesne/azure-pipelines-agent:bullseye` |
 | `image.version` | Container image tag | *Version* |
 | `imagePullSecrets` | Use secrets to pull the container image. | `[]` |
 | `initContainers` | InitContainers for the agent pod. | `[]` |
 | `nameOverride` | Overrides release name | `""` |
-| `nodeSelector` | Node labels for pod assignment | `{}` |
 | `pipelines.cacheSize` | Total cache to attach to the Azure Pipelines standard directory. By default, [same amount as the Microsoft Hosted agents](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&tabs=yaml#hardware). | `10Gi` |
 | `pipelines.cacheType` | Disk type to attach to the Azure Pipelines standard directory. See your cloud provider for types ([Azure](https://learn.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes), [AWS](https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html)). | `managed-csi` (Azure compatible) |
 | `pipelines.capabilities` | Add [demands/capabilities](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/demands?view=azure-devops&tabs=yaml) to the agent | `[]` |

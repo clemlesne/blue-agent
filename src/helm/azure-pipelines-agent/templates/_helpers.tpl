@@ -65,13 +65,20 @@ Create the name of the service account to use.
 Default SecurytyContext object to apply to containers.
 
 Can be overriden by setting ".Values.securityContext".
+
+See: https://kubernetes.io/docs/concepts/windows/intro/#compatibility-v1-pod-spec-containers
 */}}
 {{- define "this.defaultSecurityContext" -}}
-allowPrivilegeEscalation: false
 runAsNonRoot: false
+{{- if .Values.image.isWindows }}
+windowsOptions:
+  runAsUserName: ContainerAdministrator
+{{- else }}
+allowPrivilegeEscalation: false
 runAsUser: 0
 capabilities:
   drop: ["ALL"]
+{{- end }}
 {{- end }}
 
 {{/*
@@ -110,7 +117,11 @@ containers:
     lifecycle:
       preStop:
         exec:
-          command: [bash, -c, "bash ${AZP_HOME}/config.sh remove --auth PAT --token ${AZP_TOKEN}"]
+          {{- if .Values.image.isWindows }}
+          command: [powershell, -Command, ".\config.cmd remove --auth PAT --token $Env:AZP_TOKEN"]
+          {{- else }}
+          command: [bash, -c, "bash config.sh remove --auth PAT --token ${AZP_TOKEN}"]
+          {{- end }}
     env:
       - name: VSO_AGENT_IGNORE
         value: AZP_TOKEN
@@ -140,9 +151,15 @@ containers:
       {{- toYaml .Values.resources | nindent 6 | required "A value for .Values.resources is required" }}
     volumeMounts:
       - name: azp-work
-        mountPath: /home/root/azp-work
+        {{- if .Values.image.isWindows }}
+        mountPath: C:\\app-root\\azp-work
+        {{- else }}
+        mountPath: /app-root/azp-work
+        {{- end }}
+      {{- if not .Values.image.isWindows }}
       - name: local-tmp
-        mountPath: /home/root/.local/tmp
+        mountPath: /app-root/.local/tmp
+      {{- end }}
       {{- with .Values.extraVolumeMounts }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
@@ -156,6 +173,7 @@ volumes:
           resources:
             requests:
               storage: {{ .Values.pipelines.cacheSize | required "A value for .Values.pipelines.cacheSize is required" }}
+  {{- if not .Values.image.isWindows }}
   - name: local-tmp
     ephemeral:
       volumeClaimTemplate:
@@ -165,13 +183,19 @@ volumes:
           resources:
             requests:
               storage: {{ .Values.pipelines.tmpdirSize | required "A value for .Values.pipelines.tmpdirSize is required" }}
+  {{- end }}
   {{- with .Values.extraVolumes }}
   {{- toYaml . | nindent 2 }}
   {{- end }}
-{{- with .Values.nodeSelector }}
 nodeSelector:
+  {{- if .Values.image.isWindows }}
+  kubernetes.io/os: windows
+  {{- else }}
+  kubernetes.io/os: linux
+  {{- end }}
+  {{- with .Values.extraNodeSelectors }}
   {{- toYaml . | nindent 2 }}
-{{- end }}
+  {{- end }}
 {{- with .Values.affinity }}
 affinity:
   {{- toYaml . | nindent 2 }}

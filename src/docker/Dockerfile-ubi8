@@ -2,7 +2,7 @@ FROM registry.access.redhat.com/ubi8/ubi-minimal:8.7 as base
 
 # Configure local user
 ENV USER root
-ENV HOME /home/${USER}
+ENV HOME /app-root
 
 # First, upgrade base image
 # Then, install:
@@ -13,6 +13,7 @@ ENV HOME /home/${USER}
 # - fuse-overlayfs, iptables, shadow-utils, for BuildKit
 # - gzip, make, tar, unzip, wget, yq, zip, zstd for developer ease-of-life
 # - compat-openssl10, openssl, Azure CLI doesn't work with OpenSSL 3.0 (https://github.com/Azure/azure-cli/issues/22230)
+ARG JQ_VERSION
 RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
     microdnf upgrade -y --nodocs --setopt=install_weak_deps=0 --refresh \
     && microdnf install -y --nodocs --setopt=install_weak_deps=0 \
@@ -31,10 +32,10 @@ RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
         hostname \
         iptables \
         iputils \
-        jq \
+        jq-${JQ_VERSION} \
         make \
-        openssl-devel \
         openssl \
+        openssl-devel \
         pkg-config \
         python39 \
         python39-devel \
@@ -127,7 +128,7 @@ ENV AZP_AGENT_VERSION ${AZP_AGENT_VERSION}
 ENV AZP_HOME ${HOME}/azp-agent
 RUN mkdir -p ${AZP_HOME} \
     && curl -LsSf https://vstsagentpackage.azureedge.net/agent/${AZP_AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AZP_AGENT_VERSION}.tar.gz | tar -xz -C ${AZP_HOME} \
-    && cd $AZP_HOME \
+    && cd ${AZP_HOME} \
     && chmod +x run-docker.sh config.sh \
     && AGENT_ALLOW_RUNASROOT="1" bash run-docker.sh --version
 ENV AZP_WORK ${HOME}/azp-work
@@ -147,6 +148,7 @@ ENV BUILDKIT_HOST=unix:///run/${USER}/0/buildkit/buildkitd.sock
 VOLUME ${HOME}/.local/share/buildkit
 
 # Install Azure Pipelines Agent startup script
-COPY start.sh ${AZP_HOME}
-RUN chmod +x ${AZP_HOME}/start.sh
-CMD bash ${AZP_HOME}/start.sh
+WORKDIR ${AZP_HOME}
+COPY start.sh .
+# Run as exec form, so that it can receive signals from Tini
+CMD ["bash", "start.sh"]

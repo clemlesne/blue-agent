@@ -1,9 +1,10 @@
-extraNodeSelectors:
-  kubernetes.io/arch: arm64
-
 pipelines:
   capabilities:
-    - arch_arm64
+    - arch_x64
   pat: your-pat
   pool: private_kube
   url: https://dev.azure.com/shopping-cart-devops-demo
+
+image:
+  flavor: win-ltsc2022
+  isWindows: true
