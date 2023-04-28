@@ -1,0 +1,75 @@
+FROM mcr.microsoft.com/dotnet/framework/runtime:4.8-windowsservercore-ltsc2022
+
+# Configure local user
+USER ContainerAdministrator
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+ENV HOME C:\\app-root
+
+# Install Git, then verify installation
+ARG GIT_VERSION
+ENV GIT_VERSION ${GIT_VERSION}
+RUN Invoke-WebRequest -Uri https://github.com/git-for-windows/git/releases/download/v$($Env:GIT_VERSION).windows.1/Git-$($Env:GIT_VERSION)-64-bit.exe -OutFile git.exe \
+    ; Start-Process git.exe -Wait -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /NOCANCEL /SP-' \
+    ; Remove-Item git.exe
+RUN git --version
+
+# Install JQ, then verify installation
+ARG JQ_VERSION
+ENV JQ_VERSION ${JQ_VERSION}
+RUN mkdir 'C:\Program Files\jq' \
+    ; Invoke-WebRequest -Uri https://github.com/stedolan/jq/releases/download/jq-$($Env:JQ_VERSION)/jq-win64.exe -OutFile 'C:\Program Files\jq\jq.exe' \
+    ; [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\Program Files\jq', [EnvironmentVariableTarget]::Machine)
+RUN jq --version
+
+# Install Azure CLI, then upgrade the default installation
+ARG AZURE_CLI_VERSION
+ENV AZURE_CLI_VERSION ${AZURE_CLI_VERSION}
+RUN Invoke-WebRequest -Uri https://github.com/Azure/azure-cli/releases/download/azure-cli-$($Env:AZURE_CLI_VERSION)/azure-cli-$($Env:AZURE_CLI_VERSION).msi -OutFile azure-cli.msi \
+    ; Start-Process msiexec.exe -Wait -ArgumentList '/I azure-cli.msi /qn /norestart' \
+    ; Remove-Item azure-cli.msi
+RUN az upgrade --yes
+
+# Install Powershell, then verify installation
+ARG POWERSHELL_VERSION
+ENV POWERSHELL_VERSION ${POWERSHELL_VERSION}
+RUN Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/download/v$($Env:POWERSHELL_VERSION)/PowerShell-$($Env:POWERSHELL_VERSION)-win-x64.msi -OutFile powershell.msi \
+    ; Start-Process msiexec.exe -Wait -ArgumentList '/I powershell.msi /qn /norestart' \
+    ; Remove-Item powershell.msi
+RUN pwsh -Version
+
+# Install YQ, then verify installation
+ARG YQ_VERSION
+ENV YQ_VERSION ${YQ_VERSION}
+RUN mkdir 'C:\Program Files\yq' \
+    ; Invoke-WebRequest -Uri https://github.com/mikefarah/yq/releases/download/v$($Env:YQ_VERSION)/yq_windows_amd64.exe -OutFile 'C:\Program Files\yq\yq.exe' \
+    ; [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\Program Files\yq', [EnvironmentVariableTarget]::Machine)
+RUN yq --version
+
+# Install Azure Pipelines Agent sources, then verify installation
+ARG AZP_AGENT_VERSION
+ENV AZP_AGENT_VERSION ${AZP_AGENT_VERSION}
+ENV AZP_HOME ${HOME}\\azp-agent
+RUN mkdir $Env:AZP_HOME \
+    ; Invoke-WebRequest -Uri https://vstsagentpackage.azureedge.net/agent/$($Env:AZP_AGENT_VERSION)/vsts-agent-win-x64-$($Env:AZP_AGENT_VERSION).zip -Outfile azp-agent.zip \
+    ; Expand-Archive -Force azp-agent.zip -DestinationPath $Env:AZP_HOME \
+    ; Remove-Item azp-agent.zip \
+    ; powershell $Env:AZP_HOME\run.cmd --version
+ENV AZP_WORK ${HOME}\\azp-work
+VOLUME ${AZP_WORK}
+
+# Install zstd, then verify installation
+ARG ZSTD_VERSION
+ENV ZSTD_VERSION ${ZSTD_VERSION}
+RUN Invoke-WebRequest -Uri https://github.com/facebook/zstd/releases/download/v$($Env:ZSTD_VERSION)/zstd-v$($Env:ZSTD_VERSION)-win64.zip -OutFile zstd.zip \
+    ; Expand-Archive -Force zstd.zip -DestinationPath 'C:\Program Files' \
+    ; Remove-Item zstd.zip \
+    ; Rename-Item "C:\Program` Files\zstd-v$($Env:ZSTD_VERSION)-win64" 'zstd' \
+    ; [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\Program Files\zstd', [EnvironmentVariableTarget]::Machine)
+RUN zstd --version
+
+# Install Azure Pipelines Agent startup script
+WORKDIR ${AZP_HOME}
+COPY start.ps1 .
+# Escaping antislash, ContainerD is bugged
+# See: https://github.com/containerd/containerd/issues/6300#issuecomment-988048374
+CMD ["powershell", ".\\start.ps1"]

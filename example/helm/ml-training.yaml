@@ -1,8 +1,9 @@
 pipelines:
-  pat: your-pat
-  pool: private_kube
-  url: https://dev.azure.com/shopping-cart-devops-demo
-  cacheType: azurefile-csi
+  personalAccessToken: your-pat
+  poolName: private_kube
+  organizationURL: https://dev.azure.com/shopping-cart-devops-demo
+  cache:
+    type: managed-csi-premium
   capabilities:
     - ml_training
 
@@ -14,12 +15,5 @@ resources:
     cpu: 4
     memory: 16Gi
 
-affinity:
-  nodeAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-        - matchExpressions:
-          - key: kubernetes.azure.com/agentpool
-            operator: In
-            values:
-              - highperf
+extraNodeSelectors:
+  kubernetes.azure.com/agentpool: highperf

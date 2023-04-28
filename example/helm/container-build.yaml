@@ -2,7 +2,7 @@ annotations:
   container.apparmor.security.beta.kubernetes.io/azp-agent: unconfined
 
 extraVolumeMounts:
-  - mountPath: /home/root/.local/share/buildkit
+  - mountPath: /app-root/.local/share/buildkit
     name: buildkitd
 
 extraVolumes:
@@ -30,9 +30,9 @@ resources:
 pipelines:
   capabilities:
     - buildkit
-  pat: your-pat
-  pool: private_kube
-  url: https://dev.azure.com/shopping-cart-devops-demo
+  personalAccessToken: your-pat
+  poolName: private_kube
+  organizationURL: https://dev.azure.com/shopping-cart-devops-demo
 
 image:
   # Ubuntu 22.04 use Kernel v5.15, more performant than the v5.10 in Debian 11

@@ -4,6 +4,7 @@ image:
   flavor: bullseye
   # Overrides the image tag whose default is the chart appVersion.
   version: ""
+  isWindows: false
 
 imagePullSecrets: []
 nameOverride: ""
@@ -16,20 +17,30 @@ autoscaling:
   maxReplicas: 100
 
 pipelines:
-  cacheSize: 10Gi
-  cacheType: managed-csi
+  poolName: null
   capabilities: []
-  pat: null
-  pool: null
+  organizationURL: null
+  personalAccessToken: null
   timeout: 3600
-  tmpdirSize: 1Gi
-  tmpdirType: managed-csi
-  url: null
+  cache:
+    size: 10Gi
+    type: managed-csi
+    volumeEnabled: true
+  tmpdir:
+    size: 1Gi
+    type: managed-csi
+    volumeEnabled: true
+
+secret:
+  create: true
+  # The name of the Secret to use. If not set and create is true, a name is generated using the fullname template.
+  name: ""
 
 serviceAccount:
   create: true
-  # The name of the service account to use. If not set and create is true, a name is generated using the fullname template
+  # The name of the ServiceAccount to use. If not set and create is true, a name is generated using the fullname template.
   name: ""
+  annotations: {}
 
 # Customize security context and policies.
 #
@@ -56,7 +67,7 @@ resources:
     cpu: 1
     memory: 2Gi
 
-nodeSelector: {}
+extraNodeSelectors: {}
 
 tolerations: []
 
@@ -91,7 +102,7 @@ annotations: {}
 #     secretKeyRef:
 #       name: secret-name
 #       key: secret.key
-additionalEnv: []
+extraEnv: []
 
 # Additional volumes for the agent pod.
 #

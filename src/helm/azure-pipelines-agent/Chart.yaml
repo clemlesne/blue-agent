@@ -2,6 +2,8 @@ apiVersion: v2
 name: azure-pipelines-agent
 description: Deploy Azure Pipelines agent on Kubernetes. Easy way.
 type: application
+# Using ephemeral storage, as from Kubernetes 1.19+ (alpha)
+kubeVersion: ">=1.19"
 version: 0.0.0
 appVersion: 0.0.0
 icon: https://raw.githubusercontent.com/clemlesne/azure-pipelines-agent/master/logo-1024.png

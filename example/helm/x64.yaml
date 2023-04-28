@@ -1,16 +1,9 @@
-affinity:
-  nodeAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: kubernetes.io/arch
-              operator: In
-              values:
-                - amd64
+extraNodeSelectors:
+  kubernetes.io/arch: amd64
 
 pipelines:
   capabilities:
     - arch_x64
-  pat: your-pat
-  pool: private_kube
-  url: https://dev.azure.com/shopping-cart-devops-demo
+  personalAccessToken: your-pat
+  poolName: private_kube
+  organizationURL: https://dev.azure.com/shopping-cart-devops-demo
