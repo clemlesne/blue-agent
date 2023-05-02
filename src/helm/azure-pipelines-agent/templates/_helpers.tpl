@@ -178,8 +178,8 @@ containers:
       {{- end }}
 volumes:
   - name: azp-work
+  {{- if .Values.pipelines.cache.volumeEnabled }}
     ephemeral:
-      {{- if .Values.pipelines.cache.volumeEnabled }}
       volumeClaimTemplate:
         spec:
           accessModes: [ "ReadWriteOnce" ]
@@ -188,13 +188,13 @@ volumes:
             requests:
               storage: {{ .Values.pipelines.cache.size | required "A value for .Values.pipelines.cache.size is required" }}
       {{- else }}
-      emptyDir:
-        sizeLimit: {{ .Values.pipelines.cache.size | required "A value for .Values.pipelines.cache.size is required" }}
+    emptyDir:
+      sizeLimit: {{ .Values.pipelines.cache.size | required "A value for .Values.pipelines.cache.size is required" }}
       {{- end }}
   {{- if not .Values.image.isWindows }}
   - name: local-tmp
+  {{- if .Values.pipelines.tmpdir.volumeEnabled }}
     ephemeral:
-      {{- if .Values.pipelines.tmpdir.volumeEnabled }}
       volumeClaimTemplate:
         spec:
           accessModes: [ "ReadWriteOnce" ]
@@ -203,8 +203,8 @@ volumes:
             requests:
               storage: {{ .Values.pipelines.tmpdir.size | required "A value for .Values.pipelines.tmpdir.size is required" }}
       {{- else }}
-      emptyDir:
-        sizeLimit: {{ .Values.pipelines.tmpdir.size | required "A value for .Values.pipelines.tmpdir.size is required" }}
+    emptyDir:
+      sizeLimit: {{ .Values.pipelines.tmpdir.size | required "A value for .Values.pipelines.tmpdir.size is required" }}
       {{- end }}
   {{- end }}
   {{- with .Values.extraVolumes }}
