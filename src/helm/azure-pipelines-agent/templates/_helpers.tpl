@@ -136,8 +136,10 @@ containers:
     env:
       - name: VSO_AGENT_IGNORE
         value: AZP_TOKEN
+      {{- if not .Values.image.isWindows }}
       - name: AGENT_ALLOW_RUNASROOT
         value: "1"
+      {{- end }}
       - name: AZP_AGENT_NAME
         {{- toYaml .Args.azpAgentName | nindent 8 }}
       - name: AZP_URL
