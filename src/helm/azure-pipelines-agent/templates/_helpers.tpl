@@ -83,6 +83,7 @@ See: https://kubernetes.io/docs/concepts/windows/intro/#compatibility-v1-pod-spe
 */}}
 {{- define "azure-pipelines-agent.defaultSecurityContext" -}}
 runAsNonRoot: false
+readOnlyRootFilesystem: false
 {{- if .Values.image.isWindows }}
 windowsOptions:
   runAsUserName: ContainerAdministrator
