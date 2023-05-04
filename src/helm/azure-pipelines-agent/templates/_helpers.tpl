@@ -129,9 +129,9 @@ containers:
       preStop:
         exec:
           {{- if .Values.image.isWindows }}
-          command: [powershell, -Command, ".\\config.cmd remove --auth PAT --token $Env:AZP_TOKEN"]
+          command: [powershell, -Command, ".\\config.cmd remove --auth PAT --token $Env:AZP_TOKEN; Remove-Item -Recurse -Force $Env:AZP_WORK"]
           {{- else }}
-          command: [bash, -c, "bash config.sh remove --auth PAT --token ${AZP_TOKEN}"]
+          command: [bash, -c, "bash config.sh remove --auth PAT --token ${AZP_TOKEN}; rm -rf ${AZP_WORK}"]
           {{- end }}
     env:
       - name: VSO_AGENT_IGNORE
