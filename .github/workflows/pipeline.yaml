@@ -43,8 +43,28 @@ env:
   ZSTD_VERSION_WIN: 1.5.5
 
 jobs:
+  sast-creds:
+    name: SAST - Credentials
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.2
+        with:
+          # We need all Git history for testing credentials
+          fetch-depth: 0
+          # Ensure all submodules up-to-date
+          submodules: recursive
+      - name: SAST - Credentials
+        uses: trufflesecurity/trufflehog@v3.33.0
+        with:
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          path: .
   build-helm:
     name: Build Helm chart
+    needs:
+      - sast-creds
+      - sast-semgrep
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -52,7 +72,7 @@ jobs:
         with:
           # We need all Git history for "version.sh"
           fetch-depth: 0
-          # Ensure "version.sh" submodule us up-to-date
+          # Ensure "version.sh" submodule are up-to-date
           submodules: recursive
 
       - name: Version
@@ -117,7 +137,6 @@ jobs:
       - build-publish-linux
       - build-publish-win
       - build-helm
-      - semgrep
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
     runs-on: ubuntu-22.04
@@ -150,7 +169,8 @@ jobs:
   build-publish-linux:
     name: Build & deploy Linux image "${{ matrix.os }}"
     needs:
-      - semgrep
+      - sast-semgrep
+      - sast-creds
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -169,7 +189,7 @@ jobs:
         with:
           # We need all Git history for "version.sh"
           fetch-depth: 0
-          # Ensure "version.sh" submodule us up-to-date
+          # Ensure "version.sh" submodule are up-to-date
           submodules: recursive
 
       - name: Configure Git
@@ -275,7 +295,8 @@ jobs:
   build-publish-win:
     name: Build & deploy Windows image "${{ matrix.os }}"
     needs:
-      - semgrep
+      - sast-semgrep
+      - sast-creds
     runs-on: ${{ matrix.runs-on }}
     strategy:
       matrix:
@@ -290,7 +311,7 @@ jobs:
         with:
           # We need all Git history for "version.sh"
           fetch-depth: 0
-          # Ensure "version.sh" submodule us up-to-date
+          # Ensure "version.sh" submodule are up-to-date
           submodules: recursive
 
       - name: Configure Git
@@ -382,8 +403,8 @@ jobs:
             docker push --quiet $tag
           }
 
-  semgrep:
-    name: SAST Semgrep
+  sast-semgrep:
+    name: SAST - Semgrep
     runs-on: ubuntu-22.04
     container:
       image: returntocorp/semgrep
