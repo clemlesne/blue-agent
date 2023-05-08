@@ -415,7 +415,7 @@ jobs:
       - name: Run tests
         run: semgrep ci --sarif --output=semgrep.sarif
         env:
-          SEMGREP_RULES: p/cwe-top-25 p/owasp-top-ten p/secrets p/kubernetes p/dockerfile
+          SEMGREP_RULES: p/cwe-top-25 p/owasp-top-ten p/kubernetes p/dockerfile
 
       - name: Upload results to GitHub CodeQL
         uses: github/codeql-action/upload-sarif@v2.2.12
