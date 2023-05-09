@@ -384,9 +384,9 @@ jobs:
           $tags = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine)
           foreach ($tag in $tags) {
             $params += "--tag", $tag
+          }
 
-            # Pull image locally to use as cache
-            docker pull --quiet $tag || true
+          foreach ($tag in $tags) {
             $params += "--cache-from", $tag
           }
 
@@ -395,13 +395,28 @@ jobs:
             $params += "--label", $label
           }
 
-          # Build
+          Write-Host "Build arguments:"
+          $params | ForEach-Object -Begin { $i = 0 } -Process {
+            if ($i % 2 -eq 0) {
+              Write-Host -NoNewline "`n  $_"
+            } else {
+              Write-Host -NoNewline " $_"
+            }
+            $i++
+          }
+          Write-Host
+
+          Write-Host "Pulling images for cache:"
+          foreach ($tag in $tags) {
+            Write-Host "  $tag"
+            docker pull --quiet $tag || true
+          }
+
+          Write-Host "Building..."
           docker build @params src\docker
 
-          # Push
-          foreach ($tag in $tags) {
-            docker push --quiet $tag
-          }
+          Write-Host "Pushing..."
+          docker push --quiet --all-tags ${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_NAME }}
 
   sast-semgrep:
     name: SAST - Semgrep
