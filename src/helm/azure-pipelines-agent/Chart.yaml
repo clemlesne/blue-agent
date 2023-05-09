@@ -3,7 +3,9 @@ name: azure-pipelines-agent
 description: Deploy Azure Pipelines agent on Kubernetes. Easy way. Cheap. Windows and Linux. X64 and ARM compatible.
 type: application
 # Using ephemeral storage, as from Kubernetes 1.19+ (alpha)
-kubeVersion: ">=1.19"
+# Explicitely specify selecting SemVer pre-version, as some providers are not following SemVer properly
+# See: https://github.com/helm/helm/issues/10375#issuecomment-974203557
+kubeVersion: ">= 1.19.0-0"
 version: 0.0.0
 appVersion: 0.0.0
 icon: https://raw.githubusercontent.com/clemlesne/azure-pipelines-agent/master/logo-1024.png
