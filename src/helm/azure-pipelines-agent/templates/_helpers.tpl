@@ -128,11 +128,36 @@ containers:
     lifecycle:
       preStop:
         exec:
-          {{- if .Values.image.isWindows }}
-          command: [powershell, -Command, ".\\config.cmd remove --auth PAT --token $Env:AZP_TOKEN"]
-          {{- else }}
-          command: [bash, -c, "bash config.sh remove --auth PAT --token ${AZP_TOKEN}"]
-          {{- end }}
+          command:
+            {{- if .Values.image.isWindows }}
+            - powershell
+            - -Command
+            - |
+              .\\config.cmd `
+                remove `
+                --auth PAT `
+                --token $Env:AZP_TOKEN;
+              {{- if not .Values.pipelines.cache.volumeEnabled }}
+              # For security reasons, force clean the pipeline workspace at restart -- Sharing data bewteen pipelines is a security risk
+              Remove-Item -Recurse -Force $Env:AZP_WORK;
+              {{- end }}
+            {{- else }}
+            - bash
+            - -c
+            - |
+              bash config.sh \
+                remove \
+                --auth PAT \
+                --token ${AZP_TOKEN};
+              {{- if not .Values.pipelines.cache.volumeEnabled }}
+              # For security reasons, force clean the pipeline workspace at restart -- Sharing data bewteen pipelines is a security risk
+              rm -rf ${AZP_WORK};
+              {{- end }}
+              {{- if not .Values.pipelines.tmpdir.volumeEnabled }}
+              # For security reasons, force clean the tmpdir at restart -- Sharing data bewteen pipelines is a security risk
+              rm -rf ${TMPDIR};
+              {{- end }}
+            {{- end }}
     env:
       - name: VSO_AGENT_IGNORE
         value: AZP_TOKEN
@@ -180,8 +205,8 @@ containers:
       {{- end }}
 volumes:
   - name: azp-work
+    {{- if .Values.pipelines.cache.volumeEnabled }}
     ephemeral:
-      {{- if .Values.pipelines.cache.volumeEnabled }}
       volumeClaimTemplate:
         spec:
           accessModes: [ "ReadWriteOnce" ]
@@ -189,14 +214,14 @@ volumes:
           resources:
             requests:
               storage: {{ .Values.pipelines.cache.size | required "A value for .Values.pipelines.cache.size is required" }}
-      {{- else }}
-      emptyDir:
-        sizeLimit: {{ .Values.pipelines.cache.size | required "A value for .Values.pipelines.cache.size is required" }}
-      {{- end }}
+    {{- else }}
+    emptyDir:
+      sizeLimit: {{ .Values.pipelines.cache.size | required "A value for .Values.pipelines.cache.size is required" }}
+    {{- end }}
   {{- if not .Values.image.isWindows }}
   - name: local-tmp
+    {{- if .Values.pipelines.tmpdir.volumeEnabled }}
     ephemeral:
-      {{- if .Values.pipelines.tmpdir.volumeEnabled }}
       volumeClaimTemplate:
         spec:
           accessModes: [ "ReadWriteOnce" ]
@@ -204,10 +229,10 @@ volumes:
           resources:
             requests:
               storage: {{ .Values.pipelines.tmpdir.size | required "A value for .Values.pipelines.tmpdir.size is required" }}
-      {{- else }}
-      emptyDir:
-        sizeLimit: {{ .Values.pipelines.tmpdir.size | required "A value for .Values.pipelines.tmpdir.size is required" }}
-      {{- end }}
+    {{- else }}
+    emptyDir:
+      sizeLimit: {{ .Values.pipelines.tmpdir.size | required "A value for .Values.pipelines.tmpdir.size is required" }}
+    {{- end }}
   {{- end }}
   {{- with .Values.extraVolumes }}
   {{- toYaml . | nindent 2 }}
