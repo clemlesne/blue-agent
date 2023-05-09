@@ -19,6 +19,8 @@ on:
 env:
   CONTAINER_NAME: ${{ github.repository }}
   CONTAINER_REGISTRY: ghcr.io
+  # https://github.com/helm/helm/releases
+  HELM_VERSION: 3.11.3
   # https://github.com/microsoft/azure-pipelines-agent/releases
   AZP_AGENT_VERSION: 3.218.0
   # https://github.com/PowerShell/PowerShell/releases
@@ -60,6 +62,7 @@ jobs:
           base: ${{ github.event.repository.default_branch }}
           head: HEAD
           path: .
+
   build-helm:
     name: Build Helm chart
     needs:
@@ -84,7 +87,9 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@v3.5
         with:
-          version: v3.11.2
+          version: v${{ env.HELM_VERSION }}
+          # A token for GitHub API, which is used to avoid rate limiting
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prepare GPG key for Helm chart
         run: |
@@ -113,7 +118,7 @@ jobs:
         run: |
           helm template \
             --output-dir .helm-template \
-            --values test/helm/azure-pipelines-agent/values.yaml \
+            --values test/helm/azure-pipelines-agent/default.yaml \
             .cr-release-packages/azure-pipelines-agent-${{ steps.version.outputs.version }}.tgz
 
       - name: Run SAST Snyk for Helm
@@ -134,9 +139,8 @@ jobs:
   deploy-helm:
     name: Deploy Helm chart
     needs:
-      - build-publish-linux
-      - build-publish-win
-      - build-helm
+      - integration-tests-linux
+      - build-publish-windows
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
     runs-on: ubuntu-22.04
@@ -167,7 +171,7 @@ jobs:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-publish-linux:
-    name: Build & deploy Linux image "${{ matrix.os }}"
+    name: Build & deploy image "${{ matrix.os }}"
     needs:
       - sast-semgrep
       - sast-creds
@@ -292,8 +296,8 @@ jobs:
         with:
           sarif_file: snyk.sarif
 
-  build-publish-win:
-    name: Build & deploy Windows image "${{ matrix.os }}"
+  build-publish-windows:
+    name: Build & deploy image "${{ matrix.os }}"
     needs:
       - sast-semgrep
       - sast-creds
@@ -437,3 +441,63 @@ jobs:
         if: always()
         with:
           sarif_file: semgrep.sarif
+
+  integration-tests-linux:
+    name: Integration tests for "${{ matrix.flavor }}"
+    needs:
+      - build-publish-linux
+      - build-helm
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        # Test on the six latest k3s versions
+        k3s: [v1.27.1, v1.26.4, v1.25.8, v1.24.13, v1.23.17, v1.22.17]
+        # Test on all built Linux flavors
+        flavor: [bullseye, focal, jammy, ubi8]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.2
+        with:
+          # We need all Git history for "version.sh"
+          fetch-depth: 0
+          # Ensure "version.sh" submodule are up-to-date
+          submodules: recursive
+
+      - name: Version
+        id: version
+        run: |
+          echo "version=$(bash cicd/version/version.sh -g . -c)" >> $GITHUB_OUTPUT
+          echo "version_full=$(bash cicd/version/version.sh -g . -c -m)" >> $GITHUB_OUTPUT
+
+      - name: Setup k3s
+        uses: nolar/setup-k3d-k3s@v1
+        with:
+          version: ${{ matrix.k3s }}
+          # A token for GitHub API, which is used to avoid rate limiting
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3.5
+        with:
+          version: v${{ env.HELM_VERSION }}
+          # A token for GitHub API, which is used to avoid rate limiting
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate local cluster
+        run: |
+          kubectl get nodes
+
+      - name: Download Helm chart
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: helm-chart
+
+      - name: Install Helm chart
+        run: |
+          helm install azure-pipelines-agent \
+            azure-pipelines-agent-${{ steps.version.outputs.version }}.tgz \
+            --values test/helm/azure-pipelines-agent/default.yaml \
+            --set image.flavor=${{ matrix.flavor }} \
+            --set image.version=${{ steps.version.outputs.version_full }} \
+            --atomic \
+            --wait
