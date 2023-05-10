@@ -39,6 +39,8 @@ env:
   JQ_VERSION: 1.6
   # https://github.com/aws/aws-cli/releases
   AWS_CLI_VERSION: 2.11.18
+  # https://github.com/googleapis/google-cloud-python/releases
+  GCLOUD_CLI_VERSION: 430.0.0
   # https://github.com/git-for-windows/git/releases
   GIT_VERSION_WIN: 2.40.1
   # https://github.com/facebook/zstd/releases
@@ -262,6 +264,7 @@ jobs:
         with:
           build-args: |
             "AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}"
+            "GCLOUD_CLI_VERSION=${{ env.GCLOUD_CLI_VERSION }}"
             "AZP_AGENT_VERSION=${{ env.AZP_AGENT_VERSION }}"
             "AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}"
             "BUILDKIT_VERSION=${{ env.BUILDKIT_VERSION }}"
@@ -376,6 +379,7 @@ jobs:
           $params = @(
             # Required build arguments
             "--build-arg", "AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}",
+            "--build-arg", "GCLOUD_CLI_VERSION=${{ env.GCLOUD_CLI_VERSION }}",
             "--build-arg", "AZP_AGENT_VERSION=${{ env.AZP_AGENT_VERSION }}",
             "--build-arg", "AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}",
             "--build-arg", "GIT_VERSION=${{ env.GIT_VERSION_WIN }}",
