@@ -41,6 +41,8 @@ env:
   GIT_VERSION_WIN: 2.40.1
   # https://github.com/facebook/zstd/releases
   ZSTD_VERSION_WIN: 1.5.5
+  # https://www.python.org/downloads/windows
+  PYTHON_VERSION_WIN: 3.11.3
 
 jobs:
   sast-creds:
@@ -375,6 +377,7 @@ jobs:
             "--build-arg", "GIT_VERSION=${{ env.GIT_VERSION_WIN }}",
             "--build-arg", "JQ_VERSION=${{ env.JQ_VERSION }}",
             "--build-arg", "POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}",
+            "--build-arg", "PYTHON_VERSION=${{ env.PYTHON_VERSION_WIN }}",
             "--build-arg", "YQ_VERSION=${{ env.YQ_VERSION }}",
             "--build-arg", "ZSTD_VERSION=${{ env.ZSTD_VERSION_WIN }}",
 

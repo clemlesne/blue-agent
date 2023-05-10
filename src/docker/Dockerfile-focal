@@ -55,6 +55,16 @@ COPY arch.sh .
 RUN chmod +x arch.sh \
     && bash arch.sh
 
+# Upgrade Python build tools
+RUN python3 -m pip \
+    --disable-pip-version-check \
+    --no-cache-dir \
+    --quiet \
+    install  \
+        --compile \
+        --upgrade \
+        pip setuptools wheel
+
 FROM base as rootlesskit
 
 # Install Go, then verify installation
@@ -77,11 +87,17 @@ RUN git clone --depth 1 --branch v${ROOTLESSKIT_VERSION} https://github.com/root
 
 FROM base
 
-# Install Azure CLI, then upgrade the default installation
+# Install Azure CLI, then verify and upgrade the default installation
 ARG AZURE_CLI_VERSION
 ENV AZURE_CLI_VERSION ${AZURE_CLI_VERSION}
-RUN python3 -m pip install --upgrade pip setuptools wheel \
-    && python3 -m pip install "azure-cli==${AZURE_CLI_VERSION}" \
+RUN python3 -m pip \
+        --disable-pip-version-check \
+        --no-cache-dir \
+        --quiet \
+        install \
+            --compile \
+            azure-cli==${AZURE_CLI_VERSION} \
+    && az version \
     && az upgrade --yes
 
 # Install Powershell, then verify installation
