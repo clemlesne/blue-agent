@@ -3,6 +3,7 @@ $AZP_TOKEN = $Env:AZP_TOKEN
 $AZP_POOL = $Env:AZP_POOL
 $AZP_AGENT_NAME = $Env:AZP_AGENT_NAME
 $AZP_WORK = $Env:AZP_WORK
+$AZP_CUSTOM_CERT_PEM = $Env:AZP_CUSTOM_CERT_PEM
 
 if ($null -eq $AZP_URL -or $AZP_URL -eq "") {
   throw "error: missing AZP_URL environment variable"
@@ -32,9 +33,28 @@ function Display-Header() {
   Write-Host "> $1" -ForegroundColor Cyan
 }
 
-Set-Location $(Split-Path -Parent $MyInvocation.MyCommand.Definition)
+if ((Test-Path $AZP_CUSTOM_CERT_PEM) -and ((Get-ChildItem $AZP_CUSTOM_CERT_PEM).Count -gt 0)) {
+  Display-Header "Adding custom SSL certificates..."
+  Write-Host "Searching for *.crt in $AZP_CUSTOM_CERT_PEM"
+
+  Get-ChildItem $AZP_CUSTOM_CERT_PEM -Filter *.crt | ForEach-Object {
+    Write-Host "Certificate $($_.Name)..."
+
+    $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($_.FullName)
+    Write-Host "  Valid from: " $cert.NotBefore
+    Write-Host "  Valid to:   " $cert.NotAfter
+
+    Write-Host "Updating certificates keychain"
+    Import-Certificate -FilePath $_.FullName -CertStoreLocation Cert:\LocalMachine\Root
+  }
+
+} else {
+  Display-Header "No custom SSL certificate provided"
+}
 
 Display-Header "Configuring agent..."
+
+Set-Location $(Split-Path -Parent $MyInvocation.MyCommand.Definition)
 
 .\config.cmd `
   --acceptTeeEula `
