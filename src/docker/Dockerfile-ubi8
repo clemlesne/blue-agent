@@ -159,6 +159,9 @@ RUN mkdir -p ${AZP_HOME} \
 ENV AZP_WORK ${HOME}/azp-work
 VOLUME ${AZP_WORK}
 
+# Define path for the custom SSL certificate
+ENV AZP_CUSTOM_CERT_PEM ${HOME}/azp-custom-certs
+
 # Cleanup helper script
 RUN rm arch.sh
 
