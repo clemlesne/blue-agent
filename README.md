@@ -273,6 +273,7 @@ Same way, if you want to use multiple versions of the framework, re-execute the 
 - Cloud providers CLIs
   - [AWS CLI](https://github.com/aws/aws-cli)
   - [Azure CLI](https://github.com/Azure/azure-cli)
+  - [Google Cloud SDK](https://cloud.google.com/sdk)
 - Shells
   - [bash](https://www.gnu.org/software/bash)
   - [PowerShell Core](https://github.com/PowerShell/PowerShell)
@@ -297,6 +298,7 @@ Same way, if you want to use multiple versions of the framework, re-execute the 
 - Cloud providers CLIs
   - [Azure CLI](https://github.com/Azure/azure-cli)
   - [AWS CLI](https://github.com/aws/aws-cli)
+  - [Google Cloud SDK](https://cloud.google.com/sdk)
 - Shells
   - [PowerShell Core](https://github.com/PowerShell/PowerShell)
 - Programming languages
