@@ -37,14 +37,38 @@ env:
   AZURE_CLI_VERSION: 2.48.1
   # https://github.com/stedolan/jq/releases
   JQ_VERSION: 1.6
+  # https://github.com/aws/aws-cli/releases
+  AWS_CLI_VERSION: 2.11.18
   # https://github.com/git-for-windows/git/releases
   GIT_VERSION_WIN: 2.40.1
   # https://github.com/facebook/zstd/releases
   ZSTD_VERSION_WIN: 1.5.5
+  # https://www.python.org/downloads/windows
+  PYTHON_VERSION_WIN: 3.11.3
 
 jobs:
+  sast-creds:
+    name: SAST - Credentials
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.2
+        with:
+          # We need all Git history for testing credentials
+          fetch-depth: 0
+          # Ensure all submodules up-to-date
+          submodules: recursive
+      - name: SAST - Credentials
+        uses: trufflesecurity/trufflehog@v3.33.0
+        with:
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          path: .
   build-helm:
     name: Build Helm chart
+    needs:
+      - sast-creds
+      - sast-semgrep
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -52,7 +76,7 @@ jobs:
         with:
           # We need all Git history for "version.sh"
           fetch-depth: 0
-          # Ensure "version.sh" submodule us up-to-date
+          # Ensure "version.sh" submodule are up-to-date
           submodules: recursive
 
       - name: Version
@@ -117,7 +141,6 @@ jobs:
       - build-publish-linux
       - build-publish-win
       - build-helm
-      - semgrep
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
     runs-on: ubuntu-22.04
@@ -150,7 +173,8 @@ jobs:
   build-publish-linux:
     name: Build & deploy Linux image "${{ matrix.os }}"
     needs:
-      - semgrep
+      - sast-semgrep
+      - sast-creds
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -169,7 +193,7 @@ jobs:
         with:
           # We need all Git history for "version.sh"
           fetch-depth: 0
-          # Ensure "version.sh" submodule us up-to-date
+          # Ensure "version.sh" submodule are up-to-date
           submodules: recursive
 
       - name: Configure Git
@@ -237,6 +261,7 @@ jobs:
         uses: docker/build-push-action@v4.0.0
         with:
           build-args: |
+            "AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}"
             "AZP_AGENT_VERSION=${{ env.AZP_AGENT_VERSION }}"
             "AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}"
             "BUILDKIT_VERSION=${{ env.BUILDKIT_VERSION }}"
@@ -275,7 +300,8 @@ jobs:
   build-publish-win:
     name: Build & deploy Windows image "${{ matrix.os }}"
     needs:
-      - semgrep
+      - sast-semgrep
+      - sast-creds
     runs-on: ${{ matrix.runs-on }}
     strategy:
       matrix:
@@ -290,7 +316,7 @@ jobs:
         with:
           # We need all Git history for "version.sh"
           fetch-depth: 0
-          # Ensure "version.sh" submodule us up-to-date
+          # Ensure "version.sh" submodule are up-to-date
           submodules: recursive
 
       - name: Configure Git
@@ -349,11 +375,13 @@ jobs:
         run: |
           $params = @(
             # Required build arguments
+            "--build-arg", "AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}",
             "--build-arg", "AZP_AGENT_VERSION=${{ env.AZP_AGENT_VERSION }}",
             "--build-arg", "AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}",
             "--build-arg", "GIT_VERSION=${{ env.GIT_VERSION_WIN }}",
             "--build-arg", "JQ_VERSION=${{ env.JQ_VERSION }}",
             "--build-arg", "POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}",
+            "--build-arg", "PYTHON_VERSION=${{ env.PYTHON_VERSION_WIN }}",
             "--build-arg", "YQ_VERSION=${{ env.YQ_VERSION }}",
             "--build-arg", "ZSTD_VERSION=${{ env.ZSTD_VERSION_WIN }}",
 
@@ -363,9 +391,9 @@ jobs:
           $tags = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine)
           foreach ($tag in $tags) {
             $params += "--tag", $tag
+          }
 
-            # Pull image locally to use as cache
-            docker pull --quiet $tag || true
+          foreach ($tag in $tags) {
             $params += "--cache-from", $tag
           }
 
@@ -374,16 +402,31 @@ jobs:
             $params += "--label", $label
           }
 
-          # Build
-          docker build @params src\docker
+          Write-Host "Build arguments:"
+          $params | ForEach-Object -Begin { $i = 0 } -Process {
+            if ($i % 2 -eq 0) {
+              Write-Host -NoNewline "`n  $_"
+            } else {
+              Write-Host -NoNewline " $_"
+            }
+            $i++
+          }
+          Write-Host
 
-          # Push
+          Write-Host "Pulling images for cache:"
           foreach ($tag in $tags) {
-            docker push --quiet $tag
+            Write-Host "  $tag"
+            docker pull --quiet $tag || true
           }
 
-  semgrep:
-    name: SAST Semgrep
+          Write-Host "Building..."
+          docker build @params src\docker
+
+          Write-Host "Pushing..."
+          docker push --quiet --all-tags ${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_NAME }}
+
+  sast-semgrep:
+    name: SAST - Semgrep
     runs-on: ubuntu-22.04
     container:
       image: returntocorp/semgrep
@@ -394,7 +437,7 @@ jobs:
       - name: Run tests
         run: semgrep ci --sarif --output=semgrep.sarif
         env:
-          SEMGREP_RULES: p/cwe-top-25 p/owasp-top-ten p/secrets p/kubernetes p/dockerfile
+          SEMGREP_RULES: p/cwe-top-25 p/owasp-top-ten p/kubernetes p/dockerfile
 
       - name: Upload results to GitHub CodeQL
         uses: github/codeql-action/upload-sarif@v2.2.12

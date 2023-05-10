@@ -55,6 +55,16 @@ COPY arch.sh .
 RUN chmod +x arch.sh \
     && bash arch.sh
 
+# Upgrade Python build tools
+RUN python3 -m pip \
+    --disable-pip-version-check \
+    --no-cache-dir \
+    --quiet \
+    install  \
+        --compile \
+        --upgrade \
+        pip setuptools wheel
+
 FROM base as rootlesskit
 
 # Install Go, then verify installation
@@ -84,12 +94,28 @@ RUN dpkg -i libssl1.1_1.1.1f-1ubuntu2_$(ARCH_X64=amd64 bash arch.sh).deb \
     && rm -rf libssl* \
     # https://github.com/microsoft/azure-pipelines-agent/issues/3834#issuecomment-1164461892
     && sed -i 's/openssl_conf = openssl_init/#openssl_conf = openssl_init/g' /etc/ssl/openssl.cnf
-# Install Azure CLI, then upgrade the default installation
+
+# Install Azure CLI, then verify and upgrade the default installation
 ARG AZURE_CLI_VERSION
 ENV AZURE_CLI_VERSION ${AZURE_CLI_VERSION}
-RUN python3 -m pip install --upgrade pip setuptools wheel \
-    && python3 -m pip install "azure-cli==${AZURE_CLI_VERSION}" \
+RUN python3 -m pip \
+        --disable-pip-version-check \
+        --no-cache-dir \
+        --quiet \
+        install \
+            --compile \
+            azure-cli==${AZURE_CLI_VERSION} \
+    && az version \
     && az upgrade --yes
+
+# Install AWS CLI, then verify installation
+ARG AWS_CLI_VERSION
+ENV AWS_CLI_VERSION ${AWS_CLI_VERSION}
+RUN curl -LsSf https://awscli.amazonaws.com/awscli-exe-linux-$(ARCH_X64=x86_64 ARCH_ARM64=aarch64 bash arch.sh).zip -o awscli.zip \
+    && unzip awscli.zip \
+    && ./aws/install \
+    && rm -rf awscli.zip aws \
+    && aws --version
 
 # Install Powershell, then verify installation
 ARG POWERSHELL_VERSION
@@ -141,6 +167,9 @@ RUN mkdir -p ${AZP_HOME} \
     && AGENT_ALLOW_RUNASROOT="1" bash run-docker.sh --version
 ENV AZP_WORK ${HOME}/azp-work
 VOLUME ${AZP_WORK}
+
+# Define path for the custom SSL certificate
+ENV AZP_CUSTOM_CERT_PEM ${HOME}/azp-custom-certs
 
 # Cleanup helper script
 RUN rm arch.sh

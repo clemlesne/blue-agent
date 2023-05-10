@@ -37,9 +37,52 @@ print_header() {
   echo -e "${lightcyan}➡️ $1${nocolor}"
 }
 
-cd $(dirname "$0")
+if [ -d "$AZP_CUSTOM_CERT_PEM" ] && [ "$(ls -A $AZP_CUSTOM_CERT_PEM)" ]; then
+  print_header "Adding custom SSL certificates..."
+  echo "Searching for *.crt in $AZP_CUSTOM_CERT_PEM"
+
+  # Debian-based systems
+  if [ -s /etc/debian_version ]; then
+    certPath="/usr/local/share/ca-certificates"
+    mkdir -p $certPath
+
+    # Copy certificates to the certificate path
+    cp $AZP_CUSTOM_CERT_PEM/*.crt $certPath
+
+    # Display certificates information
+    for certFile in $AZP_CUSTOM_CERT_PEM/*.crt; do
+      echo "Certificate $(basename $certFile)..."
+      openssl x509 -inform PEM -in $certFile -noout -issuer -subject -dates
+    done
+
+    echo "Updating certificates keychain"
+    update-ca-certificates
+  fi
+
+  # RHEL-based systems
+  if [ -s /etc/redhat-release ]; then
+    certPath="/etc/ca-certificates/trust-source/anchors"
+    mkdir -p $certPath
+
+    # Copy certificates to the certificate path
+    cp $AZP_CUSTOM_CERT_PEM/*.crt $certPath
+
+    # Display certificates information
+    for certFile in $AZP_CUSTOM_CERT_PEM/*.crt; do
+      echo "Certificate $(basename $certFile)..."
+      openssl x509 -inform PEM -in $certFile -noout -issuer -subject -dates
+    done
+
+    echo "Updating certificates keychain"
+    update-ca-trust extract
+  fi
+else
+  print_header "No custom SSL certificate provided"
+fi
 
 print_header "Configuring agent..."
+
+cd $(dirname "$0")
 
 bash config.sh \
   --acceptTeeEula \

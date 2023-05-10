@@ -65,25 +65,6 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 
 ## Advanced topics
 
-### Provided software
-
-#### Linux
-
-- [Azure Pipelines agent](https://github.com/microsoft/azure-pipelines-agent) (see env var `AZP_AGENT_VERSION` on the container images) + [requirements](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux)
-- [ASP.NET Core Runtime](https://github.com/dotnet/aspnetcore) (required by the Azure Pipelines agent)
-- [Azure CLI](https://github.com/Azure/azure-cli) (required by the Azure Pipelines agent) + requirements ([Python 3.8](https://www.python.org/downloads/release/python-380), [Python 3.9](https://www.python.org/downloads/release/python-390), [Python 3.10](https://www.python.org/downloads/release/python-3100), depending of the system, plus C/Rust build tools for libs non pre-built on the platforms)
-- [PowerShell Core](https://github.com/PowerShell/PowerShell), [bash](https://www.gnu.org/software/bash) and [zsh](https://www.zsh.org) (for inter-operability)
-- [BuildKit](https://github.com/moby/buildkit) + requirements ([dbus-user-session](https://dbus.freedesktop.org), [fuse-overlayfs](https://github.com/containers/fuse-overlayfs), [iptables](https://www.netfilter.org/projects/iptables/index.html), [shadow-utils](https://github.com/shadow-maint/shadow), [uidmap](https://github.com/shadow-maint/shadow))
-- [gzip](https://www.gnu.org/software/gzip), [jq](https://github.com/stedolan/jq), [make](https://www.gnu.org/software/make), [tar](https://www.gnu.org/software/tar), [unzip](https://infozip.sourceforge.net/UnZip.html), [wget](https://www.gnu.org/software/wget), [yq](https://github.com/mikefarah/yq), [zip](https://infozip.sourceforge.net/Zip.html), [zstd](https://github.com/facebook/zstd) (for developer ease-of-life)
-
-#### Windows
-
-- [Azure Pipelines agent](https://github.com/microsoft/azure-pipelines-agent) (see env var `AZP_AGENT_VERSION` on the container images) + [requirements](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux)
-- [.NET Framework Runtime](https://dotnet.microsoft.com) (required by the Azure Pipelines agent)
-- [Azure CLI](https://github.com/Azure/azure-cli) (required by the Azure Pipelines agent)
-- [PowerShell Core](https://github.com/PowerShell/PowerShell) (for inter-operability)
-- [git](https://github.com/git-for-windows/git), [jq](https://github.com/stedolan/jq), [yq](https://github.com/mikefarah/yq), [zstd](https://github.com/facebook/zstd) (for developer ease-of-life)
-
 ### Capabilities
 
 Capabilities are declarative variables you can add to the agents, to allow developers to select the right agent for their pipeline ([official documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/demands?view=azure-devops&tabs=yaml)).
@@ -218,8 +199,8 @@ Linux systems are supported, but not Windows:
 | `ghcr.io/clemlesne/azure-pipelines-agent:focal-main` | ✅ |
 | `ghcr.io/clemlesne/azure-pipelines-agent:jammy-main` | ✅ |
 | `ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main` | ✅ |
-| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019` | ❌ |
-| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022` | ❌ |
+| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019-main` | ❌ |
+| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022-main` | ❌ |
 
 #### How to use the bundled BuildKit
 
@@ -282,6 +263,85 @@ steps:
 ```
 
 Same way, if you want to use multiple versions of the framework, re-execute the task with the new version. Installations are cached locally.
+
+### Run the agent with a custom root certificate
+
+If you need to run the agent with a custom root certificate, you can use the following Helm values. Format is [PEM certificate](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail) and with [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoding.
+
+Paths are `/app-root/azp-custom-certs` for Linux-based agents and `C:\app-root\azp-custom-certs` for Windows-based agents.
+
+```yaml
+# config-root-ca.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: custom-certs
+data:
+  root-1.crt: |
+    -----BEGIN CERTIFICATE-----
+    ...
+    -----END CERTIFICATE-----
+  root-2.crt: |
+    -----BEGIN CERTIFICATE-----
+    ...
+    -----END CERTIFICATE-----
+```
+
+```yaml
+# values.yaml
+extraVolumes:
+  - name: custom-certs
+    configMap:
+      name: custom-certs
+extraVolumeMounts:
+  - name: custom-certs
+    mountPath: /app-root/azp-custom-certs
+    readOnly: true
+```
+
+### Provided software
+
+#### Linux
+
+- [Azure Pipelines agent](https://github.com/microsoft/azure-pipelines-agent) + [requirements](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux)
+- [BuildKit](https://github.com/moby/buildkit) + requirements ([dbus-user-session](https://dbus.freedesktop.org), [fuse-overlayfs](https://github.com/containers/fuse-overlayfs), [iptables](https://www.netfilter.org/projects/iptables/index.html), [shadow-utils](https://github.com/shadow-maint/shadow), [uidmap](https://github.com/shadow-maint/shadow))
+- Cloud providers CLIs
+  - [AWS CLI](https://github.com/aws/aws-cli)
+  - [Azure CLI](https://github.com/Azure/azure-cli)
+- Shells
+  - [bash](https://www.gnu.org/software/bash)
+  - [PowerShell Core](https://github.com/PowerShell/PowerShell)
+  - [zsh](https://www.zsh.org)
+- Programming languages
+  - [ASP.NET Core Runtime](https://github.com/dotnet/aspnetcore)
+  - Python ([Python 3.8](https://www.python.org/downloads/release/python-380), [Python 3.9](https://www.python.org/downloads/release/python-390), [Python 3.10](https://www.python.org/downloads/release/python-3100), depending of the system, plus C/Rust build tools for libs non pre-built on the platforms)
+- Tools
+  - [gzip](https://www.gnu.org/software/gzip)
+  - [jq](https://github.com/stedolan/jq)
+  - [make](https://www.gnu.org/software/make)
+  - [tar](https://www.gnu.org/software/tar)
+  - [unzip](https://infozip.sourceforge.net/UnZip.html)
+  - [wget](https://www.gnu.org/software/wget)
+  - [yq](https://github.com/mikefarah/yq)
+  - [zip](https://infozip.sourceforge.net/Zip.html)
+  - [zstd](https://github.com/facebook/zstd)
+
+#### Windows
+
+- [Azure Pipelines agent](https://github.com/microsoft/azure-pipelines-agent) + [requirements](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux)
+- Cloud providers CLIs
+  - [Azure CLI](https://github.com/Azure/azure-cli)
+  - [AWS CLI](https://github.com/aws/aws-cli)
+- Shells
+  - [PowerShell Core](https://github.com/PowerShell/PowerShell)
+- Programming languages
+  - [.NET Framework Runtime](https://dotnet.microsoft.com)
+  - [Python 3.11](https://www.python.org/downloads/release/python-3110)
+- Tools
+  - [git](https://github.com/git-for-windows/git)
+  - [jq](https://github.com/stedolan/jq)
+  - [yq](https://github.com/mikefarah/yq)
+  - [zstd](https://github.com/facebook/zstd)
 
 ### Helm values
 

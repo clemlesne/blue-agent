@@ -21,13 +21,42 @@ RUN mkdir 'C:\Program Files\jq' \
     ; [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\Program Files\jq', [EnvironmentVariableTarget]::Machine)
 RUN jq --version
 
-# Install Azure CLI, then upgrade the default installation
+# Install Python, then verify installation
+ARG PYTHON_VERSION
+ENV PYTHON_VERSION ${PYTHON_VERSION}
+RUN Invoke-WebRequest -Uri https://python.org/ftp/python/$($Env:PYTHON_VERSION)/python-$($Env:PYTHON_VERSION)-amd64.exe -OutFile python.exe \
+    ; Start-Process python.exe -Wait -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1 Include_test=0' \
+    ; Remove-Item python.exe
+RUN python --version \
+    ; python -m pip \
+        --disable-pip-version-check \
+        --no-cache-dir \
+        --quiet \
+        install \
+            --compile \
+            --upgrade \
+            pip setuptools wheel
+
+# Install Azure CLI, then verify and upgrade the default installation
 ARG AZURE_CLI_VERSION
 ENV AZURE_CLI_VERSION ${AZURE_CLI_VERSION}
-RUN Invoke-WebRequest -Uri https://github.com/Azure/azure-cli/releases/download/azure-cli-$($Env:AZURE_CLI_VERSION)/azure-cli-$($Env:AZURE_CLI_VERSION).msi -OutFile azure-cli.msi \
-    ; Start-Process msiexec.exe -Wait -ArgumentList '/I azure-cli.msi /qn /norestart' \
-    ; Remove-Item azure-cli.msi
-RUN az upgrade --yes
+RUN python -m pip \
+        --disable-pip-version-check \
+        --no-cache-dir \
+        --quiet \
+        install \
+            --compile \
+            azure-cli==$($Env:AZURE_CLI_VERSION) \
+    ; az version \
+    ; az upgrade --yes
+
+# Install AWS CLI, then verify installation
+ARG AWS_CLI_VERSION
+ENV AWS_CLI_VERSION ${AWS_CLI_VERSION}
+RUN Invoke-WebRequest -Uri https://awscli.amazonaws.com/AWSCLIV2-$($Env:AWS_CLI_VERSION).msi -OutFile awscli.msi \
+    ; Start-Process msiexec.exe -Wait -ArgumentList '/I awscli.msi /qn /norestart' \
+    ; Remove-Item awscli.msi
+RUN aws --version
 
 # Install Powershell, then verify installation
 ARG POWERSHELL_VERSION
@@ -66,6 +95,9 @@ RUN Invoke-WebRequest -Uri https://github.com/facebook/zstd/releases/download/v$
     ; Rename-Item "C:\Program` Files\zstd-v$($Env:ZSTD_VERSION)-win64" 'zstd' \
     ; [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\Program Files\zstd', [EnvironmentVariableTarget]::Machine)
 RUN zstd --version
+
+# Define path for the custom SSL certificate
+ENV AZP_CUSTOM_CERT_PEM ${HOME}\\azp-custom-certs
 
 # Install Azure Pipelines Agent startup script
 WORKDIR ${AZP_HOME}
