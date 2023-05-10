@@ -37,6 +37,8 @@ env:
   AZURE_CLI_VERSION: 2.48.1
   # https://github.com/stedolan/jq/releases
   JQ_VERSION: 1.6
+  # https://github.com/aws/aws-cli/releases
+  AWS_CLI_VERSION: 2.11.18
   # https://github.com/git-for-windows/git/releases
   GIT_VERSION_WIN: 2.40.1
   # https://github.com/facebook/zstd/releases
@@ -259,6 +261,7 @@ jobs:
         uses: docker/build-push-action@v4.0.0
         with:
           build-args: |
+            "AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}"
             "AZP_AGENT_VERSION=${{ env.AZP_AGENT_VERSION }}"
             "AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}"
             "BUILDKIT_VERSION=${{ env.BUILDKIT_VERSION }}"
@@ -372,6 +375,7 @@ jobs:
         run: |
           $params = @(
             # Required build arguments
+            "--build-arg", "AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}",
             "--build-arg", "AZP_AGENT_VERSION=${{ env.AZP_AGENT_VERSION }}",
             "--build-arg", "AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}",
             "--build-arg", "GIT_VERSION=${{ env.GIT_VERSION_WIN }}",

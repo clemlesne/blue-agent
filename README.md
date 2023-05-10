@@ -271,6 +271,7 @@ Same way, if you want to use multiple versions of the framework, re-execute the 
 - [Azure Pipelines agent](https://github.com/microsoft/azure-pipelines-agent) + [requirements](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux)
 - [BuildKit](https://github.com/moby/buildkit) + requirements ([dbus-user-session](https://dbus.freedesktop.org), [fuse-overlayfs](https://github.com/containers/fuse-overlayfs), [iptables](https://www.netfilter.org/projects/iptables/index.html), [shadow-utils](https://github.com/shadow-maint/shadow), [uidmap](https://github.com/shadow-maint/shadow))
 - Cloud providers CLIs
+  - [AWS CLI](https://github.com/aws/aws-cli)
   - [Azure CLI](https://github.com/Azure/azure-cli)
 - Shells
   - [bash](https://www.gnu.org/software/bash)
@@ -295,6 +296,7 @@ Same way, if you want to use multiple versions of the framework, re-execute the 
 - [Azure Pipelines agent](https://github.com/microsoft/azure-pipelines-agent) + [requirements](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux)
 - Cloud providers CLIs
   - [Azure CLI](https://github.com/Azure/azure-cli)
+  - [AWS CLI](https://github.com/aws/aws-cli)
 - Shells
   - [PowerShell Core](https://github.com/PowerShell/PowerShell)
 - Programming languages
