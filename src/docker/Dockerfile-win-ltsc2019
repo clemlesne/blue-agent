@@ -50,6 +50,13 @@ RUN python -m pip \
     ; az version \
     ; az upgrade --yes
 
+# Install AWS CLI, then verify installation
+ARG AWS_CLI_VERSION
+ENV AWS_CLI_VERSION ${AWS_CLI_VERSION}
+RUN Invoke-WebRequest -Uri https://awscli.amazonaws.com/AWSCLIV2-$($Env:AWS_CLI_VERSION).msi -OutFile awscli.msi \
+    ; Start-Process msiexec.exe -Wait -ArgumentList '/I awscli.msi /qn /norestart' \
+    ; Remove-Item awscli.msi
+RUN aws --version
 
 # Install Powershell, then verify installation
 ARG POWERSHELL_VERSION
