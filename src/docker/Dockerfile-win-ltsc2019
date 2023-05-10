@@ -58,6 +58,18 @@ RUN Invoke-WebRequest -Uri https://awscli.amazonaws.com/AWSCLIV2-$($Env:AWS_CLI_
     ; Remove-Item awscli.msi
 RUN aws --version
 
+# Install Google Cloud CLI, then verify installation
+ARG GCLOUD_CLI_VERSION
+ENV GCLOUD_CLI_VERSION ${GCLOUD_CLI_VERSION}
+RUN Invoke-WebRequest -Uri https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-$($Env:GCLOUD_CLI_VERSION)-windows-x86_64.zip -OutFile gcloud.zip \
+    ; Expand-Archive -Force gcloud.zip -DestinationPath 'C:\Program Files' \
+    ; Remove-Item gcloud.zip \
+    ; Rename-Item 'C:\Program Files\google-cloud-sdk' 'gcloud' \
+    ; Start-Process cmd.exe -Wait -ArgumentList '/c "C:\Program` Files\gcloud\install.bat" --additional-components beta --quiet' \
+    ; [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\Program Files\gcloud\bin', [EnvironmentVariableTarget]::Machine)
+RUN gcloud version \
+    ; gcloud components update --quiet
+
 # Install Powershell, then verify installation
 ARG POWERSHELL_VERSION
 ENV POWERSHELL_VERSION ${POWERSHELL_VERSION}

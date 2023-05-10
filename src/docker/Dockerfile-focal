@@ -109,6 +109,18 @@ RUN curl -LsSf https://awscli.amazonaws.com/awscli-exe-linux-$(ARCH_X64=x86_64 A
     && rm -rf awscli.zip aws \
     && aws --version
 
+# Install Google Cloud CLI, then verify installation
+ARG GCLOUD_CLI_VERSION
+ENV GCLOUD_CLI_VERSION ${GCLOUD_CLI_VERSION}
+RUN curl -LsSf https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-${GCLOUD_CLI_VERSION}-linux-$(ARCH_X64=x86_64 ARCH_ARM64=arm bash arch.sh).tar.gz | tar -xz -C /usr/local \
+    && /usr/local/google-cloud-sdk/install.sh \
+        --additional-components beta \
+        --quiet \
+    && ln -s /usr/local/google-cloud-sdk/bin/gcloud /usr/bin/gcloud \
+    && ln -s /usr/local/google-cloud-sdk/bin/gsutil /usr/bin/gsutil \
+    && gcloud version \
+    && gcloud components update --quiet
+
 # Install Powershell, then verify installation
 ARG POWERSHELL_VERSION
 ENV POWERSHELL_VERSION ${POWERSHELL_VERSION}

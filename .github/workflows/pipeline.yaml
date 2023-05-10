@@ -39,6 +39,8 @@ env:
   JQ_VERSION: 1.6
   # https://github.com/aws/aws-cli/releases
   AWS_CLI_VERSION: 2.11.18
+  # https://github.com/googleapis/google-cloud-python/releases
+  GCLOUD_CLI_VERSION: 430.0.0
   # https://github.com/git-for-windows/git/releases
   GIT_VERSION_WIN: 2.40.1
   # https://github.com/facebook/zstd/releases
@@ -58,12 +60,14 @@ jobs:
           fetch-depth: 0
           # Ensure all submodules up-to-date
           submodules: recursive
+
       - name: SAST - Credentials
         uses: trufflesecurity/trufflehog@v3.33.0
         with:
           base: ${{ github.event.repository.default_branch }}
           head: HEAD
           path: .
+
   build-helm:
     name: Build Helm chart
     needs:
@@ -122,18 +126,34 @@ jobs:
 
       - name: Run SAST Snyk for Helm
         uses: snyk/actions/iac@0.3.0
-        # Snyk can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub CodeQL.
+        # Snyk can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub Security.
         continue-on-error: true
         with:
-          args: --severity-threshold=medium --sarif
+          args: --severity-threshold=medium --sarif-file-output=snyk.sarif
           file: .helm-template
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-      - name: Upload results to GitHub CodeQL
+      # Required by npx
+      - name: Setup Node
+        uses: actions/setup-node@v3.6.0
+        with:
+          node-version: 18.16.0
+
+      # Fix issue "Error: Code Scanning could not process the submitted SARIF file: rejecting SARIF, as there are more runs than allowed (XX > 20)"
+      # See: https://github.com/github/codeql-action/issues/220
+      - name: Merge SARIF files
+        run: |
+          npx --yes @microsoft/sarif-multitool@4.1.0 \
+            merge \
+              --merge-runs \
+              --output-file merged.sarif \
+              snyk.sarif
+
+      - name: Upload results to GitHub Security
         uses: github/codeql-action/upload-sarif@v2.2.12
         with:
-          sarif_file: snyk.sarif
+          sarif_file: merged.sarif
 
   deploy-helm:
     name: Deploy Helm chart
@@ -262,6 +282,7 @@ jobs:
         with:
           build-args: |
             "AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}"
+            "GCLOUD_CLI_VERSION=${{ env.GCLOUD_CLI_VERSION }}"
             "AZP_AGENT_VERSION=${{ env.AZP_AGENT_VERSION }}"
             "AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}"
             "BUILDKIT_VERSION=${{ env.BUILDKIT_VERSION }}"
@@ -284,18 +305,34 @@ jobs:
 
       - name: Run SAST Snyk for container image
         uses: snyk/actions/docker@0.3.0
-        # Snyk can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub CodeQL.
+        # Snyk can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub Security.
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --file=src/docker/Dockerfile-${{ matrix.os }} --severity-threshold=medium --fail-on=upgradable --sarif
+          args: --file=src/docker/Dockerfile-${{ matrix.os }} --severity-threshold=medium --fail-on=upgradable --sarif-file-output=snyk.sarif
           image: ${{ steps.tag.outputs.tag }}
 
-      - name: Upload results to GitHub CodeQL
+      # Required by npx
+      - name: Setup Node
+        uses: actions/setup-node@v3.6.0
+        with:
+          node-version: 18.16.0
+
+      # Fix issue "Error: Code Scanning could not process the submitted SARIF file: rejecting SARIF, as there are more runs than allowed (XX > 20)"
+      # See: https://github.com/github/codeql-action/issues/220
+      - name: Merge SARIF files
+        run: |
+          npx --yes @microsoft/sarif-multitool@4.1.0 \
+            merge \
+              --merge-runs \
+              --output-file merged.sarif \
+              snyk.sarif
+
+      - name: Upload results to GitHub Security
         uses: github/codeql-action/upload-sarif@v2.2.12
         with:
-          sarif_file: snyk.sarif
+          sarif_file: merged.sarif
 
   build-publish-win:
     name: Build & deploy Windows image "${{ matrix.os }}"
@@ -376,6 +413,7 @@ jobs:
           $params = @(
             # Required build arguments
             "--build-arg", "AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}",
+            "--build-arg", "GCLOUD_CLI_VERSION=${{ env.GCLOUD_CLI_VERSION }}",
             "--build-arg", "AZP_AGENT_VERSION=${{ env.AZP_AGENT_VERSION }}",
             "--build-arg", "AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}",
             "--build-arg", "GIT_VERSION=${{ env.GIT_VERSION_WIN }}",
@@ -393,6 +431,11 @@ jobs:
             $params += "--tag", $tag
           }
 
+          # Default cache locations
+          $params += "--cache-from", "${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-develop"
+          $params += "--cache-from", "${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-${{ github.event.repository.default_branch }}"
+
+          # Branch-specific cache locations
           foreach ($tag in $tags) {
             $params += "--cache-from", $tag
           }
@@ -435,12 +478,13 @@ jobs:
         uses: actions/checkout@v3.5.2
 
       - name: Run tests
+        # Semgrep can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub Security.
+        continue-on-error: true
         run: semgrep ci --sarif --output=semgrep.sarif
         env:
           SEMGREP_RULES: p/cwe-top-25 p/owasp-top-ten p/kubernetes p/dockerfile
 
-      - name: Upload results to GitHub CodeQL
+      - name: Upload results to GitHub Security
         uses: github/codeql-action/upload-sarif@v2.2.12
-        if: always()
         with:
           sarif_file: semgrep.sarif
