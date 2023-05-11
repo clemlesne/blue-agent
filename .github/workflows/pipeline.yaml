@@ -20,19 +20,19 @@ env:
   CONTAINER_NAME: ${{ github.repository }}
   CONTAINER_REGISTRY: ghcr.io
   # https://github.com/microsoft/azure-pipelines-agent/releases
-  AZP_AGENT_VERSION: 3.218.0
+  AZP_AGENT_VERSION: 3.220.0
   # https://github.com/PowerShell/PowerShell/releases
-  POWERSHELL_VERSION: 7.2.10
+  POWERSHELL_VERSION: 7.2.11
   # https://github.com/krallin/tini/releases
   TINI_VERSION: 0.19.0
   # https://github.com/mikefarah/yq/releases
   YQ_VERSION: 4.33.3
   # https://go.dev/dl
-  GO_VERSION: 1.20.3
+  GO_VERSION: 1.20.4
   # https://github.com/rootless-containers/rootlesskit/releases
   ROOTLESSKIT_VERSION: 1.1.0
   # https://github.com/moby/buildkit/releases
-  BUILDKIT_VERSION: 0.11.5
+  BUILDKIT_VERSION: 0.11.6
   # https://github.com/Azure/azure-cli/releases
   AZURE_CLI_VERSION: 2.48.1
   # https://github.com/stedolan/jq/releases
