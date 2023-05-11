@@ -242,6 +242,39 @@ Out of the box, argument `--opt platform=linux/amd64,linux/arm64` can be added t
 
 BuildKit works by virtualization in the user space. You can't expect build times as short as native (on your laptop for example). [QEMU](https://www.qemu.org) is used as a backend. This has the advantage of being able to create images for different architectures than your processor. Virtualization-wise, not all CPU models are equivalent, you can [refer to the official project documentation](https://www.qemu.org/docs/master/system/qemu-cpu-models.html) to select the most appropriated CPU model for your Kubernetes Node Pool.
 
+#### Error `/proc/sys/user/max_user_namespaces needs to be set to non-zero`, how to fix it?
+
+This error is due to the fact that BuildKit needs to create a new user namespace, and the default maximum number of namespaces is 0. Value is defined by `user.max_user_namespaces` ([documentation](https://man7.org/linux/man-pages/man7/namespaces.7.html)). You can fix it by setting the value to more than 1000. Issue notably happens on AWS Bottlerocket OS. [See related issue.](https://github.com/clemlesne/azure-pipelines-agent/issues/19)
+
+We can update dynamically the host system settings with a DaemonSet:
+
+```yaml
+# daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app.kubernetes.io/component: sysctl
+    app.kubernetes.io/name: sysctl-max-user-ns-fix
+    app.kubernetes.io/part-of: azure-pipelines-agent
+  name: sysctl-max-user-ns-fix
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sysctl-max-user-ns-fix
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sysctl-max-user-ns-fix
+    spec:
+      containers:
+        - name: sysctl-max-user-ns-fix
+          image: docker.io/library/busybox:1.36
+          command: ["sh", "-euxc", "sysctl -w user.max_user_namespaces=63359 && sleep infinity"]
+          securityContext:
+            privileged: true
+```
+
 ### Build ASP.NET applications in the agent
 
 It was chosen arbitrarily to install the LTS non SDK version of ASNP.NET. Because :
