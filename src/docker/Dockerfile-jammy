@@ -187,13 +187,13 @@ ENV AZP_CUSTOM_CERT_PEM ${HOME}/azp-custom-certs
 RUN rm arch.sh
 
 # Configure local user
-RUN mkdir -p /run/${USER}/0 ${HOME}/.local/tmp ${HOME}/.local/share/buildkit \
-    && chown -R ${USER} /run/${USER}/0 ${HOME} \
+RUN mkdir -p /run/user/0 ${HOME}/.local/tmp ${HOME}/.local/share/buildkit \
+    && chown -R ${USER} /run/user/0 ${HOME} \
     && echo ${USER}:100000:65536 | tee /etc/subuid | tee /etc/subgid
 USER 0:0
-ENV XDG_RUNTIME_DIR=/run/${USER}/0
+ENV XDG_RUNTIME_DIR=/run/user/0
 ENV TMPDIR=${HOME}/.local/tmp
-ENV BUILDKIT_HOST=unix:///run/${USER}/0/buildkit/buildkitd.sock
+ENV BUILDKIT_HOST=unix:///run/user/0/buildkit/buildkitd.sock
 VOLUME ${HOME}/.local/share/buildkit
 
 # Install Azure Pipelines Agent startup script
