@@ -35,19 +35,21 @@ Common labels.
 */}}
 {{- define "azure-pipelines-agent.labels" -}}
 helm.sh/chart: {{ include "azure-pipelines-agent.chart" . }}
+app.kubernetes.io/component: agent
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/part-of: {{ .Chart.Name }}
 {{ include "azure-pipelines-agent.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
 Selector labels.
 */}}
 {{- define "azure-pipelines-agent.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "azure-pipelines-agent.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: {{ include "azure-pipelines-agent.name" . }}
 {{- end }}
 
 {{/*
