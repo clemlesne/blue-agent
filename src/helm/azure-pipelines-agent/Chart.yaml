@@ -29,7 +29,8 @@ sources:
   - https://github.com/clemlesne/azure-pipelines-agent
 maintainers:
   - name: Clémence Lesné
-    email: clemence@lesne.pro
+    email: clemlesne@users.noreply.github.com
 annotations:
   artifacthub.io/category: integration-delivery
   artifacthub.io/license: Apache-2.0
+  artifacthub.io/prerelease: "false"
