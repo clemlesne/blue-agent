@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.7 as base
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.8 as base
 
 # Configure local user
 ENV USER root
