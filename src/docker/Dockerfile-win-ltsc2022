@@ -8,7 +8,7 @@ ENV HOME C:\\app-root
 # Install Git, then verify installation
 ARG GIT_VERSION
 ENV GIT_VERSION ${GIT_VERSION}
-RUN Invoke-WebRequest -Uri https://github.com/git-for-windows/git/releases/download/v$($Env:GIT_VERSION).windows.1/Git-$($Env:GIT_VERSION)-64-bit.exe -OutFile git.exe \
+RUN Invoke-WebRequest -Uri "https://github.com/git-for-windows/git/releases/download/v$($Env:GIT_VERSION).windows.1/Git-$($Env:GIT_VERSION)-64-bit.exe" -OutFile git.exe \
     ; Start-Process git.exe -Wait -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /NOCANCEL /SP-' \
     ; Remove-Item git.exe
 RUN git --version
@@ -16,15 +16,15 @@ RUN git --version
 # Install JQ, then verify installation
 ARG JQ_VERSION
 ENV JQ_VERSION ${JQ_VERSION}
-RUN mkdir 'C:\Program Files\jq' \
-    ; Invoke-WebRequest -Uri https://github.com/stedolan/jq/releases/download/jq-$($Env:JQ_VERSION)/jq-win64.exe -OutFile 'C:\Program Files\jq\jq.exe' \
-    ; [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\Program Files\jq', [EnvironmentVariableTarget]::Machine)
+RUN New-Item -ItemType Directory -Path "$($Env:ProgramFiles)\jq" \
+    ; Invoke-WebRequest -Uri "https://github.com/stedolan/jq/releases/download/jq-$($Env:JQ_VERSION)/jq-win64.exe" -OutFile "$($Env:ProgramFiles)\jq\jq.exe" \
+    ; [Environment]::SetEnvironmentVariable('Path', "$($Env:Path);$($Env:ProgramFiles)\jq", [EnvironmentVariableTarget]::Machine)
 RUN jq --version
 
 # Install Python, then verify installation
 ARG PYTHON_VERSION
 ENV PYTHON_VERSION ${PYTHON_VERSION}
-RUN Invoke-WebRequest -Uri https://python.org/ftp/python/$($Env:PYTHON_VERSION)/python-$($Env:PYTHON_VERSION)-amd64.exe -OutFile python.exe \
+RUN Invoke-WebRequest -Uri "https://python.org/ftp/python/$($Env:PYTHON_VERSION)/python-$($Env:PYTHON_VERSION)-amd64.exe" -OutFile python.exe \
     ; Start-Process python.exe -Wait -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1 Include_test=0' \
     ; Remove-Item python.exe
 RUN python --version \
@@ -46,14 +46,14 @@ RUN python -m pip \
         --quiet \
         install \
             --compile \
-            azure-cli==$($Env:AZURE_CLI_VERSION) \
+            "azure-cli==$($Env:AZURE_CLI_VERSION)" \
     ; az version \
     ; az upgrade --yes
 
 # Install AWS CLI, then verify installation
 ARG AWS_CLI_VERSION
 ENV AWS_CLI_VERSION ${AWS_CLI_VERSION}
-RUN Invoke-WebRequest -Uri https://awscli.amazonaws.com/AWSCLIV2-$($Env:AWS_CLI_VERSION).msi -OutFile awscli.msi \
+RUN Invoke-WebRequest -Uri "https://awscli.amazonaws.com/AWSCLIV2-$($Env:AWS_CLI_VERSION).msi" -OutFile awscli.msi \
     ; Start-Process msiexec.exe -Wait -ArgumentList '/I awscli.msi /qn /norestart' \
     ; Remove-Item awscli.msi
 RUN aws --version
@@ -61,19 +61,19 @@ RUN aws --version
 # Install Google Cloud CLI, then verify installation
 ARG GCLOUD_CLI_VERSION
 ENV GCLOUD_CLI_VERSION ${GCLOUD_CLI_VERSION}
-RUN Invoke-WebRequest -Uri https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-$($Env:GCLOUD_CLI_VERSION)-windows-x86_64.zip -OutFile gcloud.zip \
-    ; Expand-Archive -Force gcloud.zip -DestinationPath 'C:\Program Files' \
+RUN Invoke-WebRequest -Uri "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-$($Env:GCLOUD_CLI_VERSION)-windows-x86_64.zip" -OutFile gcloud.zip \
+    ; Expand-Archive -Force gcloud.zip -DestinationPath $Env:ProgramFiles \
     ; Remove-Item gcloud.zip \
-    ; Rename-Item 'C:\Program Files\google-cloud-sdk' 'gcloud' \
-    ; Start-Process cmd.exe -Wait -ArgumentList '/c "C:\Program` Files\gcloud\install.bat" --additional-components beta --quiet' \
-    ; [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\Program Files\gcloud\bin', [EnvironmentVariableTarget]::Machine)
+    ; Rename-Item "$($Env:ProgramFiles)\google-cloud-sdk" 'gcloud' \
+    ; Start-Process "$($Env:ProgramFiles)\gcloud\install.bat" -Wait -ArgumentList '--additional-components beta --quiet' \
+    ; [Environment]::SetEnvironmentVariable('Path', "$($Env:Path);$($Env:ProgramFiles)\gcloud\bin", [EnvironmentVariableTarget]::Machine)
 RUN gcloud version \
     ; gcloud components update --quiet
 
 # Install Powershell, then verify installation
 ARG POWERSHELL_VERSION
 ENV POWERSHELL_VERSION ${POWERSHELL_VERSION}
-RUN Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/download/v$($Env:POWERSHELL_VERSION)/PowerShell-$($Env:POWERSHELL_VERSION)-win-x64.msi -OutFile powershell.msi \
+RUN Invoke-WebRequest -Uri "https://github.com/PowerShell/PowerShell/releases/download/v$($Env:POWERSHELL_VERSION)/PowerShell-$($Env:POWERSHELL_VERSION)-win-x64.msi" -OutFile powershell.msi \
     ; Start-Process msiexec.exe -Wait -ArgumentList '/I powershell.msi /qn /norestart' \
     ; Remove-Item powershell.msi
 RUN pwsh -Version
@@ -81,17 +81,17 @@ RUN pwsh -Version
 # Install YQ, then verify installation
 ARG YQ_VERSION
 ENV YQ_VERSION ${YQ_VERSION}
-RUN mkdir 'C:\Program Files\yq' \
-    ; Invoke-WebRequest -Uri https://github.com/mikefarah/yq/releases/download/v$($Env:YQ_VERSION)/yq_windows_amd64.exe -OutFile 'C:\Program Files\yq\yq.exe' \
-    ; [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\Program Files\yq', [EnvironmentVariableTarget]::Machine)
+RUN New-Item -ItemType Directory -Path "$($Env:ProgramFiles)\yq" \
+    ; Invoke-WebRequest -Uri "https://github.com/mikefarah/yq/releases/download/v$($Env:YQ_VERSION)/yq_windows_amd64.exe" -OutFile "$($Env:ProgramFiles)\yq\yq.exe" \
+    ; [Environment]::SetEnvironmentVariable('Path', "$($Env:Path);$($Env:ProgramFiles)\yq", [EnvironmentVariableTarget]::Machine)
 RUN yq --version
 
 # Install Azure Pipelines Agent sources, then verify installation
 ARG AZP_AGENT_VERSION
 ENV AZP_AGENT_VERSION ${AZP_AGENT_VERSION}
 ENV AZP_HOME ${HOME}\\azp-agent
-RUN mkdir $Env:AZP_HOME \
-    ; Invoke-WebRequest -Uri https://vstsagentpackage.azureedge.net/agent/$($Env:AZP_AGENT_VERSION)/vsts-agent-win-x64-$($Env:AZP_AGENT_VERSION).zip -Outfile azp-agent.zip \
+RUN New-Item -ItemType Directory -Path $Env:AZP_HOME \
+    ; Invoke-WebRequest -Uri "https://vstsagentpackage.azureedge.net/agent/$($Env:AZP_AGENT_VERSION)/vsts-agent-win-x64-$($Env:AZP_AGENT_VERSION).zip" -Outfile azp-agent.zip \
     ; Expand-Archive -Force azp-agent.zip -DestinationPath $Env:AZP_HOME \
     ; Remove-Item azp-agent.zip \
     ; powershell $Env:AZP_HOME\run.cmd --version
@@ -101,11 +101,11 @@ VOLUME ${AZP_WORK}
 # Install zstd, then verify installation
 ARG ZSTD_VERSION
 ENV ZSTD_VERSION ${ZSTD_VERSION}
-RUN Invoke-WebRequest -Uri https://github.com/facebook/zstd/releases/download/v$($Env:ZSTD_VERSION)/zstd-v$($Env:ZSTD_VERSION)-win64.zip -OutFile zstd.zip \
-    ; Expand-Archive -Force zstd.zip -DestinationPath 'C:\Program Files' \
+RUN Invoke-WebRequest -Uri "https://github.com/facebook/zstd/releases/download/v$($Env:ZSTD_VERSION)/zstd-v$($Env:ZSTD_VERSION)-win64.zip" -OutFile zstd.zip \
+    ; Expand-Archive -Force zstd.zip -DestinationPath $Env:ProgramFiles \
     ; Remove-Item zstd.zip \
-    ; Rename-Item "C:\Program` Files\zstd-v$($Env:ZSTD_VERSION)-win64" 'zstd' \
-    ; [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\Program Files\zstd', [EnvironmentVariableTarget]::Machine)
+    ; Rename-Item "$($Env:ProgramFiles)\zstd-v$($Env:ZSTD_VERSION)-win64" 'zstd' \
+    ; [Environment]::SetEnvironmentVariable('Path', "$($Env:Path);$($Env:ProgramFiles)\zstd", [EnvironmentVariableTarget]::Machine)
 RUN zstd --version
 
 # Define path for the custom SSL certificate
