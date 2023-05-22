@@ -343,7 +343,7 @@ extraVolumeMounts:
   - [Azure CLI](https://github.com/Azure/azure-cli)
   - [Google Cloud SDK](https://cloud.google.com/sdk)
 - Shells
-  - [bash](https://www.gnu.org/software/bash)
+  - [bash](https://www.gnu.org/software/bash) (default)
   - [PowerShell Core](https://github.com/PowerShell/PowerShell)
   - [zsh](https://www.zsh.org)
 - Programming languages
@@ -364,14 +364,16 @@ extraVolumeMounts:
 
 - [Azure Pipelines agent](https://github.com/microsoft/azure-pipelines-agent) + [requirements](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux)
 - Cloud providers CLIs
-  - [Azure CLI](https://github.com/Azure/azure-cli)
   - [AWS CLI](https://github.com/aws/aws-cli)
+  - [Azure CLI](https://github.com/Azure/azure-cli)
   - [Google Cloud SDK](https://cloud.google.com/sdk)
 - Shells
-  - [PowerShell Core](https://github.com/PowerShell/PowerShell)
+  - [PowerShell Core](https://github.com/PowerShell/PowerShell) (default)
+  - [Windows PowerShell](https://learn.microsoft.com/en-us/powershell/scripting/windows-powershell/install/installing-windows-powershell?view=powershell-7.3)
 - Programming languages
-  - [.NET Framework Runtime](https://dotnet.microsoft.com)
+  - [.NET SDK](https://dotnet.microsoft.com)
   - [Python 3.11](https://www.python.org/downloads/release/python-3110)
+  - [Visual Studio Build Tools](https://learn.microsoft.com/en-us/visualstudio/ide/?view=vs-2022)
 - Tools
   - [git](https://github.com/git-for-windows/git)
   - [jq](https://github.com/stedolan/jq)
