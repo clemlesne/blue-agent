@@ -59,6 +59,8 @@ env:
   ORAS_VERSION: 1.0.0
   # https://github.com/docker/buildx/releases
   BUILDX_VERSION: 0.10.4
+  # https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022
+  VS_BUILDTOOLS_VERSION_WIN: 17
 
 jobs:
   sast-creds:
@@ -449,13 +451,14 @@ jobs:
           $params = @(
             # Required build arguments
             "--build-arg", "AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}",
-            "--build-arg", "GCLOUD_CLI_VERSION=${{ env.GCLOUD_CLI_VERSION }}",
             "--build-arg", "AZP_AGENT_VERSION=${{ env.AZP_AGENT_VERSION }}",
             "--build-arg", "AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}",
+            "--build-arg", "GCLOUD_CLI_VERSION=${{ env.GCLOUD_CLI_VERSION }}",
             "--build-arg", "GIT_VERSION=${{ env.GIT_VERSION_WIN }}",
             "--build-arg", "JQ_VERSION=${{ env.JQ_VERSION }}",
             "--build-arg", "POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}",
             "--build-arg", "PYTHON_VERSION=${{ env.PYTHON_VERSION_WIN }}",
+            "--build-arg", "VS_BUILDTOOLS_VERSION=${{ env.VS_BUILDTOOLS_VERSION_WIN }}",
             "--build-arg", "YQ_VERSION=${{ env.YQ_VERSION }}",
             "--build-arg", "ZSTD_VERSION=${{ env.ZSTD_VERSION_WIN }}",
 
