@@ -283,6 +283,7 @@ jobs:
           flavor: |
             prefix=${{ matrix.os }}-
           tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=branch
             type=ref,event=pr
             type=schedule
@@ -422,6 +423,7 @@ jobs:
           flavor: |
             prefix=${{ matrix.os }}-
           tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=branch
             type=ref,event=pr
             type=schedule
