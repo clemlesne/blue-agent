@@ -95,7 +95,7 @@ RUN mkdir $Env:AZP_HOME \
     && curl -LsSf "https://vstsagentpackage.azureedge.net/agent/${Env:AZP_AGENT_VERSION}/vsts-agent-win-x64-${Env:AZP_AGENT_VERSION}.zip" -o azp-agent.zip \
     && Expand-Archive -Force azp-agent.zip -DestinationPath $Env:AZP_HOME \
     && Remove-Item azp-agent.zip \
-    && pwsh $Env:AZP_HOME\run.cmd --version
+    && powershell $Env:AZP_HOME\run.cmd --version
 ENV AZP_WORK ${HOME}\\azp-work
 VOLUME ${AZP_WORK}
 
