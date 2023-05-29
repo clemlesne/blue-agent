@@ -212,6 +212,7 @@ jobs:
       - sast-creds
     runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: bullseye
@@ -373,6 +374,7 @@ jobs:
       - sast-creds
     runs-on: ${{ matrix.runs-on }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: win-ltsc2022
