@@ -335,7 +335,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           platforms: ${{ matrix.arch }}
           provenance: true
-          push: true
+          outputs: type=registry,oci-mediatypes=true,compression=estargz,compression-level=9,force-compression=true
           sbom: true
           tags: ${{ steps.meta.outputs.tags }}
 
