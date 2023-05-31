@@ -59,6 +59,8 @@ env:
   ORAS_VERSION: 1.0.0
   # https://github.com/docker/buildx/releases
   BUILDX_VERSION: 0.10.5
+  # https://github.com/hadolint/hadolint/releases
+  HADOLINT_VERSION: 2.12.0
 
 jobs:
   sast-creds:
@@ -85,6 +87,7 @@ jobs:
     needs:
       - sast-creds
       - sast-semgrep
+      - test
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -203,11 +206,35 @@ jobs:
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  test:
+    name: Test
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.2
+
+      # Required for running "npx" CLI
+      - name: Setup Node
+        uses: actions/setup-node@v3.6.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup Hadolint
+        run: |
+          sudo curl -LsSf --retry 3 https://github.com/hadolint/hadolint/releases/download/v${{ env.HADOLINT_VERSION }}/hadolint-Linux-x86_64 -o /usr/bin/hadolint
+          sudo chmod +x /usr/bin/hadolint
+          hadolint --version
+
+      - name: Run tests
+        run: |
+          make test
+
   build-publish-linux:
     name: Build & deploy Linux image "${{ matrix.os }}"
     needs:
-      - sast-semgrep
       - sast-creds
+      - sast-semgrep
+      - test
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -375,8 +402,9 @@ jobs:
   build-publish-win:
     name: Build & deploy Windows image "${{ matrix.os }}"
     needs:
-      - sast-semgrep
       - sast-creds
+      - sast-semgrep
+      - test
     runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
