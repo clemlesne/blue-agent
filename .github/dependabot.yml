@@ -11,7 +11,7 @@ updates:
     schedule:
       interval: daily
   - package-ecosystem: gitsubmodule
+    directory: cicd/version
     target-branch: develop
     schedule:
       interval: daily
-    directory: cicd/version

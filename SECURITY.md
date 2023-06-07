@@ -8,14 +8,14 @@ Automation is supported by [Snyk](https://snyk.io) and [Semgrep](https://semgrep
 
 Scanned systems:
 
-| `Ref` | Vulnerability scans with Snyk |
-|-|-|
-| `ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main` | ✅ |
-| `ghcr.io/clemlesne/azure-pipelines-agent:focal-main` | ✅ |
-| `ghcr.io/clemlesne/azure-pipelines-agent:jammy-main` | ✅ |
-| `ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main` | ✅ |
-| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019-main` | ✅ |
-| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022-main` | ✅ |
+| `Ref`                                                       | Vulnerability scans with Snyk |
+| ----------------------------------------------------------- | ----------------------------- |
+| `ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main`     | ✅                            |
+| `ghcr.io/clemlesne/azure-pipelines-agent:focal-main`        | ✅                            |
+| `ghcr.io/clemlesne/azure-pipelines-agent:jammy-main`        | ✅                            |
+| `ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main`         | ✅                            |
+| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019-main` | ✅                            |
+| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022-main` | ✅                            |
 
 ## Reporting a vulnerability
 

@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/dotnet/aspnet:6.0-jammy as base
 
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND noninteractive
 
 # Configure local user
 ENV USER root

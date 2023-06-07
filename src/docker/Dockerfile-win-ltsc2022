@@ -28,6 +28,7 @@ ENV JQ_VERSION ${JQ_VERSION}
 RUN mkdir 'C:\Program Files\jq' \
     && curl -LsSf --retry 3 "https://github.com/stedolan/jq/releases/download/jq-${Env:JQ_VERSION}/jq-win64.exe" -o 'C:\Program Files\jq\jq.exe' \
     && [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\Program Files\jq', [EnvironmentVariableTarget]::Machine)
+# hadolint ignore=DL3059
 RUN jq --version
 
 # Install Python, then verify installation
@@ -74,7 +75,7 @@ RUN curl -LsSf --retry 3 "https://dl.google.com/dl/cloudsdk/channels/rapid/downl
     && Expand-Archive -Force gcloud.zip -DestinationPath 'C:\Program Files' \
     && Remove-Item gcloud.zip \
     && Rename-Item 'C:\Program Files\google-cloud-sdk' 'gcloud' \
-    && Start-Process cmd.exe -Wait -ArgumentList '/c "C:\Program` Files\gcloud\install.bat" --additional-components beta --quiet' \
+    && Start-Process cmd.exe -Wait -ArgumentList '/c ''C:\Program Files\gcloud\install.bat'' --additional-components beta --quiet' \
     && [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\Program Files\gcloud\bin', [EnvironmentVariableTarget]::Machine)
 RUN gcloud version \
     && gcloud components update --quiet
@@ -85,6 +86,7 @@ ENV YQ_VERSION ${YQ_VERSION}
 RUN mkdir 'C:\Program Files\yq' \
     && curl -LsSf --retry 3 "https://github.com/mikefarah/yq/releases/download/v${Env:YQ_VERSION}/yq_windows_amd64.exe" -o 'C:\Program Files\yq\yq.exe' \
     && [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\Program Files\yq', [EnvironmentVariableTarget]::Machine)
+# hadolint ignore=DL3059
 RUN yq --version
 
 # Install Azure Pipelines Agent sources, then verify installation
@@ -95,7 +97,7 @@ RUN mkdir $Env:AZP_HOME \
     && curl -LsSf --retry 3 "https://vstsagentpackage.azureedge.net/agent/${Env:AZP_AGENT_VERSION}/vsts-agent-win-x64-${Env:AZP_AGENT_VERSION}.zip" -o azp-agent.zip \
     && Expand-Archive -Force azp-agent.zip -DestinationPath $Env:AZP_HOME \
     && Remove-Item azp-agent.zip \
-    && powershell $Env:AZP_HOME\run.cmd --version
+    && Invoke-Command "${Env:AZP_HOME}\run.cmd" -ArgumentList '--version'
 ENV AZP_WORK ${HOME}\\azp-work
 VOLUME ${AZP_WORK}
 
@@ -107,6 +109,7 @@ RUN curl -LsSf --retry 3 "https://github.com/facebook/zstd/releases/download/v${
     && Remove-Item zstd.zip \
     && Rename-Item "C:\Program` Files\zstd-v${Env:ZSTD_VERSION}-win64" 'zstd' \
     && [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\Program Files\zstd', [EnvironmentVariableTarget]::Machine)
+# hadolint ignore=DL3059
 RUN zstd --version
 
 # Define path for the custom SSL certificate
