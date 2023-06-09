@@ -5,6 +5,9 @@ USER ContainerAdministrator
 SHELL ["cmd", "/S", "/C"]
 ENV HOME C:\\app-root
 
+# Avoid Python cache during build
+ENV PYTHONDONTWRITEBYTECODE 1
+
 # Install Powershell, then verify installation
 ARG POWERSHELL_VERSION
 ENV POWERSHELL_VERSION ${POWERSHELL_VERSION}
@@ -43,11 +46,9 @@ RUN python --version \
         --no-cache-dir \
         --quiet \
         install \
-            --compile \
-            --upgrade \
-            pip setuptools wheel
+            setuptools wheel
 
-# Install Azure CLI, then verify and upgrade the default installation
+# Install Azure CLI, then verify installation
 ARG AZURE_CLI_VERSION
 ENV AZURE_CLI_VERSION ${AZURE_CLI_VERSION}
 RUN python -m pip \
@@ -55,10 +56,8 @@ RUN python -m pip \
         --no-cache-dir \
         --quiet \
         install \
-            --compile \
             "azure-cli==${Env:AZURE_CLI_VERSION}" \
-    && az version \
-    && az upgrade --yes
+    && az version
 
 # Install AWS CLI, then verify installation
 ARG AWS_CLI_VERSION
@@ -77,8 +76,7 @@ RUN curl -LsSf --retry 3 "https://dl.google.com/dl/cloudsdk/channels/rapid/downl
     && Rename-Item 'C:\Program Files\google-cloud-sdk' 'gcloud' \
     && Start-Process cmd.exe -Wait -ArgumentList '/c ''C:\Program Files\gcloud\install.bat'' --additional-components beta --quiet' \
     && [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\Program Files\gcloud\bin', [EnvironmentVariableTarget]::Machine)
-RUN gcloud version \
-    && gcloud components update --quiet
+RUN gcloud version
 
 # Install YQ, then verify installation
 ARG YQ_VERSION
@@ -97,9 +95,8 @@ RUN mkdir $Env:AZP_HOME \
     && curl -LsSf --retry 3 "https://vstsagentpackage.azureedge.net/agent/${Env:AZP_AGENT_VERSION}/vsts-agent-win-x64-${Env:AZP_AGENT_VERSION}.zip" -o azp-agent.zip \
     && Expand-Archive -Force azp-agent.zip -DestinationPath $Env:AZP_HOME \
     && Remove-Item azp-agent.zip \
-    && Invoke-Command "${Env:AZP_HOME}\run.cmd" -ArgumentList '--version'
+    && & "${Env:AZP_HOME}\run.cmd" --version
 ENV AZP_WORK ${HOME}\\azp-work
-VOLUME ${AZP_WORK}
 
 # Install zstd, then verify installation
 ARG ZSTD_VERSION
@@ -114,6 +111,9 @@ RUN zstd --version
 
 # Define path for the custom SSL certificate
 ENV AZP_CUSTOM_CERT_PEM ${HOME}\\azp-custom-certs
+
+# Reset Python cache to default
+ENV PYTHONDONTWRITEBYTECODE=
 
 # Install Azure Pipelines Agent startup script
 WORKDIR ${AZP_HOME}
