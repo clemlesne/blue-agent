@@ -1,9 +1,9 @@
-$AZP_URL = $Env:AZP_URL
-$AZP_TOKEN = $Env:AZP_TOKEN
-$AZP_POOL = $Env:AZP_POOL
 $AZP_AGENT_NAME = $Env:AZP_AGENT_NAME
-$AZP_WORK = $Env:AZP_WORK
 $AZP_CUSTOM_CERT_PEM = $Env:AZP_CUSTOM_CERT_PEM
+$AZP_POOL = $Env:AZP_POOL
+$AZP_TOKEN = $Env:AZP_TOKEN
+$AZP_URL = $Env:AZP_URL
+$AZP_WORK = $Env:AZP_WORK
 
 if ($null -eq $AZP_URL -or $AZP_URL -eq "") {
   throw "error: missing AZP_URL environment variable"
@@ -56,7 +56,7 @@ Display-Header "Configuring agent..."
 
 Set-Location $(Split-Path -Parent $MyInvocation.MyCommand.Definition)
 
-.\config.cmd `
+& config.cmd `
   --acceptTeeEula `
   --agent $AZP_AGENT_NAME `
   --auth PAT `
@@ -70,4 +70,4 @@ Set-Location $(Split-Path -Parent $MyInvocation.MyCommand.Definition)
 Display-Header "Running agent..."
 
 # Running it with the --once flag at the end will shut down the agent after the build is executed
-.\run.cmd $Args --once
+& run.cmd $Args --once
