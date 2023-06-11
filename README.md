@@ -40,6 +40,7 @@ Deployment steps:
 Minimal configuration:
 
 ```yaml
+# values.yaml
 pipelines:
   organizationURL: https://dev.azure.com/your-organization
   personalAccessToken: your-pat
