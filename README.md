@@ -439,6 +439,21 @@ These actions can enhance your system performance:
 - SSD volumes are used for both cache (see `pipelines.cache`) and system temporary directory (see `pipelines.tmpdir`). For exemple, in Azure, the `managed-csi-premium` volume type is a high-performance SSD.
 - The network bewteen Azure DevOps server and agents has a low latency.
 
+### Proxy
+
+If you need to use a proxy, you can set the following environment variables. See [this documentation](https://github.com/microsoft/azure-pipelines-agent/blob/master/docs/start/proxyconfig.md) for more details.
+
+```yaml
+# values.yaml
+extraEnv:
+  - name: VSTS_HTTP_PROXY
+    value: http://proxy:8080
+  - name: VSTS_HTTP_PROXY_USERNAME
+    value: username
+  - name: VSTS_HTTP_PROXY_PASSWORD
+    value: password
+```
+
 ## [Security](./SECURITY.md)
 
 ## Support
