@@ -112,7 +112,7 @@ RUN zstd --version
 # Define path for the custom SSL certificate
 ENV AZP_CUSTOM_CERT_PEM ${HOME}\\azp-custom-certs
 
-# Reset Python cache to default
+# Reset Python configs to default
 ENV PYTHONDONTWRITEBYTECODE=
 
 # Install Azure Pipelines Agent startup script

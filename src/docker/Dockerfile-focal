@@ -182,7 +182,7 @@ ENV AZP_CUSTOM_CERT_PEM ${HOME}/azp-custom-certs
 # Cleanup helper script
 RUN rm arch.sh
 
-# Reset Python cache to default
+# Reset Python configs to default
 ENV PYTHONDONTWRITEBYTECODE=
 
 # Configure local user
