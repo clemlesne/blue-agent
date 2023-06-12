@@ -20,11 +20,11 @@ env:
   CONTAINER_NAME: ${{ github.repository }}
   CONTAINER_REGISTRY: ghcr.io
   # https://npmjs.com/package/@microsoft/sarif-multitool?activeTab=versions
-  SARIF_MULTITOOL_VERSION: 4.1.0
+  SARIF_MULTITOOL_VERSION: 4.2.0
   # https://npmjs.com/package/snyk?activeTab=versions
-  SNYK_VERSION: 1.1168.0
+  SNYK_VERSION: 1.1177.0
   # https://github.com/microsoft/azure-pipelines-agent/releases
-  AZP_AGENT_VERSION: 3.220.2
+  AZP_AGENT_VERSION: 3.220.5
   # https://github.com/PowerShell/PowerShell/releases
   POWERSHELL_VERSION: 7.2.11
   # https://github.com/krallin/tini/releases
@@ -32,7 +32,7 @@ env:
   # https://github.com/mikefarah/yq/releases
   YQ_VERSION: 4.34.1
   # https://go.dev/dl
-  GO_VERSION: 1.20.4
+  GO_VERSION: 1.20.5
   # https://github.com/rootless-containers/rootlesskit/releases
   ROOTLESSKIT_VERSION: 1.1.1
   # https://github.com/moby/buildkit/releases
@@ -42,15 +42,15 @@ env:
   # https://github.com/stedolan/jq/releases
   JQ_VERSION: 1.6
   # https://github.com/aws/aws-cli/releases
-  AWS_CLI_VERSION: 2.11.23
+  AWS_CLI_VERSION: 2.11.27
   # https://cloud.google.com/sdk/docs/install
-  GCLOUD_CLI_VERSION: 432.0.0
+  GCLOUD_CLI_VERSION: 434.0.0
   # https://github.com/git-for-windows/git/releases
-  GIT_VERSION_WIN: 2.40.1
+  GIT_VERSION_WIN: 2.41.0
   # https://github.com/facebook/zstd/releases
   ZSTD_VERSION_WIN: 1.5.5
   # https://www.python.org/downloads/windows
-  PYTHON_VERSION_WIN: 3.11.3
+  PYTHON_VERSION_WIN: 3.11.4
   # https://nodejs.org/en/download/releases
   NODE_VERSION: 18.16.0
   # https://github.com/helm/helm/releases
