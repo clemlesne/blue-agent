@@ -69,7 +69,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.2
+        uses: actions/checkout@v3.5.3
         with:
           # We need all Git history for testing credentials
           fetch-depth: 0
@@ -92,7 +92,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.2
+        uses: actions/checkout@v3.5.3
         with:
           # We need all Git history for "version.sh"
           fetch-depth: 0
@@ -183,7 +183,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.2
+        uses: actions/checkout@v3.5.3
         with:
           # Chart Releaser needs to have local access to "gh-pages" plus current branch
           fetch-depth: 0
@@ -212,7 +212,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.2
+        uses: actions/checkout@v3.5.3
 
       # Required for running "npx" CLI
       - name: Setup Node
@@ -253,7 +253,7 @@ jobs:
             arch: linux/amd64,linux/arm64
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.2
+        uses: actions/checkout@v3.5.3
         with:
           # We need all Git history for "version.sh"
           fetch-depth: 0
@@ -428,7 +428,7 @@ jobs:
             runs-on: windows-2019
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.2
+        uses: actions/checkout@v3.5.3
         with:
           # We need all Git history for "version.sh"
           fetch-depth: 0
@@ -589,7 +589,7 @@ jobs:
       image: returntocorp/semgrep
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.2
+        uses: actions/checkout@v3.5.3
 
       - name: Run tests
         # Semgrep can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub Security
@@ -610,7 +610,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.2
+        uses: actions/checkout@v3.5.3
 
       - name: Setup ORAS
         uses: oras-project/setup-oras@v1.0.0
