@@ -17,8 +17,10 @@ if ($null -eq $AZP_POOL -or $AZP_POOL -eq "") {
   throw "error: missing AZP_POOL environment variable"
 }
 
+# If AZP_AGENT_NAME is not set, use the container hostname
 if ($null -eq $AZP_AGENT_NAME -or $AZP_AGENT_NAME -eq "") {
-  throw "error: missing AZP_AGENT_NAME environment variable"
+  Write-Host "warn: missing AZP_AGENT_NAME environment variable"
+  $AZP_AGENT_NAME = $Env:COMPUTERNAME
 }
 
 if ($null -eq $AZP_WORK -or $AZP_WORK -eq "") {
