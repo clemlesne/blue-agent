@@ -10,6 +10,7 @@ Scanned systems:
 
 | `Ref`                                                       | Vulnerability scans with Snyk |
 | ----------------------------------------------------------- | ----------------------------- |
+| `ghcr.io/clemlesne/azure-pipelines-agent:bookworm-main`     | ✅                            |
 | `ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main`     | ✅                            |
 | `ghcr.io/clemlesne/azure-pipelines-agent:focal-main`        | ✅                            |
 | `ghcr.io/clemlesne/azure-pipelines-agent:jammy-main`        | ✅                            |
