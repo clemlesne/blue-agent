@@ -61,6 +61,7 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 
 | `Ref`                                                       | OS                           | `Size`                                                                                                                        | `Arch`              | Support                                                                                                                                           |
 | ----------------------------------------------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ghcr.io/clemlesne/azure-pipelines-agent:bookworm-main`     | Debian Bookworm (12) slim    | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/bookworm-main?label=)     | `amd64`, `arm64/v8` | [See Debian LTS wiki.](https://wiki.debian.org/LTS)                                                                                               |
 | `ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main`     | Debian Bullseye (11) slim    | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/bullseye-main?label=)     | `amd64`, `arm64/v8` | [See Debian LTS wiki.](https://wiki.debian.org/LTS)                                                                                               |
 | `ghcr.io/clemlesne/azure-pipelines-agent:focal-main`        | Ubuntu Focal (20.04) minimal | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/focal-main?label=)        | `amd64`, `arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases)                                                                                          |
 | `ghcr.io/clemlesne/azure-pipelines-agent:jammy-main`        | Ubuntu Jammy (22.04) minimal | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/jammy-main?label=)        | `amd64`, `arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases)                                                                                          |
@@ -199,6 +200,7 @@ Linux systems are supported, but not Windows:
 
 | `Ref`                                                       | Container build inside of the agent with BuildKit |
 | ----------------------------------------------------------- | ------------------------------------------------- |
+| `ghcr.io/clemlesne/azure-pipelines-agent:bookworm-main`     | ✅                                                |
 | `ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main`     | ✅                                                |
 | `ghcr.io/clemlesne/azure-pipelines-agent:focal-main`        | ✅                                                |
 | `ghcr.io/clemlesne/azure-pipelines-agent:jammy-main`        | ✅                                                |
@@ -357,7 +359,7 @@ extraVolumeMounts:
   - [zsh](https://www.zsh.org)
 - Programming languages
   - [ASP.NET Core Runtime](https://github.com/dotnet/aspnetcore)
-  - Python ([Python 3.8](https://www.python.org/downloads/release/python-380), [Python 3.9](https://www.python.org/downloads/release/python-390), [Python 3.10](https://www.python.org/downloads/release/python-3100), depending of the system, plus C/Rust build tools for libs non pre-built on the platforms)
+  - Python ([Python 3.8](https://www.python.org/downloads/release/python-380), [Python 3.9](https://www.python.org/downloads/release/python-390), [Python 3.10](https://www.python.org/downloads/release/python-3100), [Python 3.11](https://www.python.org/downloads/release/python-3110), depending of the system, plus C/Rust build tools for libs non pre-built on the platforms)
 - Tools
   - [gzip](https://www.gnu.org/software/gzip)
   - [jq](https://github.com/stedolan/jq)

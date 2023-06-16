@@ -241,6 +241,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - os: bookworm
+            arch: linux/amd64,linux/arm64
           - os: bullseye
             arch: linux/amd64,linux/arm64
           - os: focal
