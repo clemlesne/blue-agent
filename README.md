@@ -57,6 +57,8 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 
 ## Compatibility
 
+> Container images are both published to GitHub Container Registry and Docker Hub. URLs showed in the doc are GitHub Container Registry URLs, for simplicity. To use Docker Hub, replace `ghcr.io/clemlesne/azure-pipelines-agent` by `docker.io/clemlesne/azure-pipelines-agent`.
+
 | `Ref`                                                       | OS                           | `Arch`                        | Support                                                                                                                                           |
 | ----------------------------------------------------------- | ---------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main`     | Debian Bullseye (11) slim    | `amd64`, `arm/v7`, `arm64/v8` | [See Debian LTS wiki.](https://wiki.debian.org/LTS)                                                                                               |

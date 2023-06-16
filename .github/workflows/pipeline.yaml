@@ -18,7 +18,8 @@ on:
 
 env:
   CONTAINER_NAME: ${{ github.repository }}
-  CONTAINER_REGISTRY: ghcr.io
+  CONTAINER_REGISTRY_GHCR: ghcr.io
+  CONTAINER_REGISTRY_DOCKER_HUB: docker.io
   # https://npmjs.com/package/@microsoft/sarif-multitool?activeTab=versions
   SARIF_MULTITOOL_VERSION: 4.2.0
   # https://npmjs.com/package/snyk?activeTab=versions
@@ -287,12 +288,19 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Login to container registry
+      - name: Login to registry - GitHub
         uses: docker/login-action@v2.1.0
         with:
-          registry: ${{ env.CONTAINER_REGISTRY }}
+          registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to registry - Docker Hub
+        uses: docker/login-action@v2.1.0
+        with:
+          registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
+          username: clemlesne
+          password: ${{ secrets.DOCKER_HUB_PAT }}
 
       - name: Check if pre-release
         id: prerelease
@@ -307,7 +315,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4.4.0
         with:
-          images: ${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_NAME }}
+          images: |
+            ${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}
+            ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}/${{ env.CONTAINER_NAME }}
           flavor: |
             prefix=${{ matrix.os }}-
           tags: |
@@ -333,7 +343,7 @@ jobs:
         id: tag
         run: |
           branch=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
-          tag=$(echo "${{ steps.meta.outputs.tags }}" | grep $branch)
+          tag=$(echo "${{ steps.meta.outputs.tags }}" | grep -m1 $branch)
           echo "tag=$tag" >> $GITHUB_OUTPUT
 
       - name: Build & push container
@@ -353,10 +363,10 @@ jobs:
             YQ_VERSION=${{ env.YQ_VERSION }}
           cache-from: |
             type=gha
-            type=registry,ref=${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_NAME }}
+            type=registry,ref=${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}
           cache-to: |
             type=gha,mode=max
-            type=registry,ref=${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_NAME }},mode=max
+            type=registry,ref=${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }},mode=max
           context: src/docker
           file: src/docker/Dockerfile-${{ matrix.os }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -434,12 +444,19 @@ jobs:
           echo "version=$(powershell cicd/version/version.ps1 -g . -c)" >> $Env:GITHUB_OUTPUT
           echo "version_full=$(powershell cicd/version/version.ps1 -g . -c -m)" >> $Env:GITHUB_OUTPUT
 
-      - name: Login to container registry
+      - name: Login to registry - GitHub
         uses: docker/login-action@v2.1.0
         with:
-          registry: ${{ env.CONTAINER_REGISTRY }}
+          registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to registry - Docker Hub
+        uses: docker/login-action@v2.1.0
+        with:
+          registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
+          username: clemlesne
+          password: ${{ secrets.DOCKER_HUB_PAT }}
 
       - name: Check if pre-release
         id: prerelease
@@ -454,7 +471,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4.4.0
         with:
-          images: ${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_NAME }}
+          images: |
+            ${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}
+            ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}/${{ env.CONTAINER_NAME }}
           flavor: |
             prefix=${{ matrix.os }}-
           tags: |
@@ -507,8 +526,8 @@ jobs:
           }
 
           # Default cache locations
-          $params += "--cache-from", "${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-develop"
-          $params += "--cache-from", "${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-${{ github.event.repository.default_branch }}"
+          $params += "--cache-from", "${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-develop"
+          $params += "--cache-from", "${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-${{ github.event.repository.default_branch }}"
 
           # Branch-specific cache locations
           foreach ($tag in $tags) {
@@ -541,7 +560,7 @@ jobs:
           docker build @params src\docker
 
           Write-Host "Pushing..."
-          docker push --quiet --all-tags ${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_NAME }}
+          docker push --quiet --all-tags ${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}
 
       - name: Run SAST Snyk on container image
         # Snyk can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub Security
@@ -587,6 +606,10 @@ jobs:
     # Only deploy on main branch, as we don't want to break verification with a bad metadata file during development
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        registry:
+          [env.CONTAINER_REGISTRY_GHCR, env.CONTAINER_REGISTRY_DOCKER_HUB]
     steps:
       - name: Checkout
         uses: actions/checkout@v3.5.2
@@ -599,6 +622,6 @@ jobs:
       - name: Push to registry
         run: |
           oras push \
-            ${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_NAME }}:artifacthub.io \
+            ${{ matrix.registry }}/${{ env.CONTAINER_NAME }}:artifacthub.io \
             artifacthub-repo.yml:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml \
             --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml
