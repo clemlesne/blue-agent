@@ -2,20 +2,21 @@
 
 ## Proactive detection of vulnerabilities
 
-At each build, a vulnerability scan is performed on the system. If a vulnerability that can be upgraded is detected, the build is stopped and the image is not pushed to the registry. In any cases, the vulnerability is reported in [GitHub Security Code Scanning](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/about-code-scanning). The maintainers are alterts and have access to reports.
+At each build, a vulnerability scan is performed on the system. If a vulnerability that can be upgraded is detected, the build is stopped and the image is not pushed to the registry. Vulnerability is reported in [GitHub Security](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/about-code-scanning). The maintainers are alterted and have access to reports.
 
 Automation is supported by [Snyk](https://snyk.io) and [Semgrep](https://semgrep.dev). Helm chart, configuration files, and containers, are scanned for vulnerabilities and misconfigurations.
 
-Linux systems are supported, but not Windows:
+Scanned systems:
 
-| `Ref` | Container continuously tested with Snyk |
-|-|-|
-| `ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main` | ✅ |
-| `ghcr.io/clemlesne/azure-pipelines-agent:focal-main` | ✅ |
-| `ghcr.io/clemlesne/azure-pipelines-agent:jammy-main` | ✅ |
-| `ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main` | ✅ |
-| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019-main` | ❌ |
-| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022-main` | ❌ |
+| `Ref`                                                       | Vulnerability scans with Snyk |
+| ----------------------------------------------------------- | ----------------------------- |
+| `ghcr.io/clemlesne/azure-pipelines-agent:bookworm-main`     | ✅                            |
+| `ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main`     | ✅                            |
+| `ghcr.io/clemlesne/azure-pipelines-agent:focal-main`        | ✅                            |
+| `ghcr.io/clemlesne/azure-pipelines-agent:jammy-main`        | ✅                            |
+| `ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main`         | ✅                            |
+| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019-main` | ✅                            |
+| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022-main` | ✅                            |
 
 ## Reporting a vulnerability
 

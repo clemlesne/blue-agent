@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/clemlesne/azure-pipelines-agent
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   flavor: bullseye
   # Overrides the image tag whose default is the chart appVersion.
   version: ""
@@ -63,9 +63,11 @@ resources:
   limits:
     cpu: 2
     memory: 4Gi
+    ephemeral-storage: 4Gi
   requests:
     cpu: 1
     memory: 2Gi
+    ephemeral-storage: 2Gi
 
 extraNodeSelectors: {}
 

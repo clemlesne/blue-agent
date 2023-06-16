@@ -1,13 +1,16 @@
 FROM mcr.microsoft.com/dotnet/aspnet:6.0-jammy as base
 
-ENV DEBIAN_FRONTEND=noninteractive
+# Force apt-get to not use TTY
+ENV DEBIAN_FRONTEND noninteractive
 
 # Configure local user
 ENV USER root
 ENV HOME /app-root
 
-# First, upgrade base image
-# Then, install:
+# Avoid Python cache during build
+ENV PYTHONDONTWRITEBYTECODE 1
+
+# Install:
 # - Azure Pipelines agent system requirements
 # - zsh, for inter-operability
 # - dbus-user-session, iptables, uidmap, for BuildKit
@@ -18,7 +21,6 @@ RUN rm -f /etc/apt/apt.conf.d/docker-clean \
 ARG JQ_VERSION
 RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/var/cache,type=cache,sharing=locked \
     apt-get update -q \
-    && apt-get upgrade -y -q \
     && apt-get install -y -q --no-install-recommends \
         build-essential \
         ca-certificates \
@@ -48,22 +50,22 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/
         wget \
         zip \
         zsh \
-        zstd
+        zstd \
+    && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Copy helper script, then verify installation
 COPY arch.sh .
 RUN chmod +x arch.sh \
     && bash arch.sh
 
-# Upgrade Python build tools
+# Install Python build tools
 RUN python3 -m pip \
-    --disable-pip-version-check \
-    --no-cache-dir \
-    --quiet \
-    install  \
-        --compile \
-        --upgrade \
-        pip setuptools wheel
+        --disable-pip-version-check \
+        --no-cache-dir \
+        --quiet \
+        install  \
+            setuptools wheel \
+    && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 FROM base as rootlesskit
 
@@ -71,7 +73,7 @@ FROM base as rootlesskit
 ARG GO_VERSION
 ENV GO_VERSION ${GO_VERSION}
 RUN rm -rf /usr/local/go \
-    && curl -LsSf https://go.dev/dl/go${GO_VERSION}.linux-$(ARCH_X64=amd64 bash arch.sh).tar.gz | tar -xz -C /usr/local
+    && curl -LsSf --retry 3 https://go.dev/dl/go${GO_VERSION}.linux-$(ARCH_X64=amd64 bash arch.sh).tar.gz | tar -xz -C /usr/local
 ENV PATH="${PATH}:/usr/local/go/bin"
 RUN go version
 
@@ -95,7 +97,7 @@ RUN dpkg -i libssl1.1_1.1.1f-1ubuntu2_$(ARCH_X64=amd64 bash arch.sh).deb \
     # https://github.com/microsoft/azure-pipelines-agent/issues/3834#issuecomment-1164461892
     && sed -i 's/openssl_conf = openssl_init/#openssl_conf = openssl_init/g' /etc/ssl/openssl.cnf
 
-# Install Azure CLI, then verify and upgrade the default installation
+# Install Azure CLI, then verify installation
 ARG AZURE_CLI_VERSION
 ENV AZURE_CLI_VERSION ${AZURE_CLI_VERSION}
 RUN python3 -m pip \
@@ -103,16 +105,16 @@ RUN python3 -m pip \
         --no-cache-dir \
         --quiet \
         install \
-            --compile \
             azure-cli==${AZURE_CLI_VERSION} \
     && az version \
-    && az upgrade --yes
+    && rm -rf ${HOME}/.azure ${HOME}/.cache/pip \
+    && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Install AWS CLI, then verify installation
 ARG AWS_CLI_VERSION
 ENV AWS_CLI_VERSION ${AWS_CLI_VERSION}
-RUN curl -LsSf https://awscli.amazonaws.com/awscli-exe-linux-$(ARCH_X64=x86_64 ARCH_ARM64=aarch64 bash arch.sh).zip -o awscli.zip \
-    && unzip awscli.zip \
+RUN curl -LsSf --retry 3 https://awscli.amazonaws.com/awscli-exe-linux-$(ARCH_X64=x86_64 ARCH_ARM64=aarch64 bash arch.sh).zip -o awscli.zip \
+    && unzip -q awscli.zip \
     && ./aws/install \
     && rm -rf awscli.zip aws \
     && aws --version
@@ -120,35 +122,37 @@ RUN curl -LsSf https://awscli.amazonaws.com/awscli-exe-linux-$(ARCH_X64=x86_64 A
 # Install Google Cloud CLI, then verify installation
 ARG GCLOUD_CLI_VERSION
 ENV GCLOUD_CLI_VERSION ${GCLOUD_CLI_VERSION}
-RUN curl -LsSf https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-${GCLOUD_CLI_VERSION}-linux-$(ARCH_X64=x86_64 ARCH_ARM64=arm bash arch.sh).tar.gz | tar -xz -C /usr/local \
+RUN curl -LsSf --retry 3 https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-${GCLOUD_CLI_VERSION}-linux-$(ARCH_X64=x86_64 ARCH_ARM64=arm bash arch.sh).tar.gz | tar -xz -C /usr/local \
     && /usr/local/google-cloud-sdk/install.sh \
         --additional-components beta \
         --quiet \
     && ln -s /usr/local/google-cloud-sdk/bin/gcloud /usr/bin/gcloud \
     && ln -s /usr/local/google-cloud-sdk/bin/gsutil /usr/bin/gsutil \
     && gcloud version \
-    && gcloud components update --quiet
+    && rm -rf /usr/local/google-cloud-sdk/.install ${HOME}/.config/gcloud \
+    && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Install Powershell, then verify installation
 ARG POWERSHELL_VERSION
 ENV POWERSHELL_VERSION ${POWERSHELL_VERSION}
 RUN mkdir -p /opt/microsoft/powershell \
-    && curl -LsSf https://github.com/PowerShell/PowerShell/releases/download/v${POWERSHELL_VERSION}/powershell-${POWERSHELL_VERSION}-linux-$(bash arch.sh).tar.gz | tar -xz -C /opt/microsoft/powershell \
+    && curl -LsSf --retry 3 https://github.com/PowerShell/PowerShell/releases/download/v${POWERSHELL_VERSION}/powershell-${POWERSHELL_VERSION}-linux-$(bash arch.sh).tar.gz | tar -xz -C /opt/microsoft/powershell \
     && chmod +x /opt/microsoft/powershell/pwsh \
     && ln -s /opt/microsoft/powershell/pwsh /usr/bin/pwsh \
-    && pwsh -Version
+    && pwsh -Version \
+    && rm -rf ${HOME}/.config/powershell ${HOME}/.cache/powershell
 
 # Install YQ, then verify installation
 ARG YQ_VERSION
 ENV YQ_VERSION ${YQ_VERSION}
-RUN curl -LsSf https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_$(ARCH_X64=amd64 bash arch.sh) -o /usr/bin/yq \
+RUN curl -LsSf --retry 3 https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_$(ARCH_X64=amd64 bash arch.sh) -o /usr/bin/yq \
     && chmod +x /usr/bin/yq \
     && yq --version
 
 # Install Tini, then verify installation
 ARG TINI_VERSION
 ENV TINI_VERSION ${TINI_VERSION}
-RUN curl -LsSf https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$(ARCH_X64=amd64 bash arch.sh) -o /tini \
+RUN curl -LsSf --retry 3 https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$(ARCH_X64=amd64 bash arch.sh) -o /tini \
     && chmod +x /tini \
     && /tini --version
 ENTRYPOINT ["/tini", "--"]
@@ -157,7 +161,7 @@ ENTRYPOINT ["/tini", "--"]
 ARG BUILDKIT_VERSION
 ENV BUILDKIT_VERSION ${BUILDKIT_VERSION}
 RUN mkdir buildkit \
-    && curl -LsSf https://github.com/moby/buildkit/releases/download/v${BUILDKIT_VERSION}/buildkit-v${BUILDKIT_VERSION}.linux-$(ARCH_X64=amd64 bash arch.sh).tar.gz | tar -xz -C buildkit \
+    && curl -LsSf --retry 3 https://github.com/moby/buildkit/releases/download/v${BUILDKIT_VERSION}/buildkit-v${BUILDKIT_VERSION}.linux-$(ARCH_X64=amd64 bash arch.sh).tar.gz | tar -xz -C buildkit \
     && mv buildkit/bin/* /usr/local/bin \
     && rm -rf buildkit \
     && buildctl --version \
@@ -173,18 +177,21 @@ ARG AZP_AGENT_VERSION
 ENV AZP_AGENT_VERSION ${AZP_AGENT_VERSION}
 ENV AZP_HOME ${HOME}/azp-agent
 RUN mkdir -p ${AZP_HOME} \
-    && curl -LsSf https://vstsagentpackage.azureedge.net/agent/${AZP_AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AZP_AGENT_VERSION}.tar.gz | tar -xz -C ${AZP_HOME} \
+    && curl -LsSf --retry 3 https://vstsagentpackage.azureedge.net/agent/${AZP_AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AZP_AGENT_VERSION}.tar.gz | tar -xz -C ${AZP_HOME} \
     && cd ${AZP_HOME} \
     && chmod +x run-docker.sh config.sh \
-    && AGENT_ALLOW_RUNASROOT="1" bash run-docker.sh --version
+    && AGENT_ALLOW_RUNASROOT="1" bash run-docker.sh --version \
+    && rm -rf _diag
 ENV AZP_WORK ${HOME}/azp-work
-VOLUME ${AZP_WORK}
 
 # Define path for the custom SSL certificate
 ENV AZP_CUSTOM_CERT_PEM ${HOME}/azp-custom-certs
 
 # Cleanup helper script
 RUN rm arch.sh
+
+# Reset Python configs to default
+ENV PYTHONDONTWRITEBYTECODE=
 
 # Configure local user
 RUN mkdir -p /run/user/0 ${HOME}/.local/tmp ${HOME}/.local/share/buildkit \
@@ -194,7 +201,6 @@ USER 0:0
 ENV XDG_RUNTIME_DIR=/run/user/0
 ENV TMPDIR=${HOME}/.local/tmp
 ENV BUILDKIT_HOST=unix:///run/user/0/buildkit/buildkitd.sock
-VOLUME ${HOME}/.local/share/buildkit
 
 # Install Azure Pipelines Agent startup script
 WORKDIR ${AZP_HOME}
