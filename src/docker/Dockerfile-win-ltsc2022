@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0-windowsservercore-ltsc2022
+FROM mcr.microsoft.com/dotnet/sdk:7.0-windowsservercore-ltsc2022
 
 # Configure local user
 USER ContainerAdministrator
