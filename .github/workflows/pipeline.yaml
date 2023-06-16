@@ -617,6 +617,20 @@ jobs:
         with:
           version: ${{ env.ORAS_VERSION }}
 
+      - name: Login to registry - GitHub
+        uses: docker/login-action@v2.1.0
+        with:
+          registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to registry - Docker Hub
+        uses: docker/login-action@v2.1.0
+        with:
+          registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
+          username: clemlesne
+          password: ${{ secrets.DOCKER_HUB_PAT }}
+
       - name: Push to registry
         run: |
           oras push \
