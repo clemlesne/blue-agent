@@ -562,7 +562,9 @@ jobs:
           docker build @params src\docker
 
           Write-Host "Pushing..."
-          docker push --quiet --all-tags ${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}
+          foreach ($tag in $tags) {
+            docker push --quiet $tag
+          }
 
       - name: Run SAST Snyk on container image
         # Snyk can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub Security
