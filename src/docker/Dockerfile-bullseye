@@ -4,7 +4,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim as base
 ENV DEBIAN_FRONTEND noninteractive
 
 # Configure local user
-ENV USER root
+USER root
 ENV HOME /app-root
 
 # Avoid Python cache during build
@@ -148,7 +148,6 @@ ENV TINI_VERSION ${TINI_VERSION}
 RUN curl -LsSf --retry 3 https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$(ARCH_X64=amd64 bash arch.sh) -o /tini \
     && chmod +x /tini \
     && /tini --version
-ENTRYPOINT ["/tini", "--"]
 
 # Install BuildKit, then verify installation
 ARG BUILDKIT_VERSION
@@ -184,17 +183,23 @@ RUN rm arch.sh
 # Reset Python configs to default
 ENV PYTHONDONTWRITEBYTECODE=
 
+# Configure startup
+COPY uid_entrypoint.sh /
+RUN chmod a=rx /uid_entrypoint.sh \
+    && chmod a+w /etc/passwd /etc/shadow
+ENTRYPOINT ["/tini", "--", "/uid_entrypoint.sh"]
+
 # Configure local user
-RUN mkdir -p /run/user/0 ${HOME}/.local/tmp ${HOME}/.local/share/buildkit \
-    && chown -R ${USER} /run/user/0 ${HOME} \
-    && echo ${USER}:100000:65536 | tee /etc/subuid | tee /etc/subgid
-USER 0:0
-ENV XDG_RUNTIME_DIR=/run/user/0
+ENV USER app-user
+RUN mkdir -p ${HOME}/.local/tmp ${HOME}/.local/share/buildkit \
+    && echo ${USER}:100000:65536 | tee /etc/subuid | tee /etc/subgid \
+    && echo "${USER} ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers
 ENV TMPDIR=${HOME}/.local/tmp
-ENV BUILDKIT_HOST=unix:///run/user/0/buildkit/buildkitd.sock
 
 # Install Azure Pipelines Agent startup script
 WORKDIR ${AZP_HOME}
 COPY start.sh .
+
 # Run as exec form, so that it can receive signals from Tini
+USER ${USER}
 CMD ["bash", "start.sh"]
