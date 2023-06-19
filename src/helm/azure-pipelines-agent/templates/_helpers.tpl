@@ -75,6 +75,18 @@ Create the name of the Secret to use.
 {{- end }}
 
 {{/*
+Default PodSecurytyContext object to apply to containers.
+
+Can be overriden by setting ".Values.podSecurityContext".
+
+See: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#podsecuritycontext-v1-core
+*/}}
+{{- define "azure-pipelines-agent.defaultPodSecurityContext" -}}
+# All volumes are owned bu group 0 (root), same as the default user
+fsGroup: 0
+{{- end }}
+
+{{/*
 Default SecurytyContext object to apply to containers.
 
 Can be overriden by setting ".Values.securityContext".
@@ -82,13 +94,14 @@ Can be overriden by setting ".Values.securityContext".
 See: https://kubernetes.io/docs/concepts/windows/intro/#compatibility-v1-pod-spec-containers
 */}}
 {{- define "azure-pipelines-agent.defaultSecurityContext" -}}
-runAsNonRoot: true
+runAsNonRoot: false
 readOnlyRootFilesystem: false
 {{- if .Values.image.isWindows }}
 windowsOptions:
   runAsUserName: ContainerAdministrator
 {{- else }}
 allowPrivilegeEscalation: false
+runAsUser: 0
 capabilities:
   drop: ["ALL"]
 {{- end }}
@@ -111,10 +124,8 @@ imagePullSecrets:
   {{- toYaml . | nindent 2 }}
 {{- end }}
 serviceAccountName: {{ include "azure-pipelines-agent.serviceAccountName" . }}
-{{- with .Values.podSecurityContext }}
 securityContext:
-  {{- toYaml . | nindent 2 }}
-{{- end }}
+  {{- toYaml (mustMergeOverwrite (include "azure-pipelines-agent.defaultPodSecurityContext" . | fromYaml) .Values.podSecurityContext) | nindent 2 }}
 {{- with .Values.initContainers }}
 initContainers:
   {{- toYaml . | nindent 2 }}
