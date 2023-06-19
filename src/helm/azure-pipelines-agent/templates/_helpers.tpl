@@ -82,14 +82,13 @@ Can be overriden by setting ".Values.securityContext".
 See: https://kubernetes.io/docs/concepts/windows/intro/#compatibility-v1-pod-spec-containers
 */}}
 {{- define "azure-pipelines-agent.defaultSecurityContext" -}}
-runAsNonRoot: false
+runAsNonRoot: true
 readOnlyRootFilesystem: false
 {{- if .Values.image.isWindows }}
 windowsOptions:
   runAsUserName: ContainerAdministrator
 {{- else }}
 allowPrivilegeEscalation: false
-runAsUser: 0
 capabilities:
   drop: ["ALL"]
 {{- end }}
