@@ -172,10 +172,10 @@ RUN mkdir -p ${AZP_HOME} \
     && cd ${AZP_HOME} \
     && chmod +x run-docker.sh config.sh \
     && AGENT_ALLOW_RUNASROOT="1" bash run-docker.sh --version \
-    && rm -rf _diag
+    && rm -rf _diag \
+    # Allow local user to R/W to agent home
+    && chmod -R a+w .
 ENV AZP_WORK ${HOME}/azp-work
-
-# Define path for the custom SSL certificate
 ENV AZP_CUSTOM_CERT_PEM ${HOME}/azp-custom-certs
 
 # Cleanup helper script
