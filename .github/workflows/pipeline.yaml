@@ -367,8 +367,8 @@ jobs:
             type=gha
             type=registry,ref=${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}
           cache-to: |
-            type=gha,mode=max
-            type=registry,ref=${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }},mode=max
+            type=gha
+            type=registry,ref=${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}
           context: src/docker
           file: src/docker/Dockerfile-${{ matrix.os }}
           labels: ${{ steps.meta.outputs.labels }}
