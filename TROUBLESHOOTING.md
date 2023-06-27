@@ -2,7 +2,7 @@
 
 - [Namespaces needs to be set to non-zero](#Namespaces-needs-to-be-set-to-non-zero)
 - [Change Folder Buildkit](#Change-Folder-Buildkit)
-- [Agent ran longer than the maximum time of 60 minutes](#troubleshooting-stalled-deployments-and-ci)
+- [Agent ran longer than the maximum time of 60 minutes](#Agent-ran-longer-than-the-maximum-time-of-60-minutes)
 
 ## Troubleshooting
 
