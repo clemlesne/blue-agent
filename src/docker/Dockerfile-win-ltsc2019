@@ -109,6 +109,30 @@ RUN curl -LsSf --retry 3 "https://github.com/facebook/zstd/releases/download/v${
 # hadolint ignore=DL3059
 RUN zstd --version
 
+# Install Visual Studio Build Tools, then verify installation
+# See: https://learn.microsoft.com/en-us/visualstudio/install/build-tools-container?view=vs-2022#create-and-build-the-dockerfile
+ARG VS_BUILDTOOLS_VERSION
+ENV VS_BUILDTOOLS_VERSION ${VS_BUILDTOOLS_VERSION}
+# TODO: Delete the installer, but it's seems locked, receiving "Remove-Item: Access to the path 'C:\buildtools.exe' is denied."
+RUN curl -LsSf "https://aka.ms/vs/${Env:VS_BUILDTOOLS_VERSION}/release/vs_buildtools.exe" -o buildtools.exe \
+    && .\buildtools.exe \
+        --installPath 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools' \
+        --nocache \
+        --norestart \
+        --quiet \
+        --wait \
+        # https://learn.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-build-tools?view=vs-2022#azure-development-build-tools
+        --add Microsoft.VisualStudio.Workload.AzureBuildTools \
+        # https://learn.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-build-tools?view=vs-2022#desktop-development-with-c
+        --add Microsoft.VisualStudio.Workload.VCTools \
+        # https://learn.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-build-tools?view=vs-2022#web-development-build-tools
+        --add Microsoft.VisualStudio.Workload.WebBuildTools \
+        # https://learn.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-build-tools?view=vs-2022#net-desktop-build-tools
+        --add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools \
+        # https://learn.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-build-tools?view=vs-2022#officesharepoint-build-tools
+        --add Microsoft.VisualStudio.Workload.OfficeBuildTools
+RUN Start-Process cmd.exe -Wait -ArgumentList '/c ''C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat'' && msbuild --version'
+
 # Define path for the custom SSL certificate
 ENV AZP_CUSTOM_CERT_PEM ${HOME}\\azp-custom-certs
 

@@ -347,7 +347,7 @@ extraVolumeMounts:
 - Programming languages
   - [.NET SDK](https://dotnet.microsoft.com)
   - [Python 3.11](https://www.python.org/downloads/release/python-3110)
-  - [Visual Studio Build Tools](https://learn.microsoft.com/en-us/visualstudio/ide/?view=vs-2022)
+  - [Visual Studio Build Tools](https://learn.microsoft.com/en-us/visualstudio/ide/?view=vs-2022) (with `AzureBuildTools`, `VCTools`, `WebBuildTools`, `ManagedDesktopBuildTools`, `OfficeBuildTools` workloads)
 - Tools
   - [git](https://github.com/git-for-windows/git)
   - [jq](https://github.com/stedolan/jq)
