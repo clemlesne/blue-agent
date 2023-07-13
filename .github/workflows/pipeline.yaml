@@ -23,11 +23,11 @@ env:
   # https://npmjs.com/package/@microsoft/sarif-multitool?activeTab=versions
   SARIF_MULTITOOL_VERSION: 4.2.0
   # https://npmjs.com/package/snyk?activeTab=versions
-  SNYK_VERSION: 1.1182.0
+  SNYK_VERSION: 1.1187.0
   # https://github.com/microsoft/azure-pipelines-agent/releases
   AZP_AGENT_VERSION: 3.220.5
   # https://github.com/PowerShell/PowerShell/releases
-  POWERSHELL_VERSION: 7.2.11
+  POWERSHELL_VERSION: 7.3.15
   # https://github.com/krallin/tini/releases
   TINI_VERSION: 0.19.0
   # https://github.com/mikefarah/yq/releases
@@ -37,13 +37,13 @@ env:
   # https://github.com/rootless-containers/rootlesskit/releases
   ROOTLESSKIT_VERSION: 1.1.1
   # https://github.com/moby/buildkit/releases
-  BUILDKIT_VERSION: 0.11.6
+  BUILDKIT_VERSION: 0.12.0
   # https://github.com/Azure/azure-cli/releases
   AZURE_CLI_VERSION: 2.49.0
   # https://github.com/stedolan/jq/releases
   JQ_VERSION: 1.6
   # https://github.com/aws/aws-cli/releases
-  AWS_CLI_VERSION: 2.12.1
+  AWS_CLI_VERSION: 2.13.0
   # https://cloud.google.com/sdk/docs/install
   GCLOUD_CLI_VERSION: 435.0.1
   # https://github.com/git-for-windows/git/releases
@@ -59,7 +59,7 @@ env:
   # https://github.com/oras-project/oras/releases
   ORAS_VERSION: 1.0.0
   # https://github.com/docker/buildx/releases
-  BUILDX_VERSION: 0.11.0
+  BUILDX_VERSION: 0.11.1
   # https://github.com/hadolint/hadolint/releases
   HADOLINT_VERSION: 2.12.0
 
@@ -226,6 +226,10 @@ jobs:
           sudo chmod +x /usr/bin/hadolint
           hadolint --version
 
+      - name: Run lint
+        run: |
+          make lint
+          
       - name: Run tests
         run: |
           make test
