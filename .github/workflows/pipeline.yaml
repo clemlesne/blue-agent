@@ -27,7 +27,7 @@ env:
   # https://github.com/microsoft/azure-pipelines-agent/releases
   AZP_AGENT_VERSION: 3.220.5
   # https://github.com/PowerShell/PowerShell/releases
-  POWERSHELL_VERSION: 7.3.15
+  POWERSHELL_VERSION: 7.3.5
   # https://github.com/krallin/tini/releases
   TINI_VERSION: 0.19.0
   # https://github.com/mikefarah/yq/releases
@@ -39,13 +39,13 @@ env:
   # https://github.com/moby/buildkit/releases
   BUILDKIT_VERSION: 0.12.0
   # https://github.com/Azure/azure-cli/releases
-  AZURE_CLI_VERSION: 2.49.0
+  AZURE_CLI_VERSION: 2.50.0
   # https://github.com/stedolan/jq/releases
   JQ_VERSION: 1.6
   # https://github.com/aws/aws-cli/releases
   AWS_CLI_VERSION: 2.13.0
   # https://cloud.google.com/sdk/docs/install
-  GCLOUD_CLI_VERSION: 435.0.1
+  GCLOUD_CLI_VERSION: 437.0.1
   # https://github.com/git-for-windows/git/releases
   GIT_VERSION_WIN: 2.41.0
   # https://github.com/facebook/zstd/releases
@@ -53,7 +53,7 @@ env:
   # https://www.python.org/downloads/windows
   PYTHON_VERSION_WIN: 3.11.4
   # https://nodejs.org/en/download/releases
-  NODE_VERSION: 18.16.0
+  NODE_VERSION: 18.16.1
   # https://github.com/helm/helm/releases
   HELM_VERSION: 3.12.1
   # https://github.com/oras-project/oras/releases
@@ -77,7 +77,7 @@ jobs:
           submodules: recursive
 
       - name: SAST - Credentials
-        uses: trufflesecurity/trufflehog@v3.40.0
+        uses: trufflesecurity/trufflehog@v3.43.0
         with:
           base: ${{ github.event.repository.default_branch }}
           head: HEAD
@@ -112,7 +112,7 @@ jobs:
 
       # Required for running "npx" CLI
       - name: Setup Node
-        uses: actions/setup-node@v3.6.0
+        uses: actions/setup-node@v3.7.0
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -168,7 +168,7 @@ jobs:
               snyk.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2.20.0
+        uses: github/codeql-action/upload-sarif@v2.20.3
         with:
           sarif_file: merged.sarif
 
@@ -216,7 +216,7 @@ jobs:
 
       # Required for running "npx" CLI
       - name: Setup Node
-        uses: actions/setup-node@v3.6.0
+        uses: actions/setup-node@v3.7.0
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -282,7 +282,7 @@ jobs:
           platforms: ${{ matrix.arch }}
 
       - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v2.7.0
+        uses: docker/setup-buildx-action@v2.9.0
         with:
           version: v${{ env.BUILDX_VERSION }}
           driver-opts: |
@@ -290,7 +290,7 @@ jobs:
 
       # Required for running "npx" CLI
       - name: Setup Node
-        uses: actions/setup-node@v3.6.0
+        uses: actions/setup-node@v3.7.0
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -371,8 +371,8 @@ jobs:
             type=gha
             type=registry,ref=${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}
           cache-to: |
-            type=gha,mode=max
-            type=registry,ref=${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }},mode=max
+            type=gha
+            type=registry,ref=${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}
           context: src/docker
           file: src/docker/Dockerfile-${{ matrix.os }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -411,7 +411,7 @@ jobs:
               snyk-*.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2.20.0
+        uses: github/codeql-action/upload-sarif@v2.20.3
         with:
           sarif_file: merged.sarif
 
@@ -584,7 +584,7 @@ jobs:
             ${{ steps.tag.outputs.tag }}
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2.20.0
+        uses: github/codeql-action/upload-sarif@v2.20.3
         with:
           sarif_file: snyk.sarif
 
@@ -605,7 +605,7 @@ jobs:
         run: semgrep ci --sarif --output=semgrep.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2.20.0
+        uses: github/codeql-action/upload-sarif@v2.20.3
         with:
           sarif_file: semgrep.sarif
 
