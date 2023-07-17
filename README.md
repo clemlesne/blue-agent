@@ -7,7 +7,7 @@
 
 <!-- github.com badges -->
 
-[![Project licence](https://img.shields.io/github/license/clemlesne/azure-pipelines-agent)](https://github.com/clemlesne/azure-pipelines-agent/blob/main/LICENCE)
+[![Project license](https://img.shields.io/github/license/clemlesne/azure-pipelines-agent)](https://github.com/clemlesne/azure-pipelines-agent/blob/main/LICENSE)
 [![Last release date](https://img.shields.io/github/release-date/clemlesne/azure-pipelines-agent)](https://github.com/clemlesne/azure-pipelines-agent/releases)
 [![Workflow status](https://img.shields.io/github/actions/workflow/status/clemlesne/azure-pipelines-agent/pipeline.yaml?branch=main)](https://github.com/clemlesne/azure-pipelines-agent/actions/workflows/pipeline.yaml)
 [![All releases download counter](https://img.shields.io/github/downloads/clemlesne/azure-pipelines-agent/total)](https://github.com/clemlesne/azure-pipelines-agent/pkgs/container/azure-pipelines-agent)
@@ -194,7 +194,7 @@ These methods can be used to build a container image, at the time of writing:
 | [img](https://github.com/genuinetools/img#running-with-kubernetes), [BuildKit](https://github.com/moby/buildkit)                                                                                                              | 🟩🟩🟩 | 🟩🟩🟥   | 🟩🟥🟥 | Local CLI              | CLI to build the images. Can build different architectures on a single machine. Requires [Seccomp](https://en.wikipedia.org/wiki/Seccomp) disabled and [AppArmor](https://apparmor.net) disabled.                                                                                                                                                                                            |
 | Docker in docker                                                                                                                                                                                                              | 🟩🟩🟩 | 🟥🟥🟥   | 🟩🟩🟩 | Local CLI              | Before Kubernetes 1.20, it was possible to build container images in the agent, using the Docker socket. This is not possible anymore, as Kubernetes [deprecated the Docker socket](https://kubernetes.io/blog/2020/12/02/dont-panic-kubernetes-and-docker) in favor of the [Container Runtime Interface](https://kubernetes.io/blog/2016/12/container-runtime-interface-cri-in-kubernetes). |
 
-We choose BuildKit for this project. [Its licence](https://raw.githubusercontent.com/moby/buildkit/v0.11.5/LICENSE) allows commercial use, and the project and mainly maintained, as the time of writing, by Docker, Netlix and Microsoft.
+We choose BuildKit for this project. [Its license](https://raw.githubusercontent.com/moby/buildkit/v0.11.5/LICENSE) allows commercial use, and the project and mainly maintained, as the time of writing, by Docker, Netlix and Microsoft.
 
 Linux systems are supported, but not Windows:
 
@@ -323,6 +323,7 @@ extraVolumeMounts:
   - [ASP.NET Core Runtime](https://github.com/dotnet/aspnetcore)
   - Python ([Python 3.8](https://www.python.org/downloads/release/python-380), [Python 3.9](https://www.python.org/downloads/release/python-390), [Python 3.10](https://www.python.org/downloads/release/python-3100), [Python 3.11](https://www.python.org/downloads/release/python-3110), depending of the system, plus C/Rust build tools for libs non pre-built on the platforms)
 - Tools
+  - [git](https://github.com/git-for-windows/git)
   - [gzip](https://www.gnu.org/software/gzip)
   - [jq](https://github.com/stedolan/jq)
   - [make](https://www.gnu.org/software/make)
