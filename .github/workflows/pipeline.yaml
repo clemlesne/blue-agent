@@ -231,7 +231,7 @@ jobs:
           make test
 
   build-publish-linux:
-    name: Build & deploy Linux image "${{ matrix.os }}"
+    name: Build & deploy image (Linux ${{ matrix.os }})
     needs:
       - sast-creds
       - sast-semgrep
@@ -412,7 +412,7 @@ jobs:
           sarif_file: merged.sarif
 
   build-publish-win:
-    name: Build & deploy Windows image "${{ matrix.os }}"
+    name: Build & deploy image (Windows ${{ matrix.os }})
     needs:
       - sast-creds
       - sast-semgrep
