@@ -37,7 +37,7 @@ env:
   # https://github.com/rootless-containers/rootlesskit/releases
   ROOTLESSKIT_VERSION: 1.1.1
   # https://github.com/moby/buildkit/releases
-  BUILDKIT_VERSION: 0.11.6
+  BUILDKIT_VERSION: 0.12.0
   # https://github.com/Azure/azure-cli/releases
   AZURE_CLI_VERSION: 2.50.0
   # https://github.com/stedolan/jq/releases
