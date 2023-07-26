@@ -62,6 +62,8 @@ env:
   BUILDX_VERSION: 0.11.1
   # https://github.com/hadolint/hadolint/releases
   HADOLINT_VERSION: 2.12.0
+  # https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022
+  VS_BUILDTOOLS_VERSION_WIN: 17
 
 jobs:
   sast-creds:
@@ -516,6 +518,7 @@ jobs:
             "--build-arg", "JQ_VERSION=${{ env.JQ_VERSION }}",
             "--build-arg", "POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}",
             "--build-arg", "PYTHON_VERSION=${{ env.PYTHON_VERSION_WIN }}",
+            "--build-arg", "VS_BUILDTOOLS_VERSION=${{ env.VS_BUILDTOOLS_VERSION_WIN }}",
             "--build-arg", "YQ_VERSION=${{ env.YQ_VERSION }}",
             "--build-arg", "ZSTD_VERSION=${{ env.ZSTD_VERSION_WIN }}",
 
