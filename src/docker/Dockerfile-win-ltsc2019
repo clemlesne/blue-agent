@@ -91,6 +91,9 @@ RUN yq --version
 ARG AZP_AGENT_VERSION
 ENV AZP_AGENT_VERSION ${AZP_AGENT_VERSION}
 ENV AZP_HOME ${HOME}\\azp-agent
+# Disable agent auto-updates
+# See: https://github.com/microsoft/azure-pipelines-agent/blob/b5ff4408239f3e938560f8b2e3848df76489a8d0/src/Agent.Listener/Agent.cs#L354C24-L354C24
+ENV agent.disableupdate "1"
 RUN mkdir $Env:AZP_HOME \
     && curl -LsSf --retry 3 "https://vstsagentpackage.azureedge.net/agent/${Env:AZP_AGENT_VERSION}/vsts-agent-win-x64-${Env:AZP_AGENT_VERSION}.zip" -o azp-agent.zip \
     && Expand-Archive -Force azp-agent.zip -DestinationPath $Env:AZP_HOME \

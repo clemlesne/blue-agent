@@ -167,6 +167,9 @@ RUN rootlesskit --version \
 ARG AZP_AGENT_VERSION
 ENV AZP_AGENT_VERSION ${AZP_AGENT_VERSION}
 ENV AZP_HOME ${HOME}/azp-agent
+# Disable agent auto-updates
+# See: https://github.com/microsoft/azure-pipelines-agent/blob/b5ff4408239f3e938560f8b2e3848df76489a8d0/src/Agent.Listener/Agent.cs#L354C24-L354C24
+ENV agent.disableupdate "1"
 RUN mkdir -p ${AZP_HOME} \
     && curl -LsSf --retry 3 https://vstsagentpackage.azureedge.net/agent/${AZP_AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AZP_AGENT_VERSION}.tar.gz | tar -xz -C ${AZP_HOME} \
     && cd ${AZP_HOME} \
