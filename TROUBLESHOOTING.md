@@ -56,8 +56,11 @@ echo 'root = "/app-root/.local/tmp/buildkit"' > ~/.config/buildkit/buildkitd.tom
 
 ## The agent has exceeded the 60-minute time limit
 
-If the pipeline takes longer than 60 minutes, you need to change two points. The first is the variable in the helm [pipelines.timeout](https://github.com/clemlesne/azure-pipelines-agent#Helm-values) to 7200 seconds (two hours) for example.
+If the pipeline takes longer than 60 minutes, you need to change two things.
 
-Then you need to increase the timeout in Azure DevOps. Go to Options and Build job timeout in minutes.
+1. The technical pipeline timeout with `pipelines.timeout` Helm value to 7200 seconds (2 hours) for example.
+2. Increase the functional pipeline timeout in Azure DevOps. Go to `Options > Build job > Build job timeout in minutes`.
 
-![AzureDevOps](./images/azuredevops.png)
+> Tip: Set a technical pipeline timeout longer than the functional pipeline timeout to avoid the system to kill the pipeline abruptly.
+
+![AzureDevOps](./docs/build-job-timeout-in-minutes.png)
