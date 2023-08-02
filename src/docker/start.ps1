@@ -73,3 +73,7 @@ Display-Header "Running agent..."
 
 # Running it with the --once flag at the end will shut down the agent after the build is executed
 & run.cmd $Args --once
+
+Display-Header "Printing agent diag logs..."
+
+Get-Content $AGENT_DIAGLOGPATH/*.log

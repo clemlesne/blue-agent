@@ -172,6 +172,12 @@ containers:
               {{- end }}
             {{- end }}
     env:
+      - name: AGENT_DIAGLOGPATH
+        {{- if .Values.image.isWindows }}
+        value: C:\\app-root\\azp-logs
+        {{- else }}
+        value: /app-root/azp-logs
+        {{- end }}
       - name: VSO_AGENT_IGNORE
         value: AZP_TOKEN
       {{- if not .Values.image.isWindows }}
@@ -203,6 +209,12 @@ containers:
     resources:
       {{- toYaml .Values.resources | nindent 6 | required "A value for .Values.resources is required" }}
     volumeMounts:
+      - name: azp-logs
+        {{- if .Values.image.isWindows }}
+        mountPath: C:\\app-root\\azp-logs
+        {{- else }}
+        mountPath: /app-root/azp-logs
+        {{- end }}
       - name: azp-work
         {{- if .Values.image.isWindows }}
         mountPath: C:\\app-root\\azp-work
@@ -217,6 +229,9 @@ containers:
       {{- toYaml . | nindent 6 }}
       {{- end }}
 volumes:
+  - name: azp-logs
+    emptyDir:
+      sizeLimit: 1Gi
   - name: azp-work
     {{- if .Values.pipelines.cache.volumeEnabled }}
     ephemeral:

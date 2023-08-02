@@ -108,3 +108,7 @@ bash run-docker.sh "$@" --once &
 # Fake the exit code of the agent for the prevent Kubernetes to detect the pod as failed (this is intended)
 # See: https://stackoverflow.com/a/62183992/12732154
 wait $!
+
+print_header "Printing agent diag logs..."
+
+cat $AGENT_DIAGLOGPATH/*.log
