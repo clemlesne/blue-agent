@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0-jammy as base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-jammy@sha256:3bfa991099be226f693d2537507ccd1435c672d29d9f92f81f75e7d32df874d3 as base
 
 # Force apt-get to not use TTY
 ENV DEBIAN_FRONTEND noninteractive
