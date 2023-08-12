@@ -1,12 +1,13 @@
-# Troubleshooting <!-- omit in toc -->
+# Troubleshooting
 
-- [Namespaces needs to be set to non-zero](#Namespaces-needs-to-be-set-to-non-zero)
-- [Change Folder Buildkit](#Change-Folder-Buildkit)
-- [Agent ran longer than the maximum time of 60 minutes](#Agent-ran-longer-than-the-maximum-time-of-60-minutes)
+## Container fails to a `ContainerStatusUnknown` state
 
-## Troubleshooting
+Error is often due to two things:
 
-### Namespaces needs to be set to non-zero
+- Kubernetes is not able to pull the image: check the image name and the credentials, if you are using the public registry, mind the domain whitelist
+- Pod has been ecivted by Kubernetes due to the excessive local storage usage: parameter `ephemeral-storage` in `resources` Helm values is set to 4Gi by default, you can increase it to 10Gi for example
+
+## Namespaces must be set to a non-zero value
 
 This error is due to the fact that BuildKit needs to create a new user namespace, and the default maximum number of namespaces is 0. Value is defined by `user.max_user_namespaces` ([documentation](https://man7.org/linux/man-pages/man7/namespaces.7.html)). You can fix it by setting the value to more than 1000. Issue notably happens on AWS Bottlerocket OS. [See related issue.](https://github.com/clemlesne/azure-pipelines-agent/issues/19)
 
@@ -44,7 +45,7 @@ spec:
             privileged: true
 ```
 
-### Change Folder Buildkit
+## Change Buildkit working directory
 
 If need Buildkit to write in another folder, then create the buildkitd.toml file and set the root variable. Example below (bash in the pipeline):
 
@@ -53,9 +54,13 @@ mkdir ~/.config/buildkit
 echo 'root = "/app-root/.local/tmp/buildkit"' > ~/.config/buildkit/buildkitd.toml
 ```
 
-### Agent ran longer than the maximum time of 60 minutes
+## The agent has exceeded the 60-minute time limit
 
-If the pipeline takes longer than 60 minutes, you need to change two points. The first is the variable in the helm [pipelines.timeout](https://github.com/clemlesne/azure-pipelines-agent#Helm-values) to 7200 seconds (two hours) for example.
+If the pipeline takes longer than 60 minutes, you need to change two things.
 
-Then you need to increase the timeout in Azure DevOps. Go to Options and Build job timeout in minutes. image below:
-![AzureDevOps](./images/azuredevops.png)
+1. The technical pipeline timeout with `pipelines.timeout` Helm value to 7200 seconds (2 hours) for example.
+2. Increase the functional pipeline timeout in Azure DevOps. Go to `Options > Build job > Build job timeout in minutes`.
+
+> Tip: Set a technical pipeline timeout longer than the functional pipeline timeout to avoid the system to kill the pipeline abruptly.
+
+![AzureDevOps](./docs/build-job-timeout-in-minutes.png)
