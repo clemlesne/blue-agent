@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-preview-bookworm-slim as base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-bookworm-slim as base
 
 # Force apt-get to not use TTY
 ENV DEBIAN_FRONTEND noninteractive
