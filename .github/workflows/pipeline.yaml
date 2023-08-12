@@ -365,12 +365,8 @@ jobs:
             ROOTLESSKIT_VERSION=${{ env.ROOTLESSKIT_VERSION }}
             TINI_VERSION=${{ env.TINI_VERSION }}
             YQ_VERSION=${{ env.YQ_VERSION }}
-          cache-from: |
-            type=gha
-            type=registry,ref=${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}
-          cache-to: |
-            type=gha
-            type=registry,ref=${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}
+          cache-from: type=gha
+          cache-to: type=gha
           context: src/docker
           file: src/docker/Dockerfile-${{ matrix.os }}
           labels: ${{ steps.meta.outputs.labels }}
