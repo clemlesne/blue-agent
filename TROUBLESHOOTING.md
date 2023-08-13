@@ -1,5 +1,18 @@
 # Troubleshooting
 
+## Pods are evicted by Kubernetes with the message `Pod ephemeral local storage usage exceeds the total limit of containers`
+
+This error is due to the fact that the default ephemeral storage limit is set to a lower value than the one used by the pipeline. You can fix it by setting the value to more than default value in `resources.limits.ephemeral-storage`.
+
+This error notably happens when using BuildKit with an `emptyDir` and a large number of layers.
+
+```yaml
+# values.yaml (extract)
+resources:
+  limits:
+    ephemeral-storage: 16Gi
+```
+
 ## Pods are started but never selected by Azure DevOps when using multiple architectures
 
 Prefer hardcoding the architecture in both the pipeline and the Helm values. As this, KEDA will be able to select the right pods matching the architecture. Otherwise, there is a possibility that the deployment selected by KEDA is not matching the requested architecture.
