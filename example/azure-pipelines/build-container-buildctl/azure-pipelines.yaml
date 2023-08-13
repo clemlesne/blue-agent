@@ -2,7 +2,7 @@
 pool:
   name: onprem_aks
   demands:
-    - flavor_bullseye
+    - flavor_bookworm
     - nested_virtualization
 
 trigger:

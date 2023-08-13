@@ -21,9 +21,16 @@ metadata:
   labels:
     {{- include "azure-pipelines-agent.labels" . | nindent 4 }}
 spec:
+  failedJobsHistoryLimit: {{ .Values.pipelines.cleanup.failed | int | required "A value for .Values.pipelines.cleanup.failed is required" }}
+  maxReplicaCount: {{ .Values.autoscaling.maxReplicas | int | required "A value for .Values.autoscaling.maxReplicas is required" }}
+  minReplicaCount: 0
+  pollingInterval: 15
+  successfulJobsHistoryLimit: {{ .Values.pipelines.cleanup.successful | int | required "A value for .Values.pipelines.cleanup.successful is required" }}
   jobTargetRef:
-    parallelism: 1
     activeDeadlineSeconds: {{ .Values.pipelines.timeout | int | required "A value for .Values.pipelines.timeout is required" }}
+    backoffLimit: 0 # Do not retry
+    parallelism: 1 # Only one pod at a time
+    ttlSecondsAfterFinished: {{ .Values.pipelines.cleanup.ttl | int | required "A value for .Values.pipelines.cleanup.ttl is required" }}
     template:
       metadata:
         labels:
@@ -40,9 +47,6 @@ spec:
           "azpAgentName" (dict "valueFrom" (dict "fieldRef" (dict "apiVersion" "v1" "fieldPath" "metadata.name" )))
         }}
         {{- include "azure-pipelines-agent.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 8 }}
-  maxReplicaCount: {{ .Values.autoscaling.maxReplicas | int | required "A value for .Values.autoscaling.maxReplicas is required" }}
-  minReplicaCount: 0
-  pollingInterval: 15
   rollout:
     # Do not delete executed jobs during upgrade
     strategy: gradual
