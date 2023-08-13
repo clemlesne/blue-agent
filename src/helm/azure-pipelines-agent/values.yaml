@@ -1,5 +1,5 @@
 image:
-  flavor: bullseye
+  flavor: bookworm
   isWindows: false
   pullPolicy: Always
   repository: ghcr.io/clemlesne/azure-pipelines-agent
