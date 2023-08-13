@@ -14,14 +14,12 @@ ENV PYTHONDONTWRITEBYTECODE 1
 # - zsh, for inter-operability
 # - fuse-overlayfs, iptables, shadow-utils, for BuildKit
 # - gzip, make, tar, unzip, wget, yq, zip, zstd for developer ease-of-life
-# - compat-openssl10, openssl, Azure CLI doesn't work with OpenSSL 3.0 (https://github.com/Azure/azure-cli/issues/22230)
 ARG JQ_VERSION
 RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
     microdnf install -y --nodocs --setopt=install_weak_deps=0 \
         aspnetcore-runtime-6.0 \
         ca-certificates \
         cargo \
-        compat-openssl10 \
         curl \
         findutils \
         fuse-overlayfs \
@@ -36,7 +34,6 @@ RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
         iputils \
         jq-${JQ_VERSION} \
         make \
-        openssl \
         openssl-devel \
         pkg-config \
         python39 \
