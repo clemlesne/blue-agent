@@ -410,6 +410,11 @@ These actions can enhance your system performance:
 - SSD volumes are used for both cache (see `pipelines.cache`) and system temporary directory (see `pipelines.tmpdir`). For exemple, in Azure, the `managed-csi-premium` volume type is a high-performance SSD.
 - The network bewteen Azure DevOps server and agents has a low latency.
 
+BuikdKit specifics:
+
+- Choose an ephemeral disk for the cache in `/app-root/.local/share/buildkit`, instead of an emptyDir.
+- Use an high-performance disk for the cache, exemple `managed-csi-premium` in Azure.
+
 ### Proxy
 
 If you need to use a proxy, you can set the following environment variables. See [this documentation](https://github.com/microsoft/azure-pipelines-agent/blob/master/docs/start/proxyconfig.md) for more details.

@@ -6,8 +6,16 @@ extraVolumeMounts:
     name: buildkitd
 
 extraVolumes:
-  - emptyDir: {}
-    name: buildkitd
+  - name: buildkitd
+    # emptyDir: {}
+    ephemeral:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          storageClassName: "managed-csi-premium"
+          resources:
+            requests:
+              storage: 16Gi
 
 securityContext:
   seccompProfile:
