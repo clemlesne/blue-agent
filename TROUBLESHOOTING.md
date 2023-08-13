@@ -1,5 +1,30 @@
 # Troubleshooting
 
+## Pods are started but never selected by Azure DevOps when using multiple architectures
+
+Prefer hardcoding the architecture in both the pipeline and the Helm values. As this, KEDA will be able to select the right pods matching the architecture. Otherwise, there is a possibility that the deployment selected by KEDA is not matching the requested architecture.
+
+```yaml
+# azure-pipelines.yaml (extract)
+stages:
+  - stage: test
+    jobs:
+      - job: test
+        pool:
+          demands:
+            - arch_x64
+```
+
+```yaml
+# values.yaml (extract)
+extraNodeSelectors:
+  kubernetes.io/arch: arm64
+
+pipelines:
+  capabilities:
+    - arch_arm64
+```
+
 ## Container fails to a `ContainerStatusUnknown` state
 
 Error is often due to two things:
