@@ -22,6 +22,10 @@ pipelines:
   organizationURL: null
   personalAccessToken: null
   timeout: 3600
+  cleanup:
+    failed: 100 # In Jobs
+    successful: 100 # In Jobs
+    ttl: 3600 # 1 hour, in seconds
   cache:
     size: 10Gi
     type: managed-csi
