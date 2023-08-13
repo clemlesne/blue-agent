@@ -1,0 +1,2 @@
+# Ignore local Helm values files
+.values*.yaml
