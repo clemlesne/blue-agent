@@ -29,7 +29,11 @@ resources:
 
 pipelines:
   capabilities:
+    - arch_x64
     - buildkit
   personalAccessToken: your-pat
   poolName: private_kube
   organizationURL: https://dev.azure.com/shopping-cart-devops-demo
+
+extraNodeSelectors:
+  kubernetes.io/arch: amd64
