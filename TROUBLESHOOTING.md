@@ -5,7 +5,7 @@
 Error is often due to two things:
 
 - Kubernetes is not able to pull the image: check the image name and the credentials, if you are using the public registry, mind the domain whitelist
-- Pod has been ecivted by Kubernetes due to the excessive local storage usage: parameter `ephemeral-storage` in `resources` Helm values is set to 4Gi by default, you can increase it to 10Gi for example
+- Pod has been ecivted by Kubernetes due to the excessive local storage usage: parameter `ephemeral-storage` in `resources` Helm values is set to `8Gi` by default, you can increase it to `16Gi` for example
 
 ## Namespaces must be set to a non-zero value
 
