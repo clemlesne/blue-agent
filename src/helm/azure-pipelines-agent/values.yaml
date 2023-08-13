@@ -1,27 +1,26 @@
 image:
-  repository: ghcr.io/clemlesne/azure-pipelines-agent
-  pullPolicy: Always
   flavor: bullseye
-  # Overrides the image tag whose default is the chart appVersion.
-  version: ""
   isWindows: false
+  pullPolicy: Always
+  repository: ghcr.io/clemlesne/azure-pipelines-agent
+  version: "" # Overrides the image tag whose default is the chart "appVersion"
 
+fullnameOverride: ""
 imagePullSecrets: []
 nameOverride: ""
-fullnameOverride: ""
 
 replicaCount: 3
 
 autoscaling:
   enabled: true
-  maxReplicas: 100
+  maxReplicas: 100 # Arbitrary value to avoid misconfiguration; can be enlarged if needed
 
 pipelines:
-  poolName: null
   capabilities: []
   organizationURL: null
   personalAccessToken: null
-  timeout: 3600
+  poolName: null
+  timeout: 3600 # 1 hour, in seconds
   cleanup:
     failed: 100 # In Jobs
     successful: 100 # In Jobs
@@ -37,14 +36,12 @@ pipelines:
 
 secret:
   create: true
-  # The name of the Secret to use. If not set and create is true, a name is generated using the fullname template.
-  name: ""
+  name: "" # If not set, name is generated
 
 serviceAccount:
-  create: true
-  # The name of the ServiceAccount to use. If not set and create is true, a name is generated using the fullname template.
-  name: ""
   annotations: {}
+  create: true
+  name: "" # If not set, name is generated
 
 # Customize security context and policies.
 #
@@ -66,12 +63,12 @@ securityContext: {}
 resources:
   limits:
     cpu: 2
-    memory: 4Gi
     ephemeral-storage: 4Gi
+    memory: 4Gi
   requests:
     cpu: 1
-    memory: 2Gi
     ephemeral-storage: 2Gi
+    memory: 2Gi
 
 extraNodeSelectors: {}
 
