@@ -94,15 +94,8 @@ pipelines:
   capabilities:
     - arch_arm64
 
-affinity:
-  nodeAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: kubernetes.io/arch
-              operator: In
-              values:
-                - arm64
+extraNodeSelectors:
+  kubernetes.io/arch: arm64
 ```
 
 Deploy the Helm instance:
