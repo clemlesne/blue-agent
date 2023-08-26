@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim@sha256:03aae52deb58521b0368987571f85872af90e7e04496f7927fe84968d2bd3d49 as base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim@sha256:39f2c3efb84d744c63f43ee1c206d560d67444858e9622a9c5db93d5ef221dc8 as base
 
 # Force apt-get to not use TTY
 ENV DEBIAN_FRONTEND noninteractive
