@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v3.6.0
         with:
           # We need all Git history for testing credentials
           fetch-depth: 0
@@ -79,7 +79,7 @@ jobs:
           submodules: recursive
 
       - name: SAST - Credentials
-        uses: trufflesecurity/trufflehog@v3.47.0
+        uses: trufflesecurity/trufflehog@v3.53.0
         with:
           base: ${{ github.event.repository.default_branch }}
           head: HEAD
@@ -94,7 +94,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v3.6.0
         with:
           # We need all Git history for "version.sh"
           fetch-depth: 0
@@ -114,7 +114,7 @@ jobs:
 
       # Required for running "npx" CLI
       - name: Setup Node
-        uses: actions/setup-node@v3.7.0
+        uses: actions/setup-node@v3.8.1
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -170,7 +170,7 @@ jobs:
               snyk.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2.21.3
+        uses: github/codeql-action/upload-sarif@v2.21.4
         with:
           sarif_file: merged.sarif
 
@@ -185,7 +185,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v3.6.0
         with:
           # Chart Releaser needs to have local access to "gh-pages" plus current branch
           fetch-depth: 0
@@ -214,11 +214,11 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v3.6.0
 
       # Required for running "npx" CLI
       - name: Setup Node
-        uses: actions/setup-node@v3.7.0
+        uses: actions/setup-node@v3.8.1
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -255,7 +255,7 @@ jobs:
             arch: linux/amd64,linux/arm64
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v3.6.0
         with:
           # We need all Git history for "version.sh"
           fetch-depth: 0
@@ -288,7 +288,7 @@ jobs:
 
       # Required for running "npx" CLI
       - name: Setup Node
-        uses: actions/setup-node@v3.7.0
+        uses: actions/setup-node@v3.8.1
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -405,7 +405,7 @@ jobs:
               snyk-*.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2.21.3
+        uses: github/codeql-action/upload-sarif@v2.21.4
         with:
           sarif_file: merged.sarif
 
@@ -426,7 +426,7 @@ jobs:
             runs-on: windows-2019
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v3.6.0
         with:
           # We need all Git history for "version.sh"
           fetch-depth: 0
@@ -579,7 +579,7 @@ jobs:
             ${{ steps.tag.outputs.tag }}
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2.21.3
+        uses: github/codeql-action/upload-sarif@v2.21.4
         with:
           sarif_file: snyk.sarif
 
@@ -590,7 +590,7 @@ jobs:
       image: returntocorp/semgrep
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v3.6.0
 
       - name: Run tests
         # Semgrep can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub Security
@@ -600,7 +600,7 @@ jobs:
         run: semgrep ci --sarif --output=semgrep.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2.21.3
+        uses: github/codeql-action/upload-sarif@v2.21.4
         with:
           sarif_file: semgrep.sarif
 
@@ -611,7 +611,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v3.6.0
 
       - name: Setup ORAS
         uses: oras-project/setup-oras@v1.0.0

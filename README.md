@@ -94,15 +94,8 @@ pipelines:
   capabilities:
     - arch_arm64
 
-affinity:
-  nodeAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: kubernetes.io/arch
-              operator: In
-              values:
-                - arm64
+extraNodeSelectors:
+  kubernetes.io/arch: arm64
 ```
 
 Deploy the Helm instance:
@@ -392,7 +385,7 @@ extraVolumeMounts:
 | `pipelines.tmpdir.volumeEnabled` | Enabled by default, can be disabled if your CSI driver doesn't support ephemeral storage ([exhaustive list](https://kubernetes-csi.github.io/docs/drivers.html)). If disabled, it is advised to allow >= 10Gi of ephemeral storage usage (see `resources`).                                              | `true`                                                                                                                                                          |
 | `podSecurityContext`             | Security rules applied to the Pod ([more details](https://kubernetes.io/docs/concepts/security/pod-security-standards)).                                                                                                                                                                                 | `{}`                                                                                                                                                            |
 | `replicaCount`                   | Default fixed amount of agents deployed. Those are not auto-scaled.                                                                                                                                                                                                                                      | `3`                                                                                                                                                             |
-| `resources`                      | Resource limits                                                                                                                                                                                                                                                                                          | `{ "resources": { "limits": { "cpu": 2, "memory": "4Gi", "ephemeral-storage": "4Gi" }, "requests": { "cpu": 1, "memory": "2Gi", "ephemeral-storage": "2Gi" }}}` |
+| `resources`                      | Resource limits                                                                                                                                                                                                                                                                                          | `{ "resources": { "limits": { "cpu": 2, "memory": "4Gi", "ephemeral-storage": "8Gi" }, "requests": { "cpu": 1, "memory": "2Gi", "ephemeral-storage": "2Gi" }}}` |
 | `secret.create`                  | Create Secret, must contains `personalAccessToken` and `organizationURL` variables.                                                                                                                                                                                                                      | `true`                                                                                                                                                          |
 | `secret.name`                    | Secret name                                                                                                                                                                                                                                                                                              | _Release name_                                                                                                                                                  |
 | `securityContext`                | Security rules applied to the container ([more details](https://kubernetes.io/docs/concepts/security/pod-security-standards)).                                                                                                                                                                           | `{}`                                                                                                                                                            |
@@ -409,6 +402,11 @@ These actions can enhance your system performance:
 - No `emptyDir` is used (see `pipelines.cache.volumeEnabled`, `pipelines.tmpdir.volumeEnabled`, and `extraVolumes`).
 - SSD volumes are used for both cache (see `pipelines.cache`) and system temporary directory (see `pipelines.tmpdir`). For exemple, in Azure, the `managed-csi-premium` volume type is a high-performance SSD.
 - The network bewteen Azure DevOps server and agents has a low latency.
+
+BuikdKit specifics:
+
+- Choose an ephemeral disk for the cache in `/app-root/.local/share/buildkit`, instead of an emptyDir.
+- Use an high-performance disk for the cache, exemple `managed-csi-premium` in Azure.
 
 ### Proxy
 

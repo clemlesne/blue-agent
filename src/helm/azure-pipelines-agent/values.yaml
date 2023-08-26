@@ -63,7 +63,7 @@ securityContext: {}
 resources:
   limits:
     cpu: 2
-    ephemeral-storage: 4Gi
+    ephemeral-storage: 8Gi
     memory: 4Gi
   requests:
     cpu: 1

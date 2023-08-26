@@ -1,11 +1,49 @@
 # Troubleshooting
 
+## Pods are evicted by Kubernetes with the message `Pod ephemeral local storage usage exceeds the total limit of containers`
+
+This error is due to the fact that the default ephemeral storage limit is set to a lower value than the one used by the pipeline. You can fix it by setting the value to more than default value in `resources.limits.ephemeral-storage`.
+
+This error notably happens when using BuildKit with an `emptyDir` and a large number of layers.
+
+```yaml
+# values.yaml (extract)
+resources:
+  limits:
+    ephemeral-storage: 16Gi
+```
+
+## Pods are started but never selected by Azure DevOps when using multiple architectures
+
+Prefer hardcoding the architecture in both the pipeline and the Helm values. As this, KEDA will be able to select the right pods matching the architecture. Otherwise, there is a possibility that the deployment selected by KEDA is not matching the requested architecture.
+
+```yaml
+# azure-pipelines.yaml (extract)
+stages:
+  - stage: test
+    jobs:
+      - job: test
+        pool:
+          demands:
+            - arch_x64
+```
+
+```yaml
+# values.yaml (extract)
+extraNodeSelectors:
+  kubernetes.io/arch: arm64
+
+pipelines:
+  capabilities:
+    - arch_arm64
+```
+
 ## Container fails to a `ContainerStatusUnknown` state
 
 Error is often due to two things:
 
 - Kubernetes is not able to pull the image: check the image name and the credentials, if you are using the public registry, mind the domain whitelist
-- Pod has been ecivted by Kubernetes due to the excessive local storage usage: parameter `ephemeral-storage` in `resources` Helm values is set to 4Gi by default, you can increase it to 10Gi for example
+- Pod has been ecivted by Kubernetes due to the excessive local storage usage: parameter `ephemeral-storage` in `resources` Helm values is set to `8Gi` by default, you can increase it to `16Gi` for example
 
 ## Namespaces must be set to a non-zero value
 
