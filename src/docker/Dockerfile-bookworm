@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0-bookworm-slim@sha256:d9c46e7265ab5dacd41ab10253da89639afe63db10265912bfd779395ea5ad02 as base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-bookworm-slim@sha256:29b8cf3908e4aff3e442411c52d0074a3f5963828c4a68902284f8f88beedcb3 as base
 
 # Force apt-get to not use TTY
 ENV DEBIAN_FRONTEND noninteractive
