@@ -443,6 +443,12 @@ jobs:
           echo "version=$(powershell cicd/version/version.ps1 -g . -c)" >> $Env:GITHUB_OUTPUT
           echo "version_full=$(powershell cicd/version/version.ps1 -g . -c -m)" >> $Env:GITHUB_OUTPUT
 
+      # Required for running "npx" CLI
+      - name: Setup Node
+        uses: actions/setup-node@v3.8.1
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
       - name: Login to registry - GitHub
         uses: docker/login-action@v2.2.0
         with:
