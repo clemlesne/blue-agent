@@ -118,7 +118,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Prepare GPG key for Helm chart
+      - name: Prepare GPG key
         run: |
           echo "${{ secrets.GPG_KEYRING }}" | gpg --dearmor > keyring.gpg
 
@@ -394,8 +394,6 @@ jobs:
               ${{ steps.tag.outputs.tag }}
           done
 
-      # Fix issue "Error: Code Scanning could not process the submitted SARIF file: rejecting SARIF, as there are more runs than allowed (XX > 20)"
-      # See: https://github.com/github/codeql-action/issues/220
       - name: Merge SARIF files
         run: |
           npx --yes @microsoft/sarif-multitool@${{ env.SARIF_MULTITOOL_VERSION }} merge \
@@ -554,7 +552,7 @@ jobs:
 
           Write-Host "Pulling cache images:"
           foreach ($tag in $tags) {
-            Write-Host "  $tag"
+            Write-Host " $tag"
             docker pull --quiet $tag || true
           }
 
