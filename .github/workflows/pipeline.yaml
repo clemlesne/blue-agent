@@ -20,6 +20,8 @@ env:
   CONTAINER_NAME: ${{ github.repository }}
   CONTAINER_REGISTRY_GHCR: ghcr.io
   CONTAINER_REGISTRY_DOCKER_HUB: docker.io
+  # https://github.com/sigstore/cosign/releases
+  COSIGN_VERSION: 2.2.0
   # https://npmjs.com/package/@microsoft/sarif-multitool?activeTab=versions
   SARIF_MULTITOOL_VERSION: 4.3.0
   # https://npmjs.com/package/snyk?activeTab=versions
@@ -293,6 +295,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Setup Cosign
+        uses: sigstore/cosign-installer@v3.1.1
+        with:
+          cosign-release: v${{ env.COSIGN_VERSION }}
+
       - name: Login to registry - GitHub
         uses: docker/login-action@v2.2.0
         with:
@@ -377,7 +384,21 @@ jobs:
           sbom: true
           tags: ${{ steps.meta.outputs.tags }}
 
-      - name: Run SAST Snyk on container image
+      - name: Sign containers
+        env:
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+        run: |
+          while IFS= read -r tag; do
+            echo "Signing $tag..."
+            cosign sign \
+              --key="env://COSIGN_PRIVATE_KEY" \
+              --recursive \
+              --yes \
+              $tag
+          done <<< "${{ steps.meta.outputs.tags }}"
+
+      - name: Run SAST Snyk against containers
         # Snyk can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub Security
         continue-on-error: true
         env:
@@ -448,6 +469,11 @@ jobs:
         uses: actions/setup-node@v3.8.1
         with:
           node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup Cosign
+        uses: sigstore/cosign-installer@v3.1.1
+        with:
+          cosign-release: v${{ env.COSIGN_VERSION }}
 
       - name: Login to registry - GitHub
         uses: docker/login-action@v2.2.0
@@ -570,7 +596,22 @@ jobs:
             docker push --quiet $tag
           }
 
-      - name: Run SAST Snyk on container image
+      - name: Sign containers
+        env:
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+        run: |
+          $tags = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine)
+          foreach ($tag in $tags) {
+            Write-Host "Signing $tag..."
+            cosign sign `
+              --key="env://COSIGN_PRIVATE_KEY" `
+              --recursive `
+              --yes `
+              $tag
+          }
+
+      - name: Run SAST Snyk against containers
         # Snyk can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub Security
         continue-on-error: true
         env:

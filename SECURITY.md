@@ -24,7 +24,33 @@ If you think you have found a vulnerability, please do not open an issue on GitH
 
 ## Chain of trust
 
-The Helm chart is signed with a GPG key. [The public key is available on Keybase at the following address.](https://keybase.io/clemlesne/pgp_keys.asc)
+Both the containers and the Helm chart are signed:
+
+### Containers
+
+Containers are signed with Cosign, public key is available in [`cosign.pub`](cosign.pub) at the root of the repository.
+
+```bash
+# Example of verification
+❯ cosign verify --key cosign.pub ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main
+Verification for ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main --
+The following checks were performed on each of these signatures:
+  - The cosign claims were validated
+  - Existence of the claims in the transparency log was verified offline
+  - The signatures were verified against the specified public key
+```
+
+### Helm chart
+
+Helm chart is signed with a GPG key, public key is [available on Keybase](https://keybase.io/clemlesne/pgp_keys.asc) and in [`pubring.gpg`](pubring.gpg) at the root of the repository.
+
+```bash
+# Example of verification
+❯ helm fetch --keyring pubring.gpg --verify clemlesne-azure-pipelines-agent/azure-pipelines-agent --version 5.0.0
+Signed by: Clémence Lesné <clemence@lesne.pro>
+Using Key With Fingerprint: 417E701DBC66834CA752C920460D072B9C032DFD
+Chart Hash Verified: sha256:1c23e22cffc132ce12489480d139b59e97b3cb49ff1599a4ae11fb5c317c1e64
+```
 
 ## Reliability notes
 
