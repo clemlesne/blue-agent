@@ -120,6 +120,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Setup Cosign
+        uses: sigstore/cosign-installer@v3.1.1
+        with:
+          cosign-release: v${{ env.COSIGN_VERSION }}
+
       - name: Prepare GPG key
         run: |
           echo "${{ secrets.GPG_KEYRING }}" | gpg --dearmor > keyring.gpg
@@ -136,6 +141,17 @@ jobs:
             --sign \
             --version ${{ steps.version.outputs.version }} \
             src/helm/azure-pipelines-agent
+
+      - name: Sign Helm chart
+        env:
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+        run: |
+          cosign sign-blob \
+            --bundle .cr-release-packages/azure-pipelines-agent-${{ steps.version.outputs.version }}.tgz.bundle \
+            --key="env://COSIGN_PRIVATE_KEY" \
+            --yes \
+            .cr-release-packages/azure-pipelines-agent-${{ steps.version.outputs.version }}.tgz
 
       - name: Cache Helm chart
         uses: actions/upload-artifact@v3.1.2

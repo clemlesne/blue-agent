@@ -28,10 +28,10 @@ Both the containers and the Helm chart are signed:
 
 ### Containers
 
-Containers are signed with Cosign, public key is available in [`cosign.pub`](cosign.pub) at the root of the repository.
+Containers are signed with Cosign. Public key is available in [`cosign.pub`](cosign.pub) at the root of the repository.
 
 ```bash
-# Example of verification
+# Example of verification with Cosign
 ❯ cosign verify --key cosign.pub ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main
 Verification for ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main --
 The following checks were performed on each of these signatures:
@@ -42,14 +42,23 @@ The following checks were performed on each of these signatures:
 
 ### Helm chart
 
-Helm chart is signed with a GPG key, public key is [available on Keybase](https://keybase.io/clemlesne/pgp_keys.asc) and in [`pubring.gpg`](pubring.gpg) at the root of the repository.
+Helm chart is signed with two methods, GPG and Cosign. Both methods can be used to confirm authenticity of a build. Public key is [available on Keybase](https://keybase.io/clemlesne/pgp_keys.asc) and in [`pubring.gpg`](pubring.gpg) at the root of the repository.
 
 ```bash
-# Example of verification
+# Example of verification with Helm native signature
 ❯ helm fetch --keyring pubring.gpg --verify clemlesne-azure-pipelines-agent/azure-pipelines-agent --version 5.0.0
 Signed by: Clémence Lesné <clemence@lesne.pro>
 Using Key With Fingerprint: 417E701DBC66834CA752C920460D072B9C032DFD
 Chart Hash Verified: sha256:1c23e22cffc132ce12489480d139b59e97b3cb49ff1599a4ae11fb5c317c1e64
+```
+
+```bash
+# Example of verification with Cosign
+❯ VERSION=5.0.0
+❯ wget https://github.com/clemlesne/azure-pipelines-agent/releases/download/azure-pipelines-agent-${VERSION}/azure-pipelines-agent-${VERSION}.tgz.bundle
+❯ helm pull clemlesne-azure-pipelines-agent/azure-pipelines-agent --version 5.0.0
+❯ cosign verify-blob azure-pipelines-agent-${VERSION}.tgz --bundle azure-pipelines-agent-${VERSION}.tgz.bundle --key cosign.pub
+Verified OK
 ```
 
 ## Reliability notes
