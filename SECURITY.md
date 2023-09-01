@@ -28,7 +28,9 @@ Both the containers and the Helm chart are signed:
 
 ### Containers
 
-Containers are signed with Cosign. Public key is available in [`cosign.pub`](cosign.pub) at the root of the repository.
+Containers are signed with Cosign.
+
+Cosign public key is available in [`/cosign.pub`](cosign.pub).
 
 ```bash
 # Example of verification with Cosign
@@ -42,7 +44,12 @@ The following checks were performed on each of these signatures:
 
 ### Helm chart
 
-Helm chart is signed with two methods, GPG and Cosign. Both methods can be used to confirm authenticity of a build. Public key is [available on Keybase](https://keybase.io/clemlesne/pgp_keys.asc) and in [`pubring.gpg`](pubring.gpg) at the root of the repository.
+Helm chart is signed with two methods, Cosign and GPG. Both methods can be used to confirm authenticity of a build.
+
+Keys:
+
+- Cosign public key is available in [`/cosign.pub`](cosign.pub).
+- GPG public key is [available on Keybase](https://keybase.io/clemlesne/pgp_keys.asc) and in [`/pubring.gpg`](pubring.gpg).
 
 ```bash
 # Example of verification with Helm native signature
