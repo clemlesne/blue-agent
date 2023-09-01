@@ -24,7 +24,10 @@ If you think you have found a vulnerability, please do not open an issue on GitH
 
 ## Chain of trust
 
-The Helm chart is signed with a GPG key. [The public key is available on Keybase at the following address.](https://keybase.io/clemlesne/pgp_keys.asc)
+Both the containers and the Helm chart are signed:
+
+- Containers are signed with Cosign, public keys are available at [`cosign.pub`](cosign.pub) at the root of the repository.
+- Helm chart is signed with a GPG key. [The public key is available on Keybase at the following address.](https://keybase.io/clemlesne/pgp_keys.asc)
 
 ## Reliability notes
 
