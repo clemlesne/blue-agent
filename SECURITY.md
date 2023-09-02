@@ -24,11 +24,53 @@ If you think you have found a vulnerability, please do not open an issue on GitH
 
 ## Chain of trust
 
-The Helm chart is signed with a GPG key. [The public key is available on Keybase at the following address.](https://keybase.io/clemlesne/pgp_keys.asc)
+Both the containers and the Helm chart are signed:
+
+### Containers
+
+Containers are signed with [Cosign](https://github.com/sigstore/cosign).
+
+Cosign public key is available in [`/cosign.pub`](cosign.pub).
+
+```bash
+# Example of verification with Cosign
+❯ cosign verify --key cosign.pub ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main
+Verification for ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main --
+The following checks were performed on each of these signatures:
+  - The cosign claims were validated
+  - Existence of the claims in the transparency log was verified offline
+  - The signatures were verified against the specified public key
+```
+
+### Helm chart
+
+Helm chart is signed with two methods, [Cosign](https://github.com/sigstore/cosign) and [GPG](https://helm.sh/docs/topics/provenance). Both methods can be used to confirm authenticity of a build.
+
+Keys:
+
+- Cosign public key is available in [`/cosign.pub`](cosign.pub).
+- GPG public key is [available on Keybase](https://keybase.io/clemlesne/pgp_keys.asc) and in [`/pubring.gpg`](pubring.gpg).
+
+```bash
+# Example of verification with Helm native signature
+❯ helm fetch --keyring pubring.gpg --verify clemlesne-azure-pipelines-agent/azure-pipelines-agent --version 5.0.0
+Signed by: Clémence Lesné <clemence@lesne.pro>
+Using Key With Fingerprint: 417E701DBC66834CA752C920460D072B9C032DFD
+Chart Hash Verified: sha256:1c23e22cffc132ce12489480d139b59e97b3cb49ff1599a4ae11fb5c317c1e64
+```
+
+```bash
+# Example of verification with Cosign
+❯ VERSION=5.0.0
+❯ wget https://github.com/clemlesne/azure-pipelines-agent/releases/download/azure-pipelines-agent-${VERSION}/azure-pipelines-agent-${VERSION}.tgz.bundle
+❯ helm pull clemlesne-azure-pipelines-agent/azure-pipelines-agent --version 5.0.0
+❯ cosign verify-blob azure-pipelines-agent-${VERSION}.tgz --bundle azure-pipelines-agent-${VERSION}.tgz.bundle --key cosign.pub
+Verified OK
+```
 
 ## Reliability notes
 
-Systems are built every days. Each image is accompanied by a SBOM (Software Bill of Materials) which allows to verify that the installed packages are those expected. This speed has the advantage of minimizing exposure to security flaws, which will then be corrected on the build environments in 24 hours.
+Systems are built every days. Each image is accompanied by a [SBOM (Software Bill of Materials)](https://en.wikipedia.org/wiki/Software_supply_chain) which allows to verify that the installed packages are those expected. This speed has the advantage of minimizing exposure to security flaws, which will then be corrected on the build environments in 24 hours.
 
 Nevertheless it can happen that a package provider (e.g. Debian, Canonical, Red Hat) deploys a system update that introduces a bug. This is difficult to predict.
 

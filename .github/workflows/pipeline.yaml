@@ -20,6 +20,8 @@ env:
   CONTAINER_NAME: ${{ github.repository }}
   CONTAINER_REGISTRY_GHCR: ghcr.io
   CONTAINER_REGISTRY_DOCKER_HUB: docker.io
+  # https://github.com/sigstore/cosign/releases
+  COSIGN_VERSION: 2.2.0
   # https://npmjs.com/package/@microsoft/sarif-multitool?activeTab=versions
   SARIF_MULTITOOL_VERSION: 4.3.0
   # https://npmjs.com/package/snyk?activeTab=versions
@@ -79,7 +81,7 @@ jobs:
           submodules: recursive
 
       - name: SAST - Credentials
-        uses: trufflesecurity/trufflehog@v3.53.0
+        uses: trufflesecurity/trufflehog@v3.54.1
         with:
           base: ${{ github.event.repository.default_branch }}
           head: HEAD
@@ -118,7 +120,12 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Prepare GPG key for Helm chart
+      - name: Setup Cosign
+        uses: sigstore/cosign-installer@v3.1.1
+        with:
+          cosign-release: v${{ env.COSIGN_VERSION }}
+
+      - name: Prepare GPG key
         run: |
           echo "${{ secrets.GPG_KEYRING }}" | gpg --dearmor > keyring.gpg
 
@@ -134,6 +141,17 @@ jobs:
             --sign \
             --version ${{ steps.version.outputs.version }} \
             src/helm/azure-pipelines-agent
+
+      - name: Sign Helm chart
+        env:
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+        run: |
+          cosign sign-blob \
+            --bundle .cr-release-packages/azure-pipelines-agent-${{ steps.version.outputs.version }}.tgz.bundle \
+            --key="env://COSIGN_PRIVATE_KEY" \
+            --yes \
+            .cr-release-packages/azure-pipelines-agent-${{ steps.version.outputs.version }}.tgz
 
       - name: Cache Helm chart
         uses: actions/upload-artifact@v3.1.2
@@ -163,14 +181,15 @@ jobs:
       # See: https://github.com/github/codeql-action/issues/220
       - name: Merge SARIF files
         run: |
-          npx --yes @microsoft/sarif-multitool@${{ env.SARIF_MULTITOOL_VERSION }} \
-            merge \
-              --merge-runs \
-              --output-file merged.sarif \
-              snyk.sarif
+          npx --yes @microsoft/sarif-multitool@${{ env.SARIF_MULTITOOL_VERSION }} merge \
+            --automation-id ${{ github.run_id }} \
+            --merge-empty-logs \
+            --merge-runs \
+            --output-file merged.sarif \
+            snyk.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2.21.4
+        uses: github/codeql-action/upload-sarif@v2.21.5
         with:
           sarif_file: merged.sarif
 
@@ -280,7 +299,7 @@ jobs:
           platforms: ${{ matrix.arch }}
 
       - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v2.9.1
+        uses: docker/setup-buildx-action@v2.10.0
         with:
           version: v${{ env.BUILDX_VERSION }}
           driver-opts: |
@@ -291,6 +310,11 @@ jobs:
         uses: actions/setup-node@v3.8.1
         with:
           node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup Cosign
+        uses: sigstore/cosign-installer@v3.1.1
+        with:
+          cosign-release: v${{ env.COSIGN_VERSION }}
 
       - name: Login to registry - GitHub
         uses: docker/login-action@v2.2.0
@@ -376,7 +400,21 @@ jobs:
           sbom: true
           tags: ${{ steps.meta.outputs.tags }}
 
-      - name: Run SAST Snyk on container image
+      - name: Sign containers
+        env:
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+        run: |
+          while IFS= read -r tag; do
+            echo "Signing $tag..."
+            cosign sign \
+              --key="env://COSIGN_PRIVATE_KEY" \
+              --recursive \
+              --yes \
+              $tag
+          done <<< "${{ steps.meta.outputs.tags }}"
+
+      - name: Run SAST Snyk against containers
         # Snyk can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub Security
         continue-on-error: true
         env:
@@ -393,19 +431,17 @@ jobs:
               ${{ steps.tag.outputs.tag }}
           done
 
-      # Fix issue "Error: Code Scanning could not process the submitted SARIF file: rejecting SARIF, as there are more runs than allowed (XX > 20)"
-      # See: https://github.com/github/codeql-action/issues/220
       - name: Merge SARIF files
         run: |
-          npx --yes @microsoft/sarif-multitool@${{ env.SARIF_MULTITOOL_VERSION }} \
-            merge \
-              --merge-runs \
-              --output-file merged.sarif \
-              --recurse true \
-              snyk-*.sarif
+          npx --yes @microsoft/sarif-multitool@${{ env.SARIF_MULTITOOL_VERSION }} merge \
+            --automation-id ${{ github.run_id }} \
+            --merge-empty-logs \
+            --merge-runs \
+            --output-file merged.sarif \
+            *.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2.21.4
+        uses: github/codeql-action/upload-sarif@v2.21.5
         with:
           sarif_file: merged.sarif
 
@@ -443,6 +479,17 @@ jobs:
         run: |
           echo "version=$(powershell cicd/version/version.ps1 -g . -c)" >> $Env:GITHUB_OUTPUT
           echo "version_full=$(powershell cicd/version/version.ps1 -g . -c -m)" >> $Env:GITHUB_OUTPUT
+
+      # Required for running "npx" CLI
+      - name: Setup Node
+        uses: actions/setup-node@v3.8.1
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup Cosign
+        uses: sigstore/cosign-installer@v3.1.1
+        with:
+          cosign-release: v${{ env.COSIGN_VERSION }}
 
       - name: Login to registry - GitHub
         uses: docker/login-action@v2.2.0
@@ -553,7 +600,7 @@ jobs:
 
           Write-Host "Pulling cache images:"
           foreach ($tag in $tags) {
-            Write-Host "  $tag"
+            Write-Host " $tag"
             docker pull --quiet $tag || true
           }
 
@@ -565,7 +612,22 @@ jobs:
             docker push --quiet $tag
           }
 
-      - name: Run SAST Snyk on container image
+      - name: Sign containers
+        env:
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+        run: |
+          $tags = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine)
+          foreach ($tag in $tags) {
+            Write-Host "Signing $tag..."
+            cosign sign `
+              --key="env://COSIGN_PRIVATE_KEY" `
+              --recursive `
+              --yes `
+              $tag
+          }
+
+      - name: Run SAST Snyk against containers
         # Snyk can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub Security
         continue-on-error: true
         env:
@@ -579,7 +641,7 @@ jobs:
             ${{ steps.tag.outputs.tag }}
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2.21.4
+        uses: github/codeql-action/upload-sarif@v2.21.5
         with:
           sarif_file: snyk.sarif
 
@@ -600,7 +662,7 @@ jobs:
         run: semgrep ci --sarif --output=semgrep.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2.21.4
+        uses: github/codeql-action/upload-sarif@v2.21.5
         with:
           sarif_file: semgrep.sarif
 
