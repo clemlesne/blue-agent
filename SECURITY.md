@@ -28,7 +28,7 @@ Both the containers and the Helm chart are signed:
 
 ### Containers
 
-Containers are signed with Cosign.
+Containers are signed with [Cosign](https://github.com/sigstore/cosign).
 
 Cosign public key is available in [`/cosign.pub`](cosign.pub).
 
@@ -44,7 +44,7 @@ The following checks were performed on each of these signatures:
 
 ### Helm chart
 
-Helm chart is signed with two methods, Cosign and GPG. Both methods can be used to confirm authenticity of a build.
+Helm chart is signed with two methods, [Cosign](https://github.com/sigstore/cosign) and [GPG](https://helm.sh/docs/topics/provenance). Both methods can be used to confirm authenticity of a build.
 
 Keys:
 
@@ -70,7 +70,7 @@ Verified OK
 
 ## Reliability notes
 
-Systems are built every days. Each image is accompanied by a SBOM (Software Bill of Materials) which allows to verify that the installed packages are those expected. This speed has the advantage of minimizing exposure to security flaws, which will then be corrected on the build environments in 24 hours.
+Systems are built every days. Each image is accompanied by a [SBOM (Software Bill of Materials)](https://en.wikipedia.org/wiki/Software_supply_chain) which allows to verify that the installed packages are those expected. This speed has the advantage of minimizing exposure to security flaws, which will then be corrected on the build environments in 24 hours.
 
 Nevertheless it can happen that a package provider (e.g. Debian, Canonical, Red Hat) deploys a system update that introduces a bug. This is difficult to predict.
 

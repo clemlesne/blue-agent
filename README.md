@@ -19,14 +19,15 @@
 
 Features:
 
-- Agent register and restart itself.
-- Allow to build containers inside the agent using [BuildKit](https://github.com/moby/buildkit).
-- Can run air-gapped (no internet access).
-- Cheap to run (dynamic provisioning of agents, can scale from 0 to 100+ in few seconds with [KEDA](https://keda.sh)).
-- Performances can be customized depending of the engineering needs, which goes far beyond the Microsoft-hosted agent.
-- Pre-built with Windows Server, Debian, Ubuntu, Red Hat Enterprise Linux.
-- SBOM (Software Bill of Materials) is packaged with each container image.
-- System updates are applied every days.
+- 🔄 Agent register and restart itself.
+- 🏗️ Allow to build containers inside the agent using [BuildKit](https://github.com/moby/buildkit).
+- 🔒 Build authenticity can be cryptographically verified with [Cosign](https://github.com/sigstore/cosign) and GPG.
+- 📵 Can run air-gapped (no internet access).
+- 💰 Cheap to run (dynamic provisioning of agents, can scale from 0 to 100+ in few seconds with [KEDA](https://keda.sh)).
+- 💪 Performances can be customized depending of the engineering needs, which goes far beyond the Microsoft-hosted agent.
+- 🖥️ Pre-built with [Windows Server](https://www.microsoft.com/en-us/windows-server), [Debian](https://debian.org), [Ubuntu](https://ubuntu.com), [Red Hat Enterprise Linux](https://access.redhat.com/products/red-hat-enterprise-linux).
+- 📦 [SBOM (Software Bill of Materials)](https://en.wikipedia.org/wiki/Software_supply_chain) is packaged with each container image.
+- 🔄 System updates are applied every day.
 
 ## Usage
 
@@ -59,15 +60,15 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 
 > Container images are both published to GitHub Container Registry and Docker Hub. URLs showed in the doc are GitHub Container Registry URLs, for simplicity. To use Docker Hub, replace `ghcr.io/clemlesne/azure-pipelines-agent` by `docker.io/clemlesne/azure-pipelines-agent`.
 
-| `Ref`                                                       | OS                           | `Size`                                                                                                                        | `Arch`              | Support                                                                                                                                           |
-| ----------------------------------------------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ghcr.io/clemlesne/azure-pipelines-agent:bookworm-main`     | Debian Bookworm (12) slim    | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/bookworm-main?label=)     | `amd64`, `arm64/v8` | [See Debian LTS wiki.](https://wiki.debian.org/LTS)                                                                                               |
-| `ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main`     | Debian Bullseye (11) slim    | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/bullseye-main?label=)     | `amd64`, `arm64/v8` | [See Debian LTS wiki.](https://wiki.debian.org/LTS)                                                                                               |
-| `ghcr.io/clemlesne/azure-pipelines-agent:focal-main`        | Ubuntu Focal (20.04) minimal | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/focal-main?label=)        | `amd64`, `arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases)                                                                                          |
-| `ghcr.io/clemlesne/azure-pipelines-agent:jammy-main`        | Ubuntu Jammy (22.04) minimal | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/jammy-main?label=)        | `amd64`, `arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases)                                                                                          |
-| `ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main`         | Red Hat UBI 8 (8.8) minimal  | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/ubi8-main?label=)         | `amd64`, `arm64/v8` | [See Red Hat product life cycles.](https://access.redhat.com/product-life-cycles/?product=Red%20Hat%20Enterprise%20Linux)                         |
-| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019-main` | Windows Server 2019 Core     | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/win-ltsc2019-main?label=) | `amd64`             | [See base image servicing lifecycles.](https://learn.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/base-image-lifecycle) |
-| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022-main` | Windows Server 2022 Core     | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/win-ltsc2022-main?label=) | `amd64`             | [See base image servicing lifecycles.](https://learn.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/base-image-lifecycle) |
+| `Ref`                                                       | OS                                                                            | `Size`                                                                                                                        | `Arch`              | Support                                                                                                                                           |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ghcr.io/clemlesne/azure-pipelines-agent:bookworm-main`     | [Debian Bookworm (12)](https://www.debian.org/releases/bookworm) slim         | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/bookworm-main?label=)     | `amd64`, `arm64/v8` | [See Debian LTS wiki.](https://wiki.debian.org/LTS)                                                                                               |
+| `ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main`     | [Debian Bullseye (11)](https://www.debian.org/releases/bullseye) slim         | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/bullseye-main?label=)     | `amd64`, `arm64/v8` | [See Debian LTS wiki.](https://wiki.debian.org/LTS)                                                                                               |
+| `ghcr.io/clemlesne/azure-pipelines-agent:focal-main`        | [Ubuntu Focal (20.04)](https://www.releases.ubuntu.com/focal) minimal         | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/focal-main?label=)        | `amd64`, `arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases)                                                                                          |
+| `ghcr.io/clemlesne/azure-pipelines-agent:jammy-main`        | [Ubuntu Jammy (22.04)](https://www.releases.ubuntu.com/jammy) minimal         | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/jammy-main?label=)        | `amd64`, `arm64/v8` | [See Ubuntu LTS wiki.](https://wiki.ubuntu.com/Releases)                                                                                          |
+| `ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main`         | [Red Hat UBI 8 (8.8)](https://developers.redhat.com/articles/ubi-faq) minimal | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/ubi8-main?label=)         | `amd64`, `arm64/v8` | [See Red Hat product life cycles.](https://access.redhat.com/product-life-cycles/?product=Red%20Hat%20Enterprise%20Linux)                         |
+| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019-main` | [Windows Server 2019](https://learn.microsoft.com/en-us/windows-server) Core  | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/win-ltsc2019-main?label=) | `amd64`             | [See base image servicing lifecycles.](https://learn.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/base-image-lifecycle) |
+| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022-main` | [Windows Server 2022](https://learn.microsoft.com/en-us/windows-server) Core  | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/win-ltsc2022-main?label=) | `amd64`             | [See base image servicing lifecycles.](https://learn.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/base-image-lifecycle) |
 
 ## Advanced topics
 
