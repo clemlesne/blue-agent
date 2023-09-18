@@ -154,7 +154,7 @@ jobs:
             .cr-release-packages/azure-pipelines-agent-${{ steps.version.outputs.version }}.tgz
 
       - name: Cache Helm chart
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v3.1.3
         with:
           name: helm-chart
           path: .cr-release-packages
