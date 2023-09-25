@@ -1,4 +1,6 @@
+{{- if (.Values.secret.create) -}}
 Check your Azure DevOps portal at to manage the Azure Pipelines Agent ({{ .Values.pipelines.organizationURL | quote | required "A value for .Values.pipelines.organizationURL is required" }}/_settings/agentpools).
+{{- end -}}
 
 {{- if and (.Values.autoscaling.enabled) (.Capabilities.APIVersions.Has "keda.sh/v1alpha1") -}}
 Your cluster is KEDA enabled, your pipelines agents will scale based on your usage. When you won't use them, they will be automatically removed.
