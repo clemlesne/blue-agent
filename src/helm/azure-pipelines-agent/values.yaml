@@ -13,6 +13,7 @@ replicaCount: 3
 
 autoscaling:
   enabled: true
+  minReplicas: 0
   maxReplicas: 100 # Arbitrary value to avoid misconfiguration; can be enlarged if needed
 
 pipelines:
