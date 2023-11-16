@@ -27,7 +27,7 @@ env:
   # https://npmjs.com/package/snyk?activeTab=versions
   SNYK_VERSION: 1.1200.0
   # https://github.com/microsoft/azure-pipelines-agent/releases
-  AZP_AGENT_VERSION: 3.225.0
+  AZP_AGENT_VERSION: 3.230.0
   # https://github.com/PowerShell/PowerShell/releases
   POWERSHELL_VERSION: 7.2.13
   # https://github.com/krallin/tini/releases
@@ -39,7 +39,7 @@ env:
   # https://github.com/rootless-containers/rootlesskit/releases
   ROOTLESSKIT_VERSION: 1.1.1
   # https://github.com/moby/buildkit/releases
-  BUILDKIT_VERSION: 0.12.1
+  BUILDKIT_VERSION: 0.12.3
   # https://github.com/Azure/azure-cli/releases
   AZURE_CLI_VERSION: 2.51.0
   # https://github.com/stedolan/jq/releases
