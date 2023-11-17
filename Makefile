@@ -1,4 +1,4 @@
-.PHONY: test lint
+.PHONY: test lint build-docker
 
 test:
 	@echo "➡️ Running Prettier..."
@@ -13,3 +13,6 @@ lint:
 
 	@echo "➡️ Running Hadolint..."
 	find . -name "Dockerfile*" -exec bash -c "echo 'File {}:' && hadolint {}" \;
+
+build-docker:
+	bash cicd/docker-build-local.sh
