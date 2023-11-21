@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0-windowsservercore-ltsc2022@sha256:a8815178c4258479312ae0ce16fe11ebba0bf15a90bbfdb5f2b849b1fa70dace
+FROM mcr.microsoft.com/dotnet/sdk:6.0-windowsservercore-ltsc2022@sha256:6e55dbc81647b9b0d7b68db015313ee5d24eab44a7daf411d2c05454e44c5ee0
 
 # Configure local user
 USER ContainerAdministrator
@@ -11,7 +11,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 # Install Powershell, then verify installation
 ARG POWERSHELL_VERSION
 ENV POWERSHELL_VERSION ${POWERSHELL_VERSION}
-RUN curl -LsSf --retry 4 "https://github.com/PowerShell/PowerShell/releases/download/v%POWERSHELL_VERSION%/PowerShell-%POWERSHELL_VERSION%-win-x64.msi" -o powershell.msi \
+RUN curl -LsSf --retry 8 --retry-all-errors "https://github.com/PowerShell/PowerShell/releases/download/v%POWERSHELL_VERSION%/PowerShell-%POWERSHELL_VERSION%-win-x64.msi" -o powershell.msi \
     && msiexec.exe /i powershell.msi /qn /norestart \
     && del /q powershell.msi
 RUN pwsh -Version
@@ -20,7 +20,7 @@ SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference
 # Install Git, then verify installation
 ARG GIT_VERSION
 ENV GIT_VERSION ${GIT_VERSION}
-RUN curl -LsSf --retry 4 "https://github.com/git-for-windows/git/releases/download/v${Env:GIT_VERSION}.windows.1/Git-${Env:GIT_VERSION}-64-bit.exe" -o git.exe \
+RUN curl -LsSf --retry 8 --retry-all-errors "https://github.com/git-for-windows/git/releases/download/v${Env:GIT_VERSION}.windows.1/Git-${Env:GIT_VERSION}-64-bit.exe" -o git.exe \
     && Start-Process git.exe -Wait -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /NOCANCEL /SP-' \
     && Remove-Item git.exe
 RUN git --version
@@ -29,7 +29,7 @@ RUN git --version
 ARG JQ_VERSION
 ENV JQ_VERSION ${JQ_VERSION}
 RUN mkdir 'C:\Program Files\jq' \
-    && curl -LsSf --retry 4 "https://github.com/stedolan/jq/releases/download/jq-${Env:JQ_VERSION}/jq-win64.exe" -o 'C:\Program Files\jq\jq.exe' \
+    && curl -LsSf --retry 8 --retry-all-errors "https://github.com/stedolan/jq/releases/download/jq-${Env:JQ_VERSION}/jq-win64.exe" -o 'C:\Program Files\jq\jq.exe' \
     && [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\Program Files\jq', [EnvironmentVariableTarget]::Machine)
 # hadolint ignore=DL3059
 RUN jq --version
@@ -37,7 +37,7 @@ RUN jq --version
 # Install Python, then verify installation
 ARG PYTHON_VERSION
 ENV PYTHON_VERSION ${PYTHON_VERSION}
-RUN curl -LsSf --retry 4 "https://python.org/ftp/python/${Env:PYTHON_VERSION}/python-${Env:PYTHON_VERSION}-amd64.exe" -o python.exe \
+RUN curl -LsSf --retry 8 --retry-all-errors "https://python.org/ftp/python/${Env:PYTHON_VERSION}/python-${Env:PYTHON_VERSION}-amd64.exe" -o python.exe \
     && Start-Process python.exe -Wait -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1 Include_test=0' \
     && Remove-Item python.exe
 RUN python --version \
@@ -62,7 +62,7 @@ RUN python -m pip \
 # Install AWS CLI, then verify installation
 ARG AWS_CLI_VERSION
 ENV AWS_CLI_VERSION ${AWS_CLI_VERSION}
-RUN curl -LsSf --retry 4 "https://awscli.amazonaws.com/AWSCLIV2-${Env:AWS_CLI_VERSION}.msi" -o awscli.msi \
+RUN curl -LsSf --retry 8 --retry-all-errors "https://awscli.amazonaws.com/AWSCLIV2-${Env:AWS_CLI_VERSION}.msi" -o awscli.msi \
     && Start-Process msiexec.exe -Wait -ArgumentList '/I awscli.msi /qn /norestart' \
     && Remove-Item awscli.msi
 RUN aws --version
@@ -70,7 +70,7 @@ RUN aws --version
 # Install Google Cloud CLI, then verify installation
 ARG GCLOUD_CLI_VERSION
 ENV GCLOUD_CLI_VERSION ${GCLOUD_CLI_VERSION}
-RUN curl -LsSf --retry 4 "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${Env:GCLOUD_CLI_VERSION}-windows-x86_64.zip" -o gcloud.zip \
+RUN curl -LsSf --retry 8 --retry-all-errors "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${Env:GCLOUD_CLI_VERSION}-windows-x86_64.zip" -o gcloud.zip \
     && Expand-Archive -Force gcloud.zip -DestinationPath 'C:\Program Files' \
     && Remove-Item gcloud.zip \
     && Rename-Item 'C:\Program Files\google-cloud-sdk' 'gcloud' \
@@ -82,7 +82,7 @@ RUN gcloud version
 ARG YQ_VERSION
 ENV YQ_VERSION ${YQ_VERSION}
 RUN mkdir 'C:\Program Files\yq' \
-    && curl -LsSf --retry 4 "https://github.com/mikefarah/yq/releases/download/v${Env:YQ_VERSION}/yq_windows_amd64.exe" -o 'C:\Program Files\yq\yq.exe' \
+    && curl -LsSf --retry 8 --retry-all-errors "https://github.com/mikefarah/yq/releases/download/v${Env:YQ_VERSION}/yq_windows_amd64.exe" -o 'C:\Program Files\yq\yq.exe' \
     && [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\Program Files\yq', [EnvironmentVariableTarget]::Machine)
 # hadolint ignore=DL3059
 RUN yq --version
@@ -95,7 +95,7 @@ ENV AZP_HOME ${HOME}\\azp-agent
 # See: https://github.com/microsoft/azure-pipelines-agent/blob/b5ff4408239f3e938560f8b2e3848df76489a8d0/src/Agent.Listener/Agent.cs#L354C24-L354C24
 ENV agent.disableupdate "1"
 RUN mkdir $Env:AZP_HOME \
-    && curl -LsSf --retry 4 "https://vstsagentpackage.azureedge.net/agent/${Env:AZP_AGENT_VERSION}/vsts-agent-win-x64-${Env:AZP_AGENT_VERSION}.zip" -o azp-agent.zip \
+    && curl -LsSf --retry 8 --retry-all-errors "https://vstsagentpackage.azureedge.net/agent/${Env:AZP_AGENT_VERSION}/vsts-agent-win-x64-${Env:AZP_AGENT_VERSION}.zip" -o azp-agent.zip \
     && Expand-Archive -Force azp-agent.zip -DestinationPath $Env:AZP_HOME \
     && Remove-Item azp-agent.zip \
     && & "${Env:AZP_HOME}\run.cmd" --version
@@ -104,7 +104,7 @@ ENV AZP_WORK ${HOME}\\azp-work
 # Install zstd, then verify installation
 ARG ZSTD_VERSION
 ENV ZSTD_VERSION ${ZSTD_VERSION}
-RUN curl -LsSf --retry 4 "https://github.com/facebook/zstd/releases/download/v${Env:ZSTD_VERSION}/zstd-v${Env:ZSTD_VERSION}-win64.zip" -o zstd.zip \
+RUN curl -LsSf --retry 8 --retry-all-errors "https://github.com/facebook/zstd/releases/download/v${Env:ZSTD_VERSION}/zstd-v${Env:ZSTD_VERSION}-win64.zip" -o zstd.zip \
     && Expand-Archive -Force zstd.zip -DestinationPath 'C:\Program Files' \
     && Remove-Item zstd.zip \
     && Rename-Item "C:\Program` Files\zstd-v${Env:ZSTD_VERSION}-win64" 'zstd' \
@@ -117,7 +117,7 @@ RUN zstd --version
 ARG VS_BUILDTOOLS_VERSION
 ENV VS_BUILDTOOLS_VERSION ${VS_BUILDTOOLS_VERSION}
 # TODO: Delete the installer, but it's seems locked, receiving "Remove-Item: Access to the path 'C:\buildtools.exe' is denied."
-RUN curl -LsSf --retry 4 "https://aka.ms/vs/${Env:VS_BUILDTOOLS_VERSION}/release/vs_buildtools.exe" -o buildtools.exe \
+RUN curl -LsSf --retry 8 --retry-all-errors "https://aka.ms/vs/${Env:VS_BUILDTOOLS_VERSION}/release/vs_buildtools.exe" -o buildtools.exe \
     && .\buildtools.exe \
         --installPath 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools' \
         --nocache \
