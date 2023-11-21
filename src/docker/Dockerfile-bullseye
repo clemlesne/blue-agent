@@ -106,7 +106,7 @@ RUN python3 -m pip \
 # Install AWS CLI, then verify installation
 ARG AWS_CLI_VERSION
 ENV AWS_CLI_VERSION ${AWS_CLI_VERSION}
-RUN curl -LsSf --retry 8 --retry-all-errors https://awscli.amazonaws.com/awscli-exe-linux-$(ARCH_X64=x86_64 ARCH_ARM64=aarch64 bash arch.sh).zip -o awscli.zip \
+RUN curl -LsSf --retry 8 --retry-all-errors https://awscli.amazonaws.com/awscli-exe-linux-$(ARCH_X64=x86_64 ARCH_ARM64=aarch64 bash arch.sh)-${AWS_CLI_VERSION}.zip -o awscli.zip \
     && unzip -q awscli.zip \
     && ./aws/install \
     && rm -rf awscli.zip aws \
