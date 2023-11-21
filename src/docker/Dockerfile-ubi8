@@ -69,7 +69,7 @@ FROM base as rootlesskit
 ARG GO_VERSION
 ENV GO_VERSION ${GO_VERSION}
 RUN rm -rf /usr/local/go \
-    && curl -LsSf --retry 4 https://go.dev/dl/go${GO_VERSION}.linux-$(ARCH_X64=amd64 bash arch.sh).tar.gz | tar -xz -C /usr/local
+    && curl -LsSf --retry 8 https://go.dev/dl/go${GO_VERSION}.linux-$(ARCH_X64=amd64 bash arch.sh).tar.gz | tar -xz -C /usr/local
 ENV PATH="${PATH}:/usr/local/go/bin"
 RUN go version
 
@@ -101,7 +101,7 @@ RUN python3 -m pip \
 # Install AWS CLI, then verify installation
 ARG AWS_CLI_VERSION
 ENV AWS_CLI_VERSION ${AWS_CLI_VERSION}
-RUN curl -LsSf --retry 4 https://awscli.amazonaws.com/awscli-exe-linux-$(ARCH_X64=x86_64 ARCH_ARM64=aarch64 bash arch.sh).zip -o awscli.zip \
+RUN curl -LsSf --retry 8 https://awscli.amazonaws.com/awscli-exe-linux-$(ARCH_X64=x86_64 ARCH_ARM64=aarch64 bash arch.sh).zip -o awscli.zip \
     && unzip -q awscli.zip \
     && ./aws/install \
     && rm -rf awscli.zip aws \
@@ -110,7 +110,7 @@ RUN curl -LsSf --retry 4 https://awscli.amazonaws.com/awscli-exe-linux-$(ARCH_X6
 # Install Google Cloud CLI, then verify installation
 ARG GCLOUD_CLI_VERSION
 ENV GCLOUD_CLI_VERSION ${GCLOUD_CLI_VERSION}
-RUN curl -LsSf --retry 4 https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-${GCLOUD_CLI_VERSION}-linux-$(ARCH_X64=x86_64 ARCH_ARM64=arm bash arch.sh).tar.gz | tar -xz -C /usr/local \
+RUN curl -LsSf --retry 8 https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-${GCLOUD_CLI_VERSION}-linux-$(ARCH_X64=x86_64 ARCH_ARM64=arm bash arch.sh).tar.gz | tar -xz -C /usr/local \
     && /usr/local/google-cloud-sdk/install.sh \
         --additional-components beta \
         --quiet \
@@ -124,7 +124,7 @@ RUN curl -LsSf --retry 4 https://dl.google.com/dl/cloudsdk/channels/rapid/downlo
 ARG POWERSHELL_VERSION
 ENV POWERSHELL_VERSION ${POWERSHELL_VERSION}
 RUN mkdir -p /opt/microsoft/powershell \
-    && curl -LsSf --retry 4 https://github.com/PowerShell/PowerShell/releases/download/v${POWERSHELL_VERSION}/powershell-${POWERSHELL_VERSION}-linux-$(bash arch.sh).tar.gz | tar -xz -C /opt/microsoft/powershell \
+    && curl -LsSf --retry 8 https://github.com/PowerShell/PowerShell/releases/download/v${POWERSHELL_VERSION}/powershell-${POWERSHELL_VERSION}-linux-$(bash arch.sh).tar.gz | tar -xz -C /opt/microsoft/powershell \
     && chmod +x /opt/microsoft/powershell/pwsh \
     && ln -s /opt/microsoft/powershell/pwsh /usr/bin/pwsh \
     && pwsh -Version \
@@ -133,14 +133,14 @@ RUN mkdir -p /opt/microsoft/powershell \
 # Install YQ, then verify installation
 ARG YQ_VERSION
 ENV YQ_VERSION ${YQ_VERSION}
-RUN curl -LsSf --retry 4 https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_$(ARCH_X64=amd64 bash arch.sh) -o /usr/bin/yq \
+RUN curl -LsSf --retry 8 https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_$(ARCH_X64=amd64 bash arch.sh) -o /usr/bin/yq \
     && chmod +x /usr/bin/yq \
     && yq --version
 
 # Install Tini, then verify installation
 ARG TINI_VERSION
 ENV TINI_VERSION ${TINI_VERSION}
-RUN curl -LsSf --retry 4 https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$(ARCH_X64=amd64 bash arch.sh) -o /tini \
+RUN curl -LsSf --retry 8 https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$(ARCH_X64=amd64 bash arch.sh) -o /tini \
     && chmod +x /tini \
     && /tini --version
 ENTRYPOINT ["/tini", "--"]
@@ -149,7 +149,7 @@ ENTRYPOINT ["/tini", "--"]
 ARG BUILDKIT_VERSION
 ENV BUILDKIT_VERSION ${BUILDKIT_VERSION}
 RUN mkdir buildkit \
-    && curl -LsSf --retry 4 https://github.com/moby/buildkit/releases/download/v${BUILDKIT_VERSION}/buildkit-v${BUILDKIT_VERSION}.linux-$(ARCH_X64=amd64 bash arch.sh).tar.gz | tar -xz -C buildkit \
+    && curl -LsSf --retry 8 https://github.com/moby/buildkit/releases/download/v${BUILDKIT_VERSION}/buildkit-v${BUILDKIT_VERSION}.linux-$(ARCH_X64=amd64 bash arch.sh).tar.gz | tar -xz -C buildkit \
     && mv buildkit/bin/* /usr/local/bin \
     && rm -rf buildkit \
     && buildctl --version \
@@ -168,7 +168,7 @@ ENV AZP_HOME ${HOME}/azp-agent
 # See: https://github.com/microsoft/azure-pipelines-agent/blob/b5ff4408239f3e938560f8b2e3848df76489a8d0/src/Agent.Listener/Agent.cs#L354C24-L354C24
 ENV agent.disableupdate "1"
 RUN mkdir -p ${AZP_HOME} \
-    && curl -LsSf --retry 4 https://vstsagentpackage.azureedge.net/agent/${AZP_AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AZP_AGENT_VERSION}.tar.gz | tar -xz -C ${AZP_HOME} \
+    && curl -LsSf --retry 8 https://vstsagentpackage.azureedge.net/agent/${AZP_AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AZP_AGENT_VERSION}.tar.gz | tar -xz -C ${AZP_HOME} \
     && cd ${AZP_HOME} \
     && chmod +x run-docker.sh config.sh \
     && AGENT_ALLOW_RUNASROOT="1" bash run-docker.sh --version \
