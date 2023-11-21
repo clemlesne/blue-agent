@@ -15,6 +15,7 @@ Scanned systems:
 | `ghcr.io/clemlesne/azure-pipelines-agent:focal-main`        | ✅                            |
 | `ghcr.io/clemlesne/azure-pipelines-agent:jammy-main`        | ✅                            |
 | `ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main`         | ✅                            |
+| `ghcr.io/clemlesne/azure-pipelines-agent:ubi9-main`         | ✅                            |
 | `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019-main` | ✅                            |
 | `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022-main` | ✅                            |
 
