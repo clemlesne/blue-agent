@@ -23,7 +23,7 @@ metadata:
 spec:
   failedJobsHistoryLimit: {{ .Values.pipelines.cleanup.failed | int | required "A value for .Values.pipelines.cleanup.failed is required" }}
   maxReplicaCount: {{ .Values.autoscaling.maxReplicas | int | required "A value for .Values.autoscaling.maxReplicas is required" }}
-  minReplicaCount: 0
+  minReplicaCount: {{ .Values.autoscaling.minReplicas | int | required "A value for .Values.autoscaling.minReplicas is required" }}
   pollingInterval: 15
   successfulJobsHistoryLimit: {{ .Values.pipelines.cleanup.successful | int | required "A value for .Values.pipelines.cleanup.successful is required" }}
   jobTargetRef:
