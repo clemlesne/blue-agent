@@ -13,6 +13,7 @@ replicaCount: 3
 
 autoscaling:
   enabled: true
+  minReplicas: 0
   maxReplicas: 100 # Arbitrary value to avoid misconfiguration; can be enlarged if needed
 
 pipelines:
@@ -130,3 +131,16 @@ extraVolumeMounts: []
 #     image: busybox
 #     command: ["/bin/sh", "-c", "echo Hello World"]
 initContainers: []
+
+## Extra manifests to deploy as an array
+extraManifests:
+  []
+
+  # - apiVersion: v1
+  #   kind: Secret
+  #   metadata:
+  #   labels:
+  #     name: azure-pipeline-secret
+  #   data:
+  #     personalAccessToken: "value"
+  #     organizationURL: "value"

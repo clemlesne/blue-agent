@@ -14,7 +14,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 # - Azure Pipelines agent system requirements
 # - zsh, for inter-operability
 # - dbus-user-session, iptables, uidmap, for BuildKit
-# - gzip, make, tar, unzip, wget, yq, zip, zstd for developer ease-of-life
+# - gzip, make, tar, unzip, wget, zip, zstd for developer ease-of-life
 # - Azure CLI system requirements (Python 3.8, plus C/Rust build tools for libs non pre-built on this platform)
 RUN rm -f /etc/apt/apt.conf.d/docker-clean \
     && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
@@ -105,7 +105,7 @@ RUN python3 -m pip \
 # Install AWS CLI, then verify installation
 ARG AWS_CLI_VERSION
 ENV AWS_CLI_VERSION ${AWS_CLI_VERSION}
-RUN curl -LsSf --retry 8 https://awscli.amazonaws.com/awscli-exe-linux-$(ARCH_X64=x86_64 ARCH_ARM64=aarch64 bash arch.sh).zip -o awscli.zip \
+RUN curl -LsSf --retry 8 https://awscli.amazonaws.com/awscli-exe-linux-$(ARCH_X64=x86_64 ARCH_ARM64=aarch64 bash arch.sh)-${AWS_CLI_VERSION}.zip -o awscli.zip \
     && unzip -q awscli.zip \
     && ./aws/install \
     && rm -rf awscli.zip aws \

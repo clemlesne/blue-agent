@@ -8,7 +8,7 @@ FOLDER="src/docker"
 PREFIX="${FOLDER}/Dockerfile-"
 
 # Initialize the SUFFIXES variable
-SUFFIXES=""
+SUFFIXES="$1"
 
 # Check if docker is installed
 if ! command -v docker &> /dev/null; then
@@ -16,13 +16,18 @@ if ! command -v docker &> /dev/null; then
   exit
 fi
 
-# Iterate over files with the pattern "Dockerfile-*"
-for file in $PREFIX*; do
-  # Extract the suffix from the file name
-  suffix="${file#$PREFIX}"
-  # Append the suffix to the SUFFIXES variable
-  SUFFIXES="${SUFFIXES} ${suffix}"
-done
+# Check if the SUFFIXES variable is empty
+if [ -z "$SUFFIXES" ]; then
+  echo "No suffixes provided, building all Docker images."
+
+  # Iterate over files with the pattern "Dockerfile-*"
+  for file in $PREFIX*; do
+    # Extract the suffix from the file name
+    suffix="${file#$PREFIX}"
+    # Append the suffix to the SUFFIXES variable
+    SUFFIXES="${SUFFIXES} ${suffix}"
+  done
+fi
 
 # Print the SUFFIXES variable
 echo "Matrix:${SUFFIXES}"

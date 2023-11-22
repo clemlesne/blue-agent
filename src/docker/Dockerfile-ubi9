@@ -1,7 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0-jammy@sha256:36f90c72b200f455e130a48fc279080aff296b4d506e29b9619fe82ae3853c4b as base
-
-# Force apt-get to not use TTY
-ENV DEBIAN_FRONTEND noninteractive
+FROM registry.access.redhat.com/ubi9-minimal:9.3@sha256:c77792b8084ce5946c68f39024fa460ef7769c0eef3fce995e70299e21a7e166 as base
 
 # Configure local user
 ENV USER root
@@ -12,45 +9,45 @@ ENV PYTHONDONTWRITEBYTECODE 1
 
 # Install:
 # - Azure Pipelines agent system requirements
+# - Azure CLI system requirements (Python 3.11, plus C/Rust build tools for libs non pre-built on this platform)
+# - ASP.NET Core runtime
 # - zsh, for inter-operability
-# - dbus-user-session, iptables, uidmap, for BuildKit
+# - fuse-overlayfs, iptables, shadow-utils, for BuildKit
 # - gzip, make, tar, unzip, wget, zip, zstd for developer ease-of-life
-# - Azure CLI system requirements (Python 3.10, plus C/Rust build tools for libs non pre-built on this platform)
-RUN rm -f /etc/apt/apt.conf.d/docker-clean \
-    && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
 ARG JQ_VERSION
-RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/var/cache,type=cache,sharing=locked \
-    apt-get update -q \
-    && apt-get install -y -q --no-install-recommends \
-        build-essential \
+RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
+    microdnf install -y --nodocs --setopt=install_weak_deps=0 \
+        aspnetcore-runtime-6.0 \
         ca-certificates \
         cargo \
-        curl \
-        dbus-user-session \
-        git \
+        findutils \
+        fuse-overlayfs \
+        gcc \
+        gcc-c++ \
+        git-core \
         git-lfs \
         gnupg \
         gzip \
+        hostname \
         iptables \
-        iputils-ping \
-        jq=${JQ_VERSION}-* \
-        libffi-dev \
-        libssl-dev \
-        lsb-release \
+        iputils \
+        jq-${JQ_VERSION} \
         make \
+        openssl-devel \
         pkg-config \
-        python3-dev=3.10.* \
-        python3-pip \
-        python3=3.10.* \
-        software-properties-common \
+        python3.11 \
+        python3.11-devel \
+        python3.11-pip \
+        shadow-utils \
         sudo \
         tar \
-        uidmap \
         unzip \
         wget \
         zip \
         zsh \
         zstd \
+    && ln -s /usr/bin/python3.11 /usr/bin/python3 \
+    && ln -s /usr/bin/python3.11 /usr/bin/python \
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Copy helper script, then verify installation
@@ -88,6 +85,7 @@ RUN git clone --depth 1 --branch v${ROOTLESSKIT_VERSION} https://github.com/root
     && rootlessctl --version
 
 FROM base
+
 # Install Azure CLI, then verify installation
 ARG AZURE_CLI_VERSION
 ENV AZURE_CLI_VERSION ${AZURE_CLI_VERSION}
