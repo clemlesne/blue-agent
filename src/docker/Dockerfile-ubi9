@@ -46,6 +46,8 @@ RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
         zip \
         zsh \
         zstd \
+    && ln -s /usr/bin/python3.11 /usr/bin/python3 \
+    && ln -s /usr/bin/python3.11 /usr/bin/python \
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Copy helper script, then verify installation
@@ -54,7 +56,7 @@ RUN chmod +x arch.sh \
     && bash arch.sh
 
 # Install Python build tools
-RUN python3.11 -m pip \
+RUN python3 -m pip \
         --disable-pip-version-check \
         --no-cache-dir \
         --quiet \
@@ -87,7 +89,7 @@ FROM base
 # Install Azure CLI, then verify installation
 ARG AZURE_CLI_VERSION
 ENV AZURE_CLI_VERSION ${AZURE_CLI_VERSION}
-RUN python3.11 -m pip \
+RUN python3 -m pip \
         --disable-pip-version-check \
         --no-cache-dir \
         --quiet \
