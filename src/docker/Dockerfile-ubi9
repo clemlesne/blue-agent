@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9-minimal:9.3@sha256:3e313209ac617a92b50350286752311d99ea2dafc429ef0e5311889294b0bc21 as base
+FROM registry.access.redhat.com/ubi9-minimal:9.3@sha256:c77792b8084ce5946c68f39024fa460ef7769c0eef3fce995e70299e21a7e166 as base
 
 # Configure local user
 ENV USER root
