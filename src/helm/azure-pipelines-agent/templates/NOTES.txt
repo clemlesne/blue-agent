@@ -1,5 +1,9 @@
 {{- if (.Values.secret.create) -}}
 Check your Azure DevOps portal at to manage the Azure Pipelines Agent ({{ .Values.pipelines.organizationURL | quote | required "A value for .Values.pipelines.organizationURL is required" }}/_settings/agentpools).
+{{- else -}}
+Secret creation disabled, remember to create/update the secret {{ include "azure-pipelines-agent.secretName" . | quote }} and that the fields personalAccessToken and organizationURL are required
+{{- end -}}
+Check your Azure DevOps portal at to manage the Azure Pipelines Agent ({{ .Values.pipelines.organizationURL | quote | required "A value for .Values.pipelines.organizationURL is required" }}/_settings/agentpools).
 {{- end -}}
 
 {{- if and (.Values.autoscaling.enabled) (.Capabilities.APIVersions.Has "keda.sh/v1alpha1") -}}
