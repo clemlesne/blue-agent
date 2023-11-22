@@ -221,7 +221,7 @@ jobs:
           path: .cr-release-packages
 
       - name: Archive Helm chart
-        uses: helm/chart-releaser-action@v1.5.0
+        uses: helm/chart-releaser-action@v1.6.0
         with:
           charts_dir: src/helm
           skip_packaging: true
