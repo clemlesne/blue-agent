@@ -7,6 +7,44 @@ entries:
       artifacthub.io/prerelease: "false"
     apiVersion: v2
     appVersion: 3.230.0
+    created: "2023-11-22T21:04:40.403056628Z"
+    description: Deploy Azure Pipelines agent on Kubernetes. Easy way. Cheap. Windows
+      and Linux. X64 and ARM compatible.
+    digest: 0cf1f578768795da853607f4cd8c8d7bf0cde506e1116dd988e1154c79f5f75a
+    home: https://github.com/clemlesne/azure-pipelines-agent
+    icon: https://raw.githubusercontent.com/clemlesne/azure-pipelines-agent/master/logo-1024.png
+    keywords:
+    - agent
+    - auto-scale
+    - azure
+    - azure-devops
+    - azure-pipelines
+    - container
+    - devops
+    - docker
+    - helm
+    - keda
+    - kubernetes
+    - pipelines
+    - self-hosted
+    - self-hosted-agent
+    kubeVersion: '>= 1.19.0-0'
+    maintainers:
+    - email: clemlesne@users.noreply.github.com
+      name: Clémence Lesné
+    name: azure-pipelines-agent
+    sources:
+    - https://github.com/clemlesne/azure-pipelines-agent
+    type: application
+    urls:
+    - https://github.com/clemlesne/azure-pipelines-agent/releases/download/azure-pipelines-agent-6.2.0/azure-pipelines-agent-6.2.0.tgz
+    version: 6.2.0
+  - annotations:
+      artifacthub.io/category: integration-delivery
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/prerelease: "false"
+    apiVersion: v2
+    appVersion: 3.230.0
     created: "2023-11-21T21:26:03.381731753Z"
     description: Deploy Azure Pipelines agent on Kubernetes. Easy way. Cheap. Windows
       and Linux. X64 and ARM compatible.
@@ -1746,4 +1784,4 @@ entries:
     urls:
     - https://github.com/clemlesne/azure-pipelines-agent/releases/download/azure-pipelines-agent-0.1.0/azure-pipelines-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2023-11-21T21:26:03.381882204Z"
+generated: "2023-11-22T21:04:40.403308326Z"
