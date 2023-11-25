@@ -58,7 +58,8 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 
 ## Compatibility
 
-> Container images are both published to GitHub Container Registry and Docker Hub. URLs showed in the doc are GitHub Container Registry URLs, for simplicity. To use Docker Hub, replace `ghcr.io/clemlesne/azure-pipelines-agent` by `docker.io/clemlesne/azure-pipelines-agent`.
+> [!NOTE]
+> Container images are both published to GitHub Container Registry and Docker Hub. URLs showed in the doc are GitHub Container Registry URLs, for simplicity. To use Docker Hub, replace `ghcr.io/clemlesne/azure-pipelines-agent` by `docker.io/clemlesne/azure-pipelines-agent`. Docker Hub images are signed and secured the same way. [See the images at hub.docker.com.](https://hub.docker.com/r/clemlesne/azure-pipelines-agent)
 
 | `Ref`                                                       | OS                                                                           | `Size`                                                                                                                        | `Arch`              | Support                                                                                                                                           |
 | ----------------------------------------------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -77,7 +78,8 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 
 Capabilities are declarative variables you can add to the agents, to allow developers to select the right agent for their pipeline ([official documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/demands?view=azure-devops&tabs=yaml)).
 
-> Note, you can add multiple Helm instances to the same agent pool. It will result in a single pool with multiple capabilities. Be warning, if a capability is not unique accross the pool, all the agents will scale. This will create "zoombies" agents, scaled for nothing, waiting their timeout.
+> [!TIP]
+> Multiple Helm instances can be deployed using the same agent pool name (see `pipelines.poolName`). It will result in a single pool with multiple capabilities. Be warning, if a capability is not unique accross the pool, all the agents will scale. This will create "zoombies" agents, scaled for nothing, waiting their timeout.
 
 Disctinct the agents by capabilities. For examples:
 

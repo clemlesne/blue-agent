@@ -99,6 +99,7 @@ If the pipeline takes longer than 60 minutes, you need to change two things.
 1. The technical pipeline timeout with `pipelines.timeout` Helm value to 7200 seconds (2 hours) for example.
 2. Increase the functional pipeline timeout in Azure DevOps. Go to `Options > Build job > Build job timeout in minutes`.
 
-> Tip: Set a technical pipeline timeout longer than the functional pipeline timeout to avoid the system to kill the pipeline abruptly.
+> [!TIP]
+> Set a technical pipeline timeout longer than the functional pipeline timeout to avoid the system to kill the pipeline abruptly.
 
 ![AzureDevOps](./docs/build-job-timeout-in-minutes.png)
