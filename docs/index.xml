@@ -1,0 +1,1015 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Azure Pipelines Agent – Documentation</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/</link><description>Recent content in Documentation on Azure Pipelines Agent</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://clemlesne.github.io/azure-pipelines-agent/docs/index.xml" rel="self" type="application/rss+xml"/><item><title>Getting started</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/getting-started/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/getting-started/</guid><description>
+&lt;h2>Usage&lt;span class="absolute -mt-20" id="usage">&lt;/span>
+&lt;a href="#usage" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;div class="steps ml-4 mb-12 border-l border-gray-200 pl-6 dark:border-neutral-800 [counter-reset:step]">
+&lt;h3>Prepare the Azure DevOps organization&lt;span class="absolute -mt-20" id="prepare-the-azure-devops-organization">&lt;/span>
+&lt;a href="#prepare-the-azure-devops-organization" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Create &lt;a href="https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/pools-queues" target="_blank" rel="noopener">a new agent pool&lt;/a> in Azure DevOps. Then, create &lt;a href="https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/v2-linux?view=azure-devops#permissions" target="_blank" rel="noopener">the personal access token&lt;/a> allowing access from the Agent to Azure DevOps.&lt;/p>
+&lt;h3>Prepare the Helm values&lt;span class="absolute -mt-20" id="prepare-the-helm-values">&lt;/span>
+&lt;a href="#prepare-the-helm-values" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Minimal configuration:&lt;/p>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># values.yaml&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">pipelines&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">organizationURL&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">https://dev.azure.com/your-organization&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">personalAccessToken&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">your-pat&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">poolName&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">your-pool&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>Install the chart&lt;span class="absolute -mt-20" id="install-the-chart">&lt;/span>
+&lt;a href="#install-the-chart" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Use Helm to install the latest released chart:&lt;/p>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">helm repo add clemlesne-azure-pipelines-agent https://clemlesne.github.io/azure-pipelines-agent
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">helm repo update
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-agent&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;h2>OS support matrix&lt;span class="absolute -mt-20" id="os-support-matrix">&lt;/span>
+&lt;a href="#os-support-matrix" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>&lt;code>Ref&lt;/code>&lt;/th>
+&lt;th>OS&lt;/th>
+&lt;th>&lt;code>Size&lt;/code>&lt;/th>
+&lt;th>&lt;code>Arch&lt;/code>&lt;/th>
+&lt;th>Support&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:bookworm-main&lt;/code>&lt;/td>
+&lt;td>&lt;a href="https://www.debian.org/releases/bookworm" target="_blank" rel="noopener">Debian Bookworm (12)&lt;/a> slim&lt;/td>
+&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/bookworm-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
+&lt;td>&lt;code>amd64&lt;/code>, &lt;code>arm64/v8&lt;/code>&lt;/td>
+&lt;td>&lt;a href="https://wiki.debian.org/LTS" target="_blank" rel="noopener">See Debian LTS wiki.&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main&lt;/code>&lt;/td>
+&lt;td>&lt;a href="https://www.debian.org/releases/bullseye" target="_blank" rel="noopener">Debian Bullseye (11)&lt;/a> slim&lt;/td>
+&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/bullseye-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
+&lt;td>&lt;code>amd64&lt;/code>, &lt;code>arm64/v8&lt;/code>&lt;/td>
+&lt;td>&lt;a href="https://wiki.debian.org/LTS" target="_blank" rel="noopener">See Debian LTS wiki.&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:focal-main&lt;/code>&lt;/td>
+&lt;td>&lt;a href="https://www.releases.ubuntu.com/focal" target="_blank" rel="noopener">Ubuntu Focal (20.04)&lt;/a> minimal&lt;/td>
+&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/focal-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
+&lt;td>&lt;code>amd64&lt;/code>, &lt;code>arm64/v8&lt;/code>&lt;/td>
+&lt;td>&lt;a href="https://wiki.ubuntu.com/Releases" target="_blank" rel="noopener">See Ubuntu LTS wiki.&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:jammy-main&lt;/code>&lt;/td>
+&lt;td>&lt;a href="https://www.releases.ubuntu.com/jammy" target="_blank" rel="noopener">Ubuntu Jammy (22.04)&lt;/a> minimal&lt;/td>
+&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/jammy-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
+&lt;td>&lt;code>amd64&lt;/code>, &lt;code>arm64/v8&lt;/code>&lt;/td>
+&lt;td>&lt;a href="https://wiki.ubuntu.com/Releases" target="_blank" rel="noopener">See Ubuntu LTS wiki.&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main&lt;/code>&lt;/td>
+&lt;td>&lt;a href="https://developers.redhat.com/articles/ubi-faq" target="_blank" rel="noopener">Red Hat UBI 8&lt;/a> minimal&lt;/td>
+&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/ubi8-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
+&lt;td>&lt;code>amd64&lt;/code>, &lt;code>arm64/v8&lt;/code>&lt;/td>
+&lt;td>&lt;a href="https://access.redhat.com/product-life-cycles/?product=Red%20Hat%20Enterprise%20Linux" target="_blank" rel="noopener">See Red Hat product life cycles.&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:ubi9-main&lt;/code>&lt;/td>
+&lt;td>&lt;a href="https://developers.redhat.com/articles/ubi-faq" target="_blank" rel="noopener">Red Hat UBI 9&lt;/a> minimal&lt;/td>
+&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/ubi9-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
+&lt;td>&lt;code>amd64&lt;/code>, &lt;code>arm64/v8&lt;/code>&lt;/td>
+&lt;td>&lt;a href="https://access.redhat.com/product-life-cycles/?product=Red%20Hat%20Enterprise%20Linux" target="_blank" rel="noopener">See Red Hat product life cycles.&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019-main&lt;/code>&lt;/td>
+&lt;td>&lt;a href="https://learn.microsoft.com/en-us/windows-server" target="_blank" rel="noopener">Windows Server 2019&lt;/a> Core&lt;/td>
+&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/win-ltsc2019-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
+&lt;td>&lt;code>amd64&lt;/code>&lt;/td>
+&lt;td>&lt;a href="https://learn.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/base-image-lifecycle" target="_blank" rel="noopener">See base image servicing lifecycles.&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022-main&lt;/code>&lt;/td>
+&lt;td>&lt;a href="https://learn.microsoft.com/en-us/windows-server" target="_blank" rel="noopener">Windows Server 2022&lt;/a> Core&lt;/td>
+&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/win-ltsc2022-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
+&lt;td>&lt;code>amd64&lt;/code>&lt;/td>
+&lt;td>&lt;a href="https://learn.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/base-image-lifecycle" target="_blank" rel="noopener">See base image servicing lifecycles.&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h2>Docker Hub images&lt;span class="absolute -mt-20" id="docker-hub-images">&lt;/span>
+&lt;a href="#docker-hub-images" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Container images are both published to GitHub Container Registry and Docker Hub. URLs showed in the doc are GitHub Container Registry URLs, for simplicity. To use Docker Hub, replace &lt;code>ghcr.io/clemlesne/azure-pipelines-agent&lt;/code> by &lt;code>docker.io/clemlesne/azure-pipelines-agent&lt;/code>. Docker Hub images are signed and secured the same way. &lt;a href="https://hub.docker.com/r/clemlesne/azure-pipelines-agent" target="_blank" rel="noopener">See the images at hub.docker.com.&lt;/a>&lt;/p></description></item><item><title>Security</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/security/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/security/</guid><description>
+&lt;h2>Proactive detection of vulnerabilities&lt;span class="absolute -mt-20" id="proactive-detection-of-vulnerabilities">&lt;/span>
+&lt;a href="#proactive-detection-of-vulnerabilities" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>At each build, a vulnerability scan is performed on the system. If a vulnerability that can be upgraded is detected, the build is stopped and the image is not pushed to the registry. Vulnerability is reported in &lt;a href="https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/about-code-scanning" target="_blank" rel="noopener">GitHub Security&lt;/a>. The maintainers are alterted and have access to reports.&lt;/p>
+&lt;p>Automation is supported by &lt;a href="https://snyk.io" target="_blank" rel="noopener">Snyk&lt;/a> and &lt;a href="https://semgrep.dev" target="_blank" rel="noopener">Semgrep&lt;/a>. Helm chart, configuration files, and containers, are scanned for vulnerabilities and misconfigurations.&lt;/p>
+&lt;p>Scanned systems:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>&lt;code>Ref&lt;/code>&lt;/th>
+&lt;th>Vulnerability scans with Snyk&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:bookworm-main&lt;/code>&lt;/td>
+&lt;td>✅&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main&lt;/code>&lt;/td>
+&lt;td>✅&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:focal-main&lt;/code>&lt;/td>
+&lt;td>✅&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:jammy-main&lt;/code>&lt;/td>
+&lt;td>✅&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main&lt;/code>&lt;/td>
+&lt;td>✅&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:ubi9-main&lt;/code>&lt;/td>
+&lt;td>✅&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019-main&lt;/code>&lt;/td>
+&lt;td>✅&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022-main&lt;/code>&lt;/td>
+&lt;td>✅&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h2>Reporting a vulnerability&lt;span class="absolute -mt-20" id="reporting-a-vulnerability">&lt;/span>
+&lt;a href="#reporting-a-vulnerability" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>If you think you have found a vulnerability, please do not open an issue on GitHub. Instead, please send an email to &lt;a href="mailto:clemence@lesne.pro" >Clémence Lesné&lt;/a>.&lt;/p>
+&lt;h2>Chain of trust&lt;span class="absolute -mt-20" id="chain-of-trust">&lt;/span>
+&lt;a href="#chain-of-trust" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Both the containers and the Helm chart are signed:&lt;/p>
+&lt;h3>Containers&lt;span class="absolute -mt-20" id="containers">&lt;/span>
+&lt;a href="#containers" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Containers are signed with &lt;a href="https://github.com/sigstore/cosign" target="_blank" rel="noopener">Cosign&lt;/a>.&lt;/p>
+&lt;p>Cosign public key is available in &lt;a href="cosign.pub" >&lt;code>/cosign.pub&lt;/code>&lt;/a>.&lt;/p>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Example of verification with Cosign&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ cosign verify --key cosign.pub ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Verification &lt;span class="k">for&lt;/span> ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main --
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">The following checks were performed on each of these signatures:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> - The cosign claims were validated
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> - Existence of the claims in the transparency log was verified offline
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> - The signatures were verified against the specified public key&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h3>Helm chart&lt;span class="absolute -mt-20" id="helm-chart">&lt;/span>
+&lt;a href="#helm-chart" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Helm chart is signed with two methods, &lt;a href="https://github.com/sigstore/cosign" target="_blank" rel="noopener">Cosign&lt;/a> and &lt;a href="https://helm.sh/docs/topics/provenance" target="_blank" rel="noopener">GPG&lt;/a>. Both methods can be used to confirm authenticity of a build.&lt;/p>
+&lt;p>Keys:&lt;/p>
+&lt;ul>
+&lt;li>Cosign public key is available in &lt;a href="cosign.pub" >&lt;code>/cosign.pub&lt;/code>&lt;/a>.&lt;/li>
+&lt;li>GPG public key is &lt;a href="https://keybase.io/clemlesne/pgp_keys.asc" target="_blank" rel="noopener">available on Keybase&lt;/a> and in &lt;a href="pubring.gpg" >&lt;code>/pubring.gpg&lt;/code>&lt;/a>.&lt;/li>
+&lt;/ul>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Example of verification with Helm native signature&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ helm fetch --keyring pubring.gpg --verify clemlesne-azure-pipelines-agent/azure-pipelines-agent --version 5.0.0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Signed by: Clémence Lesné &amp;lt;clemence@lesne.pro&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Using Key With Fingerprint: 417E701DBC66834CA752C920460D072B9C032DFD
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Chart Hash Verified: sha256:1c23e22cffc132ce12489480d139b59e97b3cb49ff1599a4ae11fb5c317c1e64&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Example of verification with Cosign&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ &lt;span class="nv">VERSION&lt;/span>&lt;span class="o">=&lt;/span>5.0.0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ wget https://github.com/clemlesne/azure-pipelines-agent/releases/download/azure-pipelines-agent-&lt;span class="si">${&lt;/span>&lt;span class="nv">VERSION&lt;/span>&lt;span class="si">}&lt;/span>/azure-pipelines-agent-&lt;span class="si">${&lt;/span>&lt;span class="nv">VERSION&lt;/span>&lt;span class="si">}&lt;/span>.tgz.bundle
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ helm pull clemlesne-azure-pipelines-agent/azure-pipelines-agent --version 5.0.0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ cosign verify-blob azure-pipelines-agent-&lt;span class="si">${&lt;/span>&lt;span class="nv">VERSION&lt;/span>&lt;span class="si">}&lt;/span>.tgz --bundle azure-pipelines-agent-&lt;span class="si">${&lt;/span>&lt;span class="nv">VERSION&lt;/span>&lt;span class="si">}&lt;/span>.tgz.bundle --key cosign.pub
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Verified OK&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>Reliability notes&lt;span class="absolute -mt-20" id="reliability-notes">&lt;/span>
+&lt;a href="#reliability-notes" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Systems are built every days. Each image is accompanied by a &lt;a href="https://en.wikipedia.org/wiki/Software_supply_chain" target="_blank" rel="noopener">SBOM (Software Bill of Materials)&lt;/a> which allows to verify that the installed packages are those expected. This speed has the advantage of minimizing exposure to security flaws, which will then be corrected on the build environments in 24 hours.&lt;/p>
+&lt;p>Nevertheless it can happen that a package provider (e.g. Debian, Canonical, Red Hat) deploys a system update that introduces a bug. This is difficult to predict.&lt;/p>
+&lt;p>Each image is pushed with a unique tag, which corresponds to the date of the last update (example: &lt;code>bullseye-20230313&lt;/code> for a build on March 13, 2023). It is therefore possible to fix the download of a version by modifying the &lt;code>image.version&lt;/code> property to &lt;code>20230313&lt;/code>.&lt;/p></description></item><item><title>Troubleshooting</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/troubleshooting/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/troubleshooting/</guid><description>
+&lt;h2>Pods are evicted by Kubernetes with the message &lt;code>Pod ephemeral local storage usage exceeds the total limit of containers&lt;/code>&lt;span class="absolute -mt-20" id="pods-are-evicted-by-kubernetes-with-the-message-pod-ephemeral-local-storage-usage-exceeds-the-total-limit-of-containers">&lt;/span>
+&lt;a href="#pods-are-evicted-by-kubernetes-with-the-message-pod-ephemeral-local-storage-usage-exceeds-the-total-limit-of-containers" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>This error is due to the fact that the default ephemeral storage limit is set to a lower value than the one used by the pipeline. You can fix it by setting the value to more than default value in &lt;code>resources.limits.ephemeral-storage&lt;/code>.&lt;/p>
+&lt;p>This error notably happens when using BuildKit with an &lt;code>emptyDir&lt;/code> and a large number of layers.&lt;/p>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># values.yaml (extract)&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">resources&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">limits&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">ephemeral-storage&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">16Gi&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>Pods are started but never selected by Azure DevOps when using multiple architectures&lt;span class="absolute -mt-20" id="pods-are-started-but-never-selected-by-azure-devops-when-using-multiple-architectures">&lt;/span>
+&lt;a href="#pods-are-started-but-never-selected-by-azure-devops-when-using-multiple-architectures" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Prefer hardcoding the architecture in both the pipeline and the Helm values. As this, KEDA will be able to select the right pods matching the architecture. Otherwise, there is a possibility that the deployment selected by KEDA is not matching the requested architecture.&lt;/p>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># azure-pipelines.yaml (extract)&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">stages&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">stage&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">test&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">jobs&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">job&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">test&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">pool&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">demands&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">arch_x64&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># values.yaml (extract)&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">extraNodeSelectors&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">kubernetes.io/arch&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">arm64&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">pipelines&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">capabilities&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">arch_arm64&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>Container fails to a &lt;code>ContainerStatusUnknown&lt;/code> state&lt;span class="absolute -mt-20" id="container-fails-to-a-containerstatusunknown-state">&lt;/span>
+&lt;a href="#container-fails-to-a-containerstatusunknown-state" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Error is often due to two things:&lt;/p>
+&lt;ul>
+&lt;li>Kubernetes is not able to pull the image: check the image name and the credentials, if you are using the public registry, mind the domain whitelist&lt;/li>
+&lt;li>Pod has been ecivted by Kubernetes due to the excessive local storage usage: parameter &lt;code>ephemeral-storage&lt;/code> in &lt;code>resources&lt;/code> Helm values is set to &lt;code>8Gi&lt;/code> by default, you can increase it to &lt;code>16Gi&lt;/code> for example&lt;/li>
+&lt;/ul>
+&lt;h2>Namespaces must be set to a non-zero value&lt;span class="absolute -mt-20" id="namespaces-must-be-set-to-a-non-zero-value">&lt;/span>
+&lt;a href="#namespaces-must-be-set-to-a-non-zero-value" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>This error is due to the fact that BuildKit needs to create a new user namespace, and the default maximum number of namespaces is 0. Value is defined by &lt;code>user.max_user_namespaces&lt;/code> (&lt;a href="https://man7.org/linux/man-pages/man7/namespaces.7.html" target="_blank" rel="noopener">documentation&lt;/a>). You can fix it by setting the value to more than 1000. Issue notably happens on AWS Bottlerocket OS. &lt;a href="https://github.com/clemlesne/azure-pipelines-agent/issues/19" target="_blank" rel="noopener">See related issue.&lt;/a>&lt;/p>
+&lt;p>We can update dynamically the host system settings with a DaemonSet:&lt;/p>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># daemonset.yaml&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">apiVersion&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">apps/v1&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">kind&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">DaemonSet&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">metadata&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">labels&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">app.kubernetes.io/component&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">sysctl&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">app.kubernetes.io/name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">sysctl-max-user-ns-fix&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">app.kubernetes.io/part-of&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">azure-pipelines-agent&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">sysctl-max-user-ns-fix&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">spec&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">selector&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">matchLabels&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">app.kubernetes.io/name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">sysctl-max-user-ns-fix&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">template&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">metadata&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">labels&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">app.kubernetes.io/name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">sysctl-max-user-ns-fix&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">spec&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">containers&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">sysctl-max-user-ns-fix&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">docker.io/library/busybox:1.36&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">command&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;sh&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;-euxc&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;sysctl -w user.max_user_namespaces=63359 &amp;amp;&amp;amp; sleep infinity&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">securityContext&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">privileged&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>Change Buildkit working directory&lt;span class="absolute -mt-20" id="change-buildkit-working-directory">&lt;/span>
+&lt;a href="#change-buildkit-working-directory" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>If need Buildkit to write in another folder, then create the buildkitd.toml file and set the root variable. Example below (bash in the pipeline):&lt;/p>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">mkdir ~/.config/buildkit
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">echo&lt;/span> &lt;span class="s1">&amp;#39;root = &amp;#34;/app-root/.local/tmp/buildkit&amp;#34;&amp;#39;&lt;/span> &amp;gt; ~/.config/buildkit/buildkitd.toml&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h2>The agent has exceeded the 60-minute time limit&lt;span class="absolute -mt-20" id="the-agent-has-exceeded-the-60-minute-time-limit">&lt;/span>
+&lt;a href="#the-agent-has-exceeded-the-60-minute-time-limit" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>If the pipeline takes longer than 60 minutes, you need to change two things.&lt;/p>
+&lt;ol>
+&lt;li>The technical pipeline timeout with &lt;code>pipelines.timeout&lt;/code> Helm value to 7200 seconds (2 hours) for example.&lt;/li>
+&lt;li>Increase the functional pipeline timeout in Azure DevOps. Go to &lt;code>Options &amp;gt; Build job &amp;gt; Build job timeout in minutes&lt;/code>.&lt;/li>
+&lt;/ol>
+&lt;div class="overflow-x-auto mt-6 flex rounded-lg border py-2 ltr:pr-4 rtl:pl-4 contrast-more:border-current contrast-more:dark:border-current border-blue-200 bg-blue-100 text-blue-900 dark:border-blue-200/30 dark:bg-blue-900/30 dark:text-blue-200">
+&lt;div class="ltr:pl-3 ltr:pr-2 rtl:pr-3 rtl:pl-2">&lt;div class="select-none text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">
+ℹ️
+&lt;/div>&lt;/div>
+&lt;div class="w-full min-w-0 leading-7">
+&lt;div class="mt-6 leading-7 first:mt-0">
+Set a technical pipeline timeout longer than the functional pipeline timeout to avoid the system to kill the pipeline abruptly.
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>&lt;img src="build-job-timeout-in-minutes.png" alt="Configuration in the web interface." loading="lazy" />&lt;/p></description></item><item><title>Build ASP.NET applications</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/build-dot-net/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/build-dot-net/</guid><description>
+&lt;p>It was chosen arbitrarily to install the LTS non SDK version of ASNP.NET. Because :&lt;/p>
+&lt;ul>
+&lt;li>LTS is better supported by Microsoft than STS&lt;/li>
+&lt;li>The non-SDK is lighter when included in a container, knowing that not everyone will use it for building purposes&lt;/li>
+&lt;/ul>
+&lt;p>It is recommended that development teams to hard-code the framework version you want to use, in your pipeline. With this setup, the developer controls its environment, not the platform. If they decide to upgrade, they update the pipeline, if not, not. This is under the responsibility of the developer.&lt;/p>
+&lt;p>The ASP.NET framework can be installed on the fly with &lt;a href="https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/use-dotnet-v2?view=azure-pipelines" target="_blank" rel="noopener">UseDotNet@2&lt;/a>:&lt;/p>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># azure-pipelines.yaml&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">steps&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">task&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">UseDotNet@2&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">inputs&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">packageType&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">sdk&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">version&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">7.0.5&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Same way, if you want to use multiple versions of the framework, re-execute the task with the new version. Installations are cached locally.&lt;/p></description></item><item><title>Build container images</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/docker-in-docker/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/docker-in-docker/</guid><description>
+&lt;p>These methods can be used to build a container image, at the time of writing:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Software&lt;/th>
+&lt;th>Ease&lt;/th>
+&lt;th>Security&lt;/th>
+&lt;th>Perf&lt;/th>
+&lt;th>Run location&lt;/th>
+&lt;th>Description&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;a href="https://learn.microsoft.com/en-us/azure/container-registry/container-registry-tasks-overview#quick-task" target="_blank" rel="noopener">Azure Container Registry task&lt;/a>, &lt;a href="https://cloud.google.com/build/docs/building/build-containers" target="_blank" rel="noopener">Google Cloud Build&lt;/a>&lt;/td>
+&lt;td>🟩🟩🟥&lt;/td>
+&lt;td>🟩🟩🟩&lt;/td>
+&lt;td>🟩🟩🟩&lt;/td>
+&lt;td>Managed environment&lt;/td>
+&lt;td>A managed service build the container image in a dedicated environment.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;a href="https://github.com/GoogleContainerTools/kaniko#running-kaniko-in-a-kubernetes-cluster" target="_blank" rel="noopener">Kaniko&lt;/a>&lt;/td>
+&lt;td>🟩🟥🟥&lt;/td>
+&lt;td>🟩🟩🟩&lt;/td>
+&lt;td>🟩🟩🟥&lt;/td>
+&lt;td>Self-hosted Kubernetes&lt;/td>
+&lt;td>A Pod is created for each build, taking care of building and pushing the container to the registry. No security drawbacks.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;a href="https://github.com/genuinetools/img#running-with-kubernetes" target="_blank" rel="noopener">img&lt;/a>, &lt;a href="https://github.com/moby/buildkit" target="_blank" rel="noopener">BuildKit&lt;/a>&lt;/td>
+&lt;td>🟩🟩🟩&lt;/td>
+&lt;td>🟩🟩🟥&lt;/td>
+&lt;td>🟩🟥🟥&lt;/td>
+&lt;td>Local CLI&lt;/td>
+&lt;td>CLI to build the images. Can build different architectures on a single machine. Requires &lt;a href="https://en.wikipedia.org/wiki/Seccomp" target="_blank" rel="noopener">Seccomp&lt;/a> disabled and &lt;a href="https://apparmor.net" target="_blank" rel="noopener">AppArmor&lt;/a> disabled.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Docker in docker&lt;/td>
+&lt;td>🟩🟩🟩&lt;/td>
+&lt;td>🟥🟥🟥&lt;/td>
+&lt;td>🟩🟩🟩&lt;/td>
+&lt;td>Local CLI&lt;/td>
+&lt;td>Before Kubernetes 1.20, it was possible to build container images in the agent, using the Docker socket. This is not possible anymore, as Kubernetes &lt;a href="https://kubernetes.io/blog/2020/12/02/dont-panic-kubernetes-and-docker" target="_blank" rel="noopener">deprecated the Docker socket&lt;/a> in favor of the &lt;a href="https://kubernetes.io/blog/2016/12/container-runtime-interface-cri-in-kubernetes" target="_blank" rel="noopener">Container Runtime Interface&lt;/a>.&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>We choose BuildKit for this project. &lt;a href="https://raw.githubusercontent.com/moby/buildkit/v0.11.5/LICENSE" target="_blank" rel="noopener">Its license&lt;/a> allows commercial use, and the project and mainly maintained, as the time of writing, by Docker, Netlix and Microsoft.&lt;/p>
+&lt;p>Linux systems are supported, but not Windows:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>&lt;code>Ref&lt;/code>&lt;/th>
+&lt;th>Container build inside of the agent with BuildKit&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:bookworm-main&lt;/code>&lt;/td>
+&lt;td>✅&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main&lt;/code>&lt;/td>
+&lt;td>✅&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:focal-main&lt;/code>&lt;/td>
+&lt;td>✅&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:jammy-main&lt;/code>&lt;/td>
+&lt;td>✅&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main&lt;/code>&lt;/td>
+&lt;td>✅&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:ubi9-main&lt;/code>&lt;/td>
+&lt;td>✅&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019-main&lt;/code>&lt;/td>
+&lt;td>❌&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022-main&lt;/code>&lt;/td>
+&lt;td>❌&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h4>How to use the bundled BuildKit&lt;span class="absolute -mt-20" id="how-to-use-the-bundled-buildkit">&lt;/span>
+&lt;a href="#how-to-use-the-bundled-buildkit" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>There are two components, the backend, &lt;code>buildkitd&lt;/code>, and the CLI, &lt;code>buildctl&lt;/code>.&lt;/p>
+&lt;p>Requirements:&lt;/p>
+&lt;ul>
+&lt;li>Setup special security requirements, you can find them &lt;a href="example/helm/container-build.yaml" >in the example file &lt;code>container-build.yaml&lt;/code>&lt;/a>.&lt;/li>
+&lt;li>In the pipeline, run &lt;code>buildkitd&lt;/code> before using &lt;code>buildctl&lt;/code>.&lt;/li>
+&lt;/ul>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># azure-pipelines.yaml&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">variables&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">container_name&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">value&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">my-app&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">container_registry_domain&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">value&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">my-app-registry.azurecr.io&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">steps&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">bash&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">|&lt;/span>&lt;span class="sd">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> # Start buildkitd
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> rootlesskit buildkitd --oci-worker-no-process-sandbox --addr $BUILDKIT_HOST &amp;amp;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> # Wait for buildkitd to start
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> while ! buildctl debug workers; do sleep 1; done&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">displayName&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Run BuildKit&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">bash&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">|&lt;/span>&lt;span class="sd">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> buildctl build \
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> --frontend dockerfile.v0 \
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> --local context=. \
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> --local dockerfile=. \
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> --output type=image,name=$(container_registry_domain)/$(container_name):latest,push=true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">displayName&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Build and push the image&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Out of the box, argument &lt;code>--opt platform=linux/amd64,linux/arm64&lt;/code> can be added to build an image compatible with multiple architectures (&lt;a href="https://github.com/moby/buildkit/blob/v0.11.5/docs/multi-platform.md" target="_blank" rel="noopener">more can be specified&lt;/a>). Multiple cache strategies &lt;a href="https://github.com/moby/buildkit/tree/v0.11.5#cache" target="_blank" rel="noopener">are available&lt;/a> (including container registry, Azure Storage Blob, AWS S3).&lt;/p>
+&lt;h4>BuildKit and the performance&lt;span class="absolute -mt-20" id="buildkit-and-the-performance">&lt;/span>
+&lt;a href="#buildkit-and-the-performance" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>BuildKit works by virtualization in the user space. You can&amp;rsquo;t expect build times as short as native (on your laptop for example). &lt;a href="https://www.qemu.org" target="_blank" rel="noopener">QEMU&lt;/a> is used as a backend. This has the advantage of being able to create images for different architectures than your processor. Virtualization-wise, not all CPU models are equivalent, you can &lt;a href="https://www.qemu.org/docs/master/system/qemu-cpu-models.html" target="_blank" rel="noopener">refer to the official project documentation&lt;/a> to select the most appropriated CPU model for your Kubernetes Node Pool.&lt;/p></description></item><item><title>Capabilities</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/capabilities/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/capabilities/</guid><description>
+&lt;p>Capabilities are declarative variables you can add to the agents, to allow developers to select the right agent for their pipeline (&lt;a href="https://learn.microsoft.com/en-us/azure/devops/pipelines/process/demands?view=azure-devops&amp;amp;tabs=yaml" target="_blank" rel="noopener">official documentation&lt;/a>).&lt;/p>
+&lt;div class="overflow-x-auto mt-6 flex rounded-lg border py-2 ltr:pr-4 rtl:pl-4 contrast-more:border-current contrast-more:dark:border-current border-blue-200 bg-blue-100 text-blue-900 dark:border-blue-200/30 dark:bg-blue-900/30 dark:text-blue-200">
+&lt;div class="ltr:pl-3 ltr:pr-2 rtl:pr-3 rtl:pl-2">&lt;div class="select-none text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">
+ℹ️
+&lt;/div>&lt;/div>
+&lt;div class="w-full min-w-0 leading-7">
+&lt;div class="mt-6 leading-7 first:mt-0">
+Multiple Helm instances can be deployed using the same agent pool name (see &lt;code>pipelines.poolName&lt;/code>). It will result in a single pool with multiple capabilities. Be warning, if a capability is not unique accross the pool, all the agents will scale. This will create &amp;ldquo;zoombies&amp;rdquo; agents, scaled for nothing, waiting their timeout.
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>Disctinct the agents by capabilities. For examples:&lt;/p>
+&lt;ul>
+&lt;li>A pool of X64 agents, and a pool of ARM64 agents&lt;/li>
+&lt;li>A pool of agents with GPU, and a pool of agents without GPU&lt;/li>
+&lt;li>A pool of agents with low performance (standard usage), and a pool of agents with high performance (IA training, intensive C/Rust/GraalVM compilation, &amp;hellip;), with distinct Kubernetes Node pool, scaling to 0 when not used (&lt;a href="https://learn.microsoft.com/en-us/azure/aks/cluster-autoscaler" target="_blank" rel="noopener">AKS documentation&lt;/a>)&lt;/li>
+&lt;/ul>
+&lt;h4>Example: ARM64 agents&lt;span class="absolute -mt-20" id="example-arm64-agents">&lt;/span>
+&lt;a href="#example-arm64-agents" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>Take the assumption we want to host a specific instance pool to ARM servers.&lt;/p>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># values.yaml&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">pipelines&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">poolName&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">private_kube&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">capabilities&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">arch_arm64&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">extraNodeSelectors&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">kubernetes.io/arch&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">arm64&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Deploy the Helm instance:&lt;/p>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">❯ helm upgrade --install agent-arm64 clemlesne-azure-pipelines-agent/azure-pipelines-agent -f values.yaml&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Update the Azure Pipelines file in the repository to use the new pool:&lt;/p>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># azure-pipelines.yaml&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">pool&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">private_kube&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">demands&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">arch_arm64&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">stages&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">...&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h4>Example: Use different agents on specific jobs&lt;span class="absolute -mt-20" id="example-use-different-agents-on-specific-jobs">&lt;/span>
+&lt;a href="#example-use-different-agents-on-specific-jobs" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>In that example:&lt;/p>
+&lt;ul>
+&lt;li>We are using a default agent on ARM64&lt;/li>
+&lt;li>Semgrep, our SAST tool, is not compatible with ARM64, let&amp;rsquo;s use X64 pool&lt;/li>
+&lt;li>Our devs are working on a Java project, built with GraalVM, and the container is built locally with BuildKit: we need a system lot of RAM and multipe CPUs for building the application&lt;/li>
+&lt;/ul>
+&lt;p>Our problematic:&lt;/p>
+&lt;ul>
+&lt;li>Is it possible to reconcile the efficiency of these different architectures, without restricting ourselves?&lt;/li>
+&lt;li>Do we necessarily have to install high performance agents when the use of these large constructions is only a small part of the total execution time (tests, deployments, monitoring, rollback, external services, &amp;hellip;)?&lt;/li>
+&lt;/ul>
+&lt;p>We decide to dpeloy these agents:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Details&lt;/th>
+&lt;th>Efficiency (cost, perf, energy)&lt;/th>
+&lt;th>Capabilities&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Standard performance, ARM64&lt;/td>
+&lt;td>≅ x1&lt;/td>
+&lt;td>&lt;code>arch_arm64&lt;/code>, &lt;code>perf_standard&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Standard performance, X64&lt;/td>
+&lt;td>≅ x1.5&lt;/td>
+&lt;td>&lt;code>arch_x64&lt;/code>, &lt;code>perf_standard&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>High performance, ARM64&lt;/td>
+&lt;td>≅ x10&lt;/td>
+&lt;td>&lt;code>arch_x64&lt;/code>, &lt;code>perf_high&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>High performance, X64&lt;/td>
+&lt;td>≅ x15&lt;/td>
+&lt;td>&lt;code>arch_arm64&lt;/code>, &lt;code>perf_high&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>The developer can now use:&lt;/p>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># azure-pipelines.yaml&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">pool&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">private_kube&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">demands&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">arch_arm64&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">perf_standard&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">stages&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">stage&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">build&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">jobs&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">job&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">sast&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="c"># Use X64 Linux agent because Semgrep is not available on ARM64&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="c"># See: https://github.com/returntocorp/semgrep/issues/2252&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">pool&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">private_kube&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">demands&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">arch_x64&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">perf_standard&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">job&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">unit_tests&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">job&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">container&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="c"># Use high performance agent as Java GraalVM compilation is complex&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">pool&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">private_kube&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">demands&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">arch_x64&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">perf_high&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">stage&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">deploy&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">jobs&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">job&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">upgrade&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">job&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">dast&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">job&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">integration_tests&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div></description></item><item><title>Custom root certificate</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/custom-certificate/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/custom-certificate/</guid><description>
+&lt;p>If you need to run the agent with a custom root certificate, you can use the following Helm values. Format is &lt;a href="https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail" target="_blank" rel="noopener">PEM certificate&lt;/a> and with &lt;a href="https://en.wikipedia.org/wiki/UTF-8" target="_blank" rel="noopener">UTF-8&lt;/a> encoding.&lt;/p>
+&lt;p>Paths are &lt;code>/app-root/azp-custom-certs&lt;/code> for Linux-based agents and &lt;code>C:\app-root\azp-custom-certs&lt;/code> for Windows-based agents.&lt;/p>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># config-root-ca.yaml&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">apiVersion&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">v1&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">kind&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">ConfigMap&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">metadata&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">custom-certs&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">data&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">root-1.crt&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">|&lt;/span>&lt;span class="sd">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> -----BEGIN CERTIFICATE-----
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> ...
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> -----END CERTIFICATE-----&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">root-2.crt&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">|&lt;/span>&lt;span class="sd">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> -----BEGIN CERTIFICATE-----
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> ...
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> -----END CERTIFICATE-----&lt;/span>&lt;span class="w"> &lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># values.yaml&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">extraVolumes&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">custom-certs&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">configMap&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">custom-certs&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">extraVolumeMounts&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">custom-certs&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">mountPath&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">/app-root/azp-custom-certs&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">readOnly&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div></description></item><item><title>Helm values</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/helm-values/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/helm-values/</guid><description>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Parameter&lt;/th>
+&lt;th>Description&lt;/th>
+&lt;th>Default&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;code>affinity&lt;/code>&lt;/td>
+&lt;td>Node affinity for pod assignment&lt;/td>
+&lt;td>&lt;code>{}&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>annotations&lt;/code>&lt;/td>
+&lt;td>Add custom annotations to the Pod.&lt;/td>
+&lt;td>&lt;code>{}&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>autoscaling.cooldown&lt;/code>&lt;/td>
+&lt;td>Time in seconds the automation will wait until there is no more pipeline asking for an agent. Same time is then applied for system termination.&lt;/td>
+&lt;td>&lt;code>60&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>autoscaling.enabled&lt;/code>&lt;/td>
+&lt;td>Enable the auto-scaling. Requires &lt;a href="https://keda.sh" target="_blank" rel="noopener">KEDA&lt;/a>, but can be started without. Be warning, disabling auto-scaling implies a shutdown of the existing agents during a Helm instance upgrade, according to &lt;code>pipelines.timeout&lt;/code>.&lt;/td>
+&lt;td>&lt;code>true&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>autoscaling.maxReplicas&lt;/code>&lt;/td>
+&lt;td>Maximum number of pods, remaining jobs will be kept in queue. The default value is arbitrary, to avoid misconfiguration.&lt;/td>
+&lt;td>&lt;code>100&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>extraEnv&lt;/code>&lt;/td>
+&lt;td>Additional environment variables for the agent container.&lt;/td>
+&lt;td>&lt;code>[]&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>extraNodeSelectors&lt;/code>&lt;/td>
+&lt;td>Additional node labels for pod assignment.&lt;/td>
+&lt;td>&lt;code>{}&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>extraVolumeMounts&lt;/code>&lt;/td>
+&lt;td>Additional volume mounts for the agent container.&lt;/td>
+&lt;td>&lt;code>[]&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>extraVolumes&lt;/code>&lt;/td>
+&lt;td>Additional volumes for the agent pod.&lt;/td>
+&lt;td>&lt;code>[]&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>fullnameOverride&lt;/code>&lt;/td>
+&lt;td>Overrides release fullname&lt;/td>
+&lt;td>&lt;code>&amp;quot;&amp;quot;&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>image.flavor&lt;/code>&lt;/td>
+&lt;td>Container image tag, can be &lt;code>bookworm&lt;/code>, &lt;code>bullseye&lt;/code>, &lt;code>focal&lt;/code>, &lt;code>jammy&lt;/code>, &lt;code>ubi8&lt;/code>, &lt;code>ubi9&lt;/code>, &lt;code>win-ltsc2019&lt;/code>, or &lt;code>win-ltsc2022&lt;/code>.&lt;/td>
+&lt;td>&lt;code>bookworm&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>image.isWindows&lt;/code>&lt;/td>
+&lt;td>Turn on is the agent is a Windows-based system.&lt;/td>
+&lt;td>&lt;code>false&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>image.pullPolicy&lt;/code>&lt;/td>
+&lt;td>Container image pull policy&lt;/td>
+&lt;td>&lt;code>IfNotPresent&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>image.repository&lt;/code>&lt;/td>
+&lt;td>Container image repository&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:bullseye&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>image.version&lt;/code>&lt;/td>
+&lt;td>Container image tag&lt;/td>
+&lt;td>&lt;em>Version&lt;/em>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>imagePullSecrets&lt;/code>&lt;/td>
+&lt;td>Use secrets to pull the container image.&lt;/td>
+&lt;td>&lt;code>[]&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>initContainers&lt;/code>&lt;/td>
+&lt;td>InitContainers for the agent pod.&lt;/td>
+&lt;td>&lt;code>[]&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>nameOverride&lt;/code>&lt;/td>
+&lt;td>Overrides release name&lt;/td>
+&lt;td>&lt;code>&amp;quot;&amp;quot;&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>pipelines.cache.size&lt;/code>&lt;/td>
+&lt;td>Total cache to attach to the Azure Pipelines standard directory. By default, &lt;a href="https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&amp;amp;tabs=yaml#hardware" target="_blank" rel="noopener">same amount as the Microsoft Hosted agents&lt;/a>.&lt;/td>
+&lt;td>&lt;code>10Gi&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>pipelines.cache.type&lt;/code>&lt;/td>
+&lt;td>Disk type to attach to the Azure Pipelines standard directory. See your cloud provider for types (&lt;a href="https://learn.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes" target="_blank" rel="noopener">Azure&lt;/a>, &lt;a href="https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html" target="_blank" rel="noopener">AWS&lt;/a>).&lt;/td>
+&lt;td>&lt;code>managed-csi&lt;/code> (Azure compatible)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>pipelines.cache.volumeEnabled&lt;/code>&lt;/td>
+&lt;td>Enabled by default, can be disabled if your CSI driver doesn&amp;rsquo;t support ephemeral storage (&lt;a href="https://kubernetes-csi.github.io/docs/drivers.html" target="_blank" rel="noopener">exhaustive list&lt;/a>). If disabled, it is advised to allow &amp;gt;= 10Gi of ephemeral storage usage (see &lt;code>resources&lt;/code>).&lt;/td>
+&lt;td>&lt;code>true&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>pipelines.capabilities&lt;/code>&lt;/td>
+&lt;td>Add &lt;a href="https://learn.microsoft.com/en-us/azure/devops/pipelines/process/demands?view=azure-devops&amp;amp;tabs=yaml" target="_blank" rel="noopener">demands/capabilities&lt;/a> to the agent&lt;/td>
+&lt;td>&lt;code>[]&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>pipelines.organizationURL&lt;/code>&lt;/td>
+&lt;td>The Azure base URL for your organization&lt;/td>
+&lt;td>&lt;em>None&lt;/em>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>pipelines.personalAccessToken&lt;/code>&lt;/td>
+&lt;td>Personal Access Token (PAT) used by the agent to connect to the Azure DevOps server (both SaaS and self-hosted).&lt;/td>
+&lt;td>&lt;em>None&lt;/em>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>pipelines.poolName&lt;/code>&lt;/td>
+&lt;td>Agent pool name to which the agent should register.&lt;/td>
+&lt;td>&lt;em>None&lt;/em>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>pipelines.timeout&lt;/code>&lt;/td>
+&lt;td>Time in seconds after a agent will be stopped, the same amount of time is applied as a timeout for the system to shut down.&lt;/td>
+&lt;td>&lt;code>3600&lt;/code> (1 hour)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>pipelines.cleanup.ttl&lt;/code>&lt;/td>
+&lt;td>Delay until Job history will be cleaned from Kubernetes API server (&lt;a href="https://kubernetes.io/docs/concepts/workloads/controllers/job/#ttl-mechanism-for-finished-jobs" target="_blank" rel="noopener">see doc&lt;/a>). Only applied to autoscaled deployments (see &lt;code>autoscaling.enabled&lt;/code>).&lt;/td>
+&lt;td>&lt;code>3600&lt;/code> (1 hour)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>pipelines.cleanup.failed&lt;/code>&lt;/td>
+&lt;td>Maximum of failed Jobs to keep from Kubernetes API server (&lt;a href="https://keda.sh/docs/2.11/concepts/scaling-jobs/#scaledjob-spec" target="_blank" rel="noopener">see doc&lt;/a>). Only applied to autoscaled deployments (see &lt;code>autoscaling.enabled&lt;/code>).&lt;/td>
+&lt;td>&lt;code>100&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>pipelines.cleanup.successful&lt;/code>&lt;/td>
+&lt;td>Maximum of successful Jobs to keep from Kubernetes API server (&lt;a href="https://keda.sh/docs/2.11/concepts/scaling-jobs/#scaledjob-spec" target="_blank" rel="noopener">see doc&lt;/a>). Only applied to autoscaled deployments (see &lt;code>autoscaling.enabled&lt;/code>).&lt;/td>
+&lt;td>&lt;code>100&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>pipelines.tmpdir.size&lt;/code>&lt;/td>
+&lt;td>Total size of the &lt;a href="https://en.wikipedia.org/wiki/TMPDIR" target="_blank" rel="noopener">standard &lt;code>TMPDIR&lt;/code> directory&lt;/a>.&lt;/td>
+&lt;td>&lt;code>1Gi&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>pipelines.tmpdir.type&lt;/code>&lt;/td>
+&lt;td>Disk type to attach to the &lt;a href="https://en.wikipedia.org/wiki/TMPDIR" target="_blank" rel="noopener">standard &lt;code>TMPDIR&lt;/code> directory&lt;/a>. See your cloud provider for types (&lt;a href="https://learn.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes" target="_blank" rel="noopener">Azure&lt;/a>, &lt;a href="https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html" target="_blank" rel="noopener">AWS&lt;/a>).&lt;/td>
+&lt;td>&lt;code>managed-csi&lt;/code> (Azure compatible)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>pipelines.tmpdir.volumeEnabled&lt;/code>&lt;/td>
+&lt;td>Enabled by default, can be disabled if your CSI driver doesn&amp;rsquo;t support ephemeral storage (&lt;a href="https://kubernetes-csi.github.io/docs/drivers.html" target="_blank" rel="noopener">exhaustive list&lt;/a>). If disabled, it is advised to allow &amp;gt;= 10Gi of ephemeral storage usage (see &lt;code>resources&lt;/code>).&lt;/td>
+&lt;td>&lt;code>true&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>podSecurityContext&lt;/code>&lt;/td>
+&lt;td>Security rules applied to the Pod (&lt;a href="https://kubernetes.io/docs/concepts/security/pod-security-standards" target="_blank" rel="noopener">more details&lt;/a>).&lt;/td>
+&lt;td>&lt;code>{}&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>replicaCount&lt;/code>&lt;/td>
+&lt;td>Default fixed amount of agents deployed. Those are not auto-scaled.&lt;/td>
+&lt;td>&lt;code>3&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>resources&lt;/code>&lt;/td>
+&lt;td>Resource limits&lt;/td>
+&lt;td>&lt;code>{ &amp;quot;resources&amp;quot;: { &amp;quot;limits&amp;quot;: { &amp;quot;cpu&amp;quot;: 2, &amp;quot;memory&amp;quot;: &amp;quot;4Gi&amp;quot;, &amp;quot;ephemeral-storage&amp;quot;: &amp;quot;8Gi&amp;quot; }, &amp;quot;requests&amp;quot;: { &amp;quot;cpu&amp;quot;: 1, &amp;quot;memory&amp;quot;: &amp;quot;2Gi&amp;quot;, &amp;quot;ephemeral-storage&amp;quot;: &amp;quot;2Gi&amp;quot; }}}&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>secret.create&lt;/code>&lt;/td>
+&lt;td>Create Secret, must contains &lt;code>personalAccessToken&lt;/code> and &lt;code>organizationURL&lt;/code> variables.&lt;/td>
+&lt;td>&lt;code>true&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>secret.name&lt;/code>&lt;/td>
+&lt;td>Secret name&lt;/td>
+&lt;td>&lt;em>Release name&lt;/em>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>securityContext&lt;/code>&lt;/td>
+&lt;td>Security rules applied to the container (&lt;a href="https://kubernetes.io/docs/concepts/security/pod-security-standards" target="_blank" rel="noopener">more details&lt;/a>).&lt;/td>
+&lt;td>&lt;code>{}&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>serviceAccount.annotations&lt;/code>&lt;/td>
+&lt;td>Custom annotations to give to the ServiceAccount.&lt;/td>
+&lt;td>&lt;code>{}&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>serviceAccount.create&lt;/code>&lt;/td>
+&lt;td>Create ServiceAccount&lt;/td>
+&lt;td>&lt;code>true&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>serviceAccount.name&lt;/code>&lt;/td>
+&lt;td>ServiceAccount name&lt;/td>
+&lt;td>&lt;em>Release name&lt;/em>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>tolerations&lt;/code>&lt;/td>
+&lt;td>Toleration labels for pod assignment.&lt;/td>
+&lt;td>&lt;code>[]&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table></description></item><item><title>Performance</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/performance/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/performance/</guid><description>
+&lt;p>These actions can enhance your system performance:&lt;/p>
+&lt;ul>
+&lt;li>Enough CPU and memory are allocated to the agent (see &lt;code>resources&lt;/code>). See the your Kubernetes monitoring software to detect bottlenecks (notably CPU, RAM, IOPS, network, disk size).&lt;/li>
+&lt;li>No &lt;code>emptyDir&lt;/code> is used (see &lt;code>pipelines.cache.volumeEnabled&lt;/code>, &lt;code>pipelines.tmpdir.volumeEnabled&lt;/code>, and &lt;code>extraVolumes&lt;/code>).&lt;/li>
+&lt;li>SSD volumes are used for both cache (see &lt;code>pipelines.cache&lt;/code>) and system temporary directory (see &lt;code>pipelines.tmpdir&lt;/code>). For exemple, in Azure, the &lt;code>managed-csi-premium&lt;/code> volume type is a high-performance SSD.&lt;/li>
+&lt;li>The network bewteen Azure DevOps server and agents has a low latency.&lt;/li>
+&lt;/ul>
+&lt;p>BuikdKit specifics:&lt;/p>
+&lt;ul>
+&lt;li>Choose an ephemeral disk for the cache in &lt;code>/app-root/.local/share/buildkit&lt;/code>, instead of an emptyDir.&lt;/li>
+&lt;li>Use an high-performance disk for the cache, exemple &lt;code>managed-csi-premium&lt;/code> in Azure.&lt;/li>
+&lt;/ul></description></item><item><title>Provided software</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/provided-software/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/provided-software/</guid><description>
+&lt;p>Softwares are operating system specific. The following table lists the softwares provided by the agent.&lt;/p>
+&lt;h4>Linux&lt;span class="absolute -mt-20" id="linux">&lt;/span>
+&lt;a href="#linux" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;a href="https://github.com/microsoft/azure-pipelines-agent" target="_blank" rel="noopener">Azure Pipelines agent&lt;/a> + &lt;a href="https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux" target="_blank" rel="noopener">requirements&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/moby/buildkit" target="_blank" rel="noopener">BuildKit&lt;/a> + requirements (&lt;a href="https://dbus.freedesktop.org" target="_blank" rel="noopener">dbus-user-session&lt;/a>, &lt;a href="https://github.com/containers/fuse-overlayfs" target="_blank" rel="noopener">fuse-overlayfs&lt;/a>, &lt;a href="https://www.netfilter.org/projects/iptables/index.html" target="_blank" rel="noopener">iptables&lt;/a>, &lt;a href="https://github.com/shadow-maint/shadow" target="_blank" rel="noopener">shadow-utils&lt;/a>, &lt;a href="https://github.com/shadow-maint/shadow" target="_blank" rel="noopener">uidmap&lt;/a>)&lt;/li>
+&lt;li>Cloud providers CLIs
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/aws/aws-cli" target="_blank" rel="noopener">AWS CLI&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/Azure/azure-cli" target="_blank" rel="noopener">Azure CLI&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://cloud.google.com/sdk" target="_blank" rel="noopener">Google Cloud SDK&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Shells
+&lt;ul>
+&lt;li>&lt;a href="https://www.gnu.org/software/bash" target="_blank" rel="noopener">bash&lt;/a> (default)&lt;/li>
+&lt;li>&lt;a href="https://github.com/PowerShell/PowerShell" target="_blank" rel="noopener">PowerShell Core&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://www.zsh.org" target="_blank" rel="noopener">zsh&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Programming languages
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/dotnet/aspnetcore" target="_blank" rel="noopener">ASP.NET Core Runtime&lt;/a>&lt;/li>
+&lt;li>Python (&lt;a href="https://www.python.org/downloads/release/python-380" target="_blank" rel="noopener">Python 3.8&lt;/a>, &lt;a href="https://www.python.org/downloads/release/python-390" target="_blank" rel="noopener">Python 3.9&lt;/a>, &lt;a href="https://www.python.org/downloads/release/python-3100" target="_blank" rel="noopener">Python 3.10&lt;/a>, &lt;a href="https://www.python.org/downloads/release/python-3110" target="_blank" rel="noopener">Python 3.11&lt;/a>, depending of the system, plus C/Rust build tools for libs non pre-built on the platforms)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Tools
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/git-for-windows/git" target="_blank" rel="noopener">git&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://www.gnu.org/software/gzip" target="_blank" rel="noopener">gzip&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/stedolan/jq" target="_blank" rel="noopener">jq&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://www.gnu.org/software/make" target="_blank" rel="noopener">make&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://www.gnu.org/software/tar" target="_blank" rel="noopener">tar&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://infozip.sourceforge.net/UnZip.html" target="_blank" rel="noopener">unzip&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://www.gnu.org/software/wget" target="_blank" rel="noopener">wget&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/mikefarah/yq" target="_blank" rel="noopener">yq&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://infozip.sourceforge.net/Zip.html" target="_blank" rel="noopener">zip&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/facebook/zstd" target="_blank" rel="noopener">zstd&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4>Windows&lt;span class="absolute -mt-20" id="windows">&lt;/span>
+&lt;a href="#windows" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
+&lt;li>&lt;a href="https://github.com/microsoft/azure-pipelines-agent" target="_blank" rel="noopener">Azure Pipelines agent&lt;/a> + &lt;a href="https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/docker?view=azure-devops#linux" target="_blank" rel="noopener">requirements&lt;/a>&lt;/li>
+&lt;li>Cloud providers CLIs
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/aws/aws-cli" target="_blank" rel="noopener">AWS CLI&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/Azure/azure-cli" target="_blank" rel="noopener">Azure CLI&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://cloud.google.com/sdk" target="_blank" rel="noopener">Google Cloud SDK&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Shells
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/PowerShell/PowerShell" target="_blank" rel="noopener">PowerShell Core&lt;/a> (default)&lt;/li>
+&lt;li>&lt;a href="https://learn.microsoft.com/en-us/powershell/scripting/windows-powershell/install/installing-windows-powershell?view=powershell-7.3" target="_blank" rel="noopener">Windows PowerShell&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Programming languages
+&lt;ul>
+&lt;li>&lt;a href="https://dotnet.microsoft.com" target="_blank" rel="noopener">.NET SDK&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://www.python.org/downloads/release/python-3110" target="_blank" rel="noopener">Python 3.11&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://learn.microsoft.com/en-us/visualstudio/ide/?view=vs-2022" target="_blank" rel="noopener">Visual Studio Build Tools&lt;/a> (with &lt;code>AzureBuildTools&lt;/code>, &lt;code>VCTools&lt;/code>, &lt;code>WebBuildTools&lt;/code>, &lt;code>ManagedDesktopBuildTools&lt;/code>, &lt;code>OfficeBuildTools&lt;/code> workloads)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Tools
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/git-for-windows/git" target="_blank" rel="noopener">git&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/stedolan/jq" target="_blank" rel="noopener">jq&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/mikefarah/yq" target="_blank" rel="noopener">yq&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/facebook/zstd" target="_blank" rel="noopener">zstd&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul></description></item><item><title>Proxy</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/proxy/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/proxy/</guid><description>
+&lt;p>If you need to use a proxy, you can set the following environment variables. See &lt;a href="https://github.com/microsoft/azure-pipelines-agent/blob/master/docs/start/proxyconfig.md" target="_blank" rel="noopener">this documentation&lt;/a> for more details.&lt;/p>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># values.yaml&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">extraEnv&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">VSTS_HTTP_PROXY&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">value&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">http://proxy:8080&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">VSTS_HTTP_PROXY_USERNAME&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">value&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">username&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">VSTS_HTTP_PROXY_PASSWORD&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">value&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">password&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div></description></item></channel></rss>
