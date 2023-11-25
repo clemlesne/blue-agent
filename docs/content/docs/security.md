@@ -1,4 +1,7 @@
-# Security Policy
+---
+title: Security
+weight: 3
+---
 
 ## Proactive detection of vulnerabilities
 

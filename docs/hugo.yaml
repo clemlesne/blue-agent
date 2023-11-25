@@ -1,0 +1,86 @@
+languageCode: en-us
+theme: hextra
+title: Azure Pipelines Agent
+
+enableGitInfo: true
+enableRobotsTXT: true
+enableEmoji: true
+
+imaging:
+  quality: 75
+  resampleFilter: MitchellNetravali
+
+# services:
+#   googleAnalytics:
+#     ID: G-MEASUREMENT_ID
+
+defaultContentLanguage: en
+languages:
+  en:
+    languageName: English
+
+# Hextra built-in shortcodes
+enableInlineShortcodes: true
+markup:
+  # Root page
+  goldmark:
+    renderer:
+      unsafe: true
+  # Syntax highlighting
+  highlight:
+    noClasses: false
+
+menu:
+  main:
+    - name: Documentation
+      pageRef: /docs
+      weight: 1
+    - name: About
+      pageRef: /about
+      weight: 2
+    - name: Releases ↗
+      weight: 3
+      url: https://github.com/clemlesne/azure-pipelines-agent/releases
+    - name: Docker Hub ↗
+      weight: 4
+      url: https://hub.docker.com/r/clemlesne/azure-pipelines-agent
+    - name: Search
+      weight: 5
+      params:
+        type: search
+    - name: GitHub ↗
+      weight: 6
+      url: "https://github.com/clemlesne/azure-pipelines-agent"
+      params:
+        icon: github
+  sidebar:
+    - name: More
+      params:
+        type: separator
+      weight: 1
+    - name: "About"
+      pageRef: "/about"
+      weight: 2
+    - name: "Azure Pipelines docs ↗"
+      url: https://learn.microsoft.com/en-us/azure/devops/pipelines/?view=azure-devops
+      weight: 3
+    - name: "Azure DevOps docs ↗"
+      url: https://learn.microsoft.com/en-us/azure/devops/?view=azure-devops
+      weight: 4
+
+params:
+  description: Deploy Azure Pipelines agent on Kubernetes. Easy way. Cheap. Windows and Linux. X64 and ARM compatible.
+  navbar:
+    displayLogo: true
+    displayTitle: true
+    logo:
+      path: images/logo-1024.png
+    width: wide
+  footer:
+    displayCopyright: true
+    enable: true
+  displayUpdatedDate: true
+  dateFormat: "January 2, 2006"
+  editURL:
+    enable: true
+    base: https://github.com/clemlesne/azure-pipelines-agent/edit/main/docs/content

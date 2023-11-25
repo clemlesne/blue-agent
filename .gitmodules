@@ -1,3 +1,6 @@
 [submodule "cicd/version"]
 	path = cicd/version
 	url = https://github.com/clemlesne/gitops-version
+[submodule "docs/themes/hextra"]
+	path = docs/themes/hextra
+	url = https://github.com/imfing/hextra.git
