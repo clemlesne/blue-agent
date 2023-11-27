@@ -70,6 +70,34 @@ env:
   HUGO_VERSION: 0.120.4
 
 jobs:
+  init:
+    name: Initialize
+    runs-on: ubuntu-22.04
+    outputs:
+      BRANCH: ${{ steps.branch.outputs.branch }}
+      VERSION_FULL: ${{ steps.version.outputs.version_full }}
+      VERSION: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+        with:
+          # We need all Git history for "version.sh"
+          fetch-depth: 0
+          # Ensure "version.sh" submodule are up-to-date
+          submodules: recursive
+
+      - name: Version
+        id: version
+        run: |
+          echo "version=$(bash cicd/version/version.sh -g . -c)" >> $GITHUB_OUTPUT
+          echo "version_full=$(bash cicd/version/version.sh -g . -c -m)" >> $GITHUB_OUTPUT
+
+      - name: Branch
+        id: branch
+        run: |
+          branch=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
+          echo "branch=$branch" >> $GITHUB_OUTPUT
+
   sast-creds:
     name: SAST - Credentials
     runs-on: ubuntu-22.04
@@ -92,6 +120,7 @@ jobs:
   build-helm:
     name: Build Helm chart
     needs:
+      - init
       - sast-creds
       - sast-semgrep
       - test
@@ -99,17 +128,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
-        with:
-          # We need all Git history for "version.sh"
-          fetch-depth: 0
-          # Ensure "version.sh" submodule are up-to-date
-          submodules: recursive
-
-      - name: Version
-        id: version
-        run: |
-          echo "version=$(bash cicd/version/version.sh -g . -c)" >> $GITHUB_OUTPUT
-          echo "version_full=$(bash cicd/version/version.sh -g . -c -m)" >> $GITHUB_OUTPUT
 
       - name: Setup Helm
         uses: azure/setup-helm@v3.5
@@ -141,7 +159,7 @@ jobs:
             --key 'Clémence Lesné' \
             --keyring keyring.gpg \
             --sign \
-            --version ${{ steps.version.outputs.version }} \
+            --version ${{ needs.init.outputs.VERSION }} \
             src/helm/azure-pipelines-agent
 
       - name: Sign Helm chart
@@ -150,10 +168,10 @@ jobs:
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
         run: |
           cosign sign-blob \
-            --bundle .cr-release-packages/azure-pipelines-agent-${{ steps.version.outputs.version }}.tgz.bundle \
+            --bundle .cr-release-packages/azure-pipelines-agent-${{ needs.init.outputs.VERSION }}.tgz.bundle \
             --key="env://COSIGN_PRIVATE_KEY" \
             --yes \
-            .cr-release-packages/azure-pipelines-agent-${{ steps.version.outputs.version }}.tgz
+            .cr-release-packages/azure-pipelines-agent-${{ needs.init.outputs.VERSION }}.tgz
 
       - name: Cache Helm chart
         uses: actions/upload-artifact@v3.1.3
@@ -166,7 +184,7 @@ jobs:
           helm template \
             --output-dir .helm-template \
             --values test/helm/azure-pipelines-agent/values.yaml \
-            .cr-release-packages/azure-pipelines-agent-${{ steps.version.outputs.version }}.tgz
+            .cr-release-packages/azure-pipelines-agent-${{ needs.init.outputs.VERSION }}.tgz
 
       - name: Run SAST Snyk for Helm
         # Snyk can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub Security
@@ -257,6 +275,7 @@ jobs:
   build-publish-linux:
     name: Build & deploy image (Linux ${{ matrix.os }})
     needs:
+      - init
       - sast-creds
       - sast-semgrep
       - test
@@ -280,22 +299,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
-        with:
-          # We need all Git history for "version.sh"
-          fetch-depth: 0
-          # Ensure "version.sh" submodule are up-to-date
-          submodules: recursive
-
-      - name: Configure Git
-        run: |
-          git config user.name "${{ github.actor }}"
-          git config user.email "${{ github.actor }}@users.noreply.github.com"
-
-      - name: Version
-        id: version
-        run: |
-          echo "version=$(bash cicd/version/version.sh -g . -c)" >> $GITHUB_OUTPUT
-          echo "version_full=$(bash cicd/version/version.sh -g . -c -m)" >> $GITHUB_OUTPUT
 
       - name: Setup QEMU
         id: setup-qemu
@@ -359,7 +362,7 @@ jobs:
             type=ref,event=pr
             type=schedule
             type=schedule,pattern={{date 'YYYYMMDD'}}
-            type=semver,pattern={{version}},value=${{ steps.version.outputs.version_full }}
+            type=semver,pattern={{version}},value=${{ needs.init.outputs.VERSION_FULL }}
             type=sha
           labels: |
             io.artifacthub.package.category=integration-delivery
@@ -453,6 +456,7 @@ jobs:
   build-publish-win:
     name: Build & deploy image (Windows ${{ matrix.os }})
     needs:
+      - init
       - sast-creds
       - sast-semgrep
       - test
@@ -468,22 +472,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
-        with:
-          # We need all Git history for "version.sh"
-          fetch-depth: 0
-          # Ensure "version.sh" submodule are up-to-date
-          submodules: recursive
-
-      - name: Configure Git
-        run: |
-          git config user.name "${{ github.actor }}"
-          git config user.email "${{ github.actor }}@users.noreply.github.com"
-
-      - name: Version
-        id: version
-        run: |
-          echo "version=$(powershell cicd/version/version.ps1 -g . -c)" >> $Env:GITHUB_OUTPUT
-          echo "version_full=$(powershell cicd/version/version.ps1 -g . -c -m)" >> $Env:GITHUB_OUTPUT
 
       # Required for running "npx" CLI
       - name: Setup Node
@@ -534,7 +522,7 @@ jobs:
             type=ref,event=pr
             type=schedule
             type=schedule,pattern={{date 'YYYYMMDD'}}
-            type=semver,pattern={{version}},value=${{ steps.version.outputs.version_full }}
+            type=semver,pattern={{version}},value=${{ needs.init.outputs.VERSION_FULL }}
             type=sha
           labels: |
             io.artifacthub.package.category=integration-delivery
