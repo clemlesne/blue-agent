@@ -1,4 +1,4 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Azure Pipelines Agent – Documentation</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/</link><description>Recent content in Documentation on Azure Pipelines Agent</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://clemlesne.github.io/azure-pipelines-agent/docs/index.xml" rel="self" type="application/rss+xml"/><item><title>Getting started</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/getting-started/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/getting-started/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Azure Pipelines Agent – Introduction</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/</link><description>Recent content in Introduction on Azure Pipelines Agent</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://clemlesne.github.io/azure-pipelines-agent/docs/index.xml" rel="self" type="application/rss+xml"/><item><title>Getting started</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/getting-started/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/getting-started/</guid><description>
 &lt;h2>Usage&lt;span class="absolute -mt-20" id="usage">&lt;/span>
 &lt;a href="#usage" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;div class="steps ml-4 mb-12 border-l border-gray-200 pl-6 dark:border-neutral-800 [counter-reset:step]">
 &lt;h3>Prepare the Azure DevOps organization&lt;span class="absolute -mt-20" id="prepare-the-azure-devops-organization">&lt;/span>
@@ -19,6 +19,7 @@ title="Copy code"
 &lt;/button>
 &lt;/div>
 &lt;/div>
+&lt;p>Details about the Helm configuration &lt;a href="https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/helm-values" >can be found in a dedicated section&lt;/a>.&lt;/p>
 &lt;h3>Install the chart&lt;span class="absolute -mt-20" id="install-the-chart">&lt;/span>
 &lt;a href="#install-the-chart" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Use Helm to install the latest released chart:&lt;/p>
 &lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">helm repo add clemlesne-azure-pipelines-agent https://clemlesne.github.io/azure-pipelines-agent
@@ -342,7 +343,7 @@ Set a technical pipeline timeout longer than the functional pipeline timeout to 
 &lt;/div>
 &lt;/div>
 &lt;/div>
-&lt;p>&lt;img src="build-job-timeout-in-minutes.png" alt="Configuration in the web interface." loading="lazy" />&lt;/p></description></item><item><title>Build ASP.NET applications</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/build-dot-net/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/build-dot-net/</guid><description>
+&lt;p>&lt;img src="build-job-timeout-in-minutes.png" alt="Configuration in the web interface." loading="lazy" />&lt;/p></description></item><item><title>Build ASP.NET applications</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/build-aspnet/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/build-aspnet/</guid><description>
 &lt;p>It was chosen arbitrarily to install the LTS non SDK version of ASNP.NET. Because :&lt;/p>
 &lt;ul>
 &lt;li>LTS is better supported by Microsoft than STS&lt;/li>
@@ -646,7 +647,7 @@ title="Copy code"
 &lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
 &lt;/button>
 &lt;/div>
-&lt;/div></description></item><item><title>Custom root certificate</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/custom-certificate/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/custom-certificate/</guid><description>
+&lt;/div></description></item><item><title>Custom root certificate</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/ca-certificate/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/ca-certificate/</guid><description>
 &lt;p>If you need to run the agent with a custom root certificate, you can use the following Helm values. Format is &lt;a href="https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail" target="_blank" rel="noopener">PEM certificate&lt;/a> and with &lt;a href="https://en.wikipedia.org/wiki/UTF-8" target="_blank" rel="noopener">UTF-8&lt;/a> encoding.&lt;/p>
 &lt;p>Paths are &lt;code>/app-root/azp-custom-certs&lt;/code> for Linux-based agents and &lt;code>C:\app-root\azp-custom-certs&lt;/code> for Windows-based agents.&lt;/p>
 &lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># config-root-ca.yaml&lt;/span>&lt;span class="w">
