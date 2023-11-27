@@ -1,7 +1,7 @@
 # Azure Pipelines Agent
 
 <!-- Use absolute path for images in README.md, so that they are displayed on ArtifactHub.io, Lens, OpenLens, etc. -->
-<img src="https://raw.githubusercontent.com/clemlesne/azure-pipelines-agent/main/docs/static/images/logo-4096.png" width="100">
+<img src="https://raw.githubusercontent.com/clemlesne/azure-pipelines-agent/main/docs/static/favicon.svg" width="100">
 
 [Azure Pipelines Agent](https://github.com/clemlesne/azure-pipelines-agent) is self-hosted agent in Kubernetes, cheap to run, secure, auto-scaled and easy to deploy.
 

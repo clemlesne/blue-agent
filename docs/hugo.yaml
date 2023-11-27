@@ -69,7 +69,8 @@ params:
     displayLogo: true
     displayTitle: true
     logo:
-      path: images/logo-1024.png
+      dark: favicon-dark.svg
+      path: favicon.svg
     width: wide
   footer:
     displayCopyright: true

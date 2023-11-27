@@ -8,7 +8,7 @@ type: application
 kubeVersion: ">= 1.19.0-0"
 version: 0.0.0
 appVersion: 0.0.0
-icon: https://raw.githubusercontent.com/clemlesne/azure-pipelines-agent/master/docs/static/images/logo-1024.png
+icon: https://raw.githubusercontent.com/clemlesne/azure-pipelines-agent/master/docs/static/favicon.svg
 keywords:
   - agent
   - auto-scale
