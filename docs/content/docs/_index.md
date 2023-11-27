@@ -1,6 +1,6 @@
 ---
-title: Documentation
-next: /docs/getting-started
+linkTitle: Documentation
+title: Introduction
 ---
 
 Azure Pipelines Agent is self-hosted agent in Kubernetes, cheap to run, secure, auto-scaled and easy to deploy.
