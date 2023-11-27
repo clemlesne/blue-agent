@@ -1,0 +1,21 @@
+{
+  "name": "Azure Pipelines Agent",
+  "description": "Deploy Azure Pipelines agent on Kubernetes. Easy way. Cheap. Windows and Linux.",
+  "start_url": "index.html",
+  "lang": "en-US",
+  "theme_color": "#719be7",
+  "display": "browser",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
