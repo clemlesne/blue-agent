@@ -1,4 +1,4 @@
-.PHONY: test lint build-docker
+.PHONY: test lint build-docker docs build-docs
 
 test:
 	@echo "➡️ Running Prettier..."
@@ -14,5 +14,11 @@ lint:
 	@echo "➡️ Running Hadolint..."
 	find . -name "Dockerfile*" -exec bash -c "echo 'File {}:' && hadolint {}" \;
 
+docs:
+	cd docs && hugo server
+
 build-docker:
 	bash cicd/docker-build-local.sh
+
+build-docs:
+	cd docs && hugo --gc --minify
