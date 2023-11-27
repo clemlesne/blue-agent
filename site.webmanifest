@@ -1,7 +1,11 @@
 {
-  "name": "Hextra",
-  "short_name": "Hextra",
+  "name": "Azure Pipelines Agent",
+  "description": "Deploy Azure Pipelines agent on Kubernetes. Easy way. Cheap. Windows and Linux.",
   "start_url": "index.html",
+  "lang": "en-US",
+  "theme_color": "#719be7",
+  "display": "browser",
+  "orientation": "any",
   "icons": [
     {
       "src": "android-chrome-192x192.png",
@@ -13,8 +17,5 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "theme_color": "#000000",
-  "background_color": "#000000",
-  "display": "standalone"
+  ]
 }
