@@ -25,6 +25,8 @@ pipelines:
   poolName: your-pool
 ```
 
+Details about the Helm configuration [can be found in a dedicated section](/docs/advanced-topics/helm-values).
+
 ### Install the chart
 
 Use Helm to install the latest released chart:
