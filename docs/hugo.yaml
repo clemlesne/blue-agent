@@ -58,9 +58,6 @@ menu:
       params:
         type: separator
       weight: 1
-    - name: "About"
-      pageRef: "/about"
-      weight: 2
     - name: "Azure Pipelines docs ↗"
       url: https://learn.microsoft.com/en-us/azure/devops/pipelines/?view=azure-devops
       weight: 3
