@@ -10,9 +10,10 @@ imaging:
   quality: 75
   resampleFilter: MitchellNetravali
 
-# services:
-#   googleAnalytics:
-#     ID: G-MEASUREMENT_ID
+services:
+  googleAnalytics:
+    # Website: https://clemlesne.github.io/azure-pipelines-agent
+    ID: G-4JZ51TVMEQ
 
 defaultContentLanguage: en
 languages:
