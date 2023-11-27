@@ -795,6 +795,10 @@ jobs:
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
           # Commit and push
-          git add .
-          git commit -m "Deploy Hugo site v${{ needs.init.outputs.VERSION }}"
-          git push origin gh-pages
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "Nothing to commit"
+          else
+            git add .
+            git commit -m "Deploy Hugo site v${{ needs.init.outputs.VERSION }}"
+            git push origin gh-pages
+          fi
