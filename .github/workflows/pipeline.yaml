@@ -699,6 +699,27 @@ jobs:
             artifacthub-repo.yml:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml \
             --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml
 
+  update-docker-hub-description:
+    name: Update Docker Hub description
+    needs:
+      - build-publish-linux
+      - build-publish-win
+    # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
+    if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Push README to Docker Hub
+        uses: peter-evans/dockerhub-description@v3.4.2
+        with:
+          enable-url-completion: true
+          password: ${{ secrets.DOCKER_HUB_PAT }}
+          repository: ${{ env.CONTAINER_NAME }}
+          short-description: ${{ github.event.repository.description }}
+          username: clemlesne
+
   build-hugo:
     name: Build Hugo site
     runs-on: ubuntu-22.04
