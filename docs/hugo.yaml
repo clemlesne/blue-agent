@@ -60,10 +60,8 @@ menu:
       weight: 1
     - name: "Azure Pipelines docs ↗"
       url: https://learn.microsoft.com/en-us/azure/devops/pipelines/?view=azure-devops
-      weight: 3
     - name: "Azure DevOps docs ↗"
       url: https://learn.microsoft.com/en-us/azure/devops/?view=azure-devops
-      weight: 4
 
 params:
   description: Deploy Azure Pipelines agent on Kubernetes. Easy way. Cheap. Windows and Linux. X64 and ARM compatible.
