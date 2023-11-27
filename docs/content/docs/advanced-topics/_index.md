@@ -1,4 +1,6 @@
 ---
+next: /security
+prev: /getting-started
 title: Advanced topics
 weight: 2
 ---

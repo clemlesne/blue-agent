@@ -1,4 +1,5 @@
 ---
+next: /advanced-topics
 prev: /docs
 title: Getting started
 weight: 1

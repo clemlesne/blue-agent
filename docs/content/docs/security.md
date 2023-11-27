@@ -1,4 +1,5 @@
 ---
+prev: /advanced-topics
 title: Security
 weight: 3
 ---
