@@ -747,6 +747,7 @@ jobs:
     name: Deploy Hugo site
     needs:
       - build-hugo
+      - init
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
     runs-on: ubuntu-22.04
@@ -774,5 +775,5 @@ jobs:
 
           # Commit and push
           git add .
-          git commit -m "Deploy hugo site"
+          git commit -m "Deploy Hugo site v${{ needs.init.outputs.VERSION_FULL }}"
           git push origin gh-pages
