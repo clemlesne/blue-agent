@@ -16,3 +16,10 @@ Azure Pipelines Agent is self-hosted agent in Kubernetes, cheap to run, secure, 
 - 🖥️ Pre-built with [Windows Server](https://www.microsoft.com/en-us/windows-server), [Debian](https://debian.org), [Ubuntu](https://ubuntu.com), [Red Hat Enterprise Linux](https://access.redhat.com/products/red-hat-enterprise-linux).
 - 📦 [SBOM (Software Bill of Materials)](https://en.wikipedia.org/wiki/Software_supply_chain) is packaged with each container image.
 - 🔄 System updates are applied every day.
+
+## Next
+
+{{< cards >}}
+{{< card link="getting-started" title="Getting started" icon="check" subtitle="Quick steps to deploy" >}}
+{{< card link="security" title="Security" icon="shield-check" subtitle="Chain of trust & reporting a vulnerability" >}}
+{{< /cards >}}
