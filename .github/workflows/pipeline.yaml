@@ -796,5 +796,5 @@ jobs:
 
           # Commit and push
           git add .
-          git commit -m "Deploy Hugo site v${{ needs.init.outputs.VERSION_FULL }}"
+          git commit -m "Deploy Hugo site v${{ needs.init.outputs.VERSION }}"
           git push origin gh-pages
