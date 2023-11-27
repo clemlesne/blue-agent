@@ -1,4 +1,8 @@
-# Security Policy
+---
+prev: /advanced-topics
+title: Security
+weight: 3
+---
 
 ## Proactive detection of vulnerabilities
 

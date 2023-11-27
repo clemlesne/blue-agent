@@ -1,4 +1,7 @@
-# Troubleshooting
+---
+title: Troubleshooting
+weight: 4
+---
 
 ## Pods are evicted by Kubernetes with the message `Pod ephemeral local storage usage exceeds the total limit of containers`
 
@@ -99,6 +102,8 @@ If the pipeline takes longer than 60 minutes, you need to change two things.
 1. The technical pipeline timeout with `pipelines.timeout` Helm value to 7200 seconds (2 hours) for example.
 2. Increase the functional pipeline timeout in Azure DevOps. Go to `Options > Build job > Build job timeout in minutes`.
 
-> Tip: Set a technical pipeline timeout longer than the functional pipeline timeout to avoid the system to kill the pipeline abruptly.
+{{< callout type="info" >}}
+Set a technical pipeline timeout longer than the functional pipeline timeout to avoid the system to kill the pipeline abruptly.
+{{< /callout >}}
 
-![AzureDevOps](./docs/build-job-timeout-in-minutes.png)
+![Configuration in the web interface.](build-job-timeout-in-minutes.png)
