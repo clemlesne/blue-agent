@@ -133,6 +133,9 @@ initContainers:
 terminationGracePeriodSeconds: {{ .Values.pipelines.timeout | int | required "A value for .Values.pipelines.timeout is required" }}
 restartPolicy: {{ .Args.restartPolicy }}
 containers:
+  {{- if .Values.sidecarContainers -}}
+  {{- toYaml .Values.sidecarContainers | trim | nindent 2 }}
+  {{- end}}
   - name: azp-agent
     securityContext:
       {{- toYaml (mustMergeOverwrite (include "azure-pipelines-agent.defaultSecurityContext" . | fromYaml) .Values.securityContext) | nindent 6 }}
