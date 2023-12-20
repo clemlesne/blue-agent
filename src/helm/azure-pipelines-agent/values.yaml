@@ -132,15 +132,34 @@ extraVolumeMounts: []
 #     command: ["/bin/sh", "-c", "echo Hello World"]
 initContainers: []
 
-## Extra manifests to deploy as an array
-extraManifests:
-  []
+# Extra manifests to deploy as an array.
+#
+# extraManifests:
+# - apiVersion: v1
+#   kind: Secret
+#   metadata:
+#   labels:
+#     name: azure-pipeline-secret
+#   data:
+#     personalAccessToken: "value"
+#     organizationURL: "value"
+extraManifests: []
 
-  # - apiVersion: v1
-  #   kind: Secret
-  #   metadata:
-  #   labels:
-  #     name: azure-pipeline-secret
-  #   data:
-  #     personalAccessToken: "value"
-  #     organizationURL: "value"
+# Containers to run alongside the agent container.
+#
+# sidecarContainers:
+#   - name: my-sidecar
+#     image: awesome-project/my-sidecar-image
+#     imagePullPolicy: Always
+#     ports:
+#     - name: my-port
+#       containerPort: 5000
+#       protocol: TCP
+#     resources:
+#       requests:
+#         memory: 10Mi
+#         cpu: 10m
+#       limits:
+#         memory: 100Mi
+#         cpu: 100m
+sidecarContainers: []
