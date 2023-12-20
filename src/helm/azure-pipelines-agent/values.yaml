@@ -132,15 +132,15 @@ extraVolumeMounts: []
 #     command: ["/bin/sh", "-c", "echo Hello World"]
 initContainers: []
 
-## Extra manifests to deploy as an array
-extraManifests:
-  []
-
-  # - apiVersion: v1
-  #   kind: Secret
-  #   metadata:
-  #   labels:
-  #     name: azure-pipeline-secret
-  #   data:
-  #     personalAccessToken: "value"
-  #     organizationURL: "value"
+# Extra manifests to deploy as an array.
+#
+# extraManifests:
+# - apiVersion: v1
+#   kind: Secret
+#   metadata:
+#   labels:
+#     name: azure-pipeline-secret
+#   data:
+#     personalAccessToken: "value"
+#     organizationURL: "value"
+extraManifests: []
