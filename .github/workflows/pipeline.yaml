@@ -141,7 +141,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Setup Cosign
-        uses: sigstore/cosign-installer@v3.2.0
+        uses: sigstore/cosign-installer@v3.3.0
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
@@ -320,7 +320,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Setup Cosign
-        uses: sigstore/cosign-installer@v3.2.0
+        uses: sigstore/cosign-installer@v3.3.0
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
@@ -480,7 +480,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Setup Cosign
-        uses: sigstore/cosign-installer@v3.2.0
+        uses: sigstore/cosign-installer@v3.3.0
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
