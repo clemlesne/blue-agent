@@ -7,10 +7,10 @@
 
 <!-- github.com badges -->
 
-[![Project license](https://img.shields.io/github/license/clemlesne/azure-pipelines-agent)](https://github.com/clemlesne/azure-pipelines-agent/blob/main/LICENSE)
+[![Docker pulls](https://img.shields.io/docker/pulls/clemlesne/azure-pipelines-agent?label=docker.com%20pulls)](https://hub.docker.com/r/clemlesne/azure-pipelines-agent)
+[![GitHub all releases](https://img.shields.io/github/downloads/clemlesne/azure-pipelines-agent/total?label=github.com%20downloads)](https://github.com/clemlesne/azure-pipelines-agent/pkgs/container/azure-pipelines-agent)
 [![Last release date](https://img.shields.io/github/release-date/clemlesne/azure-pipelines-agent)](https://github.com/clemlesne/azure-pipelines-agent/releases)
-[![Workflow status](https://img.shields.io/github/actions/workflow/status/clemlesne/azure-pipelines-agent/pipeline.yaml?branch=main)](https://github.com/clemlesne/azure-pipelines-agent/actions/workflows/pipeline.yaml)
-[![All releases download counter](https://img.shields.io/github/downloads/clemlesne/azure-pipelines-agent/total)](https://github.com/clemlesne/azure-pipelines-agent/pkgs/container/azure-pipelines-agent)
+[![Project license](https://img.shields.io/github/license/clemlesne/azure-pipelines-agent)](https://github.com/clemlesne/azure-pipelines-agent/blob/main/LICENSE)
 
 <!-- artifacthub.io badges -->
 
