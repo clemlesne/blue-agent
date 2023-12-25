@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0-focal@sha256:2e686e012918cd62109385348ae441ecc6702dad90b0de15ca37eb5851fe43cf as base
+FROM docker.io/ubuntu:focal@sha256:218bb51abbd1864df8be26166f847547b3851a89999ca7bfceb85ca9b5d2e95d as base
 
 # Force apt-get to not use TTY
 ENV DEBIAN_FRONTEND noninteractive
@@ -16,6 +16,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 # - dbus-user-session, iptables, uidmap, for BuildKit
 # - gzip, make, tar, unzip, wget, zip, zstd for developer ease-of-life
 # - Azure CLI system requirements (Python 3.8, plus C/Rust build tools for libs non pre-built on this platform)
+# - libicu66 for Powershell and globalization support with .NET
 RUN rm -f /etc/apt/apt.conf.d/docker-clean \
     && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
 ARG JQ_VERSION
@@ -35,6 +36,7 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/
         iputils-ping \
         jq=${JQ_VERSION}-* \
         libffi-dev \
+        libicu66 \
         libssl-dev \
         lsb-release \
         make \

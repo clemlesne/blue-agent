@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0-bookworm-slim@sha256:4f1519bfe954d5caf962f5502c4252d5d39d45517aa68e6b5847e72fd10769b4 as base
+FROM docker.io/debian:bookworm-slim@sha256:93ff361288a7c365614a5791efa3633ce4224542afb6b53a1790330a8e52fc7d as base
 
 # Force apt-get to not use TTY
 ENV DEBIAN_FRONTEND noninteractive
@@ -19,6 +19,7 @@ ENV PIP_BREAK_SYSTEM_PACKAGES 1
 # - dbus-user-session, fuse-overlayfs, iptables, for BuildKit
 # - gzip, make, tar, unzip, wget, zip, zstd for developer ease-of-life
 # - Azure CLI system requirements (Python 3.11, plus C/Rust build tools for libs non pre-built on this platform)
+# - libicu72 for Powershell and globalization support with .NET
 RUN rm -f /etc/apt/apt.conf.d/docker-clean \
     && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
 ARG JQ_VERSION
@@ -39,6 +40,7 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/
         iputils-ping \
         jq=${JQ_VERSION}-* \
         libffi-dev \
+        libicu72 \
         libssl-dev \
         lsb-release \
         make \

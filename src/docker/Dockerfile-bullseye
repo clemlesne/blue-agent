@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim@sha256:c39b4582563fed008cb8e83d44388cf80dbc4e8cf8803869f5799205fcb126eb as base
+FROM docker.io/debian:bookworm-slim@sha256:9af4db29e828a4d08c7819f9e0972e2dbdac575e73c6438630c83bd79f49c8aa as base
 
 # Force apt-get to not use TTY
 ENV DEBIAN_FRONTEND noninteractive
@@ -16,6 +16,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 # - dbus-user-session, fuse-overlayfs, iptables, for BuildKit
 # - gzip, make, tar, unzip, wget, zip, zstd for developer ease-of-life
 # - Azure CLI system requirements (Python 3.9, plus C/Rust build tools for libs non pre-built on this platform)
+# - libicu67 for Powershell and globalization support with .NET
 RUN rm -f /etc/apt/apt.conf.d/docker-clean \
     && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
 ARG JQ_VERSION
@@ -36,6 +37,7 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/
         iputils-ping \
         jq=${JQ_VERSION}-* \
         libffi-dev \
+        libicu67 \
         libssl-dev \
         lsb-release \
         make \

@@ -10,14 +10,13 @@ ENV PYTHONDONTWRITEBYTECODE 1
 # Install:
 # - Azure Pipelines agent system requirements
 # - Azure CLI system requirements (Python 3.9, plus C/Rust build tools for libs non pre-built on this platform)
-# - ASP.NET Core runtime
 # - zsh, for inter-operability
 # - fuse-overlayfs, iptables, shadow-utils, for BuildKit
 # - gzip, make, tar, unzip, wget, zip, zstd for developer ease-of-life
+# - libicu for Powershell and globalization support with .NET
 ARG JQ_VERSION
 RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
     microdnf install -y --nodocs --setopt=install_weak_deps=0 \
-        aspnetcore-runtime-6.0 \
         ca-certificates \
         cargo \
         curl \
@@ -33,6 +32,7 @@ RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
         iptables \
         iputils \
         jq-${JQ_VERSION} \
+        libicu \
         make \
         openssl-devel \
         pkg-config \
