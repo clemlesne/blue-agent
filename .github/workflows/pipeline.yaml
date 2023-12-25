@@ -64,6 +64,8 @@ env:
   BUILDX_VERSION: 0.12.1
   # https://github.com/hadolint/hadolint/releases
   HADOLINT_VERSION: 2.12.0
+  # https://github.com/fossas/fossa-cli
+  FOSSA_VERSION: 3.8.28
   # https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022
   VS_BUILDTOOLS_WIN_VERSION: 17
   # https://github.com/gohugoio/hugo/releases
@@ -324,6 +326,13 @@ jobs:
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
+      - name: Setup FOSSA
+        run: |
+          # Install
+          curl -LsSf https://github.com/fossas/fossa-cli/raw/v${{ env.FOSSA_VERSION }}/install-latest.sh | bash -s -- v${{ env.FOSSA_VERSION }}
+          # Test
+          fossa --version
+
       - name: Login to registry - GitHub
         uses: docker/login-action@v3.0.0
         with:
@@ -409,6 +418,12 @@ jobs:
           sbom: true
           tags: ${{ steps.meta.outputs.tags }}
 
+      - name: Run SAST FOSSA on container image
+        env:
+          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
+        run: |
+          fossa container analyze ${{ steps.tag.outputs.tag }}
+
       - name: Sign containers
         env:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
@@ -486,6 +501,16 @@ jobs:
         uses: sigstore/cosign-installer@v3.4.0
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
+
+      - name: Setup FOSSA
+        run: |
+          # Install
+          $Script = Invoke-WebRequest 'https://github.com/fossas/fossa-cli/raw/v${{ env.FOSSA_VERSION }}/install-latest.ps1'
+          $ScriptBlock = [Scriptblock]::Create($Script.Content)
+          Invoke-Command -ScriptBlock $ScriptBlock -ArgumentList 'v${{ env.FOSSA_VERSION }}'
+          Add-Content $env:GITHUB_PATH 'C:\Users\runneradmin\AppData\Local\fossa-cli'
+          # Test
+          fossa --version
 
       - name: Login to registry - GitHub
         uses: docker/login-action@v3.0.0
@@ -607,6 +632,12 @@ jobs:
           foreach ($tag in $tags) {
             docker push --quiet $tag
           }
+
+      - name: Run SAST FOSSA on container image
+        env:
+          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
+        run: |
+          fossa container analyze ${{ steps.tag.outputs.tag }}
 
       - name: Sign containers
         env:
