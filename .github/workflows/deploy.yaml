@@ -1,0 +1,85 @@
+name: deploy
+
+on:
+  workflow_call: {}
+
+env:
+  # https://github.com/helm/helm/releases
+  HELM_VERSION: 3.12.1
+  # https://github.com/Azure/kubelogin/releases
+  KUBELOGIN_VERSION: 0.0.30
+
+jobs:
+  init:
+    name: Init
+    runs-on: ubuntu-22.04
+    outputs:
+      BRANCH: ${{ steps.branch.outputs.branch }}
+      VERSION_FULL: ${{ steps.version.outputs.version_full }}
+      VERSION: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.2
+        with:
+          # We need all Git history for "version.sh"
+          fetch-depth: 0
+          # Ensure "version.sh" submodule are up-to-date
+          submodules: recursive
+
+      - name: Version
+        id: version
+        run: |
+          echo "version_full=$(bash cicd/version/version.sh -g . -c -m)" >> $GITHUB_OUTPUT
+          echo "version=$(bash cicd/version/version.sh -g . -c)" >> $GITHUB_OUTPUT
+
+      - name: Store branch
+        id: branch
+        run: |
+          branch=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
+          echo "branch=$branch" >> $GITHUB_OUTPUT
+
+  delpoy:
+    name: Deploy
+    runs-on: ubuntu-22.04
+    needs:
+      - init
+    environment:
+      name: ${{ needs.init.outputs.BRANCH }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.2
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3.5
+        with:
+          version: v${{ env.HELM_VERSION }}
+
+      - name: Setup kubelogin
+        uses: azure/use-kubelogin@v1
+        with:
+          kubelogin-version: v${{ env.KUBELOGIN_VERSION }}
+
+      - name: Setup Helm repository
+        run: |
+          helm repo add clemlesne-azure-pipelines-agent https://clemlesne.github.io/azure-pipelines-agent
+          helm repo update
+
+      - name: Login to Azure
+        run: |
+          az login --service-principal --username ${{ vars.ARM_CLIENT_ID }} --password ${{ secrets.ARM_CLIENT_SECRET }} --tenant ${{ vars.ARM_TENANT_ID }}
+          az account set --subscription ${{ vars.ARM_SUBSCRIPTION_ID }}
+          az aks get-credentials --resource-group ${{ vars.KUBE_RG }} --name ${{ vars.KUBE_NAME }}
+
+      - name: Deploy to Kubernetes
+        run: |
+          helm upgrade \
+            --atomic \
+            --cleanup-on-fail \
+            --create-namespace \
+            --force \
+            --install \
+            --namespace azure-pipelines \
+            --timeout 10m \
+            --wait \
+            --set pipelines.poolName=azure-pipelines-agent-${{ needs.init.outputs.BRANCH }} \
+            ${{ needs.init.outputs.BRANCH }} clemlesne-azure-pipelines-agent/azure-pipelines-agent

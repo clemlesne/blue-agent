@@ -249,6 +249,9 @@ jobs:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CR_SKIP_EXISTING: true # Avoid overriding existing files, compat with the Hugo static site
 
+  deploy-test:
+    uses: ./.github/workflows/deploy.yaml
+
   test:
     name: Test
     runs-on: ubuntu-22.04
