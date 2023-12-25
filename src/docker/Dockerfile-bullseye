@@ -5,7 +5,14 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # Configure local user
 ENV USER root
+ENV UID 0
+ENV GID 0
 ENV HOME /app-root
+ENV TMPDIR ${HOME}/.local/tmp
+RUN mkdir -p ${HOME} ${HOME}/.local/tmp /run/user/${UID} \
+    && chown -R ${USER}:${GID} ${HOME} /run/user/${UID} \
+    && chmod -R og+rwx ${HOME} /run/user/${UID} \
+    && echo ${USER}:100000:65536 | tee /etc/subuid | tee /etc/subgid
 
 # Avoid Python cache during build
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -159,6 +166,8 @@ RUN mkdir buildkit \
     && rm -rf buildkit \
     && buildctl --version \
     && buildkitd --version
+ENV XDG_RUNTIME_DIR /run/user/${UID}
+ENV BUILDKIT_HOST unix:///run/user/${UID}/buildkit/buildkitd.sock
 
 # Install RootlessKit, then verify installation
 COPY --from=rootlesskit /usr/local/bin/rootless* /usr/bin/
@@ -177,9 +186,7 @@ RUN mkdir -p ${AZP_HOME} \
     && cd ${AZP_HOME} \
     && chmod +x run-docker.sh config.sh \
     && AGENT_ALLOW_RUNASROOT="1" bash run-docker.sh --version \
-    && rm -rf _diag \
-    # Allow local user to R/W to agent home
-    && chmod -R a+w .
+    && rm -rf _diag
 ENV AZP_WORK ${HOME}/azp-work
 ENV AZP_CUSTOM_CERT_PEM ${HOME}/azp-custom-certs
 
@@ -189,17 +196,10 @@ RUN rm arch.sh
 # Reset Python configs to default
 ENV PYTHONDONTWRITEBYTECODE=
 
-# Configure local user
-RUN mkdir -p /run/user/0 ${HOME}/.local/tmp ${HOME}/.local/share/buildkit \
-    && chown -R ${USER} /run/user/0 ${HOME} \
-    && echo ${USER}:100000:65536 | tee /etc/subuid | tee /etc/subgid
-USER 0:0
-ENV XDG_RUNTIME_DIR=/run/user/0
-ENV TMPDIR=${HOME}/.local/tmp
-ENV BUILDKIT_HOST=unix:///run/user/0/buildkit/buildkitd.sock
-
 # Install Azure Pipelines Agent startup script
 WORKDIR ${AZP_HOME}
 COPY start.sh .
+
 # Run as exec form, so that it can receive signals from Tini
+USER ${UID}:${GID}
 CMD ["bash", "start.sh"]
