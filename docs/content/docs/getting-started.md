@@ -41,6 +41,8 @@ helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-age
 
 ## OS support matrix
 
+OS support is generally called "flavor" in this documentation. The following table shows the supported flavors and their characteristics.
+
 | `Ref`                                                       | OS                                                                           | `Size`                                                                                                                        | `Arch`              | Support                                                                                                                                           |
 | ----------------------------------------------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `ghcr.io/clemlesne/azure-pipelines-agent:bookworm-main`     | [Debian Bookworm (12)](https://www.debian.org/releases/bookworm) slim        | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/bookworm-main?label=)     | `amd64`, `arm64/v8` | [See Debian LTS wiki.](https://wiki.debian.org/LTS)                                                                                               |
