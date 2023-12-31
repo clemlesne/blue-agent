@@ -363,7 +363,7 @@ jobs:
             type=schedule
             type=schedule,pattern={{date 'YYYYMMDD'}}
             type=semver,pattern={{version}},value=${{ needs.init.outputs.VERSION_FULL }}
-            type=sha
+            type=sha,prefix=${{ matrix.os }}-sha-
           labels: |
             io.artifacthub.package.category=integration-delivery
             io.artifacthub.package.keywords=agent,azure,azure-devops,azure-pipelines,container,devops,docker,helm,kubernetes,pipelines,self-hosted,self-hosted-agent,auto-scale,keda
@@ -526,7 +526,7 @@ jobs:
             type=schedule
             type=schedule,pattern={{date 'YYYYMMDD'}}
             type=semver,pattern={{version}},value=${{ needs.init.outputs.VERSION_FULL }}
-            type=sha
+            type=sha,prefix=${{ matrix.os }}-sha-
           labels: |
             io.artifacthub.package.category=integration-delivery
             io.artifacthub.package.keywords=agent,azure,azure-devops,azure-pipelines,container,devops,docker,helm,kubernetes,pipelines,self-hosted,self-hosted-agent,auto-scale,keda
