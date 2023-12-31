@@ -67,17 +67,12 @@ menu:
 params:
   description: Deploy Azure Pipelines agent on Kubernetes. Easy way. Cheap. Windows and Linux. X64 and ARM compatible.
   navbar:
-    displayLogo: true
-    displayTitle: true
     logo:
       dark: favicon-dark.svg
       path: favicon.svg
-    width: wide
   footer:
     displayCopyright: true
-    enable: true
   displayUpdatedDate: true
-  dateFormat: "January 2, 2006"
   editURL:
     enable: true
     base: https://github.com/clemlesne/azure-pipelines-agent/edit/main/docs/content
