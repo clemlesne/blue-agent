@@ -123,7 +123,7 @@ jobs:
       - init
       - sast-creds
       - sast-semgrep
-      - test
+      - static-test
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -213,11 +213,11 @@ jobs:
         with:
           sarif_file: merged.sarif
 
-  deploy-helm:
-    name: Deploy Helm chart
+  release-helm:
+    name: Release Helm chart
     needs:
-      - build-publish-linux
-      - build-publish-win
+      - build-release-linux
+      - build-release-win
       - build-helm
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
@@ -249,8 +249,8 @@ jobs:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CR_SKIP_EXISTING: true # Avoid overriding existing files, compat with the Hugo static site
 
-  test:
-    name: Test
+  static-test:
+    name: Static test
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -272,13 +272,13 @@ jobs:
         run: |
           make test
 
-  build-publish-linux:
-    name: Build & deploy image (Linux ${{ matrix.os }})
+  build-release-linux:
+    name: Build & release image (Linux ${{ matrix.os }})
     needs:
       - init
       - sast-creds
       - sast-semgrep
-      - test
+      - static-test
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -456,13 +456,13 @@ jobs:
         with:
           sarif_file: merged.sarif
 
-  build-publish-win:
-    name: Build & deploy image (Windows ${{ matrix.os }})
+  build-release-win:
+    name: Build & release image (Windows ${{ matrix.os }})
     needs:
       - init
       - sast-creds
       - sast-semgrep
-      - test
+      - static-test
     runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
@@ -717,8 +717,8 @@ jobs:
   update-docker-hub-description:
     name: Update Docker Hub description
     needs:
-      - build-publish-linux
-      - build-publish-win
+      - build-release-linux
+      - build-release-win
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
     runs-on: ubuntu-22.04
@@ -741,7 +741,7 @@ jobs:
     needs:
       - sast-creds
       - sast-semgrep
-      - test
+      - static-test
     steps:
       - name: Setup Hugo CLI
         run: |
