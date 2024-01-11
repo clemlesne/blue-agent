@@ -209,7 +209,7 @@ jobs:
             snyk.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.22.12
+        uses: github/codeql-action/upload-sarif@v3.23.0
         with:
           sarif_file: merged.sarif
 
@@ -449,7 +449,7 @@ jobs:
             *.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.22.12
+        uses: github/codeql-action/upload-sarif@v3.23.0
         with:
           sarif_file: merged.sarif
 
@@ -634,7 +634,7 @@ jobs:
             ${{ steps.tag.outputs.tag }}
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.22.12
+        uses: github/codeql-action/upload-sarif@v3.23.0
         with:
           sarif_file: snyk.sarif
 
@@ -655,7 +655,7 @@ jobs:
         run: semgrep ci --sarif --output=semgrep.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.22.12
+        uses: github/codeql-action/upload-sarif@v3.23.0
         with:
           sarif_file: semgrep.sarif
 
