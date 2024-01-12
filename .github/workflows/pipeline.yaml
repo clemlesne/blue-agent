@@ -378,7 +378,8 @@ jobs:
       - name: Store tag
         id: tag
         run: |
-          branch=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
+          ref="${{ github.ref }}"
+          branch=$(echo "${ref#refs/heads/}" | sed 's/\//-/g')
           tag=$(echo "${{ steps.meta.outputs.tags }}" | grep -m1 $branch)
           echo "tag=$tag" >> $GITHUB_OUTPUT
 
@@ -538,7 +539,7 @@ jobs:
       - name: Store tag
         id: tag
         run: |
-          $branch = "${{ github.ref_name }}".Replace("/", "-")
+          $branch = "${{ github.ref }}".Substring("refs/heads/".Length).Replace("/", "-")
           $tag = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine) | Where-Object { $_ -like "*$branch*" } | Select-Object -First 1
           echo "tag=$tag" >> $Env:GITHUB_OUTPUT
 
