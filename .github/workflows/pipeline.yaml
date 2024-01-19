@@ -174,7 +174,7 @@ jobs:
             .cr-release-packages/azure-pipelines-agent-${{ needs.init.outputs.VERSION }}.tgz
 
       - name: Cache Helm chart
-        uses: actions/upload-artifact@v4.0.0
+        uses: actions/upload-artifact@v4.2.0
         with:
           name: helm-chart
           path: .cr-release-packages
@@ -760,7 +760,7 @@ jobs:
             --baseURL "${{ steps.pages.outputs.base_url }}/"
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4.0.0
+        uses: actions/upload-artifact@v4.2.0
         with:
           name: hugo
           path: docs/public
