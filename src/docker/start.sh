@@ -81,6 +81,21 @@ else
   print_header "No custom SSL certificate provided"
 fi
 
+cleanup() {
+  if [ -e config.sh ]; then
+    print_header "Cleanup. Removing Azure Pipelines agent..."
+
+    # If the agent has some running jobs, the configuration removal process will fail.
+    # So, give it some time to finish the job.
+    while true; do
+      ./config.sh remove --unattended --auth PAT --token "$$AZP_TOKEN" && break
+
+      echo "Retrying in 30 seconds..."
+      sleep 30
+    done
+  fi
+}
+
 print_header "Configuring agent..."
 
 cd $(dirname "$0")
@@ -101,6 +116,10 @@ bash config.sh \
 wait $!
 
 print_header "Running agent..."
+
+trap 'cleanup; exit 0' EXIT
+trap 'cleanup; exit 130' INT
+trap 'cleanup; exit 143' TERM
 
 # Running it with the --once flag at the end will shut down the agent after the build is executed
 bash run-docker.sh "$@" --once &
