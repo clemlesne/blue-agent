@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.9@sha256:d8b81a38b5ad9694742ea03159d3217cd2dde3997b1ee53bbb53c33dd67be7b7 as base
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.9@sha256:288239021a429a311233d73a7d91b0a1dd889ab7bbc247d913e1b5726e25354a as base
 
 # Configure local user
 ENV USER root
