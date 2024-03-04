@@ -440,6 +440,8 @@ jobs:
               ${{ steps.tag.outputs.tag }}
           done
 
+      # Fix issue "Error: Code Scanning could not process the submitted SARIF file: rejecting SARIF, as there are more runs than allowed (XX > 20)"
+      # See: https://github.com/github/codeql-action/issues/220
       - name: Merge SARIF files
         run: |
           npx --yes @microsoft/sarif-multitool@${{ env.SARIF_MULTITOOL_VERSION }} merge \
@@ -634,11 +636,21 @@ jobs:
             --severity-threshold=medium `
             ${{ steps.tag.outputs.tag }}
 
+      # Fix issue "Error: Code Scanning could not process the submitted SARIF file: rejecting SARIF, as there are more runs than allowed (XX > 20)"
+      # See: https://github.com/github/codeql-action/issues/220
+      - name: Merge SARIF files
+        run: |
+          npx --yes @microsoft/sarif-multitool@${{ env.SARIF_MULTITOOL_VERSION }} merge `
+            --automation-id ${{ github.run_id }} `
+            --merge-runs `
+            --output-file merged.sarif `
+            snyk.sarif
+
       - name: Upload results to GitHub Security
         uses: github/codeql-action/upload-sarif@v3.24.6
         continue-on-error: true
         with:
-          sarif_file: snyk.sarif
+          sarif_file: merged.sarif
 
   sast-semgrep:
     name: SAST - Semgrep
