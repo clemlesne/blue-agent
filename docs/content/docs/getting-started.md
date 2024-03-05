@@ -11,7 +11,7 @@ weight: 1
 
 ### Prepare the Azure DevOps organization
 
-Create [a new agent pool](https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/pools-queues) in Azure DevOps. Then, create [the personal access token](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/v2-linux?view=azure-devops#permissions) allowing access from the Agent to Azure DevOps.
+Create [a new agent pool](https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/pools-queues) in Azure DevOps. Then, create [the personal access token](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/personal-access-token-agent-registration?view=azure-devops) allowing access from the Agent to Azure DevOps.
 
 ### Prepare the Helm values
 

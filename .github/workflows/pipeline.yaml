@@ -21,53 +21,53 @@ env:
   CONTAINER_REGISTRY_GHCR: ghcr.io
   CONTAINER_REGISTRY_DOCKER_HUB: docker.io
   # https://github.com/sigstore/cosign/releases
-  COSIGN_VERSION: 2.2.2
+  COSIGN_VERSION: 2.2.3
   # https://npmjs.com/package/@microsoft/sarif-multitool?activeTab=versions
-  SARIF_MULTITOOL_VERSION: 4.4.0
+  SARIF_MULTITOOL_VERSION: 4.5.4
   # https://npmjs.com/package/snyk?activeTab=versions
-  SNYK_VERSION: 1.1266.0
+  SNYK_VERSION: 1.1281.0
   # https://github.com/microsoft/azure-pipelines-agent/releases
-  AZP_AGENT_VERSION: 3.230.0
+  AZP_AGENT_VERSION: 3.234.0
   # https://github.com/PowerShell/PowerShell/releases
-  POWERSHELL_VERSION: 7.2.17
+  POWERSHELL_VERSION: 7.2.18
   # https://github.com/krallin/tini/releases
   TINI_VERSION: 0.19.0
   # https://github.com/mikefarah/yq/releases
-  YQ_VERSION: 4.40.5
+  YQ_VERSION: 4.42.1
   # https://go.dev/dl
-  GO_VERSION: 1.21.5
+  GO_VERSION: 1.22.0
   # https://github.com/rootless-containers/rootlesskit/releases
-  ROOTLESSKIT_VERSION: 1.1.1
+  ROOTLESSKIT_VERSION: 2.0.1
   # https://github.com/moby/buildkit/releases
-  BUILDKIT_VERSION: 0.12.4
+  BUILDKIT_VERSION: 0.12.5
   # https://github.com/Azure/azure-cli/releases
-  AZURE_CLI_VERSION: 2.55.0
+  AZURE_CLI_VERSION: 2.57.0
   # https://github.com/stedolan/jq/releases
   JQ_VERSION: 1.6
   # https://github.com/aws/aws-cli/tags
-  AWS_CLI_VERSION: 2.15.0
+  AWS_CLI_VERSION: 2.15.25
   # https://cloud.google.com/sdk/docs/install
-  GCLOUD_CLI_VERSION: 458.0.0
+  GCLOUD_CLI_VERSION: 466.0.0
   # https://github.com/git-for-windows/git/releases
-  GIT_WIN_VERSION: 2.43.0
+  GIT_WIN_VERSION: 2.44.0
   # https://github.com/facebook/zstd/releases
   ZSTD_WIN_VERSION: 1.5.5
   # https://www.python.org/downloads/windows
-  PYTHON_WIN_VERSION: 3.11.7
+  PYTHON_WIN_VERSION: 3.11.8
   # https://nodejs.org/en/download/releases
-  NODE_VERSION: 20.10.0
+  NODE_VERSION: 20.11.1
   # https://github.com/helm/helm/releases
-  HELM_VERSION: 3.13.3
+  HELM_VERSION: 3.14.2
   # https://github.com/oras-project/oras/releases
   ORAS_VERSION: 1.1.0
   # https://github.com/docker/buildx/releases
-  BUILDX_VERSION: 0.12.0
+  BUILDX_VERSION: 0.12.1
   # https://github.com/hadolint/hadolint/releases
   HADOLINT_VERSION: 2.12.0
   # https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022
   VS_BUILDTOOLS_WIN_VERSION: 17
   # https://github.com/gohugoio/hugo/releases
-  HUGO_VERSION: 0.121.1
+  HUGO_VERSION: 0.123.7
 
 jobs:
   init:
@@ -111,7 +111,7 @@ jobs:
           submodules: recursive
 
       - name: SAST - Credentials
-        uses: trufflesecurity/trufflehog@v3.63.5
+        uses: trufflesecurity/trufflehog@v3.68.4
         with:
           base: ${{ github.event.repository.default_branch }}
           head: HEAD
@@ -136,12 +136,12 @@ jobs:
 
       # Required for running "npx" CLI
       - name: Setup Node
-        uses: actions/setup-node@v4.0.1
+        uses: actions/setup-node@v4.0.2
         with:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Setup Cosign
-        uses: sigstore/cosign-installer@v3.3.0
+        uses: sigstore/cosign-installer@v3.4.0
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
@@ -174,7 +174,7 @@ jobs:
             .cr-release-packages/azure-pipelines-agent-${{ needs.init.outputs.VERSION }}.tgz
 
       - name: Cache Helm chart
-        uses: actions/upload-artifact@v4.0.0
+        uses: actions/upload-artifact@v4.3.1
         with:
           name: helm-chart
           path: .cr-release-packages
@@ -203,13 +203,13 @@ jobs:
         run: |
           npx --yes @microsoft/sarif-multitool@${{ env.SARIF_MULTITOOL_VERSION }} merge \
             --automation-id ${{ github.run_id }} \
-            --merge-empty-logs \
             --merge-runs \
             --output-file merged.sarif \
             snyk.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.22.12
+        uses: github/codeql-action/upload-sarif@v3.24.6
+        continue-on-error: true
         with:
           sarif_file: merged.sarif
 
@@ -235,7 +235,7 @@ jobs:
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
       - name: Download Helm chart
-        uses: actions/download-artifact@v4.1.0
+        uses: actions/download-artifact@v4.1.4
         with:
           name: helm-chart
           path: .cr-release-packages
@@ -258,7 +258,7 @@ jobs:
 
       # Required for running "npx" CLI
       - name: Setup Node
-        uses: actions/setup-node@v4.0.1
+        uses: actions/setup-node@v4.0.2
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -307,7 +307,7 @@ jobs:
           platforms: ${{ matrix.arch }}
 
       - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3.0.0
+        uses: docker/setup-buildx-action@v3.1.0
         with:
           version: v${{ env.BUILDX_VERSION }}
           driver-opts: |
@@ -315,12 +315,12 @@ jobs:
 
       # Required for running "npx" CLI
       - name: Setup Node
-        uses: actions/setup-node@v4.0.1
+        uses: actions/setup-node@v4.0.2
         with:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Setup Cosign
-        uses: sigstore/cosign-installer@v3.3.0
+        uses: sigstore/cosign-installer@v3.4.0
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
@@ -349,7 +349,7 @@ jobs:
 
       - name: Container meta
         id: meta
-        uses: docker/metadata-action@v5.4.0
+        uses: docker/metadata-action@v5.5.1
         with:
           images: |
             ${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}
@@ -378,7 +378,8 @@ jobs:
       - name: Store tag
         id: tag
         run: |
-          branch=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
+          ref="${{ github.ref }}"
+          branch=$(echo "${ref#refs/heads/}" | sed 's/\//-/g')
           tag=$(echo "${{ steps.meta.outputs.tags }}" | grep -m1 $branch)
           echo "tag=$tag" >> $GITHUB_OUTPUT
 
@@ -439,17 +440,19 @@ jobs:
               ${{ steps.tag.outputs.tag }}
           done
 
+      # Fix issue "Error: Code Scanning could not process the submitted SARIF file: rejecting SARIF, as there are more runs than allowed (XX > 20)"
+      # See: https://github.com/github/codeql-action/issues/220
       - name: Merge SARIF files
         run: |
           npx --yes @microsoft/sarif-multitool@${{ env.SARIF_MULTITOOL_VERSION }} merge \
             --automation-id ${{ github.run_id }} \
-            --merge-empty-logs \
             --merge-runs \
             --output-file merged.sarif \
             *.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.22.12
+        uses: github/codeql-action/upload-sarif@v3.24.6
+        continue-on-error: true
         with:
           sarif_file: merged.sarif
 
@@ -475,12 +478,12 @@ jobs:
 
       # Required for running "npx" CLI
       - name: Setup Node
-        uses: actions/setup-node@v4.0.1
+        uses: actions/setup-node@v4.0.2
         with:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Setup Cosign
-        uses: sigstore/cosign-installer@v3.3.0
+        uses: sigstore/cosign-installer@v3.4.0
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
@@ -509,7 +512,7 @@ jobs:
 
       - name: Container meta
         id: meta
-        uses: docker/metadata-action@v5.4.0
+        uses: docker/metadata-action@v5.5.1
         with:
           images: |
             ${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}
@@ -538,7 +541,7 @@ jobs:
       - name: Store tag
         id: tag
         run: |
-          $branch = "${{ github.ref_name }}".Replace("/", "-")
+          $branch = "${{ github.ref }}".Substring("refs/heads/".Length).Replace("/", "-")
           $tag = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine) | Where-Object { $_ -like "*$branch*" } | Select-Object -First 1
           echo "tag=$tag" >> $Env:GITHUB_OUTPUT
 
@@ -633,10 +636,21 @@ jobs:
             --severity-threshold=medium `
             ${{ steps.tag.outputs.tag }}
 
+      # Fix issue "Error: Code Scanning could not process the submitted SARIF file: rejecting SARIF, as there are more runs than allowed (XX > 20)"
+      # See: https://github.com/github/codeql-action/issues/220
+      - name: Merge SARIF files
+        run: |
+          npx --yes @microsoft/sarif-multitool@${{ env.SARIF_MULTITOOL_VERSION }} merge `
+            --automation-id ${{ github.run_id }} `
+            --merge-runs `
+            --output-file merged.sarif `
+            snyk.sarif
+
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.22.12
+        uses: github/codeql-action/upload-sarif@v3.24.6
+        continue-on-error: true
         with:
-          sarif_file: snyk.sarif
+          sarif_file: merged.sarif
 
   sast-semgrep:
     name: SAST - Semgrep
@@ -655,7 +669,8 @@ jobs:
         run: semgrep ci --sarif --output=semgrep.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.22.12
+        uses: github/codeql-action/upload-sarif@v3.24.6
+        continue-on-error: true
         with:
           sarif_file: semgrep.sarif
 
@@ -712,7 +727,7 @@ jobs:
         uses: actions/checkout@v4.1.1
 
       - name: Push README to Docker Hub
-        uses: peter-evans/dockerhub-description@v3.4.2
+        uses: peter-evans/dockerhub-description@v4.0.0
         with:
           enable-url-completion: true
           password: ${{ secrets.DOCKER_HUB_PAT }}
@@ -759,7 +774,7 @@ jobs:
             --baseURL "${{ steps.pages.outputs.base_url }}/"
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4.0.0
+        uses: actions/upload-artifact@v4.3.1
         with:
           name: hugo
           path: docs/public
@@ -784,7 +799,7 @@ jobs:
           find . -type f -not -name "index.yaml" -not -path "*/.git/*" -delete
 
       - name: Download build artifact
-        uses: actions/download-artifact@v4.1.0
+        uses: actions/download-artifact@v4.1.4
         with:
           name: hugo
 
