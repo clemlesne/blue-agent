@@ -114,8 +114,8 @@ jobs:
         uses: trufflesecurity/trufflehog@v3.68.4
         with:
           base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-          path: .
+          extra_args: --only-verified
+          head: HEAD~1
 
   build-helm:
     name: Build Helm chart
