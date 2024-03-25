@@ -32,14 +32,14 @@ if [ ! -w "$AZP_WORK" ]; then
   exit 1
 fi
 
-print_header() {
+write_header() {
   lightcyan='\033[1;36m'
   nocolor='\033[0m'
   echo -e "${lightcyan}➡️ $1${nocolor}"
 }
 
 if [ -d "$AZP_CUSTOM_CERT_PEM" ] && [ "$(ls -A $AZP_CUSTOM_CERT_PEM)" ]; then
-  print_header "Adding custom SSL certificates"
+  write_header "Adding custom SSL certificates"
   echo "Searching for *.crt in $AZP_CUSTOM_CERT_PEM"
 
   # Debian-based systems
@@ -78,10 +78,10 @@ if [ -d "$AZP_CUSTOM_CERT_PEM" ] && [ "$(ls -A $AZP_CUSTOM_CERT_PEM)" ]; then
     update-ca-trust extract
   fi
 else
-  print_header "No custom SSL certificate provided"
+  write_header "No custom SSL certificate provided"
 fi
 
-print_header "Configuring agent"
+write_header "Configuring agent"
 
 cd $(dirname "$0")
 
@@ -100,7 +100,7 @@ bash config.sh \
 # See: https://stackoverflow.com/a/62183992/12732154
 wait $!
 
-print_header "Running agent"
+write_header "Running agent"
 
 # Running it with the --once flag at the end will shut down the agent after the build is executed
 bash run-docker.sh "$@" --once &
@@ -109,6 +109,6 @@ bash run-docker.sh "$@" --once &
 # See: https://stackoverflow.com/a/62183992/12732154
 wait $!
 
-print_header "Printing agent diag logs"
+write_header "Printing agent diag logs"
 
 cat $AGENT_DIAGLOGPATH/*.log

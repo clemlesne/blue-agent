@@ -31,12 +31,12 @@ if (!(Test-Path $AZP_WORK)) {
   throw "error: work dir AZP_WORK ($AZP_WORK) is not writeable or does not exist"
 }
 
-function Display-Header() {
+function Write-Header() {
   Write-Host "> $1" -ForegroundColor Cyan
 }
 
 if ((Test-Path $AZP_CUSTOM_CERT_PEM) -and ((Get-ChildItem $AZP_CUSTOM_CERT_PEM).Count -gt 0)) {
-  Display-Header "Adding custom SSL certificates"
+  Write-Header "Adding custom SSL certificates"
   Write-Host "Searching for *.crt in $AZP_CUSTOM_CERT_PEM"
 
   Get-ChildItem $AZP_CUSTOM_CERT_PEM -Filter *.crt | ForEach-Object {
@@ -51,10 +51,10 @@ if ((Test-Path $AZP_CUSTOM_CERT_PEM) -and ((Get-ChildItem $AZP_CUSTOM_CERT_PEM).
   }
 
 } else {
-  Display-Header "No custom SSL certificate provided"
+  Write-Header "No custom SSL certificate provided"
 }
 
-Display-Header "Configuring agent"
+Write-Header "Configuring agent"
 
 Set-Location $(Split-Path -Parent $MyInvocation.MyCommand.Definition)
 
@@ -69,11 +69,11 @@ Set-Location $(Split-Path -Parent $MyInvocation.MyCommand.Definition)
   --url $AZP_URL `
   --work $AZP_WORK
 
-Display-Header "Running agent"
+Write-Header "Running agent"
 
 # Running it with the --once flag at the end will shut down the agent after the build is executed
 & run.cmd $Args --once
 
-Display-Header "Printing agent diag logs"
+Write-Header "Printing agent diag logs"
 
 Get-Content $AGENT_DIAGLOGPATH/*.log
