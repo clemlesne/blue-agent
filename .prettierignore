@@ -1,3 +1,4 @@
-cicd/version
-docs/themes/hextra
-src/helm/azure-pipelines-agent/templates
+cicd/version/
+docs/public/
+docs/themes/hextra/
+src/helm/azure-pipelines-agent/templates/
