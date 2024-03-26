@@ -15,7 +15,7 @@ Create [a new agent pool](https://docs.microsoft.com/en-us/azure/devops/pipeline
 
 ### Prepare the Helm values
 
-Minimal configuration:
+Minimal configuration is required:
 
 ```yaml
 # values.yaml

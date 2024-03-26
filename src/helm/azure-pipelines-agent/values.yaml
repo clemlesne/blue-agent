@@ -1,57 +1,100 @@
+# Container image configuration
 image:
+  # Container image flavor, default is 'bookworm'
   flavor: bookworm
+  # Indicates if the image is for Windows, default is false
   isWindows: false
+  # Image pull policy, default is 'Always'
   pullPolicy: Always
+  # Container image repository
   repository: ghcr.io/clemlesne/azure-pipelines-agent
-  version: "" # Overrides the image tag whose default is the chart "appVersion"
+  # Overrides the image tag, default is the chart "appVersion"
+  version: ""
 
+# Overrides the full name of the release
 fullnameOverride: ""
+# Specifies image pull secrets
 imagePullSecrets: []
+# Overrides the name of the release
 nameOverride: ""
 
+# Number of replica agents
 replicaCount: 3
 
+# Autoscaling configuration
 autoscaling:
+  # Enables autoscaling
   enabled: true
+  # Minimum number of replicas
   minReplicas: 0
-  maxReplicas: 100 # Arbitrary value to avoid misconfiguration; can be enlarged if needed
+  # Maximum number of replicas, default is 100 to prevent misconfiguration
+  maxReplicas: 100
 
+# Pipeline configuration
 pipelines:
+  # Capabilities of the pipeline
   capabilities: []
+  # URL of the Azure DevOps organization
   organizationURL: null
+  # Personal access token for authentication
   personalAccessToken: null
+  # Name of the agent pool
   poolName: null
-  timeout: 3600 # 1 hour, in seconds
+  # Timeout in seconds, default is 1 hour
+  timeout: 3600
+  # Cleanup policy for jobs
   cleanup:
-    failed: 100 # In Jobs
-    successful: 100 # In Jobs
-    ttl: 3600 # 1 hour, in seconds
+    # Number of failed jobs to retain
+    failed: 100
+    # Number of successful jobs to retain
+    successful: 100
+    # Time to live for job cleanup in seconds, default is 1 hour
+    ttl: 3600
+  # Cache configuration
   cache:
+    # Size of the cache, default is 10Gi
     size: 10Gi
+    # Type of the cache volume
     type: managed-csi
+    # Enables the cache volume, default is true
     volumeEnabled: true
+  # Temporary directory configuration
   tmpdir:
+    # Size of the temp directory, default is 1Gi
     size: 1Gi
+    # Type of the temp directory volume
     type: managed-csi
+    # Enables the temp directory volume, default is true
     volumeEnabled: true
 
+# Secret configuration
 secret:
+  # Indicates if a secret should be created
   create: true
-  name: "" # If not set, name is generated
+  # Name of the secret, auto-generated if not set
+  name: ""
 
+# Service account configuration
 serviceAccount:
+  # Annotations for the service account
   annotations: {}
+  # Indicates if a service account should be created
   create: true
-  name: "" # If not set, name is generated
+  # Name of the service account, auto-generated if not set
+  name: ""
 
-# Customize security context and policies.
+# Pod security context configuration
 #
-# Like, to be used with img or BuildKit:
+# Example, to be used with img or BuildKit:
 #
 # podSecurityContext:
 #   procMount: Unmasked
 podSecurityContext: {}
 
+# Container security context configuration
+#
+# Example:
+#
 # securityContext:
 #   capabilities:
 #     drop:
@@ -61,34 +104,40 @@ podSecurityContext: {}
 #   runAsUser: 1000
 securityContext: {}
 
+# Resources configuration for the agent container
 resources:
+  # Resource limits
   limits:
     cpu: 2
     ephemeral-storage: 8Gi
     memory: 4Gi
+  # Resource requests
   requests:
     cpu: 1
     ephemeral-storage: 2Gi
     memory: 2Gi
 
+# Additional node selectors
 extraNodeSelectors: {}
 
+# Pod tolerations
 tolerations: []
 
+# Pod affinity configuration
 affinity: {}
 
-# Annotation to customize various scheduling and security behaviors.
+# Annotations for scheduling and security behaviors
 #
-# Like, to be used with img or BuildKit:
+# Example, to be used with img or BuildKit:
 #
 # annotations:
 #   container.apparmor.security.beta.kubernetes.io/azp-agent: unconfined
 #   container.seccomp.security.alpha.kubernetes.io/azp-agent: unconfined
 annotations: {}
 
-# Additional environment variables for the agent container.
+# Additional environment variables for the agent container
 #
-# Like:
+# Example:
 #
 # - name: XXX
 #   value: YYY
@@ -100,7 +149,6 @@ annotations: {}
 #     configMapKeyRef:
 #       name: special-config
 #       key: special.how
-#
 # - name: SECRET_KEY
 #   valueFrom:
 #     secretKeyRef:
@@ -108,7 +156,9 @@ annotations: {}
 #       key: secret.key
 extraEnv: []
 
-# Additional volumes for the agent pod.
+# Additional volumes for the agent pod
+#
+# Example:
 #
 # extraVolumes:
 #   - name: config-volume
@@ -116,7 +166,9 @@ extraEnv: []
 #      name: special-config
 extraVolumes: []
 
-# Additional volume mounts for the agent container.
+# Additional volume mounts for the agent container
+#
+# Example:
 #
 # extraVolumeMounts:
 #   - name: config-volume
@@ -124,7 +176,9 @@ extraVolumes: []
 #     readOnly: true
 extraVolumeMounts: []
 
-# Init containers for the agent pod.
+# Initialization containers for the agent pod
+#
+# Example:
 #
 # initContainers:
 #   - name: init-container
@@ -132,7 +186,9 @@ extraVolumeMounts: []
 #     command: ["/bin/sh", "-c", "echo Hello World"]
 initContainers: []
 
-# Extra manifests to deploy as an array.
+# Extra Kubernetes manifests to deploy
+#
+# Example:
 #
 # extraManifests:
 # - apiVersion: v1
@@ -145,7 +201,9 @@ initContainers: []
 #     organizationURL: "value"
 extraManifests: []
 
-# Containers to run alongside the agent container.
+# Containers to run alongside the agent container
+#
+# Example:
 #
 # sidecarContainers:
 #   - name: my-sidecar
