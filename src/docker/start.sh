@@ -39,7 +39,7 @@ print_header() {
 }
 
 if [ -d "$AZP_CUSTOM_CERT_PEM" ] && [ "$(ls -A $AZP_CUSTOM_CERT_PEM)" ]; then
-  print_header "Adding custom SSL certificates..."
+  print_header "Adding custom SSL certificates"
   echo "Searching for *.crt in $AZP_CUSTOM_CERT_PEM"
 
   # Debian-based systems
@@ -52,7 +52,7 @@ if [ -d "$AZP_CUSTOM_CERT_PEM" ] && [ "$(ls -A $AZP_CUSTOM_CERT_PEM)" ]; then
 
     # Display certificates information
     for certFile in $AZP_CUSTOM_CERT_PEM/*.crt; do
-      echo "Certificate $(basename $certFile)..."
+      echo "Certificate $(basename $certFile)"
       openssl x509 -inform PEM -in $certFile -noout -issuer -subject -dates
     done
 
@@ -70,7 +70,7 @@ if [ -d "$AZP_CUSTOM_CERT_PEM" ] && [ "$(ls -A $AZP_CUSTOM_CERT_PEM)" ]; then
 
     # Display certificates information
     for certFile in $AZP_CUSTOM_CERT_PEM/*.crt; do
-      echo "Certificate $(basename $certFile)..."
+      echo "Certificate $(basename $certFile)"
       openssl x509 -inform PEM -in $certFile -noout -issuer -subject -dates
     done
 
@@ -81,7 +81,7 @@ else
   print_header "No custom SSL certificate provided"
 fi
 
-print_header "Configuring agent..."
+print_header "Configuring agent"
 
 cd $(dirname "$0")
 
@@ -100,7 +100,7 @@ bash config.sh \
 # See: https://stackoverflow.com/a/62183992/12732154
 wait $!
 
-print_header "Running agent..."
+print_header "Running agent"
 
 # Running it with the --once flag at the end will shut down the agent after the build is executed
 bash run-docker.sh "$@" --once &
@@ -109,6 +109,6 @@ bash run-docker.sh "$@" --once &
 # See: https://stackoverflow.com/a/62183992/12732154
 wait $!
 
-print_header "Printing agent diag logs..."
+print_header "Printing agent diag logs"
 
 cat $AGENT_DIAGLOGPATH/*.log

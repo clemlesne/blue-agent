@@ -1,0 +1,16 @@
+name: Zstd installation
+
+parameters:
+  - name: flavor
+    type: string
+
+jobs:
+  - job: test
+    pool:
+      name: github-actions
+      demands:
+        - flavor_${{ parameters.flavor }}
+    steps:
+      - bash: |
+          zstd --version | grep -q "^\*\*\* Zstandard CLI"
+        displayName: Test Zstd installation

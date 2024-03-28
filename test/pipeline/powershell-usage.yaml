@@ -1,0 +1,20 @@
+name: PowerShell usage
+
+parameters:
+  - name: flavor
+    type: string
+
+jobs:
+  - job: test
+    pool:
+      name: github-actions
+      demands:
+        - flavor_${{ parameters.flavor }}
+    steps:
+      - bash: |
+          pwsh --version | grep -q "^PowerShell 7."
+        displayName: Test PowerShell installation
+
+      - bash: |
+          pwsh -Command 'Write-Host "Hello world"' | grep -q "^Hello world$"
+        displayName: Test PowerShell script

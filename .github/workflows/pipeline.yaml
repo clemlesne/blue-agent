@@ -68,6 +68,8 @@ env:
   VS_BUILDTOOLS_WIN_VERSION: 17
   # https://github.com/gohugoio/hugo/releases
   HUGO_VERSION: 0.123.7
+  # See: https://github.com/getsops/sops/releases
+  SOPS_VERSION: 3.8.1
 
 jobs:
   init:
@@ -268,6 +270,11 @@ jobs:
           sudo chmod +x /usr/bin/hadolint
           hadolint --version
 
+      - name: Login to Azure
+        uses: azure/login@v2.0.0
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Run tests
         run: |
           make test
@@ -418,7 +425,7 @@ jobs:
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
         run: |
           while IFS= read -r tag; do
-            echo "Signing $tag..."
+            echo "Signing $tag"
             cosign sign \
               --key="env://COSIGN_PRIVATE_KEY" \
               --recursive \
@@ -433,7 +440,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
           for arch in $(echo ${{ matrix.arch }} | tr "," "\n"); do
-            echo "Running Snyk for $arch..."
+            echo "Running Snyk for $arch"
             npx --yes snyk@${{ env.SNYK_VERSION }} container test \
               --architecture=$arch \
               --fail-on=upgradable \
@@ -599,10 +606,10 @@ jobs:
             docker pull --quiet $tag || true
           }
 
-          Write-Host "Building..."
+          Write-Host "Building"
           docker build @params src\docker
 
-          Write-Host "Pushing..."
+          Write-Host "Pushing"
           foreach ($tag in $tags) {
             docker push --quiet $tag
           }
@@ -614,7 +621,7 @@ jobs:
         run: |
           $tags = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine)
           foreach ($tag in $tags) {
-            Write-Host "Signing $tag..."
+            Write-Host "Signing $tag"
             cosign sign `
               --key="env://COSIGN_PRIVATE_KEY" `
               --recursive `
@@ -816,3 +823,69 @@ jobs:
             git commit -m "Deploy Hugo site v${{ needs.init.outputs.VERSION }}"
             git push origin gh-pages
           fi
+
+  integration-test:
+    name: Integration test (Linux ${{ matrix.os }})
+    runs-on: ubuntu-22.04
+    needs:
+      - init
+      - sast-creds
+      - sast-semgrep
+      - static-test
+      - build-release-linux
+      - build-release-win
+    concurrency: integration-test-${{ needs.init.outputs.BRANCH }}-${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      # Rate limiting on Azure DevOps SaaS APIs is triggered quickluy by integration tests, so we need to limit the number of parallel jobs
+      max-parallel: 3
+      matrix:
+        os: [bookworm, bullseye, focal, jammy, ubi8, ubi9]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Setup SOPS
+        run: |
+          curl -LO https://github.com/getsops/sops/releases/download/v${{ env.SOPS_VERSION }}/sops-v${{ env.SOPS_VERSION }}.linux.amd64
+          mv sops-v${{ env.SOPS_VERSION }}.linux.amd64 /usr/local/bin/sops
+          chmod +x /usr/local/bin/sops
+
+      - name: Setup AGE key
+        run: |
+          age_folder="$XDG_CONFIG_HOME/sops/age"
+          mkdir -p ${age_folder}
+          echo "${{ secrets.AGE_KEY }}" > ${age_folder}/keys.txt
+
+      - name: Login to Azure
+        uses: azure/login@v2.0.0
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy Bicep
+        run: |
+          make deploy-bicep \
+            flavor="${{ matrix.os }}" \
+            instance="${{ needs.init.outputs.BRANCH }}" \
+            version="sha-$(git rev-parse --short HEAD)"
+
+      - name: Integration
+        env:
+          # Permissions: Agent Pools (Read); Build (Read & execute); Pipeline Resources (Use & manage); Project and Team (Read, write, & manage); Service Connections (Read, query, & manage)
+          AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+          # Scope: clemlesne/azure-pipelines-agent
+          # Permissions: Contents (read-only); Metadata (read-only); Webhooks (read & write)
+          AZURE_DEVOPS_EXT_GITHUB_PAT: ${{ secrets.AZURE_DEVOPS_GITHUB_PAT }}
+        # Script wait indefinitely for external events, so we need to timeout
+        timeout-minutes: 30
+        run: |
+          make integration \
+            flavor="${{ matrix.os }}" \
+            instance="${{ needs.init.outputs.BRANCH }}"
+
+      # - name: Cleanup
+      #   if: always()
+      #   run: |
+      #     make destroy-bicep \
+      #       flavor="${{ matrix.os }}" \
+      #       instance="${{ needs.init.outputs.BRANCH }}"

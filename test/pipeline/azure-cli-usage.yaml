@@ -1,0 +1,16 @@
+name: Azure CLI usage
+
+parameters:
+  - name: flavor
+    type: string
+
+jobs:
+  - job: test
+    pool:
+      name: github-actions
+      demands:
+        - flavor_${{ parameters.flavor }}
+    steps:
+      - bash: |
+          az --version | egrep -q "^azure-cli( )+2."
+        displayName: Test Azure CLI installation

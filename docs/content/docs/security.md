@@ -1,7 +1,7 @@
 ---
 prev: /advanced-topics
 title: Security
-weight: 3
+weight: 4
 ---
 
 ## Proactive detection of vulnerabilities

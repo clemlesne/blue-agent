@@ -17,7 +17,7 @@
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/azure-pipelines-agent)](https://artifacthub.io/packages/search?repo=azure-pipelines-agent)
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/azure-pipelines-agent-container)](https://artifacthub.io/packages/search?repo=azure-pipelines-agent-container)
 
-Features:
+## Features
 
 - 🔄 Agent register and restart itself.
 - 🏗️ Allow to build containers inside the agent using [BuildKit](https://github.com/moby/buildkit).
@@ -28,6 +28,12 @@ Features:
 - 🖥️ Pre-built with [Windows Server](https://www.microsoft.com/en-us/windows-server), [Debian](https://debian.org), [Ubuntu](https://ubuntu.com), [Red Hat Enterprise Linux](https://access.redhat.com/products/red-hat-enterprise-linux).
 - 📦 [SBOM (Software Bill of Materials)](https://en.wikipedia.org/wiki/Software_supply_chain) is packaged with each container image.
 - 🔄 System updates are applied every day.
+
+## How to deploy
+
+[Deployment is available](https://clemlesne.github.io/azure-pipelines-agent/docs/getting-started) using Helm on a Kubernetes cluster or Bicep on Azure Container Apps.
+
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fclemlesne%2Fazure-pipelines-agent%2Fmain%2Fsrc%2Fbicep%2Fmain.bicep)
 
 ## Documentation
 

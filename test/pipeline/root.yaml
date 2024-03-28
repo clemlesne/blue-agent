@@ -1,0 +1,28 @@
+name: Root support
+
+parameters:
+  - name: flavor
+    type: string
+
+jobs:
+  - job: test
+    pool:
+      name: github-actions
+      demands:
+        - flavor_${{ parameters.flavor }}
+    steps:
+      - bash: |
+          sudo -n true
+        displayName: Test sudo access
+
+      - bash: |
+          if command -v apt-get &> /dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y python3-pip
+          elif command -v microdnf &> /dev/null; then
+            sudo microdnf install -y python3.11-pip
+          else
+            echo "No suported package manager"
+            exit 1
+          fi
+        displayName: Test package installation

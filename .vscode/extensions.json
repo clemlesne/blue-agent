@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "editorconfig.editorconfig",
+    "ms-azure-devops.azure-pipelines",
+    "ms-azuretools.vscode-bicep",
+    "ms-azuretools.vscode-docker",
+    "ms-kubernetes-tools.vscode-kubernetes-tools",
+    "snyk-security.snyk-vulnerability-scanner"
+  ]
+}

@@ -1,0 +1,16 @@
+name: YQ usage
+
+parameters:
+  - name: flavor
+    type: string
+
+jobs:
+  - job: test
+    pool:
+      name: github-actions
+      demands:
+        - flavor_${{ parameters.flavor }}
+    steps:
+      - bash: |
+          jq --version | grep -q "^jq-1."
+        displayName: Test YQ installation
