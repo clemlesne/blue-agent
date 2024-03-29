@@ -1,7 +1,9 @@
 .PHONY: test lint build-docker docs build-docs
 
+deployment_name ?= $(instance)-$(flavor)
 flavor ?= null
 instance ?= $(shell hostname | tr '[:upper:]' '[:lower:]')
+job_name ?= $(shell az deployment sub show --name $(deployment_name) | yq '.properties.outputs["jobName"].value')
 version ?= null
 
 test:
@@ -38,7 +40,7 @@ deploy-bicep:
 	@echo "➡️ Deploying Bicep"
 	az deployment sub create \
 		--location westeurope \
-		--name "$(instance)-$(flavor)" \
+		--name $(deployment_name) \
 		--no-prompt \
 		--parameters \
 			test/bicep/test.json \
@@ -51,13 +53,13 @@ deploy-bicep:
 
 	@echo "➡️ Starting init job"
 	az containerapp job start \
-		--name "apa-$(instance)-$(flavor)" \
-		--resource-group "apa-$(instance)-$(flavor)"
+		--name $(job_name) \
+		--resource-group "apa-$(deployment_name)"
 
 destroy-bicep:
 	@echo "➡️ Destroying"
 	az group delete \
-		--name "apa-$(instance)-$(flavor)" \
+		--name "apa-$(deployment_name)" \
 		--yes
 
 integration:

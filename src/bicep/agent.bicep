@@ -17,6 +17,8 @@ param resourcesCpu int
 param resourcesMemory string
 param tags object
 
+output jobName string = job.name
+
 var prefix = instance
 
 var pipelinesCapabilitiesEnhanced = union(
@@ -71,7 +73,7 @@ resource acaEnv 'Microsoft.App/managedEnvironments@2023-11-02-preview' = {
 }
 
 resource job 'Microsoft.App/jobs@2023-11-02-preview' = {
-  name: prefix
+  name: substring(prefix, 0, min(32, length(prefix)))  // Max length is 32
   location: location
   tags: tags
   properties: {

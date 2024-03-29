@@ -49,6 +49,8 @@ param resourcesMemory string = '4Gi'
 
 targetScope = 'subscription'
 
+output jobName string = agent.outputs.jobName
+
 var prefix = 'apa-${instance}'
 
 var tags = {
