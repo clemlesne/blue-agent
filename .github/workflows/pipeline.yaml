@@ -398,8 +398,11 @@ jobs:
             ROOTLESSKIT_VERSION=${{ env.ROOTLESSKIT_VERSION }}
             TINI_VERSION=${{ env.TINI_VERSION }}
             YQ_VERSION=${{ env.YQ_VERSION }}
-          cache-from: type=gha
-          cache-to: type=gha
+          cache-from:
+            ${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-${{ github.event.repository.default_branch }}-cache
+            ${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-develop-cache
+            ${{ steps.tag.outputs.tag }}-cache
+          cache-to: ${{ steps.tag.outputs.tag }}-cache
           context: src/docker
           file: src/docker/Dockerfile-${{ matrix.os }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -569,14 +572,10 @@ jobs:
             $params += "--tag", $tag
           }
 
-          # Default cache locations
-          $params += "--cache-from", "${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-develop"
+          # Cache input
           $params += "--cache-from", "${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-${{ github.event.repository.default_branch }}"
-
-          # Branch-specific cache locations
-          foreach ($tag in $tags) {
-            $params += "--cache-from", $tag
-          }
+          $params += "--cache-from", "${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-develop"
+          $params += "--cache-from", "${{ steps.tag.outputs.tag }}"
 
           $labels = ('${{ steps.meta.outputs.labels }}').Split([Environment]::NewLine)
           foreach ($label in $labels) {
