@@ -1,6 +1,8 @@
 ###
 # Test the existence of an Azure DevOps agent in a pool.
 #
+# If the agent is found, the script will exit with status 0. Will retry every 5 seconds, indefinitely, until the agent is found.
+#
 # Usage: ./exists.sh <prefix>
 ###
 
@@ -42,7 +44,7 @@ done
 agent_name=$(echo ${agent_json} | jq -r ".name")
 agent_id=$(echo ${agent_json} | jq -r ".id")
 
-echo "Agent ${agent_name} (${agent_id}) found in pool ${pool_name} (${pool_id})"
+echo "✅ Agent ${agent_name} (${agent_id}) found in pool ${pool_name} (${pool_id})"
 
 agent_capabilities=$(az pipelines agent show \
   --agent-id ${agent_id} \
