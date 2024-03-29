@@ -1,0 +1,16 @@
+name: GCP CLI usage
+
+parameters:
+  - name: flavor
+    type: string
+
+jobs:
+  - job: test
+    pool:
+      name: github-actions
+      demands:
+        - flavor_${{ parameters.flavor }}
+    steps:
+      - bash: |
+          gcloud --version | grep -q "^Google Cloud SDK"
+        displayName: Test GCP CLI installation

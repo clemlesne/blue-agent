@@ -1,0 +1,21 @@
+name: .NET Core installation
+
+parameters:
+  - name: flavor
+    type: string
+
+jobs:
+  - job: test
+    pool:
+      name: github-actions
+      demands:
+        - flavor_${{ parameters.flavor }}
+    steps:
+      - task: UseDotNet@2
+        displayName: Install .NET Core SDK
+        inputs:
+          version: 8.x
+
+      - bash: |
+          dotnet --version | grep -q "^8."
+        displayName: Test .NET Core installation
