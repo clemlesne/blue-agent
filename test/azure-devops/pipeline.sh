@@ -30,7 +30,7 @@ project_name="${prefix}-${flavor}"
 service_connection_name="${project_name}"
 pipeline_name="${pipeline}"
 
-echo "➡️ Creating project ${project_name} in organization ${organization_url}"
+echo "Creating project ${project_name} in organization ${organization_url}"
 if az devops project show --project ${project_name} \
       &> /dev/null; then
   echo "Project ${project_name} already exists"
@@ -44,7 +44,7 @@ project_id=$(az devops project show --project ${project_name} \
   | jq -r '.id')
 flock $HOME/.azure/azuredevops/config --command "az devops configure --defaults project=${project_id}"
 
-echo "➡️ Getting agent pool ${pool_name}"
+echo "Getting agent pool ${pool_name}"
 queue_id=$(az pipelines queue list \
   --query "[?name=='${pool_name}'].id" \
     | jq -r '.[0]')
@@ -53,7 +53,7 @@ if [ -z "${queue_id}" ]; then
   exit 1
 fi
 
-echo "➡️ Creating service connection ${service_connection_name}"
+echo "Creating service connection ${service_connection_name}"
 if az devops service-endpoint show \
     --id $(az devops service-endpoint list \
       --query "[?name=='${service_connection_name}']" \
@@ -68,7 +68,7 @@ fi
 service_connection_id=$(az devops service-endpoint list --query "[?name=='${service_connection_name}']" \
     | jq -r '.[0].id')
 
-echo "➡️ Creating pipeline ${pipeline_name} in project ${project_name}"
+echo "Creating pipeline ${pipeline_name} in project ${project_name}"
 if az pipelines show --name "${pipeline_name}" \
       &> /dev/null; then
   echo "Pipeline ${pipeline_name} already exists"
@@ -86,7 +86,7 @@ fi
 pipeline_id=$(az pipelines show --name "${pipeline_name}" \
   | jq -r '.id')
 
-echo "➡️ Authorizing pipeline ${pipeline_name} to run on agent pool ${pool_name}"
+echo "Authorizing pipeline ${pipeline_name} to run on agent pool ${pool_name}"
 # TODO: Use Azure CLI to auhorize the pipeline to run on the agent pool (see: https://github.com/Azure/azure-cli/issues/28111)
 tmp_file=$(mktemp -t XXXXXX.json)
 cat <<EOF > ${tmp_file}
@@ -107,14 +107,14 @@ az devops invoke \
     > /dev/null
 rm -f ${tmp_file}
 
-echo "➡️ Running pipeline ${pipeline_name}"
+echo "Running pipeline ${pipeline_name}"
 run_json=$(az pipelines run \
   --commit-id $(git rev-parse HEAD) \
   --id "${pipeline_id}" \
   --parameters flavor=${flavor})
 run_id=$(echo ${run_json} | jq -r '.id')
 
-echo "➡️ Waiting for pipeline run ${run_id} to complete"
+echo "Waiting for pipeline run ${run_id} to complete"
 echo "🔗 ${organization_url}/${project_name}/_build/results?buildId=${run_id}"
 
 timeout_seconds=900 # 15 minutes
@@ -143,7 +143,7 @@ while true; do
   if [ ${elapsed_time} -ge ${timeout_seconds} ]; then
     echo "⏰ Timeout reached, pipeline run ${run_id} did not complete within ${timeout_seconds} seconds"
 
-    echo "➡️ Cancelling pipeline run ${run_id}"
+    echo "Cancelling pipeline run ${run_id}"
     # TODO: Use Azure CLI to auhorize the pipeline to run on the agent pool (see: https://github.com/Azure/azure-devops-cli-extension/issues/876)
     tmp_file=$(mktemp -t XXXXXX.json)
     cat <<EOF > ${tmp_file}

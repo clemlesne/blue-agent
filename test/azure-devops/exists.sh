@@ -18,7 +18,7 @@ fi
 
 pool_name="github-actions"
 
-echo "➡️ Testing existence of agent ${prefix} in pool ${pool_name}"
+echo "Testing existence of agent ${prefix} in pool ${pool_name}"
 
 # Get the pool id
 pool_id=$(az pipelines pool list \
@@ -52,5 +52,5 @@ agent_capabilities=$(az pipelines agent show \
   --pool-id ${pool_id} \
     | jq -r ".systemCapabilities")
 
-echo "➡️ Capabilities:"
+echo "Capabilities:"
 echo ${agent_capabilities} | jq -r "to_entries | map(\"\(.key)=\(.value | tostring)\") | sort[]"
