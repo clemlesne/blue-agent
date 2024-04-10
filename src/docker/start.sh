@@ -38,6 +38,23 @@ write_header() {
   echo -e "${lightcyan}➡️ $1${nocolor}"
 }
 
+unregister() {
+  write_header "Unregister, removing agent from server"
+
+  # If the agent has some running jobs, the configuration removal process will fail ; so, give it some time to finish the job
+  while true; do
+    # If the agent is removed successfully, exit the loop
+    bash config.sh remove \
+        --auth PAT \
+        --token "$AZP_TOKEN" \
+        --unattended \
+      && break
+
+    echo "Retrying in 15 secs"
+    sleep 15
+  done
+}
+
 if [ -d "$AZP_CUSTOM_CERT_PEM" ] && [ "$(ls -A $AZP_CUSTOM_CERT_PEM)" ]; then
   write_header "Adding custom SSL certificates"
   echo "Searching for *.crt in $AZP_CUSTOM_CERT_PEM"
@@ -99,6 +116,13 @@ bash config.sh \
 # Fake the exit code of the agent for the prevent Kubernetes to detect the pod as failed (this is intended)
 # See: https://stackoverflow.com/a/62183992/12732154
 wait $!
+
+# Unregister on success
+trap 'unregister; exit 0' EXIT
+# Unregister on Ctrl+C
+trap 'unregister; exit 130' INT
+# Unregister on SIGTERM
+trap 'unregister; exit 143' TERM
 
 write_header "Running agent"
 

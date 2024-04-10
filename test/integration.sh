@@ -30,3 +30,5 @@ wait || {
   kill $(jobs -p) 2>/dev/null
   exit 1
 }
+
+bash test/azure-devops/has-been-cleaned.sh ${agent}

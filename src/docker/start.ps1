@@ -35,6 +35,25 @@ function Write-Header() {
   Write-Host "> $1" -ForegroundColor Cyan
 }
 
+function Unregister {
+  Write-Host "Unregister, removing agent from server"
+
+  # If the agent has some running jobs, the configuration removal process will fail; so, give it some time to finish the job
+  while ($true) {
+    try {
+      # If the agent is removed successfully, exit the loop
+      & config.cmd remove `
+        --auth PAT `
+        --token $AZP_TOKEN `
+        --unattended
+      break
+    } catch {
+      Write-Host "Retrying in 15 secs"
+      Start-Sleep -Seconds 15
+    }
+  }
+}
+
 if ((Test-Path $AZP_CUSTOM_CERT_PEM) -and ((Get-ChildItem $AZP_CUSTOM_CERT_PEM).Count -gt 0)) {
   Write-Header "Adding custom SSL certificates"
   Write-Host "Searching for *.crt in $AZP_CUSTOM_CERT_PEM"
@@ -71,8 +90,13 @@ Set-Location $(Split-Path -Parent $MyInvocation.MyCommand.Definition)
 
 Write-Header "Running agent"
 
-# Running it with the --once flag at the end will shut down the agent after the build is executed
-& run.cmd $Args --once
+# Unregister on success, Ctrl+C, and SIGTERM
+try {
+  # Running it with the --once flag at the end will shut down the agent after the build is executed
+  & run.cmd $Args --once
+} finally {
+  Unregister
+}
 
 Write-Header "Printing agent diag logs"
 

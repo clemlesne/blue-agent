@@ -146,25 +146,17 @@ containers:
         exec:
           command:
             {{- if .Values.image.isWindows }}
+            {{- if not .Values.pipelines.cache.volumeEnabled }}
             - powershell
             - -Command
             - |
-              .\\config.cmd `
-                remove `
-                --auth PAT `
-                --token $Env:AZP_TOKEN;
-              {{- if not .Values.pipelines.cache.volumeEnabled }}
               # For security reasons, force clean the pipeline workspace at restart -- Sharing data bewteen pipelines is a security risk
               Remove-Item -Recurse -Force $Env:AZP_WORK;
-              {{- end }}
-            {{- else }}
+            {{- end }}
+            {{- else if or (not .Values.pipelines.cache.volumeEnabled) (not .Values.pipelines.tmpdir.volumeEnabled)}}
             - bash
             - -c
             - |
-              bash config.sh \
-                remove \
-                --auth PAT \
-                --token ${AZP_TOKEN};
               {{- if not .Values.pipelines.cache.volumeEnabled }}
               # For security reasons, force clean the pipeline workspace at restart -- Sharing data bewteen pipelines is a security risk
               rm -rf ${AZP_WORK};
