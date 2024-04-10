@@ -866,7 +866,7 @@ jobs:
         run: |
           make deploy-bicep \
             flavor="${{ matrix.os }}" \
-            instance="${{ needs.init.outputs.BRANCH }}" \
+            prefix="${{ needs.init.outputs.BRANCH }}" \
             version="sha-$(git rev-parse --short HEAD)"
 
       - name: Integration
@@ -881,11 +881,12 @@ jobs:
         run: |
           make integration \
             flavor="${{ matrix.os }}" \
-            instance="${{ needs.init.outputs.BRANCH }}"
+            prefix="${{ needs.init.outputs.BRANCH }}" \
+            version="sha-$(git rev-parse --short HEAD)"
 
       # - name: Cleanup
       #   if: always()
       #   run: |
       #     make destroy-bicep \
       #       flavor="${{ matrix.os }}" \
-      #       instance="${{ needs.init.outputs.BRANCH }}"
+      #       prefix="${{ needs.init.outputs.BRANCH }}"

@@ -203,6 +203,7 @@ containers:
             key: personalAccessToken
       # Agent capabilities
       - name: flavor_{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}
+      - name: version_{{ default .Chart.Version .Values.image.version }}
       {{- range .Values.pipelines.capabilities }}
       - name: {{ . }}
       {{- end }}

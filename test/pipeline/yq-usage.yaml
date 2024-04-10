@@ -3,6 +3,8 @@ name: YQ usage
 parameters:
   - name: flavor
     type: string
+  - name: version
+    type: string
 
 jobs:
   - job: test
@@ -10,6 +12,7 @@ jobs:
       name: github-actions
       demands:
         - flavor_${{ parameters.flavor }}
+        - version_${{ parameters.version }}
     steps:
       - bash: |
           yq --version | grep -q "^yq (https://github.com/mikefarah/yq/) version v4."

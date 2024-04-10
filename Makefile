@@ -1,10 +1,14 @@
 .PHONY: test lint build-docker docs build-docs
 
-deployment_name ?= $(instance)-$(flavor)
+# Required parameters
 flavor ?= null
-instance ?= $(shell hostname | tr '[:upper:]' '[:lower:]')
-job_name ?= $(shell az deployment sub show --name $(deployment_name) | yq '.properties.outputs["jobName"].value')
 version ?= null
+# Dynamic parameters
+prefix ?= $(shell hostname | tr '[:upper:]' '[:lower:]' | tr '.' '-')
+deployment_name ?= $(prefix)-$(flavor)
+# Deployment outputs
+job_name ?= $(shell az deployment sub show --name '$(deployment_name)' | yq '.properties.outputs["jobName"].value')
+rg_name ?= $(shell az deployment sub show --name '$(deployment_name)' | yq '.properties.outputs["rgName"].value')
 
 test:
 	@echo "➡️ Running Prettier"
@@ -54,16 +58,16 @@ deploy-bicep:
 	@echo "➡️ Starting init job"
 	az containerapp job start \
 		--name $(job_name) \
-		--resource-group "apa-$(deployment_name)"
+		--resource-group $(rg_name)
 
 destroy-bicep:
 	@echo "➡️ Destroying"
 	az group delete \
-		--name "apa-$(deployment_name)" \
+		--name "$(rg_name)" \
 		--yes
 
 integration:
-	@bash test/integration.sh $(instance) $(flavor)
+	@bash test/integration.sh $(prefix) $(flavor) $(version) $(job_name)
 
 docs:
 	cd docs && hugo server

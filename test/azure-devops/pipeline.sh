@@ -1,18 +1,14 @@
-###
-# Run a local pipeline file in Azure DevOps, setup the environment, wait for completion and return the result.
-#
-# Usage: ./pipeline.sh <prefix> <pipeline> <flavor>
-###
-
 #!/bin/bash
 set -e
 
 prefix="$1"
 pipeline="$2"
 flavor="$3"
+version="$4"
 
-if [ -z "$prefix" ] || [ -z "$pipeline" ] || [ -z "$flavor" ]; then
-  echo "Usage: $1 <prefix> $2 <pipeline> $3 <flavor>"
+if [ -z "$prefix" ] || [ -z "$pipeline" ] || [ -z "$flavor" ] || [ -z "$version" ]; then
+  echo "Run a local pipeline file in Azure DevOps, setup the environment, wait for completion and return the result."
+  echo "Usage: $1 <prefix> $2 <pipeline> $3 <flavor> $4 <version>"
   exit 1
 fi
 
@@ -111,7 +107,7 @@ echo "Running pipeline ${pipeline_name}"
 run_json=$(az pipelines run \
   --commit-id $(git rev-parse HEAD) \
   --id "${pipeline_id}" \
-  --parameters flavor=${flavor})
+  --parameters flavor="${flavor}" version="${version}")
 run_id=$(echo ${run_json} | jq -r '.id')
 
 echo "Waiting for pipeline run ${run_id} to complete"

@@ -50,6 +50,7 @@ param resourcesMemory string = '4Gi'
 targetScope = 'subscription'
 
 output jobName string = agent.outputs.jobName
+output rgName string = rg.name
 
 var prefix = 'apa-${instance}'
 
@@ -61,7 +62,7 @@ var tags = {
   version: imageVersion
 }
 
-resource sub 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   location: location
   name: prefix
   tags: tags
@@ -69,7 +70,7 @@ resource sub 'Microsoft.Resources/resourceGroups@2021-04-01' = {
 
 module agent 'agent.bicep' = {
   name: prefix
-  scope: sub
+  scope: rg
   params: {
     autoscalingMaxReplicas: autoscalingMaxReplicas
     autoscalingMinReplicas: autoscalingMinReplicas

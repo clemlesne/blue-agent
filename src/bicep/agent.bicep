@@ -25,6 +25,7 @@ var pipelinesCapabilitiesEnhanced = union(
   pipelinesCapabilities,
   [
     'flavor_${imageFlavor}'
+    'version_${imageVersion}'
   ]
 )
 

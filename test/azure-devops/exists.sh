@@ -3,22 +3,23 @@
 #
 # If the agent is found, the script will exit with status 0. Will retry every 5 seconds, indefinitely, until the agent is found.
 #
-# Usage: ./exists.sh <prefix>
+# Usage: ./exists.sh <agent>
 ###
 
 #!/bin/bash
 set -e
 
-prefix="$1"
+agent="$1"
 
-if [ -z "$prefix" ]; then
-  echo "Usage: $1 <prefix>"
+if [ -z "$agent" ]; then
+  echo "Test the existence of an Azure DevOps agent in a pool."
+  echo "Usage: $1 <agent>"
   exit 1
 fi
 
 pool_name="github-actions"
 
-echo "Testing existence of agent ${prefix} in pool ${pool_name}"
+echo "Testing existence of agent ${agent} in pool ${pool_name}"
 
 # Get the pool id
 pool_id=$(az pipelines pool list \
@@ -33,11 +34,11 @@ fi
 while true; do
   agent_json=$(az pipelines agent list \
     --pool-id ${pool_id} \
-      | jq -r "last(sort_by(.createdOn) | .[] | select((.name | startswith(\"${prefix}\")) and .status == \"online\"))")
+      | jq -r "last(sort_by(.createdOn) | .[] | select((.name | startswith(\"${agent}\")) and .status == \"online\"))")
   if [ -n "$agent_json" ] && [ "$agent_json" != "null" ]; then
     break
   fi
-  echo "Agent ${prefix} not found in pool ${pool_name} (${pool_id}), retrying in 5 seconds"
+  echo "Agent ${agent} not found in pool ${pool_name} (${pool_id}), retrying in 5 seconds"
   sleep 5
 done
 

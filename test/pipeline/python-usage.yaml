@@ -3,6 +3,8 @@ name: Python usage
 parameters:
   - name: flavor
     type: string
+  - name: version
+    type: string
 
 jobs:
   - job: test
@@ -10,6 +12,7 @@ jobs:
       name: github-actions
       demands:
         - flavor_${{ parameters.flavor }}
+        - version_${{ parameters.version }}
     steps:
       - bash: |
           python3 --version | grep -q "^Python 3."
