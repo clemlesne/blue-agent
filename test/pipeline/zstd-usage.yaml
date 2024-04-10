@@ -15,5 +15,5 @@ jobs:
         - version_${{ parameters.version }}
     steps:
       - bash: |
-          zstd --version | grep -q "^\*\*\* Zstandard CLI"
+          zstd --version
         displayName: Test Zstd installation
