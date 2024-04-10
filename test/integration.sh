@@ -25,9 +25,8 @@ do
 done
 
 # Wait for all background jobs to complete and exit if any of them fail
-wait
-if [ $? -ne 0 ]; then
-  echo "A test failed. Exiting..."
+wait || {
+  echo "A test failed, exiting"
   kill $(jobs -p) 2>/dev/null
   exit 1
-fi
+}
