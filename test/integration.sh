@@ -12,7 +12,7 @@ if [ -z "$prefix" ] || [ -z "$flavor" ] || [ -z "$version" ] || [ -z "$agent" ];
   exit 1
 fi
 
-org_url="https://dev.azure.com/azure-pipelines-agent"
+org_url="https://dev.azure.com/blue-agent"
 
 echo "Configuring Azure DevOps organization ${org_url}"
 az devops configure --defaults organization=${org_url}

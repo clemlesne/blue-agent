@@ -153,7 +153,7 @@ jobs:
 
       - name: Package Helm chart
         run: |
-          cp README.md src/helm/azure-pipelines-agent/
+          cp README.md src/helm/blue-agent/
 
           helm package \
             --app-version ${{ env.AZP_AGENT_VERSION }} \
@@ -162,7 +162,7 @@ jobs:
             --keyring keyring.gpg \
             --sign \
             --version ${{ needs.init.outputs.VERSION }} \
-            src/helm/azure-pipelines-agent
+            src/helm/blue-agent
 
       - name: Sign Helm chart
         env:
@@ -170,10 +170,10 @@ jobs:
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
         run: |
           cosign sign-blob \
-            --bundle .cr-release-packages/azure-pipelines-agent-${{ needs.init.outputs.VERSION }}.tgz.bundle \
+            --bundle .cr-release-packages/blue-agent-${{ needs.init.outputs.VERSION }}.tgz.bundle \
             --key="env://COSIGN_PRIVATE_KEY" \
             --yes \
-            .cr-release-packages/azure-pipelines-agent-${{ needs.init.outputs.VERSION }}.tgz
+            .cr-release-packages/blue-agent-${{ needs.init.outputs.VERSION }}.tgz
 
       - name: Cache Helm chart
         uses: actions/upload-artifact@v4.3.1
@@ -185,8 +185,8 @@ jobs:
         run: |
           helm template \
             --output-dir .helm-template \
-            --values test/helm/azure-pipelines-agent/values.yaml \
-            .cr-release-packages/azure-pipelines-agent-${{ needs.init.outputs.VERSION }}.tgz
+            --values test/helm/blue-agent/values.yaml \
+            .cr-release-packages/blue-agent-${{ needs.init.outputs.VERSION }}.tgz
 
       - name: Run SAST Snyk for Helm
         # Snyk can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub Security
@@ -873,7 +873,7 @@ jobs:
         env:
           # Permissions: Agent Pools (Read); Build (Read & execute); Pipeline Resources (Use & manage); Project and Team (Read, write, & manage); Service Connections (Read, query, & manage)
           AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
-          # Scope: clemlesne/azure-pipelines-agent
+          # Scope: clemlesne/blue-agent
           # Permissions: Contents (read-only); Metadata (read-only); Webhooks (read & write)
           AZURE_DEVOPS_EXT_GITHUB_PAT: ${{ secrets.AZURE_DEVOPS_GITHUB_PAT }}
         # Script wait indefinitely for external events, so we need to timeout

@@ -50,7 +50,7 @@ Error is often due to two things:
 
 ## Namespaces must be set to a non-zero value
 
-This error is due to the fact that BuildKit needs to create a new user namespace, and the default maximum number of namespaces is 0. Value is defined by `user.max_user_namespaces` ([documentation](https://man7.org/linux/man-pages/man7/namespaces.7.html)). You can fix it by setting the value to more than 1000. Issue notably happens on AWS Bottlerocket OS. [See related issue.](https://github.com/clemlesne/azure-pipelines-agent/issues/19)
+This error is due to the fact that BuildKit needs to create a new user namespace, and the default maximum number of namespaces is 0. Value is defined by `user.max_user_namespaces` ([documentation](https://man7.org/linux/man-pages/man7/namespaces.7.html)). You can fix it by setting the value to more than 1000. Issue notably happens on AWS Bottlerocket OS. [See related issue.](https://github.com/clemlesne/blue-agent/issues/19)
 
 We can update dynamically the host system settings with a DaemonSet:
 
@@ -62,7 +62,7 @@ metadata:
   labels:
     app.kubernetes.io/component: sysctl
     app.kubernetes.io/name: sysctl-max-user-ns-fix
-    app.kubernetes.io/part-of: azure-pipelines-agent
+    app.kubernetes.io/part-of: blue-agent
   name: sysctl-max-user-ns-fix
 spec:
   selector:

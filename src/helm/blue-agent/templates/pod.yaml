@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: {{ include "azure-pipelines-agent.fullname" . }}-{{ .Release.Revision }}
+  name: {{ include "blue-agent.fullname" . }}-{{ .Release.Revision }}
   labels:
-    {{- include "azure-pipelines-agent.labels" . | nindent 4 }}
+    {{- include "blue-agent.labels" . | nindent 4 }}
   annotations:
     # Cluster autoscaler never evicts this Pod
     cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
@@ -14,7 +14,7 @@ metadata:
 spec:
   {{- $data := dict
     "restartPolicy" "Never"
-    "azpAgentName" (dict "value" (printf "%s-%s" (include "azure-pipelines-agent.fullname" .) "template"))
+    "azpAgentName" (dict "value" (printf "%s-%s" (include "blue-agent.fullname" .) "template"))
   }}
-  {{- include "azure-pipelines-agent.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 2 }}
+  {{- include "blue-agent.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 2 }}
 {{- end }}

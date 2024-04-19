@@ -32,7 +32,7 @@ if az devops project show --project ${project_name} \
   echo "Project ${project_name} already exists"
 else
   az devops project create \
-    --description "Integration test for image `${flavor}`. Related to the project [azure-pipelines-agent](https://github.com/clemlesne/azure-pipelines-agent)." \
+    --description "Integration test for image `${flavor}`. Related to the project [blue-agent](https://github.com/clemlesne/blue-agent)." \
     --name ${project_name} \
     --visibility public
 fi

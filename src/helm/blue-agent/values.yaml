@@ -7,7 +7,7 @@ image:
   # Image pull policy, default is 'Always'
   pullPolicy: Always
   # Container image repository
-  repository: ghcr.io/clemlesne/azure-pipelines-agent
+  repository: ghcr.io/clemlesne/blue-agent
   # Overrides the image tag, default is the chart "appVersion"
   version: ""
 

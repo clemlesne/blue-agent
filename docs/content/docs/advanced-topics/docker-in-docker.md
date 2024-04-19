@@ -15,16 +15,16 @@ We choose BuildKit for this project. [Its license](https://raw.githubusercontent
 
 Linux systems are supported, but not Windows:
 
-| `Ref`                                                       | Container build inside of the agent with BuildKit |
-| ----------------------------------------------------------- | ------------------------------------------------- |
-| `ghcr.io/clemlesne/azure-pipelines-agent:bookworm-main`     | ✅                                                |
-| `ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main`     | ✅                                                |
-| `ghcr.io/clemlesne/azure-pipelines-agent:focal-main`        | ✅                                                |
-| `ghcr.io/clemlesne/azure-pipelines-agent:jammy-main`        | ✅                                                |
-| `ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main`         | ✅                                                |
-| `ghcr.io/clemlesne/azure-pipelines-agent:ubi9-main`         | ✅                                                |
-| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019-main` | ❌                                                |
-| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022-main` | ❌                                                |
+| `Ref`                                            | Container build inside of the agent with BuildKit |
+| ------------------------------------------------ | ------------------------------------------------- |
+| `ghcr.io/clemlesne/blue-agent:bookworm-main`     | ✅                                                |
+| `ghcr.io/clemlesne/blue-agent:bullseye-main`     | ✅                                                |
+| `ghcr.io/clemlesne/blue-agent:focal-main`        | ✅                                                |
+| `ghcr.io/clemlesne/blue-agent:jammy-main`        | ✅                                                |
+| `ghcr.io/clemlesne/blue-agent:ubi8-main`         | ✅                                                |
+| `ghcr.io/clemlesne/blue-agent:ubi9-main`         | ✅                                                |
+| `ghcr.io/clemlesne/blue-agent:win-ltsc2019-main` | ❌                                                |
+| `ghcr.io/clemlesne/blue-agent:win-ltsc2022-main` | ❌                                                |
 
 #### How to use the bundled BuildKit
 

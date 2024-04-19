@@ -1,5 +1,5 @@
 apiVersion: v2
-name: azure-pipelines-agent
+name: blue-agent
 description: Deploy Azure Pipelines agent on Kubernetes. Easy way. Cheap. Windows and Linux. X64 and ARM compatible.
 type: application
 # Using ephemeral storage, as from Kubernetes 1.19+ (alpha)
@@ -8,7 +8,7 @@ type: application
 kubeVersion: ">= 1.19.0-0"
 version: 0.0.0
 appVersion: 0.0.0
-icon: https://raw.githubusercontent.com/clemlesne/azure-pipelines-agent/master/docs/static/favicon.svg
+icon: https://raw.githubusercontent.com/clemlesne/blue-agent/master/docs/static/favicon.svg
 keywords:
   - agent
   - auto-scale
@@ -24,9 +24,9 @@ keywords:
   - pipelines
   - self-hosted
   - self-hosted-agent
-home: https://github.com/clemlesne/azure-pipelines-agent
+home: https://github.com/clemlesne/blue-agent
 sources:
-  - https://github.com/clemlesne/azure-pipelines-agent
+  - https://github.com/clemlesne/blue-agent
 maintainers:
   - name: Clémence Lesné
     email: clemlesne@users.noreply.github.com

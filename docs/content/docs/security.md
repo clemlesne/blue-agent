@@ -12,16 +12,16 @@ Automation is supported by [Snyk](https://snyk.io) and [Semgrep](https://semgrep
 
 Scanned systems:
 
-| `Ref`                                                       | Vulnerability scans with Snyk |
-| ----------------------------------------------------------- | ----------------------------- |
-| `ghcr.io/clemlesne/azure-pipelines-agent:bookworm-main`     | ✅                            |
-| `ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main`     | ✅                            |
-| `ghcr.io/clemlesne/azure-pipelines-agent:focal-main`        | ✅                            |
-| `ghcr.io/clemlesne/azure-pipelines-agent:jammy-main`        | ✅                            |
-| `ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main`         | ✅                            |
-| `ghcr.io/clemlesne/azure-pipelines-agent:ubi9-main`         | ✅                            |
-| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019-main` | ✅                            |
-| `ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022-main` | ✅                            |
+| `Ref`                                            | Vulnerability scans with Snyk |
+| ------------------------------------------------ | ----------------------------- |
+| `ghcr.io/clemlesne/blue-agent:bookworm-main`     | ✅                            |
+| `ghcr.io/clemlesne/blue-agent:bullseye-main`     | ✅                            |
+| `ghcr.io/clemlesne/blue-agent:focal-main`        | ✅                            |
+| `ghcr.io/clemlesne/blue-agent:jammy-main`        | ✅                            |
+| `ghcr.io/clemlesne/blue-agent:ubi8-main`         | ✅                            |
+| `ghcr.io/clemlesne/blue-agent:ubi9-main`         | ✅                            |
+| `ghcr.io/clemlesne/blue-agent:win-ltsc2019-main` | ✅                            |
+| `ghcr.io/clemlesne/blue-agent:win-ltsc2022-main` | ✅                            |
 
 ## Reporting a vulnerability
 
@@ -39,8 +39,8 @@ Cosign public key is available in [`/cosign.pub`](cosign.pub).
 
 ```bash
 # Example of verification with Cosign
-❯ cosign verify --key cosign.pub ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main
-Verification for ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main --
+❯ cosign verify --key cosign.pub ghcr.io/clemlesne/blue-agent:bullseye-main
+Verification for ghcr.io/clemlesne/blue-agent:bullseye-main --
 The following checks were performed on each of these signatures:
   - The cosign claims were validated
   - Existence of the claims in the transparency log was verified offline
@@ -58,7 +58,7 @@ Keys:
 
 ```bash
 # Example of verification with Helm native signature
-❯ helm fetch --keyring pubring.gpg --verify clemlesne-azure-pipelines-agent/azure-pipelines-agent --version 5.0.0
+❯ helm fetch --keyring pubring.gpg --verify clemlesne-blue-agent/blue-agent --version 5.0.0
 Signed by: Clémence Lesné <clemence@lesne.pro>
 Using Key With Fingerprint: 417E701DBC66834CA752C920460D072B9C032DFD
 Chart Hash Verified: sha256:1c23e22cffc132ce12489480d139b59e97b3cb49ff1599a4ae11fb5c317c1e64
@@ -67,9 +67,9 @@ Chart Hash Verified: sha256:1c23e22cffc132ce12489480d139b59e97b3cb49ff1599a4ae11
 ```bash
 # Example of verification with Cosign
 ❯ VERSION=5.0.0
-❯ wget https://github.com/clemlesne/azure-pipelines-agent/releases/download/azure-pipelines-agent-${VERSION}/azure-pipelines-agent-${VERSION}.tgz.bundle
-❯ helm pull clemlesne-azure-pipelines-agent/azure-pipelines-agent --version 5.0.0
-❯ cosign verify-blob azure-pipelines-agent-${VERSION}.tgz --bundle azure-pipelines-agent-${VERSION}.tgz.bundle --key cosign.pub
+❯ wget https://github.com/clemlesne/blue-agent/releases/download/blue-agent-${VERSION}/blue-agent-${VERSION}.tgz.bundle
+❯ helm pull clemlesne-blue-agent/blue-agent --version 5.0.0
+❯ cosign verify-blob blue-agent-${VERSION}.tgz --bundle blue-agent-${VERSION}.tgz.bundle --key cosign.pub
 Verified OK
 ```
 

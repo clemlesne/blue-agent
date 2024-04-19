@@ -34,7 +34,7 @@ echo "Matrix:${SUFFIXES}"
 
 # Iterate over the suffixes and build the Docker images
 for suffix in ${SUFFIXES}; do
-  tag="ghcr.io/clemlesne/azure-pipelines-agent:${suffix}-latest"
+  tag="ghcr.io/clemlesne/blue-agent:${suffix}-latest"
   echo "➡️ Building Docker image for ${suffix} (${tag})"
 
   # Build the Docker image

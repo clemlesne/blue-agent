@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "pipelinesOrganizationURL": {
-      "value": "https://dev.azure.com/azure-pipelines-agent"
+      "value": "https://dev.azure.com/blue-agent"
     },
     "pipelinesPersonalAccessToken": {
       "value": "xxx"

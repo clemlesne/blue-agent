@@ -17,7 +17,7 @@ param extraEnv array = []
 ])
 param imageFlavor string = 'bookworm'
 @description('Name of the container image')
-param imageName string = 'clemlesne/azure-pipelines-agent'
+param imageName string = 'clemlesne/blue-agent'
 @description('Registry of the container image')
 @allowed([
   'docker.io'
@@ -52,13 +52,13 @@ targetScope = 'subscription'
 output jobName string = agent.outputs.jobName
 output rgName string = rg.name
 
-var prefix = 'apa-${instance}'
+var prefix = 'blue-agent-${instance}'
 
 var tags = {
-  application: 'azure-pipelines-agent'
+  application: 'blue-agent'
   instance: instance
   managed_by: 'Bicep'
-  sources: 'https://github.com/clemlesne/azure-pipelines-agent'
+  sources: 'https://github.com/clemlesne/blue-agent'
   version: imageVersion
 }
 

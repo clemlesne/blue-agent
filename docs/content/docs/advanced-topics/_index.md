@@ -5,7 +5,7 @@ title: Advanced topics
 weight: 2
 ---
 
-Explore the following sections to learn how to use Azure Pipelines Agent:
+Explore the following sections to learn how to use Blue Agent:
 
 {{< cards >}}
 {{< card link="build-aspnet" title="Build ASP.NET applications" icon="code" >}}
