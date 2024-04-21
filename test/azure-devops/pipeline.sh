@@ -27,16 +27,16 @@ service_connection_name="${project_name}"
 pipeline_name="${pipeline}"
 
 echo "Creating project ${project_name} in organization ${organization_url}"
-if az devops project show --project ${project_name} \
+if az devops project show --project "${project_name}" \
       &> /dev/null; then
   echo "Project ${project_name} already exists"
 else
   az devops project create \
     --description "Integration test for image `${flavor}`. Related to the project [blue-agent](https://github.com/clemlesne/blue-agent)." \
-    --name ${project_name} \
+    --name "${project_name}" \
     --visibility public
 fi
-project_id=$(az devops project show --project ${project_name} \
+project_id=$(az devops project show --project "${project_name}" \
   | jq -r '.id')
 flock $HOME/.azure/azuredevops/config --command "az devops configure --defaults project=${project_id}"
 
@@ -58,7 +58,7 @@ if az devops service-endpoint show \
   echo "Service connection ${service_connection_name} already exists"
 else
   az devops service-endpoint github create \
-    --name ${service_connection_name} \
+    --name "${service_connection_name}" \
     --github-url $(git remote get-url origin)
 fi
 service_connection_id=$(az devops service-endpoint list --query "[?name=='${service_connection_name}']" \
@@ -72,12 +72,12 @@ else
   az pipelines create \
     --branch $(git rev-parse --abbrev-ref HEAD) \
     --description "Test pipeline `${pipeline}`. Created from GitHub Actions." \
-    --name ${pipeline_name} \
+    --name "${pipeline_name}" \
     --repository $(git remote get-url origin) \
     --repository-type github \
-    --service-connection ${service_connection_id} \
+    --service-connection "${service_connection_id}" \
     --skip-first-run \
-    --yml-path ${pipeline_path}
+    --yml-path "${pipeline_path}"
 fi
 pipeline_id=$(az pipelines show --name "${pipeline_name}" \
   | jq -r '.id')
@@ -85,7 +85,7 @@ pipeline_id=$(az pipelines show --name "${pipeline_name}" \
 echo "Authorizing pipeline ${pipeline_name} to run on agent pool ${pool_name}"
 # TODO: Use Azure CLI to auhorize the pipeline to run on the agent pool (see: https://github.com/Azure/azure-cli/issues/28111)
 tmp_file=$(mktemp -t XXXXXX.json)
-cat <<EOF > ${tmp_file}
+cat <<EOF > "${tmp_file}"
 {
   "pipelines": [{
     "authorized": true,
@@ -97,18 +97,18 @@ az devops invoke \
   --api-version 7.1-preview \
   --area pipelinePermissions \
   --http-method PATCH \
-  --in-file ${tmp_file} \
+  --in-file "${tmp_file}" \
   --resource pipelinePermissions \
   --route-parameters project=${project_id} resourceType=queue resourceId=${queue_id} \
     > /dev/null
-rm -f ${tmp_file}
+rm -f "${tmp_file}"
 
 echo "Running pipeline ${pipeline_name}"
 run_json=$(az pipelines run \
   --commit-id $(git rev-parse HEAD) \
   --id "${pipeline_id}" \
   --parameters flavor="${flavor}" version="${version}")
-run_id=$(echo ${run_json} | jq -r '.id')
+run_id=$(echo "${run_json}" | jq -r '.id')
 
 echo "Waiting for pipeline run ${run_id} to complete"
 echo "🔗 ${organization_url}/${project_name}/_build/results?buildId=${run_id}"
@@ -116,14 +116,14 @@ echo "🔗 ${organization_url}/${project_name}/_build/results?buildId=${run_id}"
 timeout_seconds=900 # 15 minutes
 start_time=$(date +%s)
 while true; do
-  run_json=$(az pipelines runs show --id ${run_id})
+  run_json=$(az pipelines runs show --id "${run_id}")
   status=$(echo ${run_json} | jq -r '.status')
 
   if [ "${status}" == "completed" ]; then
-    result=$(echo ${run_json} | jq -r '.result')
-    validation_results=$(echo ${run_json} | jq -r '.validationResults')
+    result=$(echo "${run_json}" | jq -r '.result')
+    validation_results=$(echo "${run_json}" | jq -r '.validationResults')
     echo "Validation results:"
-    echo ${validation_results} | jq
+    echo "${validation_results}" | jq
 
     if [ "${result}" == "succeeded" ]; then
       echo "✅ Pipeline run ${run_id} succeeded"
@@ -142,7 +142,7 @@ while true; do
     echo "Cancelling pipeline run ${run_id}"
     # TODO: Use Azure CLI to auhorize the pipeline to run on the agent pool (see: https://github.com/Azure/azure-devops-cli-extension/issues/876)
     tmp_file=$(mktemp -t XXXXXX.json)
-    cat <<EOF > ${tmp_file}
+    cat <<EOF > "${tmp_file}"
 {
   "status": "cancelling"
 }
@@ -151,7 +151,7 @@ EOF
       --api-version 7.1-preview \
       --area build \
       --http-method PATCH \
-      --in-file ${tmp_file} \
+      --in-file "${tmp_file}" \
       --resource builds \
       --route-parameters project=${project_id} buildId=${run_id} \
         > /dev/null

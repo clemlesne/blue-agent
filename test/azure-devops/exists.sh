@@ -23,7 +23,7 @@ echo "Testing existence of agent ${agent} in pool ${pool_name}"
 
 # Get the pool id
 pool_id=$(az pipelines pool list \
-  --pool-name ${pool_name} \
+  --pool-name "${pool_name}" \
   --query "[0].id")
 
 if [ -z "$pool_id" ]; then
@@ -33,7 +33,7 @@ fi
 
 while true; do
   agent_json=$(az pipelines agent list \
-    --pool-id ${pool_id} \
+    --pool-id "${pool_id}" \
       | jq -r "last(sort_by(.createdOn) | .[] | select((.name | startswith(\"${agent}\")) and .status == \"online\"))")
   if [ -n "$agent_json" ] && [ "$agent_json" != "null" ]; then
     break
@@ -42,15 +42,15 @@ while true; do
   sleep 5
 done
 
-agent_name=$(echo ${agent_json} | jq -r ".name")
-agent_id=$(echo ${agent_json} | jq -r ".id")
+agent_name=$(echo "${agent_json}" | jq -r ".name")
+agent_id=$(echo "${agent_json}" | jq -r ".id")
 
 echo "✅ Agent ${agent_name} (${agent_id}) found in pool ${pool_name} (${pool_id})"
 
 agent_capabilities=$(az pipelines agent show \
-  --agent-id ${agent_id} \
+  --agent-id "${agent_id}" \
   --include-capabilities \
-  --pool-id ${pool_id} \
+  --pool-id "${pool_id}" \
     | jq -r ".systemCapabilities")
 
 echo "Capabilities:"

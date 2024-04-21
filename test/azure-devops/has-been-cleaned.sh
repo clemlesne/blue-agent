@@ -15,7 +15,7 @@ echo "Testing existence of agent ${agent} in pool ${pool_name}"
 
 # Get the pool id
 pool_id=$(az pipelines pool list \
-  --pool-name ${pool_name} \
+  --pool-name "${pool_name}" \
   --query "[0].id")
 
 if [ -z "$pool_id" ]; then
@@ -28,7 +28,7 @@ fi
 for i in {1..12}
 do
   agent_name=$(az pipelines agent list \
-    --pool-id ${pool_id} \
+    --pool-id "${pool_id}" \
       | jq -r "last(sort_by(.createdOn) | .[] | select((.name | startswith(\"${agent}\")) and .status == \"offline\")).name")
   if [ -n "$agent_name" ] && [ "$agent_name" != "null" ]; then
     echo "Agent ${agent_name} exists, retrying in 5 seconds"
