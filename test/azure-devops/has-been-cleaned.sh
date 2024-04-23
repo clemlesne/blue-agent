@@ -25,8 +25,7 @@ fi
 
 # TODO: Add a discriminator to the agent properties, like an environment variable, to ensure there is no test collision when running multiple tests in parallel from the same branch.
 # Wait for the agent ot be removed, as it is cleaned up asynchronously
-for i in {1..12}
-do
+for i in {1..12}; do
   agent_name=$(az pipelines agent list \
     --pool-id "${pool_id}" \
       | jq -r "last(sort_by(.createdOn) | .[] | select((.name | startswith(\"${agent}\")) and .status == \"offline\")).name")
