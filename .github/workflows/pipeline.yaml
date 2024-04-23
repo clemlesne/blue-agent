@@ -872,6 +872,7 @@ jobs:
       - name: Integration
         env:
           # Permissions: Agent Pools (Read); Build (Read & execute); Pipeline Resources (Use & manage); Project and Team (Read, write, & manage); Service Connections (Read, query, & manage)
+          # Recommended group membership: Project Collection Build Service Accounts
           AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
           # Scope: clemlesne/blue-agent
           # Permissions: Contents (read-only); Metadata (read-only); Webhooks (read & write)
