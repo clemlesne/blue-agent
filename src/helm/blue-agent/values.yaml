@@ -1,0 +1,223 @@
+# Container image configuration
+image:
+  # Container image flavor, default is 'bookworm'
+  flavor: bookworm
+  # Indicates if the image is for Windows, default is false
+  isWindows: false
+  # Image pull policy, default is 'Always'
+  pullPolicy: Always
+  # Container image repository
+  repository: ghcr.io/clemlesne/blue-agent
+  # Overrides the image tag, default is the chart "appVersion"
+  version: ""
+
+# Overrides the full name of the release
+fullnameOverride: ""
+# Specifies image pull secrets
+imagePullSecrets: []
+# Overrides the name of the release
+nameOverride: ""
+
+# Number of replica agents
+replicaCount: 3
+
+# Autoscaling configuration
+autoscaling:
+  # Enables autoscaling
+  enabled: true
+  # Minimum number of replicas
+  minReplicas: 0
+  # Maximum number of replicas, default is 100 to prevent misconfiguration
+  maxReplicas: 100
+
+# Pipeline configuration
+pipelines:
+  # Capabilities of the pipeline
+  capabilities: []
+  # URL of the Azure DevOps organization
+  organizationURL: null
+  # Personal access token for authentication
+  personalAccessToken: null
+  # Name of the agent pool
+  poolName: null
+  # Timeout in seconds, default is 1 hour
+  timeout: 3600
+  # Cleanup policy for jobs
+  cleanup:
+    # Number of failed jobs to retain
+    failed: 100
+    # Number of successful jobs to retain
+    successful: 100
+    # Time to live for job cleanup in seconds, default is 1 hour
+    ttl: 3600
+  # Cache configuration
+  cache:
+    # Size of the cache, default is 10Gi
+    size: 10Gi
+    # Type of the cache volume
+    type: managed-csi
+    # Enables the cache volume, default is true
+    volumeEnabled: true
+  # Temporary directory configuration
+  tmpdir:
+    # Size of the temp directory, default is 1Gi
+    size: 1Gi
+    # Type of the temp directory volume
+    type: managed-csi
+    # Enables the temp directory volume, default is true
+    volumeEnabled: true
+
+# Secret configuration
+secret:
+  # Indicates if a secret should be created
+  create: true
+  # Name of the secret, auto-generated if not set
+  name: ""
+
+# Service account configuration
+serviceAccount:
+  # Annotations for the service account
+  annotations: {}
+  # Indicates if a service account should be created
+  create: true
+  # Name of the service account, auto-generated if not set
+  name: ""
+
+# Pod security context configuration
+#
+# Example, to be used with img or BuildKit:
+#
+# podSecurityContext:
+#   procMount: Unmasked
+podSecurityContext: {}
+
+# Container security context configuration
+#
+# Example:
+#
+# securityContext:
+#   capabilities:
+#     drop:
+#     - ALL
+#   readOnlyRootFilesystem: true
+#   runAsNonRoot: true
+#   runAsUser: 1000
+securityContext: {}
+
+# Resources configuration for the agent container
+resources:
+  # Resource limits
+  limits:
+    cpu: 2
+    ephemeral-storage: 8Gi
+    memory: 4Gi
+  # Resource requests
+  requests:
+    cpu: 1
+    ephemeral-storage: 2Gi
+    memory: 2Gi
+
+# Additional node selectors
+extraNodeSelectors: {}
+
+# Pod tolerations
+tolerations: []
+
+# Pod affinity configuration
+affinity: {}
+
+# Annotations for scheduling and security behaviors
+#
+# Example, to be used with img or BuildKit:
+#
+# annotations:
+#   container.apparmor.security.beta.kubernetes.io/azp-agent: unconfined
+#   container.seccomp.security.alpha.kubernetes.io/azp-agent: unconfined
+annotations: {}
+
+# Additional environment variables for the agent container
+#
+# Example:
+#
+# - name: XXX
+#   value: YYY
+#
+# Or, reference to a secret or configmap:
+#
+# - name: SPECIAL_LEVEL_KEY
+#   valueFrom:
+#     configMapKeyRef:
+#       name: special-config
+#       key: special.how
+# - name: SECRET_KEY
+#   valueFrom:
+#     secretKeyRef:
+#       name: secret-name
+#       key: secret.key
+extraEnv: []
+
+# Additional volumes for the agent pod
+#
+# Example:
+#
+# extraVolumes:
+#   - name: config-volume
+#     configMap:
+#      name: special-config
+extraVolumes: []
+
+# Additional volume mounts for the agent container
+#
+# Example:
+#
+# extraVolumeMounts:
+#   - name: config-volume
+#     mountPath: /etc/special
+#     readOnly: true
+extraVolumeMounts: []
+
+# Initialization containers for the agent pod
+#
+# Example:
+#
+# initContainers:
+#   - name: init-container
+#     image: busybox
+#     command: ["/bin/sh", "-c", "echo Hello World"]
+initContainers: []
+
+# Extra Kubernetes manifests to deploy
+#
+# Example:
+#
+# extraManifests:
+# - apiVersion: v1
+#   kind: Secret
+#   metadata:
+#   labels:
+#     name: azure-pipeline-secret
+#   data:
+#     personalAccessToken: "value"
+#     organizationURL: "value"
+extraManifests: []
+
+# Containers to run alongside the agent container
+#
+# Example:
+#
+# sidecarContainers:
+#   - name: my-sidecar
+#     image: awesome-project/my-sidecar-image
+#     imagePullPolicy: Always
+#     ports:
+#     - name: my-port
+#       containerPort: 5000
+#       protocol: TCP
+#     resources:
+#       requests:
+#         memory: 10Mi
+#         cpu: 10m
+#       limits:
+#         memory: 100Mi
+#         cpu: 100m
+sidecarContainers: []

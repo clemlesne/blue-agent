@@ -1,6 +1,6 @@
 languageCode: en-us
 theme: hextra
-title: Azure Pipelines Agent
+title: Blue Agent
 
 enableGitInfo: true
 enableRobotsTXT: true
@@ -12,7 +12,7 @@ imaging:
 
 services:
   googleAnalytics:
-    # Website: https://clemlesne.github.io/azure-pipelines-agent
+    # Website: https://clemlesne.github.io/blue-agent
     ID: G-4JZ51TVMEQ
 
 defaultContentLanguage: en
@@ -41,17 +41,17 @@ menu:
       weight: 2
     - name: Releases ↗
       weight: 3
-      url: https://github.com/clemlesne/azure-pipelines-agent/releases
+      url: https://github.com/clemlesne/blue-agent/releases
     - name: Docker Hub ↗
       weight: 4
-      url: https://hub.docker.com/r/clemlesne/azure-pipelines-agent
+      url: https://hub.docker.com/r/clemlesne/blue-agent
     - name: Search
       weight: 5
       params:
         type: search
     - name: GitHub ↗
       weight: 6
-      url: "https://github.com/clemlesne/azure-pipelines-agent"
+      url: "https://github.com/clemlesne/blue-agent"
       params:
         icon: github
   sidebar:
@@ -67,17 +67,12 @@ menu:
 params:
   description: Deploy Azure Pipelines agent on Kubernetes. Easy way. Cheap. Windows and Linux. X64 and ARM compatible.
   navbar:
-    displayLogo: true
-    displayTitle: true
     logo:
       dark: favicon-dark.svg
       path: favicon.svg
-    width: wide
   footer:
     displayCopyright: true
-    enable: true
   displayUpdatedDate: true
-  dateFormat: "January 2, 2006"
   editURL:
     enable: true
-    base: https://github.com/clemlesne/azure-pipelines-agent/edit/main/docs/content
+    base: https://github.com/clemlesne/blue-agent/edit/main/docs/content

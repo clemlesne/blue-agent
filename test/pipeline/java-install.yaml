@@ -1,0 +1,34 @@
+name: Java installation
+
+parameters:
+  - name: flavor
+    type: string
+  - name: version
+    type: string
+
+variables:
+  - name: archive_path
+    value: $(Pipeline.Workspace)/openjdk.tar.gz
+
+jobs:
+  - job: test
+    pool:
+      name: github-actions
+      demands:
+        - flavor_${{ parameters.flavor }}
+        - version_${{ parameters.version }}
+    steps:
+      - bash: |
+          curl -LsSf https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.2+13/OpenJDK21U-jdk_x64_linux_hotspot_21.0.2_13.tar.gz -o ${{ variables.archive_path }}
+        displayName: Download Eclipse Temurin
+
+      - task: JavaToolInstaller@0
+        inputs:
+          jdkArchitectureOption: x64
+          jdkFile: ${{ variables.archive_path }}
+          jdkSourceOption: LocalDirectory
+          versionSpec: 21
+
+      - bash: |
+          java --version | grep -q "^openjdk 21"
+        displayName: Test Java installation

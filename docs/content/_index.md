@@ -1,17 +1,17 @@
 ---
-title: Azure Pipelines Agent
+title: Blue Agent
 layout: hextra-home
 ---
 
 <div class="mt-6 mb-6">
 {{< hextra/hero-headline >}}
-  Manage Azure Pipelines Agent<br class="sm:block hidden" />in Kubernetes
+  Manage Blue Agent<br class="sm:block hidden" />in Kubernetes
 {{< /hextra/hero-headline >}}
 </div>
 
 <div class="mb-12">
 {{< hextra/hero-subtitle >}}
-  Azure Pipelines Agent is self-hosted agent in Kubernetes, cheap to run, secure, auto-scaled and easy to deploy.
+  Blue Agent is self-hosted Azure Pipelines agent in Kubernetes, cheap to run, secure, auto-scaled and easy to deploy.
 {{< /hextra/hero-subtitle >}}
 </div>
 

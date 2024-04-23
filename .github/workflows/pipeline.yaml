@@ -68,6 +68,8 @@ env:
   VS_BUILDTOOLS_WIN_VERSION: 17
   # https://github.com/gohugoio/hugo/releases
   HUGO_VERSION: 0.123.7
+  # See: https://github.com/getsops/sops/releases
+  SOPS_VERSION: 3.8.1
 
 jobs:
   init:
@@ -79,7 +81,7 @@ jobs:
       VERSION: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.2
         with:
           # We need all Git history for "version.sh"
           fetch-depth: 0
@@ -103,7 +105,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.2
         with:
           # We need all Git history for testing credentials
           fetch-depth: 0
@@ -111,7 +113,7 @@ jobs:
           submodules: recursive
 
       - name: SAST - Credentials
-        uses: trufflesecurity/trufflehog@v3.68.4
+        uses: trufflesecurity/trufflehog@v3.70.3
         with:
           base: ${{ github.event.repository.default_branch }}
           extra_args: --only-verified
@@ -123,14 +125,14 @@ jobs:
       - init
       - sast-creds
       - sast-semgrep
-      - test
+      - static-test
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.2
 
       - name: Setup Helm
-        uses: azure/setup-helm@v3.5
+        uses: azure/setup-helm@v4.1.0
         with:
           version: v${{ env.HELM_VERSION }}
 
@@ -151,7 +153,7 @@ jobs:
 
       - name: Package Helm chart
         run: |
-          cp README.md src/helm/azure-pipelines-agent/
+          cp README.md src/helm/blue-agent/
 
           helm package \
             --app-version ${{ env.AZP_AGENT_VERSION }} \
@@ -160,7 +162,7 @@ jobs:
             --keyring keyring.gpg \
             --sign \
             --version ${{ needs.init.outputs.VERSION }} \
-            src/helm/azure-pipelines-agent
+            src/helm/blue-agent
 
       - name: Sign Helm chart
         env:
@@ -168,10 +170,10 @@ jobs:
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
         run: |
           cosign sign-blob \
-            --bundle .cr-release-packages/azure-pipelines-agent-${{ needs.init.outputs.VERSION }}.tgz.bundle \
+            --bundle .cr-release-packages/blue-agent-${{ needs.init.outputs.VERSION }}.tgz.bundle \
             --key="env://COSIGN_PRIVATE_KEY" \
             --yes \
-            .cr-release-packages/azure-pipelines-agent-${{ needs.init.outputs.VERSION }}.tgz
+            .cr-release-packages/blue-agent-${{ needs.init.outputs.VERSION }}.tgz
 
       - name: Cache Helm chart
         uses: actions/upload-artifact@v4.3.1
@@ -183,8 +185,8 @@ jobs:
         run: |
           helm template \
             --output-dir .helm-template \
-            --values test/helm/azure-pipelines-agent/values.yaml \
-            .cr-release-packages/azure-pipelines-agent-${{ needs.init.outputs.VERSION }}.tgz
+            --values test/helm/blue-agent/values.yaml \
+            .cr-release-packages/blue-agent-${{ needs.init.outputs.VERSION }}.tgz
 
       - name: Run SAST Snyk for Helm
         # Snyk can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub Security
@@ -208,23 +210,23 @@ jobs:
             snyk.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.24.6
+        uses: github/codeql-action/upload-sarif@v3.24.8
         continue-on-error: true
         with:
           sarif_file: merged.sarif
 
-  deploy-helm:
-    name: Deploy Helm chart
+  release-helm:
+    name: Release Helm chart
     needs:
-      - build-publish-linux
-      - build-publish-win
+      - build-release-linux
+      - build-release-win
       - build-helm
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.2
         with:
           # Chart Releaser needs to have local access to "gh-pages" plus current branch
           fetch-depth: 0
@@ -249,12 +251,12 @@ jobs:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CR_SKIP_EXISTING: true # Avoid overriding existing files, compat with the Hugo static site
 
-  test:
-    name: Test
+  static-test:
+    name: Static test
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.2
 
       # Required for running "npx" CLI
       - name: Setup Node
@@ -268,17 +270,22 @@ jobs:
           sudo chmod +x /usr/bin/hadolint
           hadolint --version
 
+      - name: Login to Azure
+        uses: azure/login@v2.0.0
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Run tests
         run: |
           make test
 
-  build-publish-linux:
-    name: Build & deploy image (Linux ${{ matrix.os }})
+  build-release-linux:
+    name: Build & release image (Linux ${{ matrix.os }})
     needs:
       - init
       - sast-creds
       - sast-semgrep
-      - test
+      - static-test
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -298,7 +305,7 @@ jobs:
             arch: linux/amd64,linux/arm64
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.2
 
       - name: Setup QEMU
         id: setup-qemu
@@ -307,7 +314,7 @@ jobs:
           platforms: ${{ matrix.arch }}
 
       - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3.1.0
+        uses: docker/setup-buildx-action@v3.2.0
         with:
           version: v${{ env.BUILDX_VERSION }}
           driver-opts: |
@@ -325,14 +332,14 @@ jobs:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
       - name: Login to registry - GitHub
-        uses: docker/login-action@v3.0.0
+        uses: docker/login-action@v3.1.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Login to registry - Docker Hub
-        uses: docker/login-action@v3.0.0
+        uses: docker/login-action@v3.1.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
           username: clemlesne
@@ -363,7 +370,7 @@ jobs:
             type=schedule
             type=schedule,pattern={{date 'YYYYMMDD'}}
             type=semver,pattern={{version}},value=${{ needs.init.outputs.VERSION_FULL }}
-            type=sha
+            type=sha,prefix=${{ matrix.os }}-sha-
           labels: |
             io.artifacthub.package.category=integration-delivery
             io.artifacthub.package.keywords=agent,azure,azure-devops,azure-pipelines,container,devops,docker,helm,kubernetes,pipelines,self-hosted,self-hosted-agent,auto-scale,keda
@@ -384,7 +391,7 @@ jobs:
           echo "tag=$tag" >> $GITHUB_OUTPUT
 
       - name: Build & push container
-        uses: docker/build-push-action@v5.1.0
+        uses: docker/build-push-action@v5.3.0
         with:
           build-args: |
             AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
@@ -398,8 +405,11 @@ jobs:
             ROOTLESSKIT_VERSION=${{ env.ROOTLESSKIT_VERSION }}
             TINI_VERSION=${{ env.TINI_VERSION }}
             YQ_VERSION=${{ env.YQ_VERSION }}
-          cache-from: type=gha
-          cache-to: type=gha
+          cache-from:
+            ${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-${{ github.event.repository.default_branch }}-cache
+            ${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-develop-cache
+            ${{ steps.tag.outputs.tag }}-cache
+          cache-to: ${{ steps.tag.outputs.tag }}-cache
           context: src/docker
           file: src/docker/Dockerfile-${{ matrix.os }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -415,7 +425,7 @@ jobs:
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
         run: |
           while IFS= read -r tag; do
-            echo "Signing $tag..."
+            echo "Signing $tag"
             cosign sign \
               --key="env://COSIGN_PRIVATE_KEY" \
               --recursive \
@@ -430,7 +440,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
           for arch in $(echo ${{ matrix.arch }} | tr "," "\n"); do
-            echo "Running Snyk for $arch..."
+            echo "Running Snyk for $arch"
             npx --yes snyk@${{ env.SNYK_VERSION }} container test \
               --architecture=$arch \
               --fail-on=upgradable \
@@ -451,18 +461,18 @@ jobs:
             *.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.24.6
+        uses: github/codeql-action/upload-sarif@v3.24.8
         continue-on-error: true
         with:
           sarif_file: merged.sarif
 
-  build-publish-win:
-    name: Build & deploy image (Windows ${{ matrix.os }})
+  build-release-win:
+    name: Build & release image (Windows ${{ matrix.os }})
     needs:
       - init
       - sast-creds
       - sast-semgrep
-      - test
+      - static-test
     runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
@@ -474,7 +484,7 @@ jobs:
             runs-on: windows-2019
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.2
 
       # Required for running "npx" CLI
       - name: Setup Node
@@ -488,14 +498,14 @@ jobs:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
       - name: Login to registry - GitHub
-        uses: docker/login-action@v3.0.0
+        uses: docker/login-action@v3.1.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Login to registry - Docker Hub
-        uses: docker/login-action@v3.0.0
+        uses: docker/login-action@v3.1.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
           username: clemlesne
@@ -526,7 +536,7 @@ jobs:
             type=schedule
             type=schedule,pattern={{date 'YYYYMMDD'}}
             type=semver,pattern={{version}},value=${{ needs.init.outputs.VERSION_FULL }}
-            type=sha
+            type=sha,prefix=${{ matrix.os }}-sha-
           labels: |
             io.artifacthub.package.category=integration-delivery
             io.artifacthub.package.keywords=agent,azure,azure-devops,azure-pipelines,container,devops,docker,helm,kubernetes,pipelines,self-hosted,self-hosted-agent,auto-scale,keda
@@ -569,14 +579,10 @@ jobs:
             $params += "--tag", $tag
           }
 
-          # Default cache locations
-          $params += "--cache-from", "${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-develop"
+          # Cache input
           $params += "--cache-from", "${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-${{ github.event.repository.default_branch }}"
-
-          # Branch-specific cache locations
-          foreach ($tag in $tags) {
-            $params += "--cache-from", $tag
-          }
+          $params += "--cache-from", "${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-develop"
+          $params += "--cache-from", "${{ steps.tag.outputs.tag }}"
 
           $labels = ('${{ steps.meta.outputs.labels }}').Split([Environment]::NewLine)
           foreach ($label in $labels) {
@@ -600,10 +606,10 @@ jobs:
             docker pull --quiet $tag || true
           }
 
-          Write-Host "Building..."
+          Write-Host "Building"
           docker build @params src\docker
 
-          Write-Host "Pushing..."
+          Write-Host "Pushing"
           foreach ($tag in $tags) {
             docker push --quiet $tag
           }
@@ -615,7 +621,7 @@ jobs:
         run: |
           $tags = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine)
           foreach ($tag in $tags) {
-            Write-Host "Signing $tag..."
+            Write-Host "Signing $tag"
             cosign sign `
               --key="env://COSIGN_PRIVATE_KEY" `
               --recursive `
@@ -647,7 +653,7 @@ jobs:
             snyk.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.24.6
+        uses: github/codeql-action/upload-sarif@v3.24.8
         continue-on-error: true
         with:
           sarif_file: merged.sarif
@@ -659,7 +665,7 @@ jobs:
       image: returntocorp/semgrep
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.2
 
       - name: Run tests
         # Semgrep can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub Security
@@ -669,7 +675,7 @@ jobs:
         run: semgrep ci --sarif --output=semgrep.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.24.6
+        uses: github/codeql-action/upload-sarif@v3.24.8
         continue-on-error: true
         with:
           sarif_file: semgrep.sarif
@@ -681,7 +687,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.2
 
       - name: Setup ORAS
         uses: oras-project/setup-oras@v1.1.0
@@ -689,14 +695,14 @@ jobs:
           version: ${{ env.ORAS_VERSION }}
 
       - name: Login to registry - GitHub
-        uses: docker/login-action@v3.0.0
+        uses: docker/login-action@v3.1.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Login to registry - Docker Hub
-        uses: docker/login-action@v3.0.0
+        uses: docker/login-action@v3.1.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
           username: clemlesne
@@ -717,14 +723,14 @@ jobs:
   update-docker-hub-description:
     name: Update Docker Hub description
     needs:
-      - build-publish-linux
-      - build-publish-win
+      - build-release-linux
+      - build-release-win
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.2
 
       - name: Push README to Docker Hub
         uses: peter-evans/dockerhub-description@v4.0.0
@@ -741,7 +747,7 @@ jobs:
     needs:
       - sast-creds
       - sast-semgrep
-      - test
+      - static-test
     steps:
       - name: Setup Hugo CLI
         run: |
@@ -752,7 +758,7 @@ jobs:
         run: sudo snap install dart-sass
 
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.2
         with:
           submodules: recursive
           fetch-depth: 0
@@ -789,7 +795,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Pull from gh-pages
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.2
         with:
           ref: gh-pages
 
@@ -817,3 +823,71 @@ jobs:
             git commit -m "Deploy Hugo site v${{ needs.init.outputs.VERSION }}"
             git push origin gh-pages
           fi
+
+  integration-test:
+    name: Integration test (Linux ${{ matrix.os }})
+    runs-on: ubuntu-22.04
+    needs:
+      - init
+      - sast-creds
+      - sast-semgrep
+      - static-test
+      - build-release-linux
+      - build-release-win
+    concurrency: integration-test-${{ needs.init.outputs.BRANCH }}-${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      # Rate limiting on Azure DevOps SaaS APIs is triggered quickluy by integration tests, so we need to limit the number of parallel jobs
+      max-parallel: 3
+      matrix:
+        os: [bookworm, bullseye, focal, jammy, ubi8, ubi9]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Setup SOPS
+        run: |
+          curl -LO https://github.com/getsops/sops/releases/download/v${{ env.SOPS_VERSION }}/sops-v${{ env.SOPS_VERSION }}.linux.amd64
+          mv sops-v${{ env.SOPS_VERSION }}.linux.amd64 /usr/local/bin/sops
+          chmod +x /usr/local/bin/sops
+
+      - name: Setup AGE key
+        run: |
+          age_folder="$XDG_CONFIG_HOME/sops/age"
+          mkdir -p ${age_folder}
+          echo "${{ secrets.AGE_KEY }}" > ${age_folder}/keys.txt
+
+      - name: Login to Azure
+        uses: azure/login@v2.0.0
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy Bicep
+        run: |
+          make deploy-bicep \
+            flavor="${{ matrix.os }}" \
+            prefix="${{ needs.init.outputs.BRANCH }}" \
+            version="sha-$(git rev-parse --short HEAD)"
+
+      - name: Integration
+        env:
+          # Permissions: Agent Pools (Read); Build (Read & execute); Pipeline Resources (Use & manage); Project and Team (Read, write, & manage); Service Connections (Read, query, & manage)
+          # Recommended group membership: Project Collection Build Service Accounts
+          AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+          # Scope: clemlesne/blue-agent
+          # Permissions: Contents (read-only); Metadata (read-only); Webhooks (read & write)
+          AZURE_DEVOPS_EXT_GITHUB_PAT: ${{ secrets.AZURE_DEVOPS_GITHUB_PAT }}
+        # Script wait indefinitely for external events, so we need to timeout
+        timeout-minutes: 30
+        run: |
+          make integration \
+            flavor="${{ matrix.os }}" \
+            prefix="${{ needs.init.outputs.BRANCH }}" \
+            version="sha-$(git rev-parse --short HEAD)"
+
+      # - name: Cleanup
+      #   if: always()
+      #   run: |
+      #     make destroy-bicep \
+      #       flavor="${{ matrix.os }}" \
+      #       prefix="${{ needs.init.outputs.BRANCH }}"

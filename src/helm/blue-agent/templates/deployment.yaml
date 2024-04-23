@@ -2,13 +2,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "azure-pipelines-agent.fullname" . }}
+  name: {{ include "blue-agent.fullname" . }}
   labels:
-    {{- include "azure-pipelines-agent.labels" . | nindent 4 }}
+    {{- include "blue-agent.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      {{- include "azure-pipelines-agent.selectorLabels" . | nindent 6 }}
+      {{- include "blue-agent.selectorLabels" . | nindent 6 }}
   replicas: {{ .Values.replicaCount | int | required "A value for .Values.replicaCount is required" }}
   strategy:
     type: RollingUpdate
@@ -18,7 +18,7 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "azure-pipelines-agent.selectorLabels" . | nindent 8 }}
+        {{- include "blue-agent.selectorLabels" . | nindent 8 }}
       annotations:
         # Cluster autoscaler never evicts this Pod
         cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
@@ -30,5 +30,5 @@ spec:
         "restartPolicy" "Always"
         "azpAgentName" (dict "valueFrom" (dict "fieldRef" (dict "apiVersion" "v1" "fieldPath" "metadata.name" )))
       }}
-      {{- include "azure-pipelines-agent.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 6 }}
+      {{- include "blue-agent.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 6 }}
 {{- end }}

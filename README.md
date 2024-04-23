@@ -1,23 +1,26 @@
-# Azure Pipelines Agent
+> [!IMPORTANT]
+> Projet name is now Blue Agent! Was previously known as Azure Pipelines Agent.
+
+# Blue Agent
 
 <!-- Use absolute path for images in README.md, so that they are displayed on ArtifactHub.io, Lens, OpenLens, etc. -->
-<img src="https://raw.githubusercontent.com/clemlesne/azure-pipelines-agent/main/docs/static/favicon.svg" width="100">
+<img src="https://raw.githubusercontent.com/clemlesne/blue-agent/main/docs/static/favicon.svg" width="100">
 
-[Azure Pipelines Agent](https://github.com/clemlesne/azure-pipelines-agent) is self-hosted agent in Kubernetes, cheap to run, secure, auto-scaled and easy to deploy.
+[Blue Agent](https://github.com/clemlesne/blue-agent) is self-hosted agent in Kubernetes, cheap to run, secure, auto-scaled and easy to deploy.
 
 <!-- github.com badges -->
 
-[![Docker pulls](https://img.shields.io/docker/pulls/clemlesne/azure-pipelines-agent?label=docker.com%20pulls)](https://hub.docker.com/r/clemlesne/azure-pipelines-agent)
-[![GitHub all releases](https://img.shields.io/github/downloads/clemlesne/azure-pipelines-agent/total?label=github.com%20downloads)](https://github.com/clemlesne/azure-pipelines-agent/pkgs/container/azure-pipelines-agent)
-[![Last release date](https://img.shields.io/github/release-date/clemlesne/azure-pipelines-agent)](https://github.com/clemlesne/azure-pipelines-agent/releases)
-[![Project license](https://img.shields.io/github/license/clemlesne/azure-pipelines-agent)](https://github.com/clemlesne/azure-pipelines-agent/blob/main/LICENSE)
+[![Docker pulls](https://img.shields.io/docker/pulls/clemlesne/blue-agent?label=docker.com%20pulls)](https://hub.docker.com/r/clemlesne/blue-agent)
+[![GitHub all releases](https://img.shields.io/github/downloads/clemlesne/blue-agent/total?label=github.com%20downloads)](https://github.com/clemlesne/blue-agent/pkgs/container/blue-agent)
+[![Last release date](https://img.shields.io/github/release-date/clemlesne/blue-agent)](https://github.com/clemlesne/blue-agent/releases)
+[![Project license](https://img.shields.io/github/license/clemlesne/blue-agent)](https://github.com/clemlesne/blue-agent/blob/main/LICENSE)
 
 <!-- artifacthub.io badges -->
 
-[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/azure-pipelines-agent)](https://artifacthub.io/packages/search?repo=azure-pipelines-agent)
-[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/azure-pipelines-agent-container)](https://artifacthub.io/packages/search?repo=azure-pipelines-agent-container)
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/blue-agent)](https://artifacthub.io/packages/search?repo=blue-agent)
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/blue-agent-container)](https://artifacthub.io/packages/search?repo=blue-agent-container)
 
-Features:
+## Features
 
 - 🔄 Agent register and restart itself.
 - 🏗️ Allow to build containers inside the agent using [BuildKit](https://github.com/moby/buildkit).
@@ -29,9 +32,15 @@ Features:
 - 📦 [SBOM (Software Bill of Materials)](https://en.wikipedia.org/wiki/Software_supply_chain) is packaged with each container image.
 - 🔄 System updates are applied every day.
 
+## How to deploy
+
+[Deployment is available](https://clemlesne.github.io/blue-agent/docs/getting-started) using Helm on a Kubernetes cluster or Bicep on Azure Container Apps.
+
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fclemlesne%2Fblue-agent%2Fmain%2Fsrc%2Fbicep%2Fmain.bicep)
+
 ## Documentation
 
-Documentation is available at [clemlesne.github.io/azure-pipelines-agent](https://clemlesne.github.io/azure-pipelines-agent/).
+Documentation is available at [clemlesne.github.io/blue-agent](https://clemlesne.github.io/blue-agent/).
 
 ## [Code of conduct](./CODE_OF_CONDUCT.md)
 

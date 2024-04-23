@@ -1,5 +1,5 @@
 {
-  "name": "Azure Pipelines Agent",
+  "name": "Blue Agent",
   "description": "Deploy Azure Pipelines agent on Kubernetes. Easy way. Cheap. Windows and Linux.",
   "start_url": "index.html",
   "lang": "en-US",

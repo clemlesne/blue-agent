@@ -2,7 +2,7 @@
 title: Proxy
 ---
 
-If you need to use a proxy, you can set the following environment variables. See [this documentation](https://github.com/microsoft/azure-pipelines-agent/blob/master/docs/start/proxyconfig.md) for more details.
+If you need to use a proxy, you can set the following environment variables. See [this documentation](https://github.com/microsoft/blue-agent/blob/master/docs/start/proxyconfig.md) for more details.
 
 ```yaml
 # values.yaml

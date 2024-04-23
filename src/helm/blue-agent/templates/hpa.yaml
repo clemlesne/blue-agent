@@ -2,24 +2,24 @@
 apiVersion: keda.sh/v1alpha1
 kind: TriggerAuthentication
 metadata:
-  name: {{ include "azure-pipelines-agent.fullname" . }}
+  name: {{ include "blue-agent.fullname" . }}
   labels:
-    {{- include "azure-pipelines-agent.labels" . | nindent 4 }}
+    {{- include "blue-agent.labels" . | nindent 4 }}
 spec:
   secretTargetRef:
     - parameter: organizationURL
-      name: {{ include "azure-pipelines-agent.secretName" . }}
+      name: {{ include "blue-agent.secretName" . }}
       key: organizationURL
     - parameter: personalAccessToken
-      name: {{ include "azure-pipelines-agent.secretName" . }}
+      name: {{ include "blue-agent.secretName" . }}
       key: personalAccessToken
 ---
 apiVersion: keda.sh/v1alpha1
 kind: ScaledJob
 metadata:
-  name: {{ include "azure-pipelines-agent.fullname" . }}
+  name: {{ include "blue-agent.fullname" . }}
   labels:
-    {{- include "azure-pipelines-agent.labels" . | nindent 4 }}
+    {{- include "blue-agent.labels" . | nindent 4 }}
 spec:
   failedJobsHistoryLimit: {{ .Values.pipelines.cleanup.failed | int | required "A value for .Values.pipelines.cleanup.failed is required" }}
   maxReplicaCount: {{ .Values.autoscaling.maxReplicas | int | required "A value for .Values.autoscaling.maxReplicas is required" }}
@@ -34,7 +34,7 @@ spec:
     template:
       metadata:
         labels:
-          {{- include "azure-pipelines-agent.labels" . | nindent 10 }}
+          {{- include "blue-agent.labels" . | nindent 10 }}
         annotations:
           # Cluster autoscaler never evicts this Pod
           cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
@@ -46,7 +46,7 @@ spec:
           "restartPolicy" "Never"
           "azpAgentName" (dict "valueFrom" (dict "fieldRef" (dict "apiVersion" "v1" "fieldPath" "metadata.name" )))
         }}
-        {{- include "azure-pipelines-agent.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 8 }}
+        {{- include "blue-agent.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 8 }}
   rollout:
     # Do not delete executed jobs during upgrade
     strategy: gradual
@@ -56,7 +56,7 @@ spec:
     - type: azure-pipelines
       metadata:
         poolName: {{ .Values.pipelines.poolName | quote | required "A value for .Values.pipelines.poolName is required" }}
-        parent: {{ include "azure-pipelines-agent.fullname" . }}-template
+        parent: {{ include "blue-agent.fullname" . }}-template
       authenticationRef:
-        name: {{ include "azure-pipelines-agent.fullname" . }}
+        name: {{ include "blue-agent.fullname" . }}
 {{- end }}

@@ -3,7 +3,7 @@ title: About
 toc: false
 ---
 
-This project is open source and maintained by people like you. If you need help or found a bug, please feel free to open an issue on the [clemlesne/azure-pipelines-agent](https://github.com/clemlesne/azure-pipelines-agent) GitHub project.
+This project is open source and maintained by people like you. If you need help or found a bug, please feel free to open an issue on the [clemlesne/blue-agent](https://github.com/clemlesne/blue-agent) GitHub project.
 
 This project is not affiliated or endorsed by Microsoft.
 

@@ -31,16 +31,35 @@ if (!(Test-Path $AZP_WORK)) {
   throw "error: work dir AZP_WORK ($AZP_WORK) is not writeable or does not exist"
 }
 
-function Display-Header() {
+function Write-Header() {
   Write-Host "> $1" -ForegroundColor Cyan
 }
 
+function Unregister {
+  Write-Host "Unregister, removing agent from server"
+
+  # If the agent has some running jobs, the configuration removal process will fail; so, give it some time to finish the job
+  while ($true) {
+    try {
+      # If the agent is removed successfully, exit the loop
+      & config.cmd remove `
+        --auth PAT `
+        --token $AZP_TOKEN `
+        --unattended
+      break
+    } catch {
+      Write-Host "Retrying in 15 secs"
+      Start-Sleep -Seconds 15
+    }
+  }
+}
+
 if ((Test-Path $AZP_CUSTOM_CERT_PEM) -and ((Get-ChildItem $AZP_CUSTOM_CERT_PEM).Count -gt 0)) {
-  Display-Header "Adding custom SSL certificates..."
+  Write-Header "Adding custom SSL certificates"
   Write-Host "Searching for *.crt in $AZP_CUSTOM_CERT_PEM"
 
   Get-ChildItem $AZP_CUSTOM_CERT_PEM -Filter *.crt | ForEach-Object {
-    Write-Host "Certificate $($_.Name)..."
+    Write-Host "Certificate $($_.Name)"
 
     $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($_.FullName)
     Write-Host "  Valid from: " $cert.NotBefore
@@ -51,10 +70,10 @@ if ((Test-Path $AZP_CUSTOM_CERT_PEM) -and ((Get-ChildItem $AZP_CUSTOM_CERT_PEM).
   }
 
 } else {
-  Display-Header "No custom SSL certificate provided"
+  Write-Header "No custom SSL certificate provided"
 }
 
-Display-Header "Configuring agent..."
+Write-Header "Configuring agent"
 
 Set-Location $(Split-Path -Parent $MyInvocation.MyCommand.Definition)
 
@@ -69,11 +88,16 @@ Set-Location $(Split-Path -Parent $MyInvocation.MyCommand.Definition)
   --url $AZP_URL `
   --work $AZP_WORK
 
-Display-Header "Running agent..."
+Write-Header "Running agent"
 
-# Running it with the --once flag at the end will shut down the agent after the build is executed
-& run.cmd $Args --once
+# Unregister on success, Ctrl+C, and SIGTERM
+try {
+  # Running it with the --once flag at the end will shut down the agent after the build is executed
+  & run.cmd $Args --once
+} finally {
+  Unregister
+}
 
-Display-Header "Printing agent diag logs..."
+Write-Header "Printing agent diag logs"
 
 Get-Content $AGENT_DIAGLOGPATH/*.log

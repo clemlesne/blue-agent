@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "azure-pipelines-agent.name" -}}
+{{- define "blue-agent.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec). If release name contains chart name it will be used as a full name.
 */}}
-{{- define "azure-pipelines-agent.fullname" -}}
+{{- define "blue-agent.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,19 +26,19 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "azure-pipelines-agent.chart" -}}
+{{- define "blue-agent.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels.
 */}}
-{{- define "azure-pipelines-agent.labels" -}}
-helm.sh/chart: {{ include "azure-pipelines-agent.chart" . }}
+{{- define "blue-agent.labels" -}}
+helm.sh/chart: {{ include "blue-agent.chart" . }}
 app.kubernetes.io/component: agent
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 app.kubernetes.io/part-of: {{ .Chart.Name }}
-{{ include "azure-pipelines-agent.selectorLabels" . }}
+{{ include "blue-agent.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -47,17 +47,17 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{/*
 Selector labels.
 */}}
-{{- define "azure-pipelines-agent.selectorLabels" -}}
+{{- define "blue-agent.selectorLabels" -}}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/name: {{ include "azure-pipelines-agent.name" . }}
+app.kubernetes.io/name: {{ include "blue-agent.name" . }}
 {{- end }}
 
 {{/*
 Create the name of the ServiceAccount to use.
 */}}
-{{- define "azure-pipelines-agent.serviceAccountName" -}}
+{{- define "blue-agent.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "azure-pipelines-agent.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "blue-agent.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
@@ -66,9 +66,9 @@ Create the name of the ServiceAccount to use.
 {{/*
 Create the name of the Secret to use.
 */}}
-{{- define "azure-pipelines-agent.secretName" -}}
+{{- define "blue-agent.secretName" -}}
 {{- if .Values.secret.create }}
-{{- default (include "azure-pipelines-agent.fullname" .) .Values.secret.name }}
+{{- default (include "blue-agent.fullname" .) .Values.secret.name }}
 {{- else }}
 {{- default "default" .Values.secret.name }}
 {{- end }}
@@ -81,7 +81,7 @@ Can be overriden by setting ".Values.podSecurityContext".
 
 See: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#podsecuritycontext-v1-core
 */}}
-{{- define "azure-pipelines-agent.defaultPodSecurityContext" -}}
+{{- define "blue-agent.defaultPodSecurityContext" -}}
 # All volumes are owned bu group 0 (root), same as the default user
 fsGroup: 0
 {{- end }}
@@ -93,7 +93,7 @@ Can be overriden by setting ".Values.securityContext".
 
 See: https://kubernetes.io/docs/concepts/windows/intro/#compatibility-v1-pod-spec-containers
 */}}
-{{- define "azure-pipelines-agent.defaultSecurityContext" -}}
+{{- define "blue-agent.defaultSecurityContext" -}}
 runAsNonRoot: false
 readOnlyRootFilesystem: false
 {{- if .Values.image.isWindows }}
@@ -114,18 +114,18 @@ Usage example:
 
 {{- $data := dict
   "restartPolicy" "Always"
-  "azpAgentName" (dict "value" (printf "%s-%s" (include "azure-pipelines-agent.fullname" .) "template"))
+  "azpAgentName" (dict "value" (printf "%s-%s" (include "blue-agent.fullname" .) "template"))
 }}
-{{- include "azure-pipelines-agent.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 6 }}
+{{- include "blue-agent.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 6 }}
 */}}
-{{- define "azure-pipelines-agent.podSharedTemplate" -}}
+{{- define "blue-agent.podSharedTemplate" -}}
 {{- with .Values.imagePullSecrets }}
 imagePullSecrets:
   {{- toYaml . | nindent 2 }}
 {{- end }}
-serviceAccountName: {{ include "azure-pipelines-agent.serviceAccountName" . }}
+serviceAccountName: {{ include "blue-agent.serviceAccountName" . }}
 securityContext:
-  {{- toYaml (mustMergeOverwrite (include "azure-pipelines-agent.defaultPodSecurityContext" . | fromYaml) .Values.podSecurityContext) | nindent 2 }}
+  {{- toYaml (mustMergeOverwrite (include "blue-agent.defaultPodSecurityContext" . | fromYaml) .Values.podSecurityContext) | nindent 2 }}
 {{- with .Values.initContainers }}
 initContainers:
   {{- toYaml . | nindent 2 }}
@@ -138,7 +138,7 @@ containers:
   {{- end}}
   - name: azp-agent
     securityContext:
-      {{- toYaml (mustMergeOverwrite (include "azure-pipelines-agent.defaultSecurityContext" . | fromYaml) .Values.securityContext) | nindent 6 }}
+      {{- toYaml (mustMergeOverwrite (include "blue-agent.defaultSecurityContext" . | fromYaml) .Values.securityContext) | nindent 6 }}
     image: "{{ .Values.image.repository | required "A value for .Values.image.repository is required" }}:{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}-{{ default .Chart.Version .Values.image.version }}"
     imagePullPolicy: {{ .Values.image.pullPolicy }}
     lifecycle:
@@ -146,25 +146,17 @@ containers:
         exec:
           command:
             {{- if .Values.image.isWindows }}
+            {{- if not .Values.pipelines.cache.volumeEnabled }}
             - powershell
             - -Command
             - |
-              .\\config.cmd `
-                remove `
-                --auth PAT `
-                --token $Env:AZP_TOKEN;
-              {{- if not .Values.pipelines.cache.volumeEnabled }}
               # For security reasons, force clean the pipeline workspace at restart -- Sharing data bewteen pipelines is a security risk
               Remove-Item -Recurse -Force $Env:AZP_WORK;
-              {{- end }}
-            {{- else }}
+            {{- end }}
+            {{- else if or (not .Values.pipelines.cache.volumeEnabled) (not .Values.pipelines.tmpdir.volumeEnabled)}}
             - bash
             - -c
             - |
-              bash config.sh \
-                remove \
-                --auth PAT \
-                --token ${AZP_TOKEN};
               {{- if not .Values.pipelines.cache.volumeEnabled }}
               # For security reasons, force clean the pipeline workspace at restart -- Sharing data bewteen pipelines is a security risk
               rm -rf ${AZP_WORK};
@@ -192,17 +184,18 @@ containers:
       - name: AZP_URL
         valueFrom:
           secretKeyRef:
-            name: {{ include "azure-pipelines-agent.secretName" . }}
+            name: {{ include "blue-agent.secretName" . }}
             key: organizationURL
       - name: AZP_POOL
         value: {{ .Values.pipelines.poolName | quote | required "A value for .Values.pipelines.poolName is required" }}
       - name: AZP_TOKEN
         valueFrom:
           secretKeyRef:
-            name: {{ include "azure-pipelines-agent.secretName" . }}
+            name: {{ include "blue-agent.secretName" . }}
             key: personalAccessToken
       # Agent capabilities
       - name: flavor_{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}
+      - name: version_{{ default .Chart.Version .Values.image.version }}
       {{- range .Values.pipelines.capabilities }}
       - name: {{ . }}
       {{- end }}

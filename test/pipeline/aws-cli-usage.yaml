@@ -1,0 +1,19 @@
+name: AWS CLI usage
+
+parameters:
+  - name: flavor
+    type: string
+  - name: version
+    type: string
+
+jobs:
+  - job: test
+    pool:
+      name: github-actions
+      demands:
+        - flavor_${{ parameters.flavor }}
+        - version_${{ parameters.version }}
+    steps:
+      - bash: |
+          aws --version | grep -q "^aws-cli/2."
+        displayName: Test AWS CLI installation
