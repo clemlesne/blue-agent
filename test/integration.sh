@@ -20,12 +20,21 @@ az devops configure --defaults organization=${org_url}
 bash test/azure-devops/exists.sh "${agent}"
 
 # Run all integration tests in parallel
-for test in $(basename -s .yaml test/pipeline/*.yaml)
-do
-    bash test/azure-devops/pipeline.sh "${prefix}" "${test}" "${flavor}" "${version}" &
+pids=""
+for test in $(basename -s .yaml test/pipeline/*.yaml); do
+  bash test/azure-devops/pipeline.sh "${prefix}" "${test}" "${flavor}" "${version}" &
+  pids="$pids $!"
 done
 
-# Wait for all background jobs to complete and exit if any of them failed
-wait -n || exit $?
+# Wait for all background jobs to complete
+for pid in $pids; do
+  wait $pid || let "RESULT=1"
+done
+
+# Exit if any of them failed
+if [ "$RESULT" == "1" ]; then
+  echo "One or more integration tests failed"
+  exit 1
+fi
 
 bash test/azure-devops/has-been-cleaned.sh "${agent}"
