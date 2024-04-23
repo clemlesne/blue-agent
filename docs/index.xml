@@ -1,10 +1,52 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Azure Pipelines Agent – Introduction</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/</link><description>Recent content in Introduction on Azure Pipelines Agent</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://clemlesne.github.io/azure-pipelines-agent/docs/index.xml" rel="self" type="application/rss+xml"/><item><title>Getting started</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/getting-started/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/getting-started/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Blue Agent – Introduction</title><link>https://clemlesne.github.io/blue-agent/docs/</link><description>Recent content in Introduction on Blue Agent</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://clemlesne.github.io/blue-agent/docs/index.xml" rel="self" type="application/rss+xml"/><item><title>Getting started</title><link>https://clemlesne.github.io/blue-agent/docs/getting-started/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/getting-started/</guid><description>
 &lt;h2>Usage&lt;span class="absolute -mt-20" id="usage">&lt;/span>
 &lt;a href="#usage" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;div class="steps ml-4 mb-12 border-l border-gray-200 pl-6 dark:border-neutral-800 [counter-reset:step]">
 &lt;h3>Prepare the Azure DevOps organization&lt;span class="absolute -mt-20" id="prepare-the-azure-devops-organization">&lt;/span>
-&lt;a href="#prepare-the-azure-devops-organization" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Create &lt;a href="https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/pools-queues" target="_blank" rel="noopener">a new agent pool&lt;/a> in Azure DevOps. Then, create &lt;a href="https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/personal-access-token-agent-registration?view=azure-devops" target="_blank" rel="noopener">the personal access token&lt;/a> allowing access from the Agent to Azure DevOps.&lt;/p>
+&lt;a href="#prepare-the-azure-devops-organization" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Create &lt;a href="https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/pools-queues" target="_blank" rel="noopener">a new agent pool&lt;/a> in Azure DevOps. Then, create &lt;a href="https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/personal-access-token-agent-registration?view=azure-devops" target="_blank" rel="noopener">the personal access token&lt;/a>, with the scope &lt;code>Agent Pools (read &amp;amp; manage)&lt;/code>, allowing access from the agent to Azure DevOps.&lt;/p>
+&lt;h3>Deploy&lt;span class="absolute -mt-20" id="deploy">&lt;/span>
+&lt;a href="#deploy" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Software can either be deployed using Helm on a Kubernetes cluster or Bicep on Azure Container Apps.&lt;/p>
+&lt;/div>
+&lt;h2>Deploy on Azure&lt;span class="absolute -mt-20" id="deploy-on-azure">&lt;/span>
+&lt;a href="#deploy-on-azure" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>
+&lt;div class="overflow-x-auto mt-6 flex rounded-lg border py-2 ltr:pr-4 rtl:pl-4 contrast-more:border-current contrast-more:dark:border-current border-blue-200 bg-blue-100 text-blue-900 dark:border-blue-200/30 dark:bg-blue-900/30 dark:text-blue-200">
+&lt;div class="ltr:pl-3 ltr:pr-2 rtl:pr-3 rtl:pl-2">&lt;div class="select-none text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">
+ℹ️
+&lt;/div>&lt;/div>
+&lt;div class="w-full min-w-0 leading-7">
+&lt;div class="mt-6 leading-7 first:mt-0">
+&lt;p>Azure deployment has a limitation regarding the demands and the OS:&lt;/p>
+&lt;ul>
+&lt;li>OS are limited to Linux, such as Debian, as Azure Containers Apps does not support Windows.&lt;/li>
+&lt;li>The agent will not be able to run jobs requiring a system demand, such as &lt;code>Agent.OS&lt;/code> or &lt;code>Agent.OSArchitecture&lt;/code>. However, user-defined demands from the &lt;code>pipelinesCapabilities&lt;/code> parameter are usable.&lt;/li>
+&lt;/ul>
+&lt;/div>
+&lt;/div>
+&lt;/div>
+&lt;p>&lt;a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fclemlesne%2Fblue-agent%2Fmain%2Fsrc%2Fbicep%2Fmain.bicep" target="_blank" rel="noopener">&lt;img src="https://aka.ms/deploytoazurebutton" alt="Deploy to Azure" loading="lazy" />&lt;/a>&lt;/p>
+&lt;p>Deployment is using Bicep as a template language. Minimal configuration is required:&lt;/p>
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">az deployment sub create &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --location westeurope &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --name blue-agent &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --parameters &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> &lt;span class="nv">pipelinesOrganizationURL&lt;/span>&lt;span class="o">=&lt;/span>https://dev.azure.com/your-organization &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> &lt;span class="nv">pipelinesPersonalAccessToken&lt;/span>&lt;span class="o">=&lt;/span>your-pat &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> &lt;span class="nv">pipelinesPoolName&lt;/span>&lt;span class="o">=&lt;/span>your-pool &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --template-file src/bicep/main.bicep&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;button
+class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
+title="Copy code"
+>
+&lt;div class="group-[.copied]/copybtn:hidden copy-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>The deployment will manage the resource provisioning, in a dedicated resource group. This includes (but is not limited to) Container Apps and Log Analytics.&lt;/p>
+&lt;p>Details about the Helm configuration &lt;a href="../advanced-topics/bicep-deployment" >can be found in a dedicated section&lt;/a>.&lt;/p>
+&lt;h2>Deploy on Kubernetes&lt;span class="absolute -mt-20" id="deploy-on-kubernetes">&lt;/span>
+&lt;a href="#deploy-on-kubernetes" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;div class="steps ml-4 mb-12 border-l border-gray-200 pl-6 dark:border-neutral-800 [counter-reset:step]">
 &lt;h3>Prepare the Helm values&lt;span class="absolute -mt-20" id="prepare-the-helm-values">&lt;/span>
-&lt;a href="#prepare-the-helm-values" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Minimal configuration:&lt;/p>
+&lt;a href="#prepare-the-helm-values" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Minimal configuration is required:&lt;/p>
 &lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># values.yaml&lt;/span>&lt;span class="w">
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">pipelines&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">organizationURL&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">https://dev.azure.com/your-organization&lt;/span>&lt;span class="w">
@@ -22,9 +64,9 @@ title="Copy code"
 &lt;p>Details about the Helm configuration &lt;a href="../advanced-topics/helm-values" >can be found in a dedicated section&lt;/a>.&lt;/p>
 &lt;h3>Install the chart&lt;span class="absolute -mt-20" id="install-the-chart">&lt;/span>
 &lt;a href="#install-the-chart" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Use Helm to install the latest released chart:&lt;/p>
-&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">helm repo add clemlesne-azure-pipelines-agent https://clemlesne.github.io/azure-pipelines-agent
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">helm repo add clemlesne-blue-agent https://clemlesne.github.io/blue-agent
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">helm repo update
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">helm upgrade --install agent clemlesne-azure-pipelines-agent/azure-pipelines-agent&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">helm upgrade --install agent clemlesne-blue-agent/blue-agent&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
 &lt;button
 class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
 title="Copy code"
@@ -36,7 +78,8 @@ title="Copy code"
 &lt;/div>
 &lt;/div>
 &lt;h2>OS support matrix&lt;span class="absolute -mt-20" id="os-support-matrix">&lt;/span>
-&lt;a href="#os-support-matrix" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;table>
+&lt;a href="#os-support-matrix" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>OS support is generally called &amp;ldquo;flavor&amp;rdquo; in this documentation. The following table shows the supported flavors and their characteristics.&lt;/p>
+&lt;table>
 &lt;thead>
 &lt;tr>
 &lt;th>&lt;code>Ref&lt;/code>&lt;/th>
@@ -48,65 +91,117 @@ title="Copy code"
 &lt;/thead>
 &lt;tbody>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:bookworm-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:bookworm-main&lt;/code>&lt;/td>
 &lt;td>&lt;a href="https://www.debian.org/releases/bookworm" target="_blank" rel="noopener">Debian Bookworm (12)&lt;/a> slim&lt;/td>
-&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/bookworm-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
+&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/blue-agent/bookworm-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
 &lt;td>&lt;code>amd64&lt;/code>, &lt;code>arm64/v8&lt;/code>&lt;/td>
 &lt;td>&lt;a href="https://wiki.debian.org/LTS" target="_blank" rel="noopener">See Debian LTS wiki.&lt;/a>&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:bullseye-main&lt;/code>&lt;/td>
 &lt;td>&lt;a href="https://www.debian.org/releases/bullseye" target="_blank" rel="noopener">Debian Bullseye (11)&lt;/a> slim&lt;/td>
-&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/bullseye-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
+&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/blue-agent/bullseye-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
 &lt;td>&lt;code>amd64&lt;/code>, &lt;code>arm64/v8&lt;/code>&lt;/td>
 &lt;td>&lt;a href="https://wiki.debian.org/LTS" target="_blank" rel="noopener">See Debian LTS wiki.&lt;/a>&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:focal-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:focal-main&lt;/code>&lt;/td>
 &lt;td>&lt;a href="https://www.releases.ubuntu.com/focal" target="_blank" rel="noopener">Ubuntu Focal (20.04)&lt;/a> minimal&lt;/td>
-&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/focal-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
+&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/blue-agent/focal-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
 &lt;td>&lt;code>amd64&lt;/code>, &lt;code>arm64/v8&lt;/code>&lt;/td>
 &lt;td>&lt;a href="https://wiki.ubuntu.com/Releases" target="_blank" rel="noopener">See Ubuntu LTS wiki.&lt;/a>&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:jammy-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:jammy-main&lt;/code>&lt;/td>
 &lt;td>&lt;a href="https://www.releases.ubuntu.com/jammy" target="_blank" rel="noopener">Ubuntu Jammy (22.04)&lt;/a> minimal&lt;/td>
-&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/jammy-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
+&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/blue-agent/jammy-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
 &lt;td>&lt;code>amd64&lt;/code>, &lt;code>arm64/v8&lt;/code>&lt;/td>
 &lt;td>&lt;a href="https://wiki.ubuntu.com/Releases" target="_blank" rel="noopener">See Ubuntu LTS wiki.&lt;/a>&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:ubi8-main&lt;/code>&lt;/td>
 &lt;td>&lt;a href="https://developers.redhat.com/articles/ubi-faq" target="_blank" rel="noopener">Red Hat UBI 8&lt;/a> minimal&lt;/td>
-&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/ubi8-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
+&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/blue-agent/ubi8-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
 &lt;td>&lt;code>amd64&lt;/code>, &lt;code>arm64/v8&lt;/code>&lt;/td>
 &lt;td>&lt;a href="https://access.redhat.com/product-life-cycles/?product=Red%20Hat%20Enterprise%20Linux" target="_blank" rel="noopener">See Red Hat product life cycles.&lt;/a>&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:ubi9-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:ubi9-main&lt;/code>&lt;/td>
 &lt;td>&lt;a href="https://developers.redhat.com/articles/ubi-faq" target="_blank" rel="noopener">Red Hat UBI 9&lt;/a> minimal&lt;/td>
-&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/ubi9-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
+&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/blue-agent/ubi9-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
 &lt;td>&lt;code>amd64&lt;/code>, &lt;code>arm64/v8&lt;/code>&lt;/td>
 &lt;td>&lt;a href="https://access.redhat.com/product-life-cycles/?product=Red%20Hat%20Enterprise%20Linux" target="_blank" rel="noopener">See Red Hat product life cycles.&lt;/a>&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:win-ltsc2019-main&lt;/code>&lt;/td>
 &lt;td>&lt;a href="https://learn.microsoft.com/en-us/windows-server" target="_blank" rel="noopener">Windows Server 2019&lt;/a> Core&lt;/td>
-&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/win-ltsc2019-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
+&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/blue-agent/win-ltsc2019-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
 &lt;td>&lt;code>amd64&lt;/code>&lt;/td>
 &lt;td>&lt;a href="https://learn.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/base-image-lifecycle" target="_blank" rel="noopener">See base image servicing lifecycles.&lt;/a>&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:win-ltsc2022-main&lt;/code>&lt;/td>
 &lt;td>&lt;a href="https://learn.microsoft.com/en-us/windows-server" target="_blank" rel="noopener">Windows Server 2022&lt;/a> Core&lt;/td>
-&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/azure-pipelines-agent/win-ltsc2022-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
+&lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/blue-agent/win-ltsc2022-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
 &lt;td>&lt;code>amd64&lt;/code>&lt;/td>
 &lt;td>&lt;a href="https://learn.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/base-image-lifecycle" target="_blank" rel="noopener">See base image servicing lifecycles.&lt;/a>&lt;/td>
 &lt;/tr>
 &lt;/tbody>
 &lt;/table>
 &lt;h2>Docker Hub images&lt;span class="absolute -mt-20" id="docker-hub-images">&lt;/span>
-&lt;a href="#docker-hub-images" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Container images are both published to GitHub Container Registry and Docker Hub. URLs showed in the doc are GitHub Container Registry URLs, for simplicity. To use Docker Hub, replace &lt;code>ghcr.io/clemlesne/azure-pipelines-agent&lt;/code> by &lt;code>docker.io/clemlesne/azure-pipelines-agent&lt;/code>. Docker Hub images are signed and secured the same way. &lt;a href="https://hub.docker.com/r/clemlesne/azure-pipelines-agent" target="_blank" rel="noopener">See the images at hub.docker.com.&lt;/a>&lt;/p></description></item><item><title>Security</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/security/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/security/</guid><description>
+&lt;a href="#docker-hub-images" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Container images are both published to GitHub Container Registry and Docker Hub. URLs showed in the doc are GitHub Container Registry URLs, for simplicity. To use Docker Hub, replace &lt;code>ghcr.io/clemlesne/blue-agent&lt;/code> by &lt;code>docker.io/clemlesne/blue-agent&lt;/code>. Docker Hub images are signed and secured the same way. &lt;a href="https://hub.docker.com/r/clemlesne/blue-agent" target="_blank" rel="noopener">See the images at hub.docker.com.&lt;/a>&lt;/p></description></item><item><title>Quality assurance</title><link>https://clemlesne.github.io/blue-agent/docs/quality/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/quality/</guid><description>
+&lt;h2>Version control&lt;span class="absolute -mt-20" id="version-control">&lt;/span>
+&lt;a href="#version-control" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Git flow is used for version control. The main branch is &lt;code>main&lt;/code> and the development branch is &lt;code>develop&lt;/code>. Feature branches are created from &lt;code>develop&lt;/code> and merged back into &lt;code>develop&lt;/code> when the feature is complete. When a release is ready, &lt;code>develop&lt;/code> is merged into &lt;code>main&lt;/code> and a tag is created.&lt;/p>
+&lt;p>Version number is compliant to &lt;a href="https://semver.org/" target="_blank" rel="noopener">Semantic Versioning&lt;/a> and dynamically generated by &lt;a href="https://github.com/clemlesne/gitops-version" target="_blank" rel="noopener">gitops-version&lt;/a>.&lt;/p>
+&lt;pre class="mermaid mt-6">gitGraph
+commit
+branch develop
+branch "feat/feature1"
+commit
+commit
+checkout develop
+merge "feat/feature1" tag: "v0.1.0"
+checkout develop
+branch "feat/feature2"
+commit
+checkout develop
+branch "feat/feature3"
+commit
+checkout "feat/feature2"
+commit
+checkout develop
+merge "feat/feature2" tag: "v0.2.0"
+checkout "feat/feature3"
+commit
+checkout develop
+merge "feat/feature3" tag: "v0.2.1"
+checkout main
+merge develop&lt;/pre>&lt;h2>Functional tests&lt;span class="absolute -mt-20" id="functional-tests">&lt;/span>
+&lt;a href="#functional-tests" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Functional tests are run on every pull request and on every commit to &lt;code>develop&lt;/code> and &lt;code>main&lt;/code> branches. Azure DevOps is contacted to validate each pipeline run.&lt;/p>
+&lt;pre class="mermaid mt-6">sequenceDiagram
+participant cicd as GitHub Actions
+participant func as Functional tests
+participant azure as Azure IacC
+participant agent as Agent
+participant azdo as Azure DevOps
+loop Every flavor
+cicd ->> func: Run functional tests
+func ->> azure: Deploy to Azure
+azure ->> azure: Process Bicep file
+func ->> azure: Validate deployment
+loop Every pipeline file
+func ->> azure: Manual job start
+azure ->> agent: Initialize
+activate agent
+agent ->> azdo: Registers to the pool
+func ->> azdo: Create &amp; run a mock pipeline
+agent ->> agent: Execute the pipeline
+agent ->> azdo: Send result
+deactivate agent
+func ->> azdo: Validate pipeline
+end
+func ->> cicd: Success
+end&lt;/pre></description></item><item><title>Security</title><link>https://clemlesne.github.io/blue-agent/docs/security/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/security/</guid><description>
 &lt;h2>Proactive detection of vulnerabilities&lt;span class="absolute -mt-20" id="proactive-detection-of-vulnerabilities">&lt;/span>
 &lt;a href="#proactive-detection-of-vulnerabilities" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>At each build, a vulnerability scan is performed on the system. If a vulnerability that can be upgraded is detected, the build is stopped and the image is not pushed to the registry. Vulnerability is reported in &lt;a href="https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/about-code-scanning" target="_blank" rel="noopener">GitHub Security&lt;/a>. The maintainers are alterted and have access to reports.&lt;/p>
 &lt;p>Automation is supported by &lt;a href="https://snyk.io" target="_blank" rel="noopener">Snyk&lt;/a> and &lt;a href="https://semgrep.dev" target="_blank" rel="noopener">Semgrep&lt;/a>. Helm chart, configuration files, and containers, are scanned for vulnerabilities and misconfigurations.&lt;/p>
@@ -120,35 +215,35 @@ title="Copy code"
 &lt;/thead>
 &lt;tbody>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:bookworm-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:bookworm-main&lt;/code>&lt;/td>
 &lt;td>✅&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:bullseye-main&lt;/code>&lt;/td>
 &lt;td>✅&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:focal-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:focal-main&lt;/code>&lt;/td>
 &lt;td>✅&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:jammy-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:jammy-main&lt;/code>&lt;/td>
 &lt;td>✅&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:ubi8-main&lt;/code>&lt;/td>
 &lt;td>✅&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:ubi9-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:ubi9-main&lt;/code>&lt;/td>
 &lt;td>✅&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:win-ltsc2019-main&lt;/code>&lt;/td>
 &lt;td>✅&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:win-ltsc2022-main&lt;/code>&lt;/td>
 &lt;td>✅&lt;/td>
 &lt;/tr>
 &lt;/tbody>
@@ -161,8 +256,8 @@ title="Copy code"
 &lt;a href="#containers" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h3>&lt;p>Containers are signed with &lt;a href="https://github.com/sigstore/cosign" target="_blank" rel="noopener">Cosign&lt;/a>.&lt;/p>
 &lt;p>Cosign public key is available in &lt;a href="cosign.pub" >&lt;code>/cosign.pub&lt;/code>&lt;/a>.&lt;/p>
 &lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Example of verification with Cosign&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ cosign verify --key cosign.pub ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Verification &lt;span class="k">for&lt;/span> ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main --
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ cosign verify --key cosign.pub ghcr.io/clemlesne/blue-agent:bullseye-main
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Verification &lt;span class="k">for&lt;/span> ghcr.io/clemlesne/blue-agent:bullseye-main --
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">The following checks were performed on each of these signatures:
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> - The cosign claims were validated
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> - Existence of the claims in the transparency log was verified offline
@@ -184,7 +279,7 @@ title="Copy code"
 &lt;li>GPG public key is &lt;a href="https://keybase.io/clemlesne/pgp_keys.asc" target="_blank" rel="noopener">available on Keybase&lt;/a> and in &lt;a href="pubring.gpg" >&lt;code>/pubring.gpg&lt;/code>&lt;/a>.&lt;/li>
 &lt;/ul>
 &lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Example of verification with Helm native signature&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ helm fetch --keyring pubring.gpg --verify clemlesne-azure-pipelines-agent/azure-pipelines-agent --version 5.0.0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ helm fetch --keyring pubring.gpg --verify clemlesne-blue-agent/blue-agent --version 5.0.0
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Signed by: Clémence Lesné &amp;lt;clemence@lesne.pro&amp;gt;
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Using Key With Fingerprint: 417E701DBC66834CA752C920460D072B9C032DFD
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Chart Hash Verified: sha256:1c23e22cffc132ce12489480d139b59e97b3cb49ff1599a4ae11fb5c317c1e64&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
@@ -199,9 +294,9 @@ title="Copy code"
 &lt;/div>
 &lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Example of verification with Cosign&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ &lt;span class="nv">VERSION&lt;/span>&lt;span class="o">=&lt;/span>5.0.0
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ wget https://github.com/clemlesne/azure-pipelines-agent/releases/download/azure-pipelines-agent-&lt;span class="si">${&lt;/span>&lt;span class="nv">VERSION&lt;/span>&lt;span class="si">}&lt;/span>/azure-pipelines-agent-&lt;span class="si">${&lt;/span>&lt;span class="nv">VERSION&lt;/span>&lt;span class="si">}&lt;/span>.tgz.bundle
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ helm pull clemlesne-azure-pipelines-agent/azure-pipelines-agent --version 5.0.0
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ cosign verify-blob azure-pipelines-agent-&lt;span class="si">${&lt;/span>&lt;span class="nv">VERSION&lt;/span>&lt;span class="si">}&lt;/span>.tgz --bundle azure-pipelines-agent-&lt;span class="si">${&lt;/span>&lt;span class="nv">VERSION&lt;/span>&lt;span class="si">}&lt;/span>.tgz.bundle --key cosign.pub
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ wget https://github.com/clemlesne/blue-agent/releases/download/blue-agent-&lt;span class="si">${&lt;/span>&lt;span class="nv">VERSION&lt;/span>&lt;span class="si">}&lt;/span>/blue-agent-&lt;span class="si">${&lt;/span>&lt;span class="nv">VERSION&lt;/span>&lt;span class="si">}&lt;/span>.tgz.bundle
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ helm pull clemlesne-blue-agent/blue-agent --version 5.0.0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">❯ cosign verify-blob blue-agent-&lt;span class="si">${&lt;/span>&lt;span class="nv">VERSION&lt;/span>&lt;span class="si">}&lt;/span>.tgz --bundle blue-agent-&lt;span class="si">${&lt;/span>&lt;span class="nv">VERSION&lt;/span>&lt;span class="si">}&lt;/span>.tgz.bundle --key cosign.pub
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Verified OK&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
 &lt;button
 class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
@@ -215,7 +310,7 @@ title="Copy code"
 &lt;h2>Reliability notes&lt;span class="absolute -mt-20" id="reliability-notes">&lt;/span>
 &lt;a href="#reliability-notes" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>Systems are built every days. Each image is accompanied by a &lt;a href="https://en.wikipedia.org/wiki/Software_supply_chain" target="_blank" rel="noopener">SBOM (Software Bill of Materials)&lt;/a> which allows to verify that the installed packages are those expected. This speed has the advantage of minimizing exposure to security flaws, which will then be corrected on the build environments in 24 hours.&lt;/p>
 &lt;p>Nevertheless it can happen that a package provider (e.g. Debian, Canonical, Red Hat) deploys a system update that introduces a bug. This is difficult to predict.&lt;/p>
-&lt;p>Each image is pushed with a unique tag, which corresponds to the date of the last update (example: &lt;code>bullseye-20230313&lt;/code> for a build on March 13, 2023). It is therefore possible to fix the download of a version by modifying the &lt;code>image.version&lt;/code> property to &lt;code>20230313&lt;/code>.&lt;/p></description></item><item><title>Troubleshooting</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/troubleshooting/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/troubleshooting/</guid><description>
+&lt;p>Each image is pushed with a unique tag, which corresponds to the date of the last update (example: &lt;code>bullseye-20230313&lt;/code> for a build on March 13, 2023). It is therefore possible to fix the download of a version by modifying the &lt;code>image.version&lt;/code> property to &lt;code>20230313&lt;/code>.&lt;/p></description></item><item><title>Troubleshooting</title><link>https://clemlesne.github.io/blue-agent/docs/troubleshooting/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/troubleshooting/</guid><description>
 &lt;h2>Pods are evicted by Kubernetes with the message &lt;code>Pod ephemeral local storage usage exceeds the total limit of containers&lt;/code>&lt;span class="absolute -mt-20" id="pods-are-evicted-by-kubernetes-with-the-message-pod-ephemeral-local-storage-usage-exceeds-the-total-limit-of-containers">&lt;/span>
 &lt;a href="#pods-are-evicted-by-kubernetes-with-the-message-pod-ephemeral-local-storage-usage-exceeds-the-total-limit-of-containers" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>This error is due to the fact that the default ephemeral storage limit is set to a lower value than the one used by the pipeline. You can fix it by setting the value to more than default value in &lt;code>resources.limits.ephemeral-storage&lt;/code>.&lt;/p>
 &lt;p>This error notably happens when using BuildKit with an &lt;code>emptyDir&lt;/code> and a large number of layers.&lt;/p>
@@ -274,7 +369,7 @@ title="Copy code"
 &lt;li>Pod has been ecivted by Kubernetes due to the excessive local storage usage: parameter &lt;code>ephemeral-storage&lt;/code> in &lt;code>resources&lt;/code> Helm values is set to &lt;code>8Gi&lt;/code> by default, you can increase it to &lt;code>16Gi&lt;/code> for example&lt;/li>
 &lt;/ul>
 &lt;h2>Namespaces must be set to a non-zero value&lt;span class="absolute -mt-20" id="namespaces-must-be-set-to-a-non-zero-value">&lt;/span>
-&lt;a href="#namespaces-must-be-set-to-a-non-zero-value" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>This error is due to the fact that BuildKit needs to create a new user namespace, and the default maximum number of namespaces is 0. Value is defined by &lt;code>user.max_user_namespaces&lt;/code> (&lt;a href="https://man7.org/linux/man-pages/man7/namespaces.7.html" target="_blank" rel="noopener">documentation&lt;/a>). You can fix it by setting the value to more than 1000. Issue notably happens on AWS Bottlerocket OS. &lt;a href="https://github.com/clemlesne/azure-pipelines-agent/issues/19" target="_blank" rel="noopener">See related issue.&lt;/a>&lt;/p>
+&lt;a href="#namespaces-must-be-set-to-a-non-zero-value" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h2>&lt;p>This error is due to the fact that BuildKit needs to create a new user namespace, and the default maximum number of namespaces is 0. Value is defined by &lt;code>user.max_user_namespaces&lt;/code> (&lt;a href="https://man7.org/linux/man-pages/man7/namespaces.7.html" target="_blank" rel="noopener">documentation&lt;/a>). You can fix it by setting the value to more than 1000. Issue notably happens on AWS Bottlerocket OS. &lt;a href="https://github.com/clemlesne/blue-agent/issues/19" target="_blank" rel="noopener">See related issue.&lt;/a>&lt;/p>
 &lt;p>We can update dynamically the host system settings with a DaemonSet:&lt;/p>
 &lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># daemonset.yaml&lt;/span>&lt;span class="w">
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">apiVersion&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">apps/v1&lt;/span>&lt;span class="w">
@@ -283,7 +378,7 @@ title="Copy code"
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">labels&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">app.kubernetes.io/component&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">sysctl&lt;/span>&lt;span class="w">
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">app.kubernetes.io/name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">sysctl-max-user-ns-fix&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">app.kubernetes.io/part-of&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">azure-pipelines-agent&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">app.kubernetes.io/part-of&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">blue-agent&lt;/span>&lt;span class="w">
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">sysctl-max-user-ns-fix&lt;/span>&lt;span class="w">
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">spec&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">selector&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
@@ -343,7 +438,7 @@ Set a technical pipeline timeout longer than the functional pipeline timeout to 
 &lt;/div>
 &lt;/div>
 &lt;/div>
-&lt;p>&lt;img src="build-job-timeout-in-minutes.png" alt="Configuration in the web interface." loading="lazy" />&lt;/p></description></item><item><title>Build ASP.NET applications</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/build-aspnet/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/build-aspnet/</guid><description>
+&lt;p>&lt;img src="build-job-timeout-in-minutes.png" alt="Configuration in the web interface." loading="lazy" />&lt;/p></description></item><item><title>Build ASP.NET applications</title><link>https://clemlesne.github.io/blue-agent/docs/advanced-topics/build-aspnet/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/advanced-topics/build-aspnet/</guid><description>
 &lt;p>It was chosen arbitrarily to install the LTS non SDK version of ASNP.NET. Because :&lt;/p>
 &lt;ul>
 &lt;li>LTS is better supported by Microsoft than STS&lt;/li>
@@ -366,7 +461,7 @@ title="Copy code"
 &lt;/button>
 &lt;/div>
 &lt;/div>
-&lt;p>Same way, if you want to use multiple versions of the framework, re-execute the task with the new version. Installations are cached locally.&lt;/p></description></item><item><title>Build container images</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/docker-in-docker/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/docker-in-docker/</guid><description>
+&lt;p>Same way, if you want to use multiple versions of the framework, re-execute the task with the new version. Installations are cached locally.&lt;/p></description></item><item><title>Build container images</title><link>https://clemlesne.github.io/blue-agent/docs/advanced-topics/docker-in-docker/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/advanced-topics/docker-in-docker/</guid><description>
 &lt;p>These methods can be used to build a container image, at the time of writing:&lt;/p>
 &lt;table>
 &lt;thead>
@@ -425,35 +520,35 @@ title="Copy code"
 &lt;/thead>
 &lt;tbody>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:bookworm-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:bookworm-main&lt;/code>&lt;/td>
 &lt;td>✅&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:bullseye-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:bullseye-main&lt;/code>&lt;/td>
 &lt;td>✅&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:focal-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:focal-main&lt;/code>&lt;/td>
 &lt;td>✅&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:jammy-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:jammy-main&lt;/code>&lt;/td>
 &lt;td>✅&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:ubi8-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:ubi8-main&lt;/code>&lt;/td>
 &lt;td>✅&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:ubi9-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:ubi9-main&lt;/code>&lt;/td>
 &lt;td>✅&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2019-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:win-ltsc2019-main&lt;/code>&lt;/td>
 &lt;td>❌&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:win-ltsc2022-main&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:win-ltsc2022-main&lt;/code>&lt;/td>
 &lt;td>❌&lt;/td>
 &lt;/tr>
 &lt;/tbody>
@@ -498,7 +593,7 @@ title="Copy code"
 &lt;/div>
 &lt;p>Out of the box, argument &lt;code>--opt platform=linux/amd64,linux/arm64&lt;/code> can be added to build an image compatible with multiple architectures (&lt;a href="https://github.com/moby/buildkit/blob/v0.11.5/docs/multi-platform.md" target="_blank" rel="noopener">more can be specified&lt;/a>). Multiple cache strategies &lt;a href="https://github.com/moby/buildkit/tree/v0.11.5#cache" target="_blank" rel="noopener">are available&lt;/a> (including container registry, Azure Storage Blob, AWS S3).&lt;/p>
 &lt;h4>BuildKit and the performance&lt;span class="absolute -mt-20" id="buildkit-and-the-performance">&lt;/span>
-&lt;a href="#buildkit-and-the-performance" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>BuildKit works by virtualization in the user space. You can&amp;rsquo;t expect build times as short as native (on your laptop for example). &lt;a href="https://www.qemu.org" target="_blank" rel="noopener">QEMU&lt;/a> is used as a backend. This has the advantage of being able to create images for different architectures than your processor. Virtualization-wise, not all CPU models are equivalent, you can &lt;a href="https://www.qemu.org/docs/master/system/qemu-cpu-models.html" target="_blank" rel="noopener">refer to the official project documentation&lt;/a> to select the most appropriated CPU model for your Kubernetes Node Pool.&lt;/p></description></item><item><title>Build Java applications</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/build-java/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/build-java/</guid><description>
+&lt;a href="#buildkit-and-the-performance" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>BuildKit works by virtualization in the user space. You can&amp;rsquo;t expect build times as short as native (on your laptop for example). &lt;a href="https://www.qemu.org" target="_blank" rel="noopener">QEMU&lt;/a> is used as a backend. This has the advantage of being able to create images for different architectures than your processor. Virtualization-wise, not all CPU models are equivalent, you can &lt;a href="https://www.qemu.org/docs/master/system/qemu-cpu-models.html" target="_blank" rel="noopener">refer to the official project documentation&lt;/a> to select the most appropriated CPU model for your Kubernetes Node Pool.&lt;/p></description></item><item><title>Build Java applications</title><link>https://clemlesne.github.io/blue-agent/docs/advanced-topics/build-java/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/advanced-topics/build-java/</guid><description>
 &lt;p>Java (JDK and JVM) is not pre-installed into the agents. Specify the specific version you requires for your build. Install the framework with &lt;a href="https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/java-tool-installer-v0?view=azure-pipelines" target="_blank" rel="noopener">JavaToolInstaller@0&lt;/a>, it configures both &lt;code>PATH&lt;/code> and &lt;code>JAVA_HOME&lt;/code> environements variables. The JDK file requires to be placed either in Azure Storage or in a local directory:&lt;/p>
 &lt;ul>
 &lt;li>Azure Storage (recommended for its audit, replication, and management by API capabilities), downlaod the binary from a central Azure Storage&lt;/li>
@@ -550,7 +645,7 @@ title="Copy code"
 &lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
 &lt;/button>
 &lt;/div>
-&lt;/div></description></item><item><title>Capabilities</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/capabilities/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/capabilities/</guid><description>
+&lt;/div></description></item><item><title>Capabilities</title><link>https://clemlesne.github.io/blue-agent/docs/advanced-topics/capabilities/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/advanced-topics/capabilities/</guid><description>
 &lt;p>Capabilities are declarative variables you can add to the agents, to allow developers to select the right agent for their pipeline (&lt;a href="https://learn.microsoft.com/en-us/azure/devops/pipelines/process/demands?view=azure-devops&amp;amp;tabs=yaml" target="_blank" rel="noopener">official documentation&lt;/a>).&lt;/p>
 &lt;div class="overflow-x-auto mt-6 flex rounded-lg border py-2 ltr:pr-4 rtl:pl-4 contrast-more:border-current contrast-more:dark:border-current border-blue-200 bg-blue-100 text-blue-900 dark:border-blue-200/30 dark:bg-blue-900/30 dark:text-blue-200">
 &lt;div class="ltr:pl-3 ltr:pr-2 rtl:pr-3 rtl:pl-2">&lt;div class="select-none text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">
@@ -588,7 +683,7 @@ title="Copy code"
 &lt;/div>
 &lt;/div>
 &lt;p>Deploy the Helm instance:&lt;/p>
-&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">❯ helm upgrade --install agent-arm64 clemlesne-azure-pipelines-agent/azure-pipelines-agent -f values.yaml&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
+&lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">❯ helm upgrade --install agent-arm64 clemlesne-blue-agent/blue-agent -f values.yaml&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="opacity-0 transition group-hover/code:opacity-100 flex gap-1 absolute m-[11px] right-0 top-0">
 &lt;button
 class="code-copy-btn group/copybtn transition-all active:opacity-50 bg-primary-700/5 border border-black/5 text-gray-600 hover:text-gray-900 rounded-md p-1.5 dark:bg-primary-300/10 dark:border-white/10 dark:text-gray-400 dark:hover:text-gray-50"
 title="Copy code"
@@ -699,7 +794,7 @@ title="Copy code"
 &lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
 &lt;/button>
 &lt;/div>
-&lt;/div></description></item><item><title>Custom root certificate</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/ca-certificate/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/ca-certificate/</guid><description>
+&lt;/div></description></item><item><title>Custom root certificate</title><link>https://clemlesne.github.io/blue-agent/docs/advanced-topics/ca-certificate/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/advanced-topics/ca-certificate/</guid><description>
 &lt;p>If you need to run the agent with a custom root certificate, you can use the following Helm values. Format is &lt;a href="https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail" target="_blank" rel="noopener">PEM certificate&lt;/a> and with &lt;a href="https://en.wikipedia.org/wiki/UTF-8" target="_blank" rel="noopener">UTF-8&lt;/a> encoding.&lt;/p>
 &lt;p>Paths are &lt;code>/app-root/azp-custom-certs&lt;/code> for Linux-based agents and &lt;code>C:\app-root\azp-custom-certs&lt;/code> for Windows-based agents.&lt;/p>
 &lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># config-root-ca.yaml&lt;/span>&lt;span class="w">
@@ -742,8 +837,103 @@ title="Copy code"
 &lt;div class="hidden group-[.copied]/copybtn:block success-icon pointer-events-none h-4 w-4">&lt;/div>
 &lt;/button>
 &lt;/div>
-&lt;/div></description></item><item><title>Helm values</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/helm-values/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/helm-values/</guid><description>
-&lt;table>
+&lt;/div></description></item><item><title>Deploy on Azure with Bicep</title><link>https://clemlesne.github.io/blue-agent/docs/advanced-topics/bicep-deployment/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/advanced-topics/bicep-deployment/</guid><description>
+&lt;p>Bicep is a deployment language for Azure, allowing to easily deploy resources on the cloud.&lt;/p>
+&lt;h4>Bicep parameters&lt;span class="absolute -mt-20" id="bicep-parameters">&lt;/span>
+&lt;a href="#bicep-parameters" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Parameter&lt;/th>
+&lt;th>Description&lt;/th>
+&lt;th>Default&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;code>autoscalingMaxReplicas&lt;/code>&lt;/td>
+&lt;td>Maximum number of simultaneous jobs the agent can run&lt;/td>
+&lt;td>&lt;code>100&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>autoscalingMinReplicas&lt;/code>&lt;/td>
+&lt;td>Minimum number of replicas the agent should have&lt;/td>
+&lt;td>&lt;code>0&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>extraEnv&lt;/code>&lt;/td>
+&lt;td>Extra environment variables to pass to the agent&lt;/td>
+&lt;td>&lt;code>[]&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>imageFlavor&lt;/code>&lt;/td>
+&lt;td>Flavor of the container image, represents the Linux distribution. Allowed values: &lt;code>bookworm&lt;/code>, &lt;code>bullseye&lt;/code>, &lt;code>focal&lt;/code>, &lt;code>jammy&lt;/code>, &lt;code>ubi8&lt;/code>, &lt;code>ubi9&lt;/code>&lt;/td>
+&lt;td>&lt;code>bookworm&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>imageName&lt;/code>&lt;/td>
+&lt;td>Name of the container image&lt;/td>
+&lt;td>&lt;code>clemlesne/blue-agent&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>imageRegistry&lt;/code>&lt;/td>
+&lt;td>Registry of the container image. Allowed values: &lt;code>docker.io&lt;/code>, &lt;code>ghcr.io&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>imageVersion&lt;/code>&lt;/td>
+&lt;td>Version of the container image, it is recommended to use a specific version like &amp;ldquo;1.0.0&amp;rdquo; instead of &amp;ldquo;latest&amp;rdquo;&lt;/td>
+&lt;td>&lt;code>main&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>instance&lt;/code>&lt;/td>
+&lt;td>Name of the instance, will be used to build the name of the resources&lt;/td>
+&lt;td>Value from &lt;code>deployment().name&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>location&lt;/code>&lt;/td>
+&lt;td>Location of resources&lt;/td>
+&lt;td>&lt;code>westeurope&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>pipelinesCapabilities&lt;/code>&lt;/td>
+&lt;td>Capabilities of the agent&lt;/td>
+&lt;td>&lt;code>['arch_x64']&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>pipelinesOrganizationURL&lt;/code>&lt;/td>
+&lt;td>URL of the Azure DevOps organization&lt;/td>
+&lt;td>&lt;em>None&lt;/em>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>pipelinesPersonalAccessToken&lt;/code>&lt;/td>
+&lt;td>Personal access token allowing the agent to connect to the Azure DevOps organization. This parameter is secure.&lt;/td>
+&lt;td>&lt;em>None&lt;/em>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>pipelinesPoolName&lt;/code>&lt;/td>
+&lt;td>Name of the Azure Pipelines self-hosted pool the agent should be added to&lt;/td>
+&lt;td>&lt;em>None&lt;/em>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>pipelinesTimeout&lt;/code>&lt;/td>
+&lt;td>Timeout in seconds for the agent to run a job before it is automatically terminated&lt;/td>
+&lt;td>&lt;code>3600&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>resourcesCpu&lt;/code>&lt;/td>
+&lt;td>Number of CPU cores allocated to the agent&lt;/td>
+&lt;td>&lt;code>2&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>resourcesMemory&lt;/code>&lt;/td>
+&lt;td>Amount of memory allocated to the agent&lt;/td>
+&lt;td>&lt;code>4Gi&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table></description></item><item><title>Deploy on Kubernetes with Helm</title><link>https://clemlesne.github.io/blue-agent/docs/advanced-topics/helm-deployment/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/advanced-topics/helm-deployment/</guid><description>
+&lt;p>Helm is a package manager for Kubernetes, allowing to easily deploy applications on a cluster.&lt;/p>
+&lt;h4>Helm values&lt;span class="absolute -mt-20" id="helm-values">&lt;/span>
+&lt;a href="#helm-values" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;table>
 &lt;thead>
 &lt;tr>
 &lt;th>Parameter&lt;/th>
@@ -825,7 +1015,7 @@ title="Copy code"
 &lt;tr>
 &lt;td>&lt;code>image.repository&lt;/code>&lt;/td>
 &lt;td>Container image repository&lt;/td>
-&lt;td>&lt;code>ghcr.io/clemlesne/azure-pipelines-agent:bullseye&lt;/code>&lt;/td>
+&lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:bullseye&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>image.version&lt;/code>&lt;/td>
@@ -973,7 +1163,7 @@ title="Copy code"
 &lt;td>&lt;code>[]&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;/tbody>
-&lt;/table></description></item><item><title>Performance</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/performance/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/performance/</guid><description>
+&lt;/table></description></item><item><title>Performance</title><link>https://clemlesne.github.io/blue-agent/docs/advanced-topics/performance/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/advanced-topics/performance/</guid><description>
 &lt;p>These actions can enhance your system performance:&lt;/p>
 &lt;ul>
 &lt;li>Enough CPU and memory are allocated to the agent (see &lt;code>resources&lt;/code>). See the your Kubernetes monitoring software to detect bottlenecks (notably CPU, RAM, IOPS, network, disk size).&lt;/li>
@@ -985,7 +1175,7 @@ title="Copy code"
 &lt;ul>
 &lt;li>Choose an ephemeral disk for the cache in &lt;code>/app-root/.local/share/buildkit&lt;/code>, instead of an emptyDir.&lt;/li>
 &lt;li>Use an high-performance disk for the cache, exemple &lt;code>managed-csi-premium&lt;/code> in Azure.&lt;/li>
-&lt;/ul></description></item><item><title>Provided software</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/provided-software/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/provided-software/</guid><description>
+&lt;/ul></description></item><item><title>Provided software</title><link>https://clemlesne.github.io/blue-agent/docs/advanced-topics/provided-software/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/advanced-topics/provided-software/</guid><description>
 &lt;p>Softwares are operating system specific. The following table lists the softwares provided by the agent.&lt;/p>
 &lt;h4>Linux&lt;span class="absolute -mt-20" id="linux">&lt;/span>
 &lt;a href="#linux" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
@@ -1057,8 +1247,8 @@ title="Copy code"
 &lt;li>&lt;a href="https://github.com/facebook/zstd" target="_blank" rel="noopener">zstd&lt;/a>&lt;/li>
 &lt;/ul>
 &lt;/li>
-&lt;/ul></description></item><item><title>Proxy</title><link>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/proxy/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/azure-pipelines-agent/docs/advanced-topics/proxy/</guid><description>
-&lt;p>If you need to use a proxy, you can set the following environment variables. See &lt;a href="https://github.com/microsoft/azure-pipelines-agent/blob/master/docs/start/proxyconfig.md" target="_blank" rel="noopener">this documentation&lt;/a> for more details.&lt;/p>
+&lt;/ul></description></item><item><title>Proxy</title><link>https://clemlesne.github.io/blue-agent/docs/advanced-topics/proxy/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/advanced-topics/proxy/</guid><description>
+&lt;p>If you need to use a proxy, you can set the following environment variables. See &lt;a href="https://github.com/microsoft/blue-agent/blob/master/docs/start/proxyconfig.md" target="_blank" rel="noopener">this documentation&lt;/a> for more details.&lt;/p>
 &lt;div class="code-block relative mt-6 first:mt-0 group/code">&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># values.yaml&lt;/span>&lt;span class="w">
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">extraEnv&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">VSTS_HTTP_PROXY&lt;/span>&lt;span class="w">
