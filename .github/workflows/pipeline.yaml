@@ -765,7 +765,7 @@ jobs:
 
       - name: Setup Pages
         id: pages
-        uses: actions/configure-pages@v4.0.0
+        uses: actions/configure-pages@v5.0.0
 
       - name: Build with Hugo
         working-directory: docs
