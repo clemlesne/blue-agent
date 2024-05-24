@@ -271,7 +271,7 @@ jobs:
           hadolint --version
 
       - name: Login to Azure
-        uses: azure/login@v2.0.0
+        uses: azure/login@v2.1.1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -858,7 +858,7 @@ jobs:
           echo "${{ secrets.AGE_KEY }}" > ${age_folder}/keys.txt
 
       - name: Login to Azure
-        uses: azure/login@v2.0.0
+        uses: azure/login@v2.1.1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
