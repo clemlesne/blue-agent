@@ -10,6 +10,7 @@ spec:
     matchLabels:
       {{- include "blue-agent.selectorLabels" . | nindent 6 }}
   replicas: {{ .Values.replicaCount | int | required "A value for .Values.replicaCount is required" }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
   strategy:
     type: RollingUpdate
     rollingUpdate:

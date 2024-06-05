@@ -126,6 +126,9 @@ tolerations: []
 # Pod affinity configuration
 affinity: {}
 
+# Number of revisions to keep in the history of the Deployment
+revisionHistoryLimit: 10
+
 # Annotations for scheduling and security behaviors
 #
 # Example, to be used with img or BuildKit:
