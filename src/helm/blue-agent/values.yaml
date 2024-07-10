@@ -66,6 +66,7 @@ pipelines:
     type: managed-csi
     # Enables the temp directory volume, default is true
     volumeEnabled: true
+  customPreStopCommand: []
 
 # Secret configuration
 secret:
