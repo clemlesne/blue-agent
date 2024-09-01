@@ -307,6 +307,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.4
 
+      - name: Clean up disk
+        run: rm -rf /opt/hostedtoolcache
+
       - name: Setup QEMU
         id: setup-qemu
         uses: docker/setup-qemu-action@v3.0.0
@@ -485,6 +488,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.4
+
+      - name: Clean up disk
+        run: Remove-Item -Path C:\hostedtoolcache -Recurse -Force
 
       # Required for running "npx" CLI
       - name: Setup Node
