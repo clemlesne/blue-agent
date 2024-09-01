@@ -33,6 +33,7 @@ RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
         iputils \
         jq-${JQ_VERSION} \
         make \
+        openssl \
         openssl-devel \
         pkg-config \
         python3.11 \
