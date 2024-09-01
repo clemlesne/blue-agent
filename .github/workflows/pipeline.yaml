@@ -43,6 +43,7 @@ env:
   # https://github.com/Azure/azure-cli/releases
   AZURE_CLI_VERSION: 2.63.0
   # https://github.com/stedolan/jq/releases
+  # Note: This version requires to be available from Debian and Ubuntu repositories (see https://packages.debian.org/bookworm/jq for example)
   JQ_VERSION: 1.6
   # https://github.com/aws/aws-cli/tags
   AWS_CLI_VERSION: 2.17.42
