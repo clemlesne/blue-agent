@@ -46,8 +46,9 @@ env:
   JQ_VERSION: 1.6
   # https://github.com/aws/aws-cli/tags
   AWS_CLI_VERSION: 2.15.25
-  # https://cloud.google.com/sdk/docs/install
-  GCLOUD_CLI_VERSION: 466.0.0
+  # https://console.cloud.google.com/artifacts/docker/google.com:cloudsdktool/us/gcr.io/google-cloud-cli
+  # Note: To get thhe version number, spot the version tag on the latest pushed container
+  GCLOUD_CLI_VERSION: 490.0.0
   # https://github.com/git-for-windows/git/releases
   GIT_WIN_VERSION: 2.44.0
   # https://github.com/facebook/zstd/releases
