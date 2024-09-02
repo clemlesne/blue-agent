@@ -340,7 +340,7 @@ jobs:
 
       # Standard login
       - name: Login to registry - GitHub
-        uses: docker/login-action@v3.1.0
+        uses: docker/login-action@v3.3.0
         with:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
@@ -349,7 +349,7 @@ jobs:
       # Add full URL in the config to allow Cosign to login
       # See: https://github.com/sigstore/cosign/issues/587#issuecomment-1003072134
       - name: Login to registry - GitHub (Cosign)
-        uses: docker/login-action@v3.1.0
+        uses: docker/login-action@v3.3.0
         with:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ${{ env.CONTAINER_REGISTRY_GHCR_URL }}
@@ -357,7 +357,7 @@ jobs:
 
       # Standard login
       - name: Login to registry - Docker Hub
-        uses: docker/login-action@v3.1.0
+        uses: docker/login-action@v3.3.0
         with:
           password: ${{ secrets.DOCKER_HUB_PAT }}
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
@@ -366,7 +366,7 @@ jobs:
       # Add full URL in the config to allow Cosign to login
       # See: https://github.com/sigstore/cosign/issues/587#issuecomment-1003072134
       - name: Login to registry - Docker Hub (Cosign)
-        uses: docker/login-action@v3.1.0
+        uses: docker/login-action@v3.3.0
         with:
           password: ${{ secrets.DOCKER_HUB_PAT }}
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB_URL }}
@@ -529,7 +529,7 @@ jobs:
 
       # Standard login
       - name: Login to registry - GitHub
-        uses: docker/login-action@v3.1.0
+        uses: docker/login-action@v3.3.0
         with:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
@@ -538,7 +538,7 @@ jobs:
       # Add full URL in the config to allow Cosign to login
       # See: https://github.com/sigstore/cosign/issues/587#issuecomment-1003072134
       - name: Login to registry - GitHub (Cosign)
-        uses: docker/login-action@v3.1.0
+        uses: docker/login-action@v3.3.0
         with:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ${{ env.CONTAINER_REGISTRY_GHCR_URL }}
@@ -546,7 +546,7 @@ jobs:
 
       # Standard login
       - name: Login to registry - Docker Hub
-        uses: docker/login-action@v3.1.0
+        uses: docker/login-action@v3.3.0
         with:
           password: ${{ secrets.DOCKER_HUB_PAT }}
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
@@ -555,7 +555,7 @@ jobs:
       # Add full URL in the config to allow Cosign to login
       # See: https://github.com/sigstore/cosign/issues/587#issuecomment-1003072134
       - name: Login to registry - Docker Hub (Cosign)
-        uses: docker/login-action@v3.1.0
+        uses: docker/login-action@v3.3.0
         with:
           password: ${{ secrets.DOCKER_HUB_PAT }}
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB_URL }}
@@ -745,14 +745,14 @@ jobs:
           version: ${{ env.ORAS_VERSION }}
 
       - name: Login to registry - GitHub
-        uses: docker/login-action@v3.1.0
+        uses: docker/login-action@v3.3.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Login to registry - Docker Hub
-        uses: docker/login-action@v3.1.0
+        uses: docker/login-action@v3.3.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
           username: clemlesne
