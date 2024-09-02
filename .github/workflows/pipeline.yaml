@@ -18,58 +18,62 @@ on:
 
 env:
   CONTAINER_NAME: ${{ github.repository }}
-  CONTAINER_REGISTRY_GHCR: ghcr.io
+  CONTAINER_REGISTRY_DOCKER_HUB_URL: https://index.docker.io/v2/
   CONTAINER_REGISTRY_DOCKER_HUB: docker.io
+  CONTAINER_REGISTRY_GHCR_URL: https://ghcr.io/v2/
+  CONTAINER_REGISTRY_GHCR: ghcr.io
   # https://github.com/sigstore/cosign/releases
-  COSIGN_VERSION: 2.2.3
+  COSIGN_VERSION: 2.4.0
   # https://npmjs.com/package/@microsoft/sarif-multitool?activeTab=versions
   SARIF_MULTITOOL_VERSION: 4.5.4
   # https://npmjs.com/package/snyk?activeTab=versions
-  SNYK_VERSION: 1.1281.0
+  SNYK_VERSION: 1.1293.0
   # https://github.com/microsoft/azure-pipelines-agent/releases
-  AZP_AGENT_VERSION: 3.234.0
+  AZP_AGENT_VERSION: 3.243.1
   # https://github.com/PowerShell/PowerShell/releases
-  POWERSHELL_VERSION: 7.2.18
+  POWERSHELL_VERSION: 7.2.23
   # https://github.com/krallin/tini/releases
   TINI_VERSION: 0.19.0
   # https://github.com/mikefarah/yq/releases
-  YQ_VERSION: 4.42.1
+  YQ_VERSION: 4.44.3
   # https://go.dev/dl
-  GO_VERSION: 1.22.0
+  GO_VERSION: 1.23.0
   # https://github.com/rootless-containers/rootlesskit/releases
-  ROOTLESSKIT_VERSION: 2.0.1
+  ROOTLESSKIT_VERSION: 2.3.1
   # https://github.com/moby/buildkit/releases
-  BUILDKIT_VERSION: 0.12.5
+  BUILDKIT_VERSION: 0.15.2
   # https://github.com/Azure/azure-cli/releases
-  AZURE_CLI_VERSION: 2.57.0
+  AZURE_CLI_VERSION: 2.63.0
   # https://github.com/stedolan/jq/releases
+  # Note: This version requires to be available from Debian and Ubuntu repositories (see https://packages.debian.org/bookworm/jq for example)
   JQ_VERSION: 1.6
   # https://github.com/aws/aws-cli/tags
-  AWS_CLI_VERSION: 2.15.25
-  # https://cloud.google.com/sdk/docs/install
-  GCLOUD_CLI_VERSION: 466.0.0
+  AWS_CLI_VERSION: 2.17.42
+  # https://console.cloud.google.com/artifacts/docker/google.com:cloudsdktool/us/gcr.io/google-cloud-cli
+  # Note: To get thhe version number, spot the version tag on the latest pushed container
+  GCLOUD_CLI_VERSION: 490.0.0
   # https://github.com/git-for-windows/git/releases
-  GIT_WIN_VERSION: 2.44.0
+  GIT_WIN_VERSION: 2.46.0
   # https://github.com/facebook/zstd/releases
-  ZSTD_WIN_VERSION: 1.5.5
+  ZSTD_WIN_VERSION: 1.5.6
   # https://www.python.org/downloads/windows
-  PYTHON_WIN_VERSION: 3.11.8
+  PYTHON_WIN_VERSION: 3.12.5
   # https://nodejs.org/en/download/releases
-  NODE_VERSION: 20.11.1
+  NODE_VERSION: 20.17.0
   # https://github.com/helm/helm/releases
-  HELM_VERSION: 3.14.2
+  HELM_VERSION: 3.15.4
   # https://github.com/oras-project/oras/releases
-  ORAS_VERSION: 1.1.0
+  ORAS_VERSION: 1.2.0
   # https://github.com/docker/buildx/releases
-  BUILDX_VERSION: 0.12.1
+  BUILDX_VERSION: 0.16.2
   # https://github.com/hadolint/hadolint/releases
   HADOLINT_VERSION: 2.12.0
-  # https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022
-  VS_BUILDTOOLS_WIN_VERSION: 17
+  # https://learn.microsoft.com/en-us/visualstudio/releases/2022/release-history#fixed-version-bootstrappers
+  VS_BUILDTOOLS_WIN_VERSION: 28626b4b-f88f-4b55-a0cf-f3eaa2c643fb/e6c43d4dfb36338d954cdb3ad9010ab2a479e712088f4f6b016eadcc721bab28 # LTSC 17.10 (17.10.35201.131)
   # https://github.com/gohugoio/hugo/releases
-  HUGO_VERSION: 0.123.7
+  HUGO_VERSION: 0.133.1
   # See: https://github.com/getsops/sops/releases
-  SOPS_VERSION: 3.8.1
+  SOPS_VERSION: 3.9.0
 
 jobs:
   init:
@@ -81,7 +85,7 @@ jobs:
       VERSION: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.7
         with:
           # We need all Git history for "version.sh"
           fetch-depth: 0
@@ -105,7 +109,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.7
         with:
           # We need all Git history for testing credentials
           fetch-depth: 0
@@ -113,7 +117,7 @@ jobs:
           submodules: recursive
 
       - name: SAST - Credentials
-        uses: trufflesecurity/trufflehog@v3.70.3
+        uses: trufflesecurity/trufflehog@v3.75.0
         with:
           base: ${{ github.event.repository.default_branch }}
           extra_args: --only-verified
@@ -129,10 +133,10 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.7
 
       - name: Setup Helm
-        uses: azure/setup-helm@v4.1.0
+        uses: azure/setup-helm@v4.2.0
         with:
           version: v${{ env.HELM_VERSION }}
 
@@ -143,7 +147,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Setup Cosign
-        uses: sigstore/cosign-installer@v3.4.0
+        uses: sigstore/cosign-installer@v3.6.0
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
@@ -176,7 +180,7 @@ jobs:
             .cr-release-packages/blue-agent-${{ needs.init.outputs.VERSION }}.tgz
 
       - name: Cache Helm chart
-        uses: actions/upload-artifact@v4.3.1
+        uses: actions/upload-artifact@v4.4.0
         with:
           name: helm-chart
           path: .cr-release-packages
@@ -210,7 +214,7 @@ jobs:
             snyk.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.24.8
+        uses: github/codeql-action/upload-sarif@v3.25.3
         continue-on-error: true
         with:
           sarif_file: merged.sarif
@@ -226,7 +230,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.7
         with:
           # Chart Releaser needs to have local access to "gh-pages" plus current branch
           fetch-depth: 0
@@ -237,7 +241,7 @@ jobs:
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
       - name: Download Helm chart
-        uses: actions/download-artifact@v4.1.4
+        uses: actions/download-artifact@v4.1.8
         with:
           name: helm-chart
           path: .cr-release-packages
@@ -256,7 +260,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.7
 
       # Required for running "npx" CLI
       - name: Setup Node
@@ -271,7 +275,7 @@ jobs:
           hadolint --version
 
       - name: Login to Azure
-        uses: azure/login@v2.0.0
+        uses: azure/login@v2.1.1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -305,16 +309,19 @@ jobs:
             arch: linux/amd64,linux/arm64
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.7
+
+      - name: Clean up disk
+        run: rm -rf /opt/hostedtoolcache
 
       - name: Setup QEMU
         id: setup-qemu
-        uses: docker/setup-qemu-action@v3.0.0
+        uses: docker/setup-qemu-action@v3.2.0
         with:
           platforms: ${{ matrix.arch }}
 
       - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3.2.0
+        uses: docker/setup-buildx-action@v3.6.1
         with:
           version: v${{ env.BUILDX_VERSION }}
           driver-opts: |
@@ -327,23 +334,43 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Setup Cosign
-        uses: sigstore/cosign-installer@v3.4.0
+        uses: sigstore/cosign-installer@v3.6.0
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
+      # Standard login
       - name: Login to registry - GitHub
-        uses: docker/login-action@v3.1.0
+        uses: docker/login-action@v3.3.0
         with:
+          password: ${{ secrets.GITHUB_TOKEN }}
           registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Login to registry - Docker Hub
-        uses: docker/login-action@v3.1.0
+      # Add full URL in the config to allow Cosign to login
+      # See: https://github.com/sigstore/cosign/issues/587#issuecomment-1003072134
+      - name: Login to registry - GitHub (Cosign)
+        uses: docker/login-action@v3.3.0
         with:
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ${{ env.CONTAINER_REGISTRY_GHCR_URL }}
+          username: ${{ github.actor }}
+
+      # Standard login
+      - name: Login to registry - Docker Hub
+        uses: docker/login-action@v3.3.0
+        with:
+          password: ${{ secrets.DOCKER_HUB_PAT }}
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
           username: clemlesne
+
+      # Add full URL in the config to allow Cosign to login
+      # See: https://github.com/sigstore/cosign/issues/587#issuecomment-1003072134
+      - name: Login to registry - Docker Hub (Cosign)
+        uses: docker/login-action@v3.3.0
+        with:
           password: ${{ secrets.DOCKER_HUB_PAT }}
+          registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB_URL }}
+          username: clemlesne
 
       - name: Check if pre-release
         id: prerelease
@@ -391,7 +418,7 @@ jobs:
           echo "tag=$tag" >> $GITHUB_OUTPUT
 
       - name: Build & push container
-        uses: docker/build-push-action@v5.3.0
+        uses: docker/build-push-action@v6.7.0
         with:
           build-args: |
             AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
@@ -461,7 +488,7 @@ jobs:
             *.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.24.8
+        uses: github/codeql-action/upload-sarif@v3.25.3
         continue-on-error: true
         with:
           sarif_file: merged.sarif
@@ -484,7 +511,10 @@ jobs:
             runs-on: windows-2019
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.7
+
+      - name: Clean up disk
+        run: Remove-Item -Path C:\hostedtoolcache -Recurse -Force
 
       # Required for running "npx" CLI
       - name: Setup Node
@@ -493,23 +523,43 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Setup Cosign
-        uses: sigstore/cosign-installer@v3.4.0
+        uses: sigstore/cosign-installer@v3.6.0
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
+      # Standard login
       - name: Login to registry - GitHub
-        uses: docker/login-action@v3.1.0
+        uses: docker/login-action@v3.3.0
         with:
+          password: ${{ secrets.GITHUB_TOKEN }}
           registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Login to registry - Docker Hub
-        uses: docker/login-action@v3.1.0
+      # Add full URL in the config to allow Cosign to login
+      # See: https://github.com/sigstore/cosign/issues/587#issuecomment-1003072134
+      - name: Login to registry - GitHub (Cosign)
+        uses: docker/login-action@v3.3.0
         with:
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ${{ env.CONTAINER_REGISTRY_GHCR_URL }}
+          username: ${{ github.actor }}
+
+      # Standard login
+      - name: Login to registry - Docker Hub
+        uses: docker/login-action@v3.3.0
+        with:
+          password: ${{ secrets.DOCKER_HUB_PAT }}
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
           username: clemlesne
+
+      # Add full URL in the config to allow Cosign to login
+      # See: https://github.com/sigstore/cosign/issues/587#issuecomment-1003072134
+      - name: Login to registry - Docker Hub (Cosign)
+        uses: docker/login-action@v3.3.0
+        with:
           password: ${{ secrets.DOCKER_HUB_PAT }}
+          registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB_URL }}
+          username: clemlesne
 
       - name: Check if pre-release
         id: prerelease
@@ -653,7 +703,7 @@ jobs:
             snyk.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.24.8
+        uses: github/codeql-action/upload-sarif@v3.25.3
         continue-on-error: true
         with:
           sarif_file: merged.sarif
@@ -665,7 +715,7 @@ jobs:
       image: returntocorp/semgrep
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.7
 
       - name: Run tests
         # Semgrep can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub Security
@@ -675,7 +725,7 @@ jobs:
         run: semgrep ci --sarif --output=semgrep.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.24.8
+        uses: github/codeql-action/upload-sarif@v3.25.3
         continue-on-error: true
         with:
           sarif_file: semgrep.sarif
@@ -687,7 +737,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.7
 
       - name: Setup ORAS
         uses: oras-project/setup-oras@v1.1.0
@@ -695,14 +745,14 @@ jobs:
           version: ${{ env.ORAS_VERSION }}
 
       - name: Login to registry - GitHub
-        uses: docker/login-action@v3.1.0
+        uses: docker/login-action@v3.3.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Login to registry - Docker Hub
-        uses: docker/login-action@v3.1.0
+        uses: docker/login-action@v3.3.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
           username: clemlesne
@@ -730,7 +780,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.7
 
       - name: Push README to Docker Hub
         uses: peter-evans/dockerhub-description@v4.0.0
@@ -758,14 +808,14 @@ jobs:
         run: sudo snap install dart-sass
 
       - name: Checkout
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.7
         with:
           submodules: recursive
           fetch-depth: 0
 
       - name: Setup Pages
         id: pages
-        uses: actions/configure-pages@v4.0.0
+        uses: actions/configure-pages@v5.0.0
 
       - name: Build with Hugo
         working-directory: docs
@@ -780,7 +830,7 @@ jobs:
             --baseURL "${{ steps.pages.outputs.base_url }}/"
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4.3.1
+        uses: actions/upload-artifact@v4.4.0
         with:
           name: hugo
           path: docs/public
@@ -795,7 +845,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Pull from gh-pages
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.1.7
         with:
           ref: gh-pages
 
@@ -805,7 +855,7 @@ jobs:
           find . -type f -not -name "index.yaml" -not -path "*/.git/*" -delete
 
       - name: Download build artifact
-        uses: actions/download-artifact@v4.1.4
+        uses: actions/download-artifact@v4.1.8
         with:
           name: hugo
 
@@ -843,7 +893,7 @@ jobs:
         os: [bookworm, bullseye, focal, jammy, ubi8, ubi9]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.7
 
       - name: Setup SOPS
         run: |
@@ -858,7 +908,7 @@ jobs:
           echo "${{ secrets.AGE_KEY }}" > ${age_folder}/keys.txt
 
       - name: Login to Azure
-        uses: azure/login@v2.0.0
+        uses: azure/login@v2.1.1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 

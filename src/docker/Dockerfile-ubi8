@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.9@sha256:8bedbe742f140108897fb3532068e8316900d9814f399d676ac78b46e740e34e as base
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.10@sha256:a47c89f02b39a98290f88204ed3d162845db0a0c464b319c2596cfd1e94b444e as base
 
 # Configure local user
 ENV USER root
@@ -34,6 +34,7 @@ RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
         iputils \
         jq-${JQ_VERSION} \
         make \
+        openssl \
         openssl-devel \
         pkg-config \
         python39 \

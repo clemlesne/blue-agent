@@ -117,7 +117,7 @@ RUN zstd --version
 ARG VS_BUILDTOOLS_VERSION
 ENV VS_BUILDTOOLS_VERSION ${VS_BUILDTOOLS_VERSION}
 # TODO: Delete the installer, but it's seems locked, receiving "Remove-Item: Access to the path 'C:\buildtools.exe' is denied."
-RUN curl -LsSf --retry 8 --retry-all-errors "https://aka.ms/vs/${Env:VS_BUILDTOOLS_VERSION}/release/vs_buildtools.exe" -o buildtools.exe \
+RUN curl -LsSf --retry 8 --retry-all-errors "https://download.visualstudio.microsoft.com/download/pr/${Env:VS_BUILDTOOLS_VERSION}/vs_BuildTools.exe" -o buildtools.exe \
     && .\buildtools.exe \
         --installPath 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools' \
         --nocache \

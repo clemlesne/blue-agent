@@ -10,8 +10,6 @@
 
 <!-- github.com badges -->
 
-[![Docker pulls](https://img.shields.io/docker/pulls/clemlesne/blue-agent?label=docker.com%20pulls)](https://hub.docker.com/r/clemlesne/blue-agent)
-[![GitHub all releases](https://img.shields.io/github/downloads/clemlesne/blue-agent/total?label=github.com%20downloads)](https://github.com/clemlesne/blue-agent/pkgs/container/blue-agent)
 [![Last release date](https://img.shields.io/github/release-date/clemlesne/blue-agent)](https://github.com/clemlesne/blue-agent/releases)
 [![Project license](https://img.shields.io/github/license/clemlesne/blue-agent)](https://github.com/clemlesne/blue-agent/blob/main/LICENSE)
 
@@ -19,6 +17,10 @@
 
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/blue-agent)](https://artifacthub.io/packages/search?repo=blue-agent)
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/blue-agent-container)](https://artifacthub.io/packages/search?repo=blue-agent-container)
+
+## Celebrating the community
+
+We broke through 2,000,000 container pulls in August! 🎉
 
 ## Features
 
