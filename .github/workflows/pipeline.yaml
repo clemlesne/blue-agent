@@ -316,7 +316,7 @@ jobs:
 
       - name: Setup QEMU
         id: setup-qemu
-        uses: docker/setup-qemu-action@v3.0.0
+        uses: docker/setup-qemu-action@v3.2.0
         with:
           platforms: ${{ matrix.arch }}
 
