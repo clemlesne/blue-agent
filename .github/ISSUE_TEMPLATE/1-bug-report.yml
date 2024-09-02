@@ -1,0 +1,53 @@
+name: Bug report
+description: Declare something that doesn't work as it should
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Description
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is the problem you are experiencing?
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: How does this impact you?
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        ## Logs
+  - type: textarea
+    id: short-logs
+    attributes:
+      label: Short logs
+      description: Provide the most relevant logs (one or two lines)
+  - type: textarea
+    id: full-logs
+    attributes:
+      label: Full logs
+      description: Provide the full logs
+  - type: markdown
+    attributes:
+      value: |
+        ## Context
+  - type: input
+    id: deployment
+    attributes:
+      label: Deployment
+      description: Where are you deploying?
+      placeholder: e.g. Azure Container Apps, OpenShift
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version or flavor are you using?
+      placeholder: e.g. 1.0.0 with Bookworm
