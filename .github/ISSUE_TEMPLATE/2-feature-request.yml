@@ -1,0 +1,37 @@
+name: Feature request
+description: Propose a new feature or enhancement
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Description
+  - type: textarea
+    id: feature
+    attributes:
+      label: Feature
+      description: What feature are you proposing?
+    validations:
+      required: true
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use case
+      description: How would you use this feature?
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        ## Self-critic
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: What other solutions have you considered?
+  - type: textarea
+    id: drawbacks
+    attributes:
+      label: Drawbacks
+      description: What are the drawbacks of your proposal?
