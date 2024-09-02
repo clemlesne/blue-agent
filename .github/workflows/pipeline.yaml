@@ -18,10 +18,8 @@ on:
 
 env:
   CONTAINER_NAME: ${{ github.repository }}
-  CONTAINER_REGISTRY_DOCKER_HUB_URL: https://index.docker.io/v2/
-  CONTAINER_REGISTRY_DOCKER_HUB: docker.io
-  CONTAINER_REGISTRY_GHCR_URL: https://ghcr.io/v2/
   CONTAINER_REGISTRY_GHCR: ghcr.io
+  CONTAINER_REGISTRY_DOCKER_HUB: docker.io
   # https://github.com/sigstore/cosign/releases
   COSIGN_VERSION: 2.4.0
   # https://npmjs.com/package/@microsoft/sarif-multitool?activeTab=versions
@@ -338,39 +336,19 @@ jobs:
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
-      # Standard login
       - name: Login to registry - GitHub
         uses: docker/login-action@v3.3.0
         with:
-          password: ${{ secrets.GITHUB_TOKEN }}
           registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
           username: ${{ github.actor }}
-
-      # Add full URL in the config to allow Cosign to login
-      # See: https://github.com/sigstore/cosign/issues/587#issuecomment-1003072134
-      - name: Login to registry - GitHub (Cosign)
-        uses: docker/login-action@v3.3.0
-        with:
           password: ${{ secrets.GITHUB_TOKEN }}
-          registry: ${{ env.CONTAINER_REGISTRY_GHCR_URL }}
-          username: ${{ github.actor }}
 
-      # Standard login
       - name: Login to registry - Docker Hub
         uses: docker/login-action@v3.3.0
         with:
-          password: ${{ secrets.DOCKER_HUB_PAT }}
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
           username: clemlesne
-
-      # Add full URL in the config to allow Cosign to login
-      # See: https://github.com/sigstore/cosign/issues/587#issuecomment-1003072134
-      - name: Login to registry - Docker Hub (Cosign)
-        uses: docker/login-action@v3.3.0
-        with:
           password: ${{ secrets.DOCKER_HUB_PAT }}
-          registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB_URL }}
-          username: clemlesne
 
       - name: Check if pre-release
         id: prerelease
@@ -527,39 +505,19 @@ jobs:
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
-      # Standard login
       - name: Login to registry - GitHub
         uses: docker/login-action@v3.3.0
         with:
-          password: ${{ secrets.GITHUB_TOKEN }}
           registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
           username: ${{ github.actor }}
-
-      # Add full URL in the config to allow Cosign to login
-      # See: https://github.com/sigstore/cosign/issues/587#issuecomment-1003072134
-      - name: Login to registry - GitHub (Cosign)
-        uses: docker/login-action@v3.3.0
-        with:
           password: ${{ secrets.GITHUB_TOKEN }}
-          registry: ${{ env.CONTAINER_REGISTRY_GHCR_URL }}
-          username: ${{ github.actor }}
 
-      # Standard login
       - name: Login to registry - Docker Hub
         uses: docker/login-action@v3.3.0
         with:
-          password: ${{ secrets.DOCKER_HUB_PAT }}
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
           username: clemlesne
-
-      # Add full URL in the config to allow Cosign to login
-      # See: https://github.com/sigstore/cosign/issues/587#issuecomment-1003072134
-      - name: Login to registry - Docker Hub (Cosign)
-        uses: docker/login-action@v3.3.0
-        with:
           password: ${{ secrets.DOCKER_HUB_PAT }}
-          registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB_URL }}
-          username: clemlesne
 
       - name: Check if pre-release
         id: prerelease
