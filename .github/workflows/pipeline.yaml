@@ -180,6 +180,7 @@ jobs:
       - name: Upload Helm chart
         uses: actions/upload-artifact@v4.4.0
         with:
+          if-no-files-found: error # Fail if no files are uploaded
           include-hidden-files: true # Folder begins with a dot, if not checked the whole folder is ignored
           name: helm-chart
           path: .cr-release-packages
@@ -791,6 +792,7 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4.4.0
         with:
+          if-no-files-found: error # Fail if no files are uploaded
           name: hugo
           path: docs/public
 
