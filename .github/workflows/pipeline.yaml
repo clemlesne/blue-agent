@@ -180,6 +180,7 @@ jobs:
       - name: Cache Helm chart
         uses: actions/upload-artifact@v4.4.0
         with:
+          include-hidden-files: true # Folder begins with a dot, if not checked the whole folder is ignored
           name: helm-chart
           path: .cr-release-packages
 
