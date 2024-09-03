@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9-minimal:9.4@sha256:104cf11d890aeb7dd5728b7d7732e175a0e4018f1bb00d2faebcc8f6bf29bd52 as base
+FROM registry.access.redhat.com/ubi9-minimal:9.4@sha256:104cf11d890aeb7dd5728b7d7732e175a0e4018f1bb00d2faebcc8f6bf29bd52 AS base
 
 # Configure local user
 ENV USER=root
@@ -65,7 +65,7 @@ RUN python3 -m pip \
             setuptools wheel \
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
-FROM base as rootlesskit
+FROM base AS rootlesskit
 
 # Install Go, then verify installation
 ARG GO_VERSION

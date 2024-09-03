@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0-bookworm-slim@sha256:4f1519bfe954d5caf962f5502c4252d5d39d45517aa68e6b5847e72fd10769b4 as base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-bookworm-slim@sha256:4f1519bfe954d5caf962f5502c4252d5d39d45517aa68e6b5847e72fd10769b4 AS base
 
 # Force apt-get to not use TTY
 ENV DEBIAN_FRONTEND=noninteractive
@@ -71,7 +71,7 @@ RUN python3 -m pip \
             setuptools wheel \
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
-FROM base as rootlesskit
+FROM base AS rootlesskit
 
 # Install Go, then verify installation
 ARG GO_VERSION
