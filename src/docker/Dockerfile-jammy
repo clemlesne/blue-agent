@@ -1,14 +1,14 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0-jammy@sha256:36f90c72b200f455e130a48fc279080aff296b4d506e29b9619fe82ae3853c4b as base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-jammy@sha256:36f90c72b200f455e130a48fc279080aff296b4d506e29b9619fe82ae3853c4b AS base
 
 # Force apt-get to not use TTY
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Configure local user
-ENV USER root
-ENV HOME /app-root
+ENV USER=root
+ENV HOME=/app-root
 
 # Avoid Python cache during build
-ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONDONTWRITEBYTECODE=1
 
 # Install:
 # - Azure Pipelines agent system requirements
@@ -67,11 +67,11 @@ RUN python3 -m pip \
             setuptools wheel \
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
-FROM base as rootlesskit
+FROM base AS rootlesskit
 
 # Install Go, then verify installation
 ARG GO_VERSION
-ENV GO_VERSION ${GO_VERSION}
+ENV GO_VERSION=${GO_VERSION}
 RUN rm -rf /usr/local/go \
     && curl -LsSf --retry 8 --retry-all-errors https://go.dev/dl/go${GO_VERSION}.linux-$(ARCH_X64=amd64 bash arch.sh).tar.gz | tar -xz -C /usr/local
 ENV PATH="${PATH}:/usr/local/go/bin"
@@ -79,7 +79,7 @@ RUN go version
 
 # Install RootlessKit, then verify installation
 ARG ROOTLESSKIT_VERSION
-ENV ROOTLESSKIT_VERSION ${ROOTLESSKIT_VERSION}
+ENV ROOTLESSKIT_VERSION=${ROOTLESSKIT_VERSION}
 RUN git clone --depth 1 --branch v${ROOTLESSKIT_VERSION} https://github.com/rootless-containers/rootlesskit.git rootlesskit \
     && make --directory rootlesskit \
     && make --directory rootlesskit install \
@@ -90,7 +90,7 @@ RUN git clone --depth 1 --branch v${ROOTLESSKIT_VERSION} https://github.com/root
 FROM base
 # Install Azure CLI, then verify installation
 ARG AZURE_CLI_VERSION
-ENV AZURE_CLI_VERSION ${AZURE_CLI_VERSION}
+ENV AZURE_CLI_VERSION=${AZURE_CLI_VERSION}
 RUN python3 -m pip \
         --disable-pip-version-check \
         --no-cache-dir \
@@ -103,7 +103,7 @@ RUN python3 -m pip \
 
 # Install AWS CLI, then verify installation
 ARG AWS_CLI_VERSION
-ENV AWS_CLI_VERSION ${AWS_CLI_VERSION}
+ENV AWS_CLI_VERSION=${AWS_CLI_VERSION}
 RUN curl -LsSf --retry 8 --retry-all-errors https://awscli.amazonaws.com/awscli-exe-linux-$(ARCH_X64=x86_64 ARCH_ARM64=aarch64 bash arch.sh)-${AWS_CLI_VERSION}.zip -o awscli.zip \
     && unzip -q awscli.zip \
     && ./aws/install \
@@ -112,7 +112,7 @@ RUN curl -LsSf --retry 8 --retry-all-errors https://awscli.amazonaws.com/awscli-
 
 # Install Google Cloud CLI, then verify installation
 ARG GCLOUD_CLI_VERSION
-ENV GCLOUD_CLI_VERSION ${GCLOUD_CLI_VERSION}
+ENV GCLOUD_CLI_VERSION=${GCLOUD_CLI_VERSION}
 RUN curl -LsSf --retry 8 --retry-all-errors https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-${GCLOUD_CLI_VERSION}-linux-$(ARCH_X64=x86_64 ARCH_ARM64=arm bash arch.sh).tar.gz | tar -xz -C /usr/local \
     && /usr/local/google-cloud-sdk/install.sh \
         --additional-components beta \
@@ -125,7 +125,7 @@ RUN curl -LsSf --retry 8 --retry-all-errors https://dl.google.com/dl/cloudsdk/ch
 
 # Install Powershell, then verify installation
 ARG POWERSHELL_VERSION
-ENV POWERSHELL_VERSION ${POWERSHELL_VERSION}
+ENV POWERSHELL_VERSION=${POWERSHELL_VERSION}
 RUN mkdir -p /opt/microsoft/powershell \
     && curl -LsSf --retry 8 --retry-all-errors https://github.com/PowerShell/PowerShell/releases/download/v${POWERSHELL_VERSION}/powershell-${POWERSHELL_VERSION}-linux-$(bash arch.sh).tar.gz | tar -xz -C /opt/microsoft/powershell \
     && chmod +x /opt/microsoft/powershell/pwsh \
@@ -135,14 +135,14 @@ RUN mkdir -p /opt/microsoft/powershell \
 
 # Install YQ, then verify installation
 ARG YQ_VERSION
-ENV YQ_VERSION ${YQ_VERSION}
+ENV YQ_VERSION=${YQ_VERSION}
 RUN curl -LsSf --retry 8 --retry-all-errors https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_$(ARCH_X64=amd64 bash arch.sh) -o /usr/bin/yq \
     && chmod +x /usr/bin/yq \
     && yq --version
 
 # Install Tini, then verify installation
 ARG TINI_VERSION
-ENV TINI_VERSION ${TINI_VERSION}
+ENV TINI_VERSION=${TINI_VERSION}
 RUN curl -LsSf --retry 8 --retry-all-errors https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$(ARCH_X64=amd64 bash arch.sh) -o /tini \
     && chmod +x /tini \
     && /tini --version
@@ -150,7 +150,7 @@ ENTRYPOINT ["/tini", "--"]
 
 # Install BuildKit, then verify installation
 ARG BUILDKIT_VERSION
-ENV BUILDKIT_VERSION ${BUILDKIT_VERSION}
+ENV BUILDKIT_VERSION=${BUILDKIT_VERSION}
 RUN mkdir buildkit \
     && curl -LsSf --retry 8 --retry-all-errors https://github.com/moby/buildkit/releases/download/v${BUILDKIT_VERSION}/buildkit-v${BUILDKIT_VERSION}.linux-$(ARCH_X64=amd64 bash arch.sh).tar.gz | tar -xz -C buildkit \
     && mv buildkit/bin/* /usr/local/bin \
@@ -165,11 +165,11 @@ RUN rootlesskit --version \
 
 # Install Azure Pipelines Agent sources, then verify installation
 ARG AZP_AGENT_VERSION
-ENV AZP_AGENT_VERSION ${AZP_AGENT_VERSION}
-ENV AZP_HOME ${HOME}/azp-agent
+ENV AZP_AGENT_VERSION=${AZP_AGENT_VERSION}
+ENV AZP_HOME=${HOME}/azp-agent
 # Disable agent auto-updates
 # See: https://github.com/microsoft/azure-pipelines-agent/blob/b5ff4408239f3e938560f8b2e3848df76489a8d0/src/Agent.Listener/Agent.cs#L354C24-L354C24
-ENV agent.disableupdate "1"
+ENV agent.disableupdate="1"
 RUN mkdir -p ${AZP_HOME} \
     && curl -LsSf --retry 8 --retry-all-errors https://vstsagentpackage.azureedge.net/agent/${AZP_AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AZP_AGENT_VERSION}.tar.gz | tar -xz -C ${AZP_HOME} \
     && cd ${AZP_HOME} \
@@ -178,8 +178,8 @@ RUN mkdir -p ${AZP_HOME} \
     && rm -rf _diag \
     # Allow local user to R/W to agent home
     && chmod -R a+w .
-ENV AZP_WORK ${HOME}/azp-work
-ENV AZP_CUSTOM_CERT_PEM ${HOME}/azp-custom-certs
+ENV AZP_WORK=${HOME}/azp-work
+ENV AZP_CUSTOM_CERT_PEM=${HOME}/azp-custom-certs
 
 # Cleanup helper script
 RUN rm arch.sh

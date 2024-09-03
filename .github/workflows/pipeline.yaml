@@ -61,7 +61,7 @@ env:
   # https://github.com/helm/helm/releases
   HELM_VERSION: 3.15.4
   # https://github.com/oras-project/oras/releases
-  ORAS_VERSION: 1.2.0
+  ORAS_VERSION: 1.1.0
   # https://github.com/docker/buildx/releases
   BUILDX_VERSION: 0.16.2
   # https://github.com/hadolint/hadolint/releases
@@ -177,9 +177,11 @@ jobs:
             --yes \
             .cr-release-packages/blue-agent-${{ needs.init.outputs.VERSION }}.tgz
 
-      - name: Cache Helm chart
+      - name: Upload Helm chart
         uses: actions/upload-artifact@v4.4.0
         with:
+          if-no-files-found: error # Fail if no files are uploaded
+          include-hidden-files: true # Folder begins with a dot, if not checked the whole folder is ignored
           name: helm-chart
           path: .cr-release-packages
 
@@ -790,6 +792,7 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4.4.0
         with:
+          if-no-files-found: error # Fail if no files are uploaded
           name: hugo
           path: docs/public
 
