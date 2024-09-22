@@ -970,47 +970,47 @@ title="Copy code"
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>annotations&lt;/code>&lt;/td>
-&lt;td>Add custom annotations to the Pod.&lt;/td>
+&lt;td>Add custom annotations to the Pod&lt;/td>
 &lt;td>&lt;code>{}&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>autoscaling.cooldown&lt;/code>&lt;/td>
-&lt;td>Time in seconds the automation will wait until there is no more pipeline asking for an agent. Same time is then applied for system termination.&lt;/td>
+&lt;td>Time in seconds the automation will wait until there is no more pipeline asking for an agent; same delay is then applied for system termination&lt;/td>
 &lt;td>&lt;code>60&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>autoscaling.enabled&lt;/code>&lt;/td>
-&lt;td>Enable the auto-scaling. Requires &lt;a href="https://keda.sh" target="_blank" rel="noopener">KEDA&lt;/a>, but can be started without. Be warning, disabling auto-scaling implies a shutdown of the existing agents during a Helm instance upgrade, according to &lt;code>pipelines.timeout&lt;/code>.&lt;/td>
+&lt;td>Enable the auto-scaling; requires &lt;a href="https://keda.sh" target="_blank" rel="noopener">KEDA&lt;/a>, but can be started without; Be warning, disabling auto-scaling implies a shutdown of the existing agents during a Helm instance upgrade, according to &lt;code>pipelines.timeout&lt;/code>&lt;/td>
 &lt;td>&lt;code>true&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>autoscaling.maxReplicas&lt;/code>&lt;/td>
-&lt;td>Maximum number of pods, remaining jobs will be kept in queue. The default value is arbitrary, to avoid misconfiguration.&lt;/td>
+&lt;td>Maximum number of pods, remaining jobs will be kept in queue; the default value is arbitrary, to avoid misconfiguration&lt;/td>
 &lt;td>&lt;code>100&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>extraEnv&lt;/code>&lt;/td>
-&lt;td>Additional environment variables for the agent container.&lt;/td>
+&lt;td>Additional environment variables for the agent container&lt;/td>
 &lt;td>&lt;code>[]&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>extraManifests&lt;/code>&lt;/td>
-&lt;td>Extra manifests to deploy as an array. pod.&lt;/td>
+&lt;td>Extra manifests to deploy as an array&lt;/td>
 &lt;td>&lt;code>[]&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>extraNodeSelectors&lt;/code>&lt;/td>
-&lt;td>Additional node labels for pod assignment.&lt;/td>
+&lt;td>Additional node labels for pod assignment&lt;/td>
 &lt;td>&lt;code>{}&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>extraVolumeMounts&lt;/code>&lt;/td>
-&lt;td>Additional volume mounts for the agent container.&lt;/td>
+&lt;td>Additional volume mounts for the agent container&lt;/td>
 &lt;td>&lt;code>[]&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>extraVolumes&lt;/code>&lt;/td>
-&lt;td>Additional volumes for the agent pod.&lt;/td>
+&lt;td>Additional volumes for the agent pod&lt;/td>
 &lt;td>&lt;code>[]&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
@@ -1020,12 +1020,12 @@ title="Copy code"
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>image.flavor&lt;/code>&lt;/td>
-&lt;td>Container image tag, can be &lt;code>bookworm&lt;/code>, &lt;code>bullseye&lt;/code>, &lt;code>focal&lt;/code>, &lt;code>jammy&lt;/code>, &lt;code>ubi8&lt;/code>, &lt;code>ubi9&lt;/code>, &lt;code>win-ltsc2019&lt;/code>, or &lt;code>win-ltsc2022&lt;/code>.&lt;/td>
+&lt;td>Container image tag, can be &lt;code>bookworm&lt;/code>, &lt;code>bullseye&lt;/code>, &lt;code>focal&lt;/code>, &lt;code>jammy&lt;/code>, &lt;code>ubi8&lt;/code>, &lt;code>ubi9&lt;/code>, &lt;code>win-ltsc2019&lt;/code>, or &lt;code>win-ltsc2022&lt;/code>&lt;/td>
 &lt;td>&lt;code>bookworm&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>image.isWindows&lt;/code>&lt;/td>
-&lt;td>Turn on is the agent is a Windows-based system.&lt;/td>
+&lt;td>Turn on is the agent is a Windows-based system&lt;/td>
 &lt;td>&lt;code>false&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
@@ -1045,12 +1045,12 @@ title="Copy code"
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>imagePullSecrets&lt;/code>&lt;/td>
-&lt;td>Use secrets to pull the container image.&lt;/td>
+&lt;td>Use secrets to pull the container image&lt;/td>
 &lt;td>&lt;code>[]&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>initContainers&lt;/code>&lt;/td>
-&lt;td>Init containers for the agent pod. pod.&lt;/td>
+&lt;td>Init containers for the agent pod&lt;/td>
 &lt;td>&lt;code>[]&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
@@ -1060,17 +1060,17 @@ title="Copy code"
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>pipelines.cache.size&lt;/code>&lt;/td>
-&lt;td>Total cache to attach to the Azure Pipelines standard directory. By default, &lt;a href="https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&amp;amp;tabs=yaml#hardware" target="_blank" rel="noopener">same amount as the Microsoft Hosted agents&lt;/a>.&lt;/td>
+&lt;td>Total cache to attach to the Azure Pipelines standard directory; by default, &lt;a href="https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&amp;amp;tabs=yaml#hardware" target="_blank" rel="noopener">same amount as the Microsoft Hosted agents&lt;/a>&lt;/td>
 &lt;td>&lt;code>10Gi&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>pipelines.cache.type&lt;/code>&lt;/td>
-&lt;td>Disk type to attach to the Azure Pipelines standard directory. See your cloud provider for types (&lt;a href="https://learn.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes" target="_blank" rel="noopener">Azure&lt;/a>, &lt;a href="https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html" target="_blank" rel="noopener">AWS&lt;/a>).&lt;/td>
+&lt;td>Disk type to attach to the Azure Pipelines standard directory; see your cloud provider for types (&lt;a href="https://learn.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes" target="_blank" rel="noopener">Azure&lt;/a>, &lt;a href="https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html" target="_blank" rel="noopener">AWS&lt;/a>)&lt;/td>
 &lt;td>&lt;code>managed-csi&lt;/code> (Azure compatible)&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>pipelines.cache.volumeEnabled&lt;/code>&lt;/td>
-&lt;td>Enabled by default, can be disabled if your CSI driver doesn&amp;rsquo;t support ephemeral storage (&lt;a href="https://kubernetes-csi.github.io/docs/drivers.html" target="_blank" rel="noopener">exhaustive list&lt;/a>). If disabled, it is advised to allow &amp;gt;= 10Gi of ephemeral storage usage (see &lt;code>resources&lt;/code>).&lt;/td>
+&lt;td>Enabled by default, can be disabled if your CSI driver doesn&amp;rsquo;t support ephemeral storage (&lt;a href="https://kubernetes-csi.github.io/docs/drivers.html" target="_blank" rel="noopener">exhaustive list&lt;/a>); if disabled, it is advised to allow &amp;gt;= 10Gi of ephemeral storage usage (see &lt;code>resources&lt;/code>)&lt;/td>
 &lt;td>&lt;code>true&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
@@ -1080,17 +1080,17 @@ title="Copy code"
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>pipelines.cleanup.failed&lt;/code>&lt;/td>
-&lt;td>Maximum of failed Jobs to keep from Kubernetes API server (&lt;a href="https://keda.sh/docs/2.11/concepts/scaling-jobs/#scaledjob-spec" target="_blank" rel="noopener">see doc&lt;/a>). Only applied to autoscaled deployments (see &lt;code>autoscaling.enabled&lt;/code>).&lt;/td>
+&lt;td>Maximum of failed Jobs to keep from Kubernetes API server (&lt;a href="https://keda.sh/docs/2.11/concepts/scaling-jobs/#scaledjob-spec" target="_blank" rel="noopener">see doc&lt;/a>); only applied to autoscaled deployments (see &lt;code>autoscaling.enabled&lt;/code>)&lt;/td>
 &lt;td>&lt;code>100&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>pipelines.cleanup.successful&lt;/code>&lt;/td>
-&lt;td>Maximum of successful Jobs to keep from Kubernetes API server (&lt;a href="https://keda.sh/docs/2.11/concepts/scaling-jobs/#scaledjob-spec" target="_blank" rel="noopener">see doc&lt;/a>). Only applied to autoscaled deployments (see &lt;code>autoscaling.enabled&lt;/code>).&lt;/td>
+&lt;td>Maximum of successful Jobs to keep from Kubernetes API server (&lt;a href="https://keda.sh/docs/2.11/concepts/scaling-jobs/#scaledjob-spec" target="_blank" rel="noopener">see doc&lt;/a>); only applied to autoscaled deployments (see &lt;code>autoscaling.enabled&lt;/code>)&lt;/td>
 &lt;td>&lt;code>100&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>pipelines.cleanup.ttl&lt;/code>&lt;/td>
-&lt;td>Delay until Job history will be cleaned from Kubernetes API server (&lt;a href="https://kubernetes.io/docs/concepts/workloads/controllers/job/#ttl-mechanism-for-finished-jobs" target="_blank" rel="noopener">see doc&lt;/a>). Only applied to autoscaled deployments (see &lt;code>autoscaling.enabled&lt;/code>).&lt;/td>
+&lt;td>Delay until Job history will be cleaned from Kubernetes API server (&lt;a href="https://kubernetes.io/docs/concepts/workloads/controllers/job/#ttl-mechanism-for-finished-jobs" target="_blank" rel="noopener">see doc&lt;/a>); only applied to autoscaled deployments (see &lt;code>autoscaling.enabled&lt;/code>)&lt;/td>
 &lt;td>&lt;code>3600&lt;/code> (1 hour)&lt;/td>
 &lt;/tr>
 &lt;tr>
@@ -1100,42 +1100,42 @@ title="Copy code"
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>pipelines.personalAccessToken&lt;/code>&lt;/td>
-&lt;td>Personal Access Token (PAT) used by the agent to connect to the Azure DevOps server (both SaaS and self-hosted).&lt;/td>
+&lt;td>Personal Access Token (PAT) used by the agent to connect to the Azure DevOps server (both SaaS and self-hosted)&lt;/td>
 &lt;td>&lt;em>None&lt;/em>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>pipelines.poolName&lt;/code>&lt;/td>
-&lt;td>Agent pool name to which the agent should register.&lt;/td>
+&lt;td>Agent pool name to which the agent should register&lt;/td>
 &lt;td>&lt;em>None&lt;/em>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>pipelines.timeout&lt;/code>&lt;/td>
-&lt;td>Time in seconds after a agent will be stopped, the same amount of time is applied as a timeout for the system to shut down.&lt;/td>
+&lt;td>Time in seconds after a agent will be stopped, the same amount of time is applied as a timeout for the system to shut down&lt;/td>
 &lt;td>&lt;code>3600&lt;/code> (1 hour)&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>pipelines.tmpdir.size&lt;/code>&lt;/td>
-&lt;td>Total size of the &lt;a href="https://en.wikipedia.org/wiki/TMPDIR" target="_blank" rel="noopener">standard &lt;code>TMPDIR&lt;/code> directory&lt;/a>.&lt;/td>
+&lt;td>Total size of the &lt;a href="https://en.wikipedia.org/wiki/TMPDIR" target="_blank" rel="noopener">standard &lt;code>TMPDIR&lt;/code> directory&lt;/a>&lt;/td>
 &lt;td>&lt;code>1Gi&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>pipelines.tmpdir.type&lt;/code>&lt;/td>
-&lt;td>Disk type to attach to the &lt;a href="https://en.wikipedia.org/wiki/TMPDIR" target="_blank" rel="noopener">standard &lt;code>TMPDIR&lt;/code> directory&lt;/a>. See your cloud provider for types (&lt;a href="https://learn.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes" target="_blank" rel="noopener">Azure&lt;/a>, &lt;a href="https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html" target="_blank" rel="noopener">AWS&lt;/a>).&lt;/td>
+&lt;td>Disk type to attach to the &lt;a href="https://en.wikipedia.org/wiki/TMPDIR" target="_blank" rel="noopener">standard &lt;code>TMPDIR&lt;/code> directory&lt;/a>; see your cloud provider for types (&lt;a href="https://learn.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes" target="_blank" rel="noopener">Azure&lt;/a>, &lt;a href="https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html" target="_blank" rel="noopener">AWS&lt;/a>)&lt;/td>
 &lt;td>&lt;code>managed-csi&lt;/code> (Azure compatible)&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>pipelines.tmpdir.volumeEnabled&lt;/code>&lt;/td>
-&lt;td>Enabled by default, can be disabled if your CSI driver doesn&amp;rsquo;t support ephemeral storage (&lt;a href="https://kubernetes-csi.github.io/docs/drivers.html" target="_blank" rel="noopener">exhaustive list&lt;/a>). If disabled, it is advised to allow &amp;gt;= 10Gi of ephemeral storage usage (see &lt;code>resources&lt;/code>).&lt;/td>
+&lt;td>Enabled by default, can be disabled if your CSI driver doesn&amp;rsquo;t support ephemeral storage (&lt;a href="https://kubernetes-csi.github.io/docs/drivers.html" target="_blank" rel="noopener">exhaustive list&lt;/a>); if disabled, it is advised to allow &amp;gt;= 10Gi of ephemeral storage usage (see &lt;code>resources&lt;/code>)&lt;/td>
 &lt;td>&lt;code>true&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>podSecurityContext&lt;/code>&lt;/td>
-&lt;td>Security rules applied to the Pod (&lt;a href="https://kubernetes.io/docs/concepts/security/pod-security-standards" target="_blank" rel="noopener">more details&lt;/a>).&lt;/td>
+&lt;td>Security rules applied to the Pod (&lt;a href="https://kubernetes.io/docs/concepts/security/pod-security-standards" target="_blank" rel="noopener">more details&lt;/a>)&lt;/td>
 &lt;td>&lt;code>{}&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>replicaCount&lt;/code>&lt;/td>
-&lt;td>Default fixed amount of agents deployed. Those are not auto-scaled.&lt;/td>
+&lt;td>Default fixed amount of agents deployed; those are not auto-scaled&lt;/td>
 &lt;td>&lt;code>3&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
@@ -1144,8 +1144,13 @@ title="Copy code"
 &lt;td>&lt;code>{ &amp;quot;resources&amp;quot;: { &amp;quot;limits&amp;quot;: { &amp;quot;cpu&amp;quot;: 2, &amp;quot;memory&amp;quot;: &amp;quot;4Gi&amp;quot;, &amp;quot;ephemeral-storage&amp;quot;: &amp;quot;8Gi&amp;quot; }, &amp;quot;requests&amp;quot;: { &amp;quot;cpu&amp;quot;: 1, &amp;quot;memory&amp;quot;: &amp;quot;2Gi&amp;quot;, &amp;quot;ephemeral-storage&amp;quot;: &amp;quot;2Gi&amp;quot; }}}&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
+&lt;td>&lt;code>revisionHistoryLimit&lt;/code>&lt;/td>
+&lt;td>Number of revisions to keep in the history of the Deployment&lt;/td>
+&lt;td>&lt;code>10&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
 &lt;td>&lt;code>secret.create&lt;/code>&lt;/td>
-&lt;td>Create Secret, must contains &lt;code>personalAccessToken&lt;/code> and &lt;code>organizationURL&lt;/code> variables.&lt;/td>
+&lt;td>Create Secret, must contains &lt;code>personalAccessToken&lt;/code> and &lt;code>organizationURL&lt;/code> variables&lt;/td>
 &lt;td>&lt;code>true&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
@@ -1155,12 +1160,12 @@ title="Copy code"
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>securityContext&lt;/code>&lt;/td>
-&lt;td>Security rules applied to the container (&lt;a href="https://kubernetes.io/docs/concepts/security/pod-security-standards" target="_blank" rel="noopener">more details&lt;/a>).&lt;/td>
+&lt;td>Security rules applied to the container (&lt;a href="https://kubernetes.io/docs/concepts/security/pod-security-standards" target="_blank" rel="noopener">more details&lt;/a>)&lt;/td>
 &lt;td>&lt;code>{}&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>serviceAccount.annotations&lt;/code>&lt;/td>
-&lt;td>Custom annotations to give to the ServiceAccount.&lt;/td>
+&lt;td>Custom annotations to give to the ServiceAccount&lt;/td>
 &lt;td>&lt;code>{}&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
@@ -1175,12 +1180,12 @@ title="Copy code"
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>sidecarContainers&lt;/code>&lt;/td>
-&lt;td>Containers to run alongside the agent container.&lt;/td>
+&lt;td>Containers to run alongside the agent container&lt;/td>
 &lt;td>&lt;code>[]&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>tolerations&lt;/code>&lt;/td>
-&lt;td>Toleration labels for pod assignment.&lt;/td>
+&lt;td>Toleration labels for pod assignment&lt;/td>
 &lt;td>&lt;code>[]&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;/tbody>
