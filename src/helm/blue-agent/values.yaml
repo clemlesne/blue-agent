@@ -1,10 +1,10 @@
 # Container image configuration
 image:
-  # Container image flavor, default is 'bookworm'
+  # Container image flavor, default is "bookworm"
   flavor: bookworm
   # Indicates if the image is for Windows, default is false
   isWindows: false
-  # Image pull policy, default is 'Always'
+  # Image pull policy, default is "Always"
   pullPolicy: Always
   # Container image repository
   repository: ghcr.io/clemlesne/blue-agent
