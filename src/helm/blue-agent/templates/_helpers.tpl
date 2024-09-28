@@ -141,31 +141,38 @@ containers:
       {{- toYaml (mustMergeOverwrite (include "blue-agent.defaultSecurityContext" . | fromYaml) .Values.securityContext) | nindent 6 }}
     image: "{{ .Values.image.repository | required "A value for .Values.image.repository is required" }}:{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}-{{ default .Chart.Version .Values.image.version }}"
     imagePullPolicy: {{ .Values.image.pullPolicy }}
+    {{- if .Values.image.isWindows }}
+    {{- if not .Values.pipelines.cache.volumeEnabled }}
     lifecycle:
       preStop:
         exec:
           command:
-            {{- if .Values.image.isWindows }}
-            {{- if not .Values.pipelines.cache.volumeEnabled }}
             - powershell
             - -Command
             - |
               # For security reasons, force clean the pipeline workspace at restart -- Sharing data bewteen pipelines is a security risk
               Remove-Item -Recurse -Force $Env:AZP_WORK;
-            {{- end }}
-            {{- else if or (not .Values.pipelines.cache.volumeEnabled) (not .Values.pipelines.tmpdir.volumeEnabled)}}
+    {{- end }}
+    {{- else if or (not .Values.pipelines.cache.volumeEnabled) (not .Values.pipelines.tmpdir.volumeEnabled)}}
+    lifecycle:
+      preStop:
+        exec:
+          command:
+            {{- if not .Values.pipelines.cache.volumeEnabled }}
             - bash
             - -c
             - |
-              {{- if not .Values.pipelines.cache.volumeEnabled }}
               # For security reasons, force clean the pipeline workspace at restart -- Sharing data bewteen pipelines is a security risk
               rm -rf ${AZP_WORK};
-              {{- end }}
-              {{- if not .Values.pipelines.tmpdir.volumeEnabled }}
+            {{- end }}
+            {{- if not .Values.pipelines.tmpdir.volumeEnabled }}
+            - bash
+            - -c
+            - |
               # For security reasons, force clean the tmpdir at restart -- Sharing data bewteen pipelines is a security risk
               rm -rf ${TMPDIR};
-              {{- end }}
             {{- end }}
+    {{- end }}
     env:
       - name: AGENT_DIAGLOGPATH
         {{- if .Values.image.isWindows }}
