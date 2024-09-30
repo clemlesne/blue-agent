@@ -172,6 +172,11 @@ containers:
               # For security reasons, force clean the tmpdir at restart -- Sharing data bewteen pipelines is a security risk
               rm -rf ${TMPDIR};
             {{- end }}
+            {{- else }}
+            - bash
+            - c
+            - true
+            {{- end }}
     {{- end }}
     env:
       - name: AGENT_DIAGLOGPATH
