@@ -7,6 +7,11 @@ It was chosen arbitrarily to install the LTS non SDK version of ASNP.NET. Becaus
 - LTS is better supported by Microsoft than STS
 - The non-SDK is lighter when included in a container, knowing that not everyone will use it for building purposes
 
+Bundled versions installed depends on the image used:
+
+- Debian Bullseye (11) and Ubuntu Focal (20.04) use the `6.x` version (Microsoft doesn't support any LTS upgrades for these versions)
+- Other images use the `8.x` version
+
 It is recommended that development teams to hard-code the framework version you want to use, in your pipeline. With this setup, the developer controls its environment, not the platform. If they decide to upgrade, they update the pipeline, if not, not. This is under the responsibility of the developer.
 
 The ASP.NET framework can be installed on the fly with [UseDotNet@2](https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/use-dotnet-v2?view=azure-pipelines):
