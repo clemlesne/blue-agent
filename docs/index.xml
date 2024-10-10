@@ -455,6 +455,11 @@ Set a technical pipeline timeout longer than the functional pipeline timeout to 
 &lt;li>LTS is better supported by Microsoft than STS&lt;/li>
 &lt;li>The non-SDK is lighter when included in a container, knowing that not everyone will use it for building purposes&lt;/li>
 &lt;/ul>
+&lt;p>Bundled versions installed depends on the image used:&lt;/p>
+&lt;ul>
+&lt;li>Debian Bullseye (11) and Ubuntu Focal (20.04) use the &lt;code>6.x&lt;/code> version (Microsoft doesn&amp;rsquo;t support any LTS upgrades for these versions)&lt;/li>
+&lt;li>Other images use the &lt;code>8.x&lt;/code> version&lt;/li>
+&lt;/ul>
 &lt;p>It is recommended that development teams to hard-code the framework version you want to use, in your pipeline. With this setup, the developer controls its environment, not the platform. If they decide to upgrade, they update the pipeline, if not, not. This is under the responsibility of the developer.&lt;/p>
 &lt;p>The ASP.NET framework can be installed on the fly with &lt;a href="https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/use-dotnet-v2?view=azure-pipelines" target="_blank" rel="noopener">UseDotNet@2&lt;/a>:&lt;/p>
 &lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
