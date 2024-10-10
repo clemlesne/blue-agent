@@ -17,7 +17,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ARG JQ_VERSION
 RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
     microdnf install -y --nodocs --setopt=install_weak_deps=0 \
-        aspnetcore-runtime-6.0 \
+        aspnetcore-runtime-8.0 \
         ca-certificates \
         cargo \
         curl \
