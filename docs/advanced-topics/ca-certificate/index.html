@@ -3,7 +3,51 @@
 Paths are /app-root/azp-custom-certs for Linux-based agents and C:\app-root\azp-custom-certs for Windows-based agents.
 # config-root-ca.yaml apiVersion: v1 kind: ConfigMap metadata: name: custom-certs data: root-1.crt: | -----BEGIN CERTIFICATE----- ... -----END CERTIFICATE----- root-2.crt: | -----BEGIN CERTIFICATE----- ... -----END CERTIFICATE----- # values.yaml extraVolumes: - name: custom-certs configMap: name: custom-certs extraVolumeMounts: - name: custom-certs mountPath: /app-root/azp-custom-certs readOnly: true "><link rel=canonical href=https://clemlesne.github.io/blue-agent/docs/advanced-topics/ca-certificate/ itemprop=url><meta property="og:title" content="Custom root certificate"><meta property="og:description" content="If you need to run the agent with a custom root certificate, you can use the following Helm values. Format is PEM certificate and with UTF-8 encoding.
 Paths are /app-root/azp-custom-certs for Linux-based agents and C:\app-root\azp-custom-certs for Windows-based agents.
-# config-root-ca.yaml apiVersion: v1 kind: ConfigMap metadata: name: custom-certs data: root-1.crt: | -----BEGIN CERTIFICATE----- ... -----END CERTIFICATE----- root-2.crt: | -----BEGIN CERTIFICATE----- ... -----END CERTIFICATE----- # values.yaml extraVolumes: - name: custom-certs configMap: name: custom-certs extraVolumeMounts: - name: custom-certs mountPath: /app-root/azp-custom-certs readOnly: true "><meta property="og:type" content="article"><meta property="og:url" content="https://clemlesne.github.io/blue-agent/docs/advanced-topics/ca-certificate/"><meta property="article:section" content="docs"><meta property="article:modified_time" content="2023-11-27T11:26:59+01:00"><meta itemprop=name content="Custom root certificate"><meta itemprop=description content="If you need to run the agent with a custom root certificate, you can use the following Helm values. Format is PEM certificate and with UTF-8 encoding.
+
+  
+
+# config-root-ca.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: custom-certs
+data:
+  root-1.crt: |
+    -----BEGIN CERTIFICATE-----
+    ...
+    -----END CERTIFICATE-----    
+  root-2.crt: |
+    -----BEGIN CERTIFICATE-----
+    ...
+    -----END CERTIFICATE-----    
+  
+    
+    
+  
+
+
+  
+
+
+  
+
+# values.yaml
+extraVolumes:
+  - name: custom-certs
+    configMap:
+      name: custom-certs
+extraVolumeMounts:
+  - name: custom-certs
+    mountPath: /app-root/azp-custom-certs
+    readOnly: true
+  
+    
+    
+  
+
+
+  
+"><meta property="og:type" content="article"><meta property="og:url" content="https://clemlesne.github.io/blue-agent/docs/advanced-topics/ca-certificate/"><meta property="article:section" content="docs"><meta property="article:modified_time" content="2023-11-27T11:26:59+01:00"><meta itemprop=name content="Custom root certificate"><meta itemprop=description content="If you need to run the agent with a custom root certificate, you can use the following Helm values. Format is PEM certificate and with UTF-8 encoding.
 Paths are /app-root/azp-custom-certs for Linux-based agents and C:\app-root\azp-custom-certs for Windows-based agents.
 # config-root-ca.yaml apiVersion: v1 kind: ConfigMap metadata: name: custom-certs data: root-1.crt: | -----BEGIN CERTIFICATE----- ... -----END CERTIFICATE----- root-2.crt: | -----BEGIN CERTIFICATE----- ... -----END CERTIFICATE----- # values.yaml extraVolumes: - name: custom-certs configMap: name: custom-certs extraVolumeMounts: - name: custom-certs mountPath: /app-root/azp-custom-certs readOnly: true "><meta itemprop=dateModified content="2023-11-27T11:26:59+01:00"><meta itemprop=wordCount content="79"><meta name=twitter:card content="summary"><meta name=twitter:title content="Custom root certificate"><meta name=twitter:description content="If you need to run the agent with a custom root certificate, you can use the following Helm values. Format is PEM certificate and with UTF-8 encoding.
 Paths are /app-root/azp-custom-certs for Linux-based agents and C:\app-root\azp-custom-certs for Windows-based agents.
