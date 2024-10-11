@@ -12,6 +12,7 @@ param extraEnv array = []
   'bullseye'
   'focal'
   'jammy'
+  'noble'
   'ubi8'
   'ubi9'
 ])

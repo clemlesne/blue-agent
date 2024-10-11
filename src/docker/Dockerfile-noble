@@ -1,4 +1,7 @@
-FROM registry.access.redhat.com/ubi9-minimal:9.4@sha256:104cf11d890aeb7dd5728b7d7732e175a0e4018f1bb00d2faebcc8f6bf29bd52 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-noble@sha256:a516b80935ab07dc415244dcdb8c52f4592644282127ecfa37c77561d26d25d5 AS base
+
+# Force apt-get to not use TTY
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Configure local user
 ENV USER=root
@@ -7,37 +10,42 @@ ENV HOME=/app-root
 # Avoid Python cache during build
 ENV PYTHONDONTWRITEBYTECODE=1
 
+# Allow install Python system packages
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
+
 # Install:
-# - ASP.NET Core runtime
-# - Azure CLI system requirements (Python 3.11, C/Rust build tools for libs non pre-built on this platform)
+# - Azure CLI system requirements (C/Rust build tools for libs non pre-built on this platform)
 # - Azure Pipelines agent system requirements
-# - fuse-overlayfs, iptables, shadow-utils, for BuildKit
+# - dbus-user-session, fuse-overlayfs, iptables, for BuildKit
 # - gzip, make, tar, unzip, wget, zip, zstd for developer ease-of-life
 # - zsh, for inter-operability
-RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
-    microdnf install -y --nodocs --setopt=install_weak_deps=0 \
-        aspnetcore-runtime-8.0 \
+RUN rm -f /etc/apt/apt.conf.d/docker-clean \
+    && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/var/cache,type=cache,sharing=locked \
+    apt-get update -q \
+    && apt-get install -y -q --no-install-recommends \
+        build-essential \
         ca-certificates \
         cargo \
-        findutils \
+        curl \
+        dbus-user-session \
         fuse-overlayfs \
-        gcc \
-        gcc-c++ \
-        git-core \
+        git \
         git-lfs \
         gnupg \
         gzip \
-        hostname \
         iptables \
-        iputils \
+        iputils-ping \
         jq \
+        libffi-dev \
+        libssl-dev \
+        lsb-release \
         make \
-        openssl \
-        openssl-devel \
         pkg-config \
-        shadow-utils \
+        software-properties-common \
         sudo \
         tar \
+        uidmap \
         unzip \
         wget \
         zip \
@@ -56,7 +64,7 @@ FROM base AS rootlesskit
 ARG GO_VERSION
 ENV GO_VERSION=${GO_VERSION}
 RUN rm -rf /usr/local/go \
-    && curl -LsSf --retry 8 https://go.dev/dl/go${GO_VERSION}.linux-$(ARCH_X64=amd64 bash arch.sh).tar.gz | tar -xz -C /usr/local
+    && curl -LsSf --retry 8 --retry-all-errors https://go.dev/dl/go${GO_VERSION}.linux-$(ARCH_X64=amd64 bash arch.sh).tar.gz | tar -xz -C /usr/local
 ENV PATH="${PATH}:/usr/local/go/bin"
 RUN go version
 
@@ -75,24 +83,28 @@ FROM base AS python
 # Build Python 3.12 from source, then verify installation
 ARG PYTHON_VERSION
 ENV PYTHON_VERSION=${PYTHON_VERSION}
-RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
-    microdnf install -y --nodocs --setopt=install_weak_deps=0 \
-        bzip2 \
-        bzip2-devel \
-        expat \
-        expat-devel \
-        gdb \
-        gdbm-libs \
-        glibc-devel \
-        libffi-devel \
-        libstdc++-devel \
-        libuuid-devel \
-        mpdecimal \
-        sqlite \
-        sqlite-devel \
-        sqlite-libs \
-        xz-devel \
-        zlib-devel \
+RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/var/cache,type=cache,sharing=locked \
+    apt-get update -q \
+    && apt-get install -y -q --no-install-recommends \
+        g++ \
+        lcov \
+        libbz2-dev \
+        libgdbm-compat-dev \
+        libgdbm-dev \
+        liblzma-dev  \
+        libncurses5-dev \
+        libncursesw5-dev \
+        libreadline-dev \
+        libreadline6-dev \
+        libsqlite3-dev \
+        libxml2-dev \
+        libxmlsec1-dev \
+        lzma \
+        lzma-dev \
+        tk-dev \
+        uuid-dev \
+        xz-utils \
+        zlib1g-dev \
     && curl -LsSf --retry 8 --retry-all-errors https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz -o python.tgz \
     && tar -xzf python.tgz \
     && cd Python-${PYTHON_VERSION} \
@@ -223,6 +235,7 @@ RUN rm arch.sh
 
 # Reset Python configs to default
 ENV PYTHONDONTWRITEBYTECODE=
+ENV PIP_BREAK_SYSTEM_PACKAGES=
 
 # Configure local user
 RUN mkdir -p /run/user/0 ${HOME}/.local/tmp ${HOME}/.local/share/buildkit \

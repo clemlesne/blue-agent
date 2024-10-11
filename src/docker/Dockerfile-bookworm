@@ -21,7 +21,6 @@ ENV PIP_BREAK_SYSTEM_PACKAGES=1
 # - zsh, for inter-operability
 RUN rm -f /etc/apt/apt.conf.d/docker-clean \
     && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
-ARG JQ_VERSION
 RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/var/cache,type=cache,sharing=locked \
     apt-get update -q \
     && apt-get install -y -q --no-install-recommends \
@@ -37,7 +36,7 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/
         gzip \
         iptables \
         iputils-ping \
-        jq=${JQ_VERSION}-* \
+        jq \
         libffi-dev \
         libssl-dev \
         lsb-release \
