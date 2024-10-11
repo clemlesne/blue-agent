@@ -18,7 +18,7 @@ Softwares are operating system specific. The following table lists the softwares
   - [zsh](https://www.zsh.org)
 - Programming languages
   - [ASP.NET Core Runtime](https://github.com/dotnet/aspnetcore)
-  - Python ([Python 3.8](https://www.python.org/downloads/release/python-380), [Python 3.9](https://www.python.org/downloads/release/python-390), [Python 3.10](https://www.python.org/downloads/release/python-3100), [Python 3.11](https://www.python.org/downloads/release/python-3110), depending of the system, plus C/Rust build tools for libs non pre-built on the platforms)
+  - [Python 3.12](https://docs.python.org/3/whatsnew/3.12.html)
 - Tools
   - [git](https://github.com/git-for-windows/git)
   - [gzip](https://www.gnu.org/software/gzip)
@@ -43,7 +43,7 @@ Softwares are operating system specific. The following table lists the softwares
   - [Windows PowerShell](https://learn.microsoft.com/en-us/powershell/scripting/windows-powershell/install/installing-windows-powershell?view=powershell-7.3)
 - Programming languages
   - [.NET SDK](https://dotnet.microsoft.com)
-  - [Python 3.11](https://www.python.org/downloads/release/python-3110)
+  - [Python 3.12](https://docs.python.org/3/whatsnew/3.12.html)
   - [Visual Studio Build Tools](https://learn.microsoft.com/en-us/visualstudio/ide/?view=vs-2022) (with `AzureBuildTools`, `VCTools`, `WebBuildTools`, `ManagedDesktopBuildTools`, `OfficeBuildTools` workloads)
 - Tools
   - [git](https://github.com/git-for-windows/git)

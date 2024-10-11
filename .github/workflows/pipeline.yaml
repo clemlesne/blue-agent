@@ -21,13 +21,13 @@ env:
   CONTAINER_REGISTRY_GHCR: ghcr.io
   CONTAINER_REGISTRY_DOCKER_HUB: docker.io
   # https://github.com/sigstore/cosign/releases
-  COSIGN_VERSION: 2.4.0
+  COSIGN_VERSION: 2.4.1
   # https://npmjs.com/package/@microsoft/sarif-multitool?activeTab=versions
   SARIF_MULTITOOL_VERSION: 4.5.4
   # https://npmjs.com/package/snyk?activeTab=versions
-  SNYK_VERSION: 1.1293.0
+  SNYK_VERSION: 1.1293.1
   # https://github.com/microsoft/azure-pipelines-agent/releases
-  AZP_AGENT_VERSION: 3.243.1
+  AZP_AGENT_VERSION: 3.244.1
   # https://github.com/PowerShell/PowerShell/releases
   POWERSHELL_VERSION: 7.2.23
   # https://github.com/krallin/tini/releases
@@ -35,48 +35,47 @@ env:
   # https://github.com/mikefarah/yq/releases
   YQ_VERSION: 4.44.3
   # https://go.dev/dl
-  GO_VERSION: 1.23.0
+  GO_VERSION: 1.23.2
   # https://github.com/rootless-containers/rootlesskit/releases
   ROOTLESSKIT_VERSION: 2.3.1
   # https://github.com/moby/buildkit/releases
-  BUILDKIT_VERSION: 0.15.2
+  BUILDKIT_VERSION: 0.16.0
   # https://github.com/Azure/azure-cli/releases
-  AZURE_CLI_VERSION: 2.63.0
+  AZURE_CLI_VERSION: 2.65.0
   # https://github.com/stedolan/jq/releases
-  # Note: This version requires to be available from Debian and Ubuntu repositories (see https://packages.debian.org/bookworm/jq for example)
-  JQ_VERSION: 1.6
+  JQ_WIN_VERSION: 1.7.1
   # https://github.com/aws/aws-cli/tags
-  AWS_CLI_VERSION: 2.17.42
+  AWS_CLI_VERSION: 2.18.4
   # https://console.cloud.google.com/artifacts/docker/google.com:cloudsdktool/us/gcr.io/google-cloud-cli
   # Note: To get thhe version number, spot the version tag on the latest pushed container
   GCLOUD_CLI_VERSION: 490.0.0
   # https://github.com/git-for-windows/git/releases
-  GIT_WIN_VERSION: 2.46.0
+  GIT_WIN_VERSION: 2.47.0
   # https://github.com/facebook/zstd/releases
   ZSTD_WIN_VERSION: 1.5.6
   # https://www.python.org/downloads/windows
-  PYTHON_WIN_VERSION: 3.12.5
+  PYTHON_VERSION: 3.12.7
   # https://nodejs.org/en/download/releases
-  NODE_VERSION: 20.17.0
+  NODE_VERSION: 20.18.0
   # https://github.com/helm/helm/releases
-  HELM_VERSION: 3.15.4
+  HELM_VERSION: 3.16.2
   # https://github.com/oras-project/oras/releases
-  ORAS_VERSION: 1.1.0
+  ORAS_VERSION: 1.2.0
   # https://github.com/docker/buildx/releases
-  BUILDX_VERSION: 0.16.2
+  BUILDX_VERSION: 0.17.1
   # https://github.com/hadolint/hadolint/releases
   HADOLINT_VERSION: 2.12.0
   # https://learn.microsoft.com/en-us/visualstudio/releases/2022/release-history#fixed-version-bootstrappers
-  VS_BUILDTOOLS_WIN_VERSION: 28626b4b-f88f-4b55-a0cf-f3eaa2c643fb/e6c43d4dfb36338d954cdb3ad9010ab2a479e712088f4f6b016eadcc721bab28 # LTSC 17.10 (17.10.35201.131)
+  VS_BUILDTOOLS_WIN_VERSION: 80c57218-b55f-4260-af46-a64ffd76e7a6/7fee719abc3ba9eced84ea258ccae39a7b0cc953b539c2ea3a98c3ff588b7870
   # https://github.com/gohugoio/hugo/releases
-  HUGO_VERSION: 0.133.1
+  HUGO_VERSION: 0.135.0
   # See: https://github.com/getsops/sops/releases
-  SOPS_VERSION: 3.9.0
+  SOPS_VERSION: 3.9.1
 
 jobs:
   init:
     name: Initialize
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       BRANCH: ${{ steps.branch.outputs.branch }}
       VERSION_FULL: ${{ steps.version.outputs.version_full }}
@@ -104,7 +103,7 @@ jobs:
 
   sast-creds:
     name: SAST - Credentials
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -128,7 +127,7 @@ jobs:
       - sast-creds
       - sast-semgrep
       - static-test
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -206,6 +205,9 @@ jobs:
       # Fix issue "Error: Code Scanning could not process the submitted SARIF file: rejecting SARIF, as there are more runs than allowed (XX > 20)"
       # See: https://github.com/github/codeql-action/issues/220
       - name: Merge SARIF files
+        env:
+          # See: https://github.com/dotnet/core/issues/2186#issuecomment-1935707348
+          DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
         run: |
           npx --yes @microsoft/sarif-multitool@${{ env.SARIF_MULTITOOL_VERSION }} merge \
             --automation-id ${{ github.run_id }} \
@@ -227,7 +229,7 @@ jobs:
       - build-helm
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -257,7 +259,7 @@ jobs:
 
   static-test:
     name: Static test
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -290,7 +292,7 @@ jobs:
       - sast-creds
       - sast-semgrep
       - static-test
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -302,6 +304,8 @@ jobs:
           - os: focal
             arch: linux/amd64,linux/arm64
           - os: jammy
+            arch: linux/amd64,linux/arm64
+          - os: noble
             arch: linux/amd64,linux/arm64
           - os: ubi8
             arch: linux/amd64,linux/arm64
@@ -402,13 +406,13 @@ jobs:
         with:
           build-args: |
             AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
-            GCLOUD_CLI_VERSION=${{ env.GCLOUD_CLI_VERSION }}
             AZP_AGENT_VERSION=${{ env.AZP_AGENT_VERSION }}
             AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}
             BUILDKIT_VERSION=${{ env.BUILDKIT_VERSION }}
+            GCLOUD_CLI_VERSION=${{ env.GCLOUD_CLI_VERSION }}
             GO_VERSION=${{ env.GO_VERSION }}
-            JQ_VERSION=${{ env.JQ_VERSION }}
             POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}
+            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
             ROOTLESSKIT_VERSION=${{ env.ROOTLESSKIT_VERSION }}
             TINI_VERSION=${{ env.TINI_VERSION }}
             YQ_VERSION=${{ env.YQ_VERSION }}
@@ -460,6 +464,9 @@ jobs:
       # Fix issue "Error: Code Scanning could not process the submitted SARIF file: rejecting SARIF, as there are more runs than allowed (XX > 20)"
       # See: https://github.com/github/codeql-action/issues/220
       - name: Merge SARIF files
+        env:
+          # See: https://github.com/dotnet/core/issues/2186#issuecomment-1935707348
+          DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
         run: |
           npx --yes @microsoft/sarif-multitool@${{ env.SARIF_MULTITOOL_VERSION }} merge \
             --automation-id ${{ github.run_id }} \
@@ -574,9 +581,9 @@ jobs:
             "--build-arg", "AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}",
             "--build-arg", "GCLOUD_CLI_VERSION=${{ env.GCLOUD_CLI_VERSION }}",
             "--build-arg", "GIT_VERSION=${{ env.GIT_WIN_VERSION }}",
-            "--build-arg", "JQ_VERSION=${{ env.JQ_VERSION }}",
+            "--build-arg", "JQ_VERSION=${{ env.JQ_WIN_VERSION }}",
             "--build-arg", "POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}",
-            "--build-arg", "PYTHON_VERSION=${{ env.PYTHON_WIN_VERSION }}",
+            "--build-arg", "PYTHON_VERSION=${{ env.PYTHON_VERSION }}",
             "--build-arg", "VS_BUILDTOOLS_VERSION=${{ env.VS_BUILDTOOLS_WIN_VERSION }}",
             "--build-arg", "YQ_VERSION=${{ env.YQ_VERSION }}",
             "--build-arg", "ZSTD_VERSION=${{ env.ZSTD_WIN_VERSION }}",
@@ -670,7 +677,7 @@ jobs:
 
   sast-semgrep:
     name: SAST - Semgrep
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     container:
       image: returntocorp/semgrep
     steps:
@@ -694,13 +701,13 @@ jobs:
     name: Deploy ArtifactHub metadata
     # Only deploy on main branch, as we don't want to break verification with a bad metadata file during development
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
 
       - name: Setup ORAS
-        uses: oras-project/setup-oras@v1.1.0
+        uses: oras-project/setup-oras@v1.2.0
         with:
           version: ${{ env.ORAS_VERSION }}
 
@@ -737,7 +744,7 @@ jobs:
       - build-release-win
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -753,7 +760,7 @@ jobs:
 
   build-hugo:
     name: Build Hugo site
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - sast-creds
       - sast-semgrep
@@ -803,7 +810,7 @@ jobs:
       - init
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Pull from gh-pages
         uses: actions/checkout@v4.1.7
@@ -837,7 +844,7 @@ jobs:
 
   integration-test:
     name: Integration test (Linux ${{ matrix.os }})
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - init
       - sast-creds
@@ -851,7 +858,7 @@ jobs:
       # Rate limiting on Azure DevOps SaaS APIs is triggered quickluy by integration tests, so we need to limit the number of parallel jobs
       max-parallel: 3
       matrix:
-        os: [bookworm, bullseye, focal, jammy, ubi8, ubi9]
+        os: [bookworm, bullseye, focal, jammy, noble, ubi8, ubi9]
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
