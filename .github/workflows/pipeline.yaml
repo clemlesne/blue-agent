@@ -76,7 +76,7 @@ env:
 jobs:
   init:
     name: Initialize
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       BRANCH: ${{ steps.branch.outputs.branch }}
       VERSION_FULL: ${{ steps.version.outputs.version_full }}
@@ -104,7 +104,7 @@ jobs:
 
   sast-creds:
     name: SAST - Credentials
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -128,7 +128,7 @@ jobs:
       - sast-creds
       - sast-semgrep
       - static-test
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -206,6 +206,9 @@ jobs:
       # Fix issue "Error: Code Scanning could not process the submitted SARIF file: rejecting SARIF, as there are more runs than allowed (XX > 20)"
       # See: https://github.com/github/codeql-action/issues/220
       - name: Merge SARIF files
+        env:
+          # See: https://github.com/dotnet/core/issues/2186#issuecomment-1935707348
+          DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
         run: |
           npx --yes @microsoft/sarif-multitool@${{ env.SARIF_MULTITOOL_VERSION }} merge \
             --automation-id ${{ github.run_id }} \
@@ -227,7 +230,7 @@ jobs:
       - build-helm
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -257,7 +260,7 @@ jobs:
 
   static-test:
     name: Static test
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -290,7 +293,7 @@ jobs:
       - sast-creds
       - sast-semgrep
       - static-test
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -460,6 +463,9 @@ jobs:
       # Fix issue "Error: Code Scanning could not process the submitted SARIF file: rejecting SARIF, as there are more runs than allowed (XX > 20)"
       # See: https://github.com/github/codeql-action/issues/220
       - name: Merge SARIF files
+        env:
+          # See: https://github.com/dotnet/core/issues/2186#issuecomment-1935707348
+          DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
         run: |
           npx --yes @microsoft/sarif-multitool@${{ env.SARIF_MULTITOOL_VERSION }} merge \
             --automation-id ${{ github.run_id }} \
@@ -670,7 +676,7 @@ jobs:
 
   sast-semgrep:
     name: SAST - Semgrep
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     container:
       image: returntocorp/semgrep
     steps:
@@ -694,7 +700,7 @@ jobs:
     name: Deploy ArtifactHub metadata
     # Only deploy on main branch, as we don't want to break verification with a bad metadata file during development
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -737,7 +743,7 @@ jobs:
       - build-release-win
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -753,7 +759,7 @@ jobs:
 
   build-hugo:
     name: Build Hugo site
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - sast-creds
       - sast-semgrep
@@ -803,7 +809,7 @@ jobs:
       - init
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Pull from gh-pages
         uses: actions/checkout@v4.1.7
@@ -837,7 +843,7 @@ jobs:
 
   integration-test:
     name: Integration test (Linux ${{ matrix.os }})
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - init
       - sast-creds
