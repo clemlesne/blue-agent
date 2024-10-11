@@ -11,11 +11,11 @@ ENV HOME=/app-root
 ENV PYTHONDONTWRITEBYTECODE=1
 
 # Install:
+# - Azure CLI system requirements (C/Rust build tools for libs non pre-built on this platform)
 # - Azure Pipelines agent system requirements
-# - zsh, for inter-operability
 # - dbus-user-session, iptables, uidmap, for BuildKit
 # - gzip, make, tar, unzip, wget, zip, zstd for developer ease-of-life
-# - Azure CLI system requirements (Python 3.10, plus C/Rust build tools for libs non pre-built on this platform)
+# - zsh, for inter-operability
 RUN rm -f /etc/apt/apt.conf.d/docker-clean \
     && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
 ARG JQ_VERSION
@@ -39,9 +39,6 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/
         lsb-release \
         make \
         pkg-config \
-        python3-dev=3.10.* \
-        python3-pip \
-        python3=3.10.* \
         software-properties-common \
         sudo \
         tar \
@@ -57,15 +54,6 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/
 COPY arch.sh .
 RUN chmod +x arch.sh \
     && bash arch.sh
-
-# Install Python build tools
-RUN python3 -m pip \
-        --disable-pip-version-check \
-        --no-cache-dir \
-        --quiet \
-        install  \
-            setuptools wheel \
-    && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 FROM base AS rootlesskit
 
@@ -87,7 +75,66 @@ RUN git clone --depth 1 --branch v${ROOTLESSKIT_VERSION} https://github.com/root
     && rootlesskit --version \
     && rootlessctl --version
 
+FROM base AS python
+
+# Build Python 3.12 from source, then verify installation
+ARG PYTHON_VERSION
+ENV PYTHON_VERSION=${PYTHON_VERSION}
+RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/var/cache,type=cache,sharing=locked \
+    apt-get update -q \
+    && apt-get install -y -q --no-install-recommends \
+        g++ \
+        lcov \
+        libbz2-dev \
+        libgdbm-compat-dev \
+        libgdbm-dev \
+        liblzma-dev  \
+        libmpdec-dev \
+        libncurses5-dev \
+        libncursesw5-dev \
+        libreadline-dev \
+        libreadline6-dev \
+        libsqlite3-dev \
+        libxml2-dev \
+        libxmlsec1-dev \
+        lzma \
+        lzma-dev \
+        tk-dev \
+        uuid-dev \
+        xz-utils \
+        zlib1g-dev \
+    && curl -LsSf --retry 8 --retry-all-errors https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz -o python.tgz \
+    && tar -xzf python.tgz \
+    && cd Python-${PYTHON_VERSION} \
+    && ./configure \
+        --enable-optimizations \
+        --with-ensurepip=install \
+        --with-lto \
+    && make -j$(nproc) \
+    && make install \
+    && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null \
+    && python3 --version \
+    && python3 -m pip --version
+
 FROM base
+
+# Install Python, then verify installation
+COPY --from=python /usr/local/bin/python3.12 /usr/local/bin/python3.12
+COPY --from=python /usr/local/lib/python3.12 /usr/local/lib/python3.12
+RUN ln -s /usr/local/bin/python3.12 /usr/local/bin/python3 \
+    && ln -s /usr/local/bin/python3.12 /usr/local/bin/python \
+    && python3 --version \
+    && python3 -m pip --version
+
+# Install Python build tools
+RUN python3 -m pip \
+        --disable-pip-version-check \
+        --no-cache-dir \
+        --quiet \
+        install  \
+            setuptools wheel \
+    && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
+
 # Install Azure CLI, then verify installation
 ARG AZURE_CLI_VERSION
 ENV AZURE_CLI_VERSION=${AZURE_CLI_VERSION}

@@ -48,7 +48,7 @@ for suffix in ${SUFFIXES}; do
     --build-arg "GO_VERSION=${GO_VERSION}" \
     --build-arg "JQ_VERSION=${JQ_VERSION}" \
     --build-arg "POWERSHELL_VERSION=${POWERSHELL_VERSION}" \
-    --build-arg "PYTHON_VERSION=${PYTHON_WIN_VERSION}" \
+    --build-arg "PYTHON_VERSION=${PYTHON_VERSION}" \
     --build-arg "ROOTLESSKIT_VERSION=${ROOTLESSKIT_VERSION}" \
     --build-arg "TINI_VERSION=${TINI_VERSION}" \
     --build-arg "VS_BUILDTOOLS_VERSION=${VS_BUILDTOOLS_WIN_VERSION}" \
