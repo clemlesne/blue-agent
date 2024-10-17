@@ -31,11 +31,32 @@ if (!(Test-Path $AZP_WORK)) {
   throw "error: work dir AZP_WORK ($AZP_WORK) is not writeable or does not exist"
 }
 
+$isTemplateJob = $false
+if ($Env:AZP_TEMPLATE_JOB -eq "1") {
+  $isTemplateJob = $true
+}
+
 function Write-Header() {
   Write-Host "> $1" -ForegroundColor Cyan
 }
 
 function Unregister {
+  # A job with the deployed configuration need to be kept in the server history, so a pipeline can be run and KEDA detect it from the queue
+  if ($isTemplateJob) {
+    Write-Host "Ignoring cleanup, disabling agent instead (template job)"
+    $body = @{
+      id = $Env:AZP_AGENT_ID
+      enabled = $false
+    } | ConvertTo-Json
+    $headers = @{
+      "Authorization" = "Bearer $AZP_TOKEN"
+      "Content-Type"  = "application/json"
+    }
+    $url = "$AZP_URL/_apis/distributedtask/pools/$AZP_POOL/agents/$Env:AZP_AGENT_ID?api-version=6.0"
+    Invoke-RestMethod -Uri $url -Method Patch -Headers $headers -Body $body
+    return
+  }
+
   Write-Host "Unregister, removing agent from server"
 
   # If the agent has some running jobs, the configuration removal process will fail; so, give it some time to finish the job
@@ -90,11 +111,19 @@ Set-Location $(Split-Path -Parent $MyInvocation.MyCommand.Definition)
 
 Write-Header "Running agent"
 
-# Unregister on success, Ctrl+C, and SIGTERM
+# Running it with the --once flag at the end will shut down the agent after the build is executed
 try {
-  # Running it with the --once flag at the end will shut down the agent after the build is executed
-  & run.cmd $Args --once
+  if ($isTemplateJob) {
+    Write-Host "Agent will be stopped after 1 min (template job)"
+    Start-Job -ScriptBlock {
+      Start-Sleep -Seconds 60
+      & run.cmd $Args --once
+    }
+  } else {
+    & run.cmd $Args --once
+  }
 } finally {
+  # Unregister on success, Ctrl+C, and SIGTERM
   Unregister
 }
 

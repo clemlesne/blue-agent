@@ -58,8 +58,9 @@ deploy-bicep:
 	@echo "➡️ Wait for the Bicep output to be available"
 	sleep 10
 
-	@echo "➡️ Starting init job"
+	@echo "➡️ Starting template job"
 	az containerapp job start \
+		--env-vars "AZP_TEMPLATE_JOB=1" \
 		--name $(job_name) \
 		--resource-group $(rg_name)
 
