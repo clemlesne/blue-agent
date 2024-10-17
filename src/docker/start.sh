@@ -32,6 +32,10 @@ if [ ! -w "$AZP_WORK" ]; then
   exit 1
 fi
 
+if [ "$AZP_TEMPLATE_JOB" == "1" ]; then
+  isTemplateJob="true"
+fi
+
 write_header() {
   lightcyan='\033[1;36m'
   nocolor='\033[0m'
@@ -39,6 +43,18 @@ write_header() {
 }
 
 unregister() {
+  # A job with the deployed configuration need to be kept in the server history, so a pipeline can be run and KEDA detect it from the queue
+  if [ "$isTemplateJob" == "true" ]; then
+    echo "Ignoring cleanup, disabling agent instead (template job)"
+    curl -s -X PATCH \
+      -d "{\"id\": $AZP_AGENT_ID, \"enabled\": false}" \
+      -H "Authorization: Bearer $AZP_TOKEN" \
+      -H "Content-Type: application/json" \
+      "$AZP_URL/_apis/distributedtask/pools/$AZP_POOL/agents/$AZP_AGENT_ID?api-version=6.0" \
+      > /dev/null
+    return
+  fi
+
   write_header "Unregister, removing agent from server"
 
   # If the agent has some running jobs, the configuration removal process will fail ; so, give it some time to finish the job
@@ -127,7 +143,12 @@ trap 'unregister; exit 143' TERM
 write_header "Running agent"
 
 # Running it with the --once flag at the end will shut down the agent after the build is executed
-bash run-docker.sh "$@" --once &
+if [ "$isTemplateJob" == "true" ]; then
+  echo "Agent will be stopped after 1 min (template job)"
+  timeout --preserve-status 1m bash run-docker.sh "$@" --once &
+else
+  bash run-docker.sh "$@" --once &
+fi
 
 # Fake the exit code of the agent for the prevent Kubernetes to detect the pod as failed (this is intended)
 # See: https://stackoverflow.com/a/62183992/12732154

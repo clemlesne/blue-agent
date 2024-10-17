@@ -55,8 +55,9 @@ deploy-bicep:
 	@echo "➡️ Cleaning up Bicep parameters"
 	rm test/bicep/test.json
 
-	@echo "➡️ Starting init job"
+	@echo "➡️ Starting template job"
 	az containerapp job start \
+		--env-vars "AZP_TEMPLATE_JOB=1" \
 		--name $(job_name) \
 		--resource-group $(rg_name)
 
