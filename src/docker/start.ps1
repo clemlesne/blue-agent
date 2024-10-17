@@ -29,7 +29,7 @@ if ($null -eq $AZP_POOL -or $AZP_POOL -eq "") {
   Raise-Error "Missing AZP_POOL environment variable"
 }
 
-# If AZP_AGENT_NAME is not set, use the container hostname
+# If name is not set, use the container hostname
 if ($null -eq $AZP_AGENT_NAME -or $AZP_AGENT_NAME -eq "") {
   Write-Warning "Missing AZP_AGENT_NAME environment variable"
   $AZP_AGENT_NAME = $Env:COMPUTERNAME
@@ -40,12 +40,31 @@ if ($null -eq $AZP_WORK -or $AZP_WORK -eq "") {
 }
 
 if (!(Test-Path $AZP_WORK)) {
-  Raise-Error "Work dir AZP_WORK ($AZP_WORK) is not writeable or does not exist"
+  Write-Warning "Work dir AZP_WORK ($AZP_WORK) does not exist, creating it, but reliability is not guaranteed"
+  New-Item -Path $AZP_WORK -ItemType Directory
+}
+
+$isTemplateJob = $false
+if ($Env:AZP_TEMPLATE_JOB -eq "1") {
+  Write-Warning "Template job enabled, agent cannot be used for running jobs"
+  $isTemplateJob = $true
 }
 
 Write-Header "Running agent $AZP_AGENT_NAME in pool $AZP_POOL"
 
 function Unregister {
+  # A job with the deployed configuration need to be kept in the server history, so a pipeline can be run and KEDA detect it from the queue
+  if ($isTemplateJob) {
+    Write-Host "Ignoring cleanup, disabling agent instead"
+    curl `
+      --data-raw "{""id"":""$AZP_AGENT_NAME"",""enabled"":false}" `
+      -H "authorization: Bearer $AZP_TOKEN" `
+      -H "content-type: application/json" `
+      -X PATCH `
+      "$AZP_URL/_apis/distributedtask/pools/$AZP_POOL/agents/$AZP_AGENT_NAME"
+    return
+  }
+
   Write-Host "Removing agent"
 
   # If the agent has some running jobs, the configuration removal process will fail; so, give it some time to finish the job
@@ -99,11 +118,19 @@ Set-Location $(Split-Path -Parent $MyInvocation.MyCommand.Definition)
 
 Write-Header "Running agent"
 
-# Unregister on success, Ctrl+C, and SIGTERM
+# Running it with the --once flag at the end will shut down the agent after the build is executed
 try {
-  # Running it with the --once flag at the end will shut down the agent after the build is executed
-  & run.cmd $Args --once
+  if ($isTemplateJob) {
+    Write-Host "Agent will be stopped after 1 min"
+    Start-Job -ScriptBlock {
+      Start-Sleep -Seconds 60
+      & run.cmd $Args --once
+    }
+  } else {
+    & run.cmd $Args --once
+  }
 } finally {
+  # Unregister on success, Ctrl+C, and SIGTERM
   Unregister
 }
 

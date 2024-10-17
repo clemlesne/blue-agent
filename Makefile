@@ -4,11 +4,16 @@
 flavor ?= null
 version ?= null
 # Dynamic parameters
-prefix ?= $(shell hostname | tr '[:upper:]' '[:lower:]' | tr '.' '-')
+prefix ?= $(shell hostname | tr "[:upper:]" "[:lower:]" | tr "." "-")
 deployment_name ?= $(prefix)-$(flavor)
 # Deployment outputs
-job_name ?= $(shell az deployment sub show --name '$(deployment_name)' | yq '.properties.outputs["jobName"].value')
-rg_name ?= $(shell az deployment sub show --name '$(deployment_name)' | yq '.properties.outputs["rgName"].value')
+bicep_outputs ?= $(shell az deployment sub show --name "$(deployment_name)" | yq '.properties.outputs')
+job_name ?= $(shell echo $(bicep_outputs) | yq -r '.jobName.value')
+rg_name ?= $(shell echo $(bicep_outputs) | yq -r '.rgName.value')
+# Container App Job environment
+container_specs ?= $(shell az containerapp job show --name "$(job_name)" --resource-group "$(rg_name)" | yq -r '.properties.template.containers[0]')
+job_image ?= $(shell echo $(container_specs) | yq -r '.image')
+job_env ?= $(shell echo $(container_specs) | yq -r '.env | map("\(.name)=\(.value // \"secretref:\" + .secretRef)") | .[]')
 
 test:
 	@echo "➡️ Running Prettier"
@@ -38,6 +43,10 @@ lint:
 		--verbose
 
 deploy-bicep:
+	$(MAKE) deploy-bicep-iac
+	$(MAKE) deploy-bicep-template
+
+deploy-bicep-iac:
 	@echo "➡️ Decrypting Bicep parameters"
 	sops -d test/bicep/test.enc.json > test/bicep/test.json
 
@@ -58,8 +67,11 @@ deploy-bicep:
 	@echo "➡️ Wait for the Bicep output to be available"
 	sleep 10
 
-	@echo "➡️ Starting init job"
+deploy-bicep-template:
+	@echo "➡️ Starting template job"
 	az containerapp job start \
+		--env-vars $(job_env) AZP_TEMPLATE_JOB=1 \
+		--image $(job_image) \
 		--name $(job_name) \
 		--resource-group $(rg_name)
 
