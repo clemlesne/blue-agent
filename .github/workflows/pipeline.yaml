@@ -432,7 +432,7 @@ jobs:
           sbom: true
           tags: ${{ steps.meta.outputs.tags }}
 
-      # Cosign is voluntarily retried indefinitely to avoid breaking the build when the container registry is slow or throttle
+      # Cosign is voluntarily retried indefinitely to avoid breaking the build when the container registry is slow or throttle, with an exponential backoff delay with jitter
       # See: https://github.com/clemlesne/blue-agent/issues/264
       - name: Sign containers
         env:
@@ -441,15 +441,19 @@ jobs:
         run: |
           while IFS= read -r tag; do
             echo "Signing $tag"
+            i=1
             while true; do
-              cosign sign \
+                cosign sign \
                 --key="env://COSIGN_PRIVATE_KEY" \
                 --recursive \
                 --yes \
                 $tag \
                   && break
-              echo "retry: cosign returned $?, backing off for 300 seconds and trying again..."
-              sleep 300
+                jitter=$(python3 -c "import random; print(random.randint(-20, 20))")
+                backoff=$(python3 -c "import math; print(int(math.pow(3, $i) * (1 + $jitter / 100)))")
+              echo "retry: cosign returned $?, backing off for $backoff seconds and trying again ($i)..."
+              sleep $backoff
+              i=$((i + 1))
             done
           done <<< "${{ steps.meta.outputs.tags }}"
 
@@ -630,7 +634,7 @@ jobs:
             docker push --quiet $tag
           }
 
-      # Cosign is voluntarily retried indefinitely to avoid breaking the build when the container registry is slow or throttle
+      # Cosign is voluntarily retried indefinitely to avoid breaking the build when the container registry is slow or throttle, with an exponential backoff delay with jitter
       # See: https://github.com/clemlesne/blue-agent/issues/264
       - name: Sign containers
         env:
@@ -640,18 +644,21 @@ jobs:
           $tags = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine)
           foreach ($tag in $tags) {
             Write-Host "Signing $tag"
+            $i = 1
             while ($true) {
-              try {
-                cosign sign `
-                  --key="env://COSIGN_PRIVATE_KEY" `
-                  --recursive `
-                  --yes `
-                  $tag
+              cosign sign `
+                --key="env://COSIGN_PRIVATE_KEY" `
+                --recursive `
+                --yes `
+                $tag
+              if ($?) {
                 break
-              } catch {
-                Write-Host "retry: cosign returned $($_.Exception.Message), backing off for 300 seconds and trying again..."
-                Start-Sleep -Seconds 300
               }
+              $jitter = (Get-Random -Minimum -20 -Maximum 21) / 100
+              $backoff = [math]::Round([math]::Pow(3, $i) * (1 + $jitter))
+              Write-Host "retry: cosign returned $LASTEXITCODE, backing off for $backoff seconds and trying again ($i)..."
+              Start-Sleep -Seconds $backoff
+              $i++
             }
           }
 
