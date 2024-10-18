@@ -416,10 +416,7 @@ jobs:
             ROOTLESSKIT_VERSION=${{ env.ROOTLESSKIT_VERSION }}
             TINI_VERSION=${{ env.TINI_VERSION }}
             YQ_VERSION=${{ env.YQ_VERSION }}
-          cache-from:
-            ${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-${{ github.event.repository.default_branch }}-cache
-            ${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-develop-cache
-            ${{ steps.tag.outputs.tag }}-cache
+          cache-from: ${{ steps.tag.outputs.tag }}-cache
           cache-to: ${{ steps.tag.outputs.tag }}-cache
           context: src/docker
           file: src/docker/Dockerfile-${{ matrix.os }}
