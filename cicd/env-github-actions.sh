@@ -16,8 +16,13 @@ if [ ! -f "$PIPELINE_FILE" ]; then
   exit 1
 fi
 
+# Create .env if it does not exist
+if [ ! -f ".env" ]; then
+  touch .env
+fi
+
 # Get "env" property from pipeline file
-ENV=$(yq eval '.env' $PIPELINE_FILE)
+ENV=$(yq '.env' $PIPELINE_FILE)
 
 # Store all properties from ENV, in environment variables
 while IFS= read -r line; do
@@ -31,13 +36,22 @@ while IFS= read -r line; do
     continue
   fi
 
+  # If there is no ":" in the line, skip it
+  if [[ $line != *":"* ]]; then
+    continue
+  fi
+
   # Split the line into key and value, based on ":"
-  key=$(echo $line | cut -d':' -f1)
-  value=$(echo $line | cut -d':' -f2-)
+  key=$(echo $line | cut -d':' -f1 | sed 's/^"//;s/"$//')
+  value=$(echo $line | cut -d':' -f2- | sed 's/^"//;s/"$//')
 
   # Trim the values
   key=$(echo $key | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
   value=$(echo $value | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+  # Trim double quotes
+  key=$(echo $key | sed 's/^"//;s/"$//')
+  value=$(echo $value | sed 's/^"//;s/"$//')
 
   # Set the environment variable
   echo "From GitHub Actions: $key=$value"
