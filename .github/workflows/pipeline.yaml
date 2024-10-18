@@ -603,11 +603,6 @@ jobs:
             $params += "--tag", $tag
           }
 
-          # Cache input
-          $params += "--cache-from", "${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-${{ github.event.repository.default_branch }}"
-          $params += "--cache-from", "${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-develop"
-          $params += "--cache-from", "${{ steps.tag.outputs.tag }}"
-
           $labels = ('${{ steps.meta.outputs.labels }}').Split([Environment]::NewLine)
           foreach ($label in $labels) {
             $params += "--label", $label
@@ -623,12 +618,6 @@ jobs:
             $i++
           }
           Write-Host
-
-          Write-Host "Pulling cache images:"
-          foreach ($tag in $tags) {
-            Write-Host " $tag"
-            docker pull --quiet $tag || true
-          }
 
           Write-Host "Building"
           docker build @params src\docker
