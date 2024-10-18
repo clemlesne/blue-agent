@@ -132,6 +132,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.7
 
+      # Required for running "helm" CLI
       - name: Setup Helm
         uses: azure/setup-helm@v4.2.0
         with:
@@ -143,6 +144,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      # Required for running "cosign" CLI
       - name: Setup Cosign
         uses: sigstore/cosign-installer@v3.6.0
         with:
@@ -318,12 +320,14 @@ jobs:
       - name: Clean up disk
         run: rm -rf /opt/hostedtoolcache
 
+      # Required to build multi-arch images
       - name: Setup QEMU
         id: setup-qemu
         uses: docker/setup-qemu-action@v3.2.0
         with:
           platforms: ${{ matrix.arch }}
 
+      # Required for "docker build" command
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3.6.1
         with:
@@ -337,6 +341,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      # Required for running "cosign" CLI
       - name: Setup Cosign
         uses: sigstore/cosign-installer@v3.6.0
         with:
@@ -513,6 +518,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      # Required for running "cosign" CLI
       - name: Setup Cosign
         uses: sigstore/cosign-installer@v3.6.0
         with:
@@ -709,6 +715,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.7
 
+      # Required for running "oras" CLI
       - name: Setup ORAS
         uses: oras-project/setup-oras@v1.2.0
         with:
@@ -769,11 +776,13 @@ jobs:
       - sast-semgrep
       - static-test
     steps:
+      # Required for running "hugo" CLI
       - name: Setup Hugo CLI
         run: |
           wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${{ env.HUGO_VERSION }}/hugo_extended_${{ env.HUGO_VERSION }}_linux-amd64.deb
           sudo dpkg -i ${{ runner.temp }}/hugo.deb
 
+      # Required as a Hugo build dependency
       - name: Setup Dart Sass
         run: sudo snap install dart-sass
 
@@ -866,12 +875,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.7
 
+      # Required for running "sops" CLI
       - name: Setup SOPS
         run: |
           curl -LO https://github.com/getsops/sops/releases/download/v${{ env.SOPS_VERSION }}/sops-v${{ env.SOPS_VERSION }}.linux.amd64
           mv sops-v${{ env.SOPS_VERSION }}.linux.amd64 /usr/local/bin/sops
           chmod +x /usr/local/bin/sops
 
+      # Configure local configuration encryption key
       - name: Setup AGE key
         run: |
           age_folder="$XDG_CONFIG_HOME/sops/age"
