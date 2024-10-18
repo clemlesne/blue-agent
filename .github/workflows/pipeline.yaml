@@ -139,7 +139,7 @@ jobs:
 
       # Required for running "npx" CLI
       - name: Setup Node
-        uses: actions/setup-node@v4.0.2
+        uses: actions/setup-node@v4.0.4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -266,7 +266,7 @@ jobs:
 
       # Required for running "npx" CLI
       - name: Setup Node
-        uses: actions/setup-node@v4.0.2
+        uses: actions/setup-node@v4.0.4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -333,7 +333,7 @@ jobs:
 
       # Required for running "npx" CLI
       - name: Setup Node
-        uses: actions/setup-node@v4.0.2
+        uses: actions/setup-node@v4.0.4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -509,7 +509,7 @@ jobs:
 
       # Required for running "npx" CLI
       - name: Setup Node
-        uses: actions/setup-node@v4.0.2
+        uses: actions/setup-node@v4.0.4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
