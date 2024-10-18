@@ -430,6 +430,8 @@ jobs:
           sbom: true
           tags: ${{ steps.meta.outputs.tags }}
 
+      # Cosign is voluntarily retried indefinitely to avoid breaking the build when the container registry is slow or throttle
+      # See: https://github.com/clemlesne/blue-agent/issues/264
       - name: Sign containers
         env:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
@@ -437,11 +439,16 @@ jobs:
         run: |
           while IFS= read -r tag; do
             echo "Signing $tag"
-            cosign sign \
-              --key="env://COSIGN_PRIVATE_KEY" \
-              --recursive \
-              --yes \
-              $tag
+            while true; do
+              cosign sign \
+                --key="env://COSIGN_PRIVATE_KEY" \
+                --recursive \
+                --yes \
+                $tag \
+                  && break
+              echo "retry: cosign returned $?, backing off for 300 seconds and trying again..."
+              sleep 300
+            done
           done <<< "${{ steps.meta.outputs.tags }}"
 
       - name: Run SAST Snyk against containers
@@ -631,6 +638,8 @@ jobs:
             docker push --quiet $tag
           }
 
+      # Cosign is voluntarily retried indefinitely to avoid breaking the build when the container registry is slow or throttle
+      # See: https://github.com/clemlesne/blue-agent/issues/264
       - name: Sign containers
         env:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
@@ -639,11 +648,19 @@ jobs:
           $tags = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine)
           foreach ($tag in $tags) {
             Write-Host "Signing $tag"
-            cosign sign `
-              --key="env://COSIGN_PRIVATE_KEY" `
-              --recursive `
-              --yes `
-              $tag
+            while ($true) {
+              try {
+                cosign sign `
+                  --key="env://COSIGN_PRIVATE_KEY" `
+                  --recursive `
+                  --yes `
+                  $tag
+                break
+              } catch {
+                Write-Host "retry: cosign returned $($_.Exception.Message), backing off for 300 seconds and trying again..."
+                Start-Sleep -Seconds 300
+              }
+            }
           }
 
       - name: Run SAST Snyk against containers
