@@ -55,6 +55,9 @@ deploy-bicep:
 	@echo "➡️ Cleaning up Bicep parameters"
 	rm test/bicep/test.json
 
+	@echo "➡️ Wait for the Bicep output to be available"
+	sleep 10
+
 	@echo "➡️ Starting init job"
 	az containerapp job start \
 		--name $(job_name) \
