@@ -20,10 +20,16 @@ jobs:
 
       - bash: |
           if command -v apt-get &> /dev/null; then
+            echo "Using apt-get"
             sudo apt-get update
-            sudo apt-get install -y python3-pip
+            sudo apt-get install -y wget
           elif command -v microdnf &> /dev/null; then
-            sudo microdnf install -y python3.11-pip
+            echo "Using microdnf"
+            sudo microdnf install -y wget
+          elif command -v tdnf &> /dev/null; then
+            echo "Using tdnf"
+            sudo tdnf update -y
+            sudo tdnf install -y wget
           else
             echo "No suported package manager"
             exit 1
