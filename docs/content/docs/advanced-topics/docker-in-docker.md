@@ -21,6 +21,7 @@ Linux systems are supported, but not Windows:
 | `ghcr.io/clemlesne/blue-agent:bullseye-main`     | ✅                                                |
 | `ghcr.io/clemlesne/blue-agent:focal-main`        | ✅                                                |
 | `ghcr.io/clemlesne/blue-agent:jammy-main`        | ✅                                                |
+| `ghcr.io/clemlesne/blue-agent:noble-main`        | ✅                                                |
 | `ghcr.io/clemlesne/blue-agent:ubi8-main`         | ✅                                                |
 | `ghcr.io/clemlesne/blue-agent:ubi9-main`         | ✅                                                |
 | `ghcr.io/clemlesne/blue-agent:win-ltsc2019-main` | ❌                                                |
