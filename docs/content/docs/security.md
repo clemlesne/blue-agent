@@ -14,6 +14,7 @@ Scanned systems:
 
 | `Ref`                                            | Vulnerability scans with Snyk |
 | ------------------------------------------------ | ----------------------------- |
+| `ghcr.io/clemlesne/blue-agent:azurelinux3-main`  | ✅                            |
 | `ghcr.io/clemlesne/blue-agent:bookworm-main`     | ✅                            |
 | `ghcr.io/clemlesne/blue-agent:bullseye-main`     | ✅                            |
 | `ghcr.io/clemlesne/blue-agent:focal-main`        | ✅                            |

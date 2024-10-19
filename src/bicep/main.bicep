@@ -8,6 +8,7 @@ param autoscalingMinReplicas int = 0
 param extraEnv array = []
 @description('Flavor of the container image, represents the Linux distribution')
 @allowed([
+  'azurelinux3'
   'bookworm'
   'bullseye'
   'focal'
