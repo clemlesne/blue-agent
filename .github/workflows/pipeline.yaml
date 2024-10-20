@@ -146,6 +146,8 @@ jobs:
 
       # Required for running "cosign" CLI
       - name: Setup Cosign
+        # Only sign builds on main & develop branches
+        if: (github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/develop')
         uses: sigstore/cosign-installer@v3.6.0
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
@@ -168,6 +170,8 @@ jobs:
             src/helm/blue-agent
 
       - name: Sign Helm chart
+        # Only sign builds on main & develop branches
+        if: (github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/develop')
         env:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
@@ -344,6 +348,8 @@ jobs:
 
       # Required for running "cosign" CLI
       - name: Setup Cosign
+        # Only sign builds on main & develop branches
+        if: (github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/develop')
         uses: sigstore/cosign-installer@v3.6.0
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
@@ -436,6 +442,8 @@ jobs:
       # Cosign is voluntarily retried indefinitely to avoid breaking the build when the container registry is slow or throttle, with an exponential backoff delay with jitter
       # See: https://github.com/clemlesne/blue-agent/issues/264
       - name: Sign containers
+        # Only sign builds on main & develop branches
+        if: (github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/develop')
         env:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
@@ -526,6 +534,8 @@ jobs:
 
       # Required for running "cosign" CLI
       - name: Setup Cosign
+        # Only sign builds on main & develop branches
+        if: (github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/develop')
         uses: sigstore/cosign-installer@v3.6.0
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
@@ -639,6 +649,8 @@ jobs:
       # Cosign is voluntarily retried indefinitely to avoid breaking the build when the container registry is slow or throttle, with an exponential backoff delay with jitter
       # See: https://github.com/clemlesne/blue-agent/issues/264
       - name: Sign containers
+        # Only sign builds on main & develop branches
+        if: (github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/develop')
         env:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
