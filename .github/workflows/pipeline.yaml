@@ -116,7 +116,7 @@ jobs:
       - name: SAST - Credentials
         uses: trufflesecurity/trufflehog@v3.82.11
         with:
-          base: ${{ github.event.repository.default_branch }}
+          base: main
           extra_args: --only-verified
           head: HEAD~1
 
@@ -371,7 +371,7 @@ jobs:
       - name: Check if pre-release
         id: prerelease
         run: |
-          if [ "${{ github.ref_name }}" == "${{ github.event.repository.default_branch }}" ]; then
+          if [ "${{ github.ref_name }}" == "main" ]; then
             echo "prerelease=false" >> $GITHUB_OUTPUT
           else
             echo "prerelease=true" >> $GITHUB_OUTPUT
@@ -557,7 +557,7 @@ jobs:
       - name: Check if pre-release
         id: prerelease
         run: |
-          if ('${{ github.ref_name }}' -eq '${{ github.event.repository.default_branch }}') {
+          if ('${{ github.ref_name }}' -eq 'main') {
             echo "prerelease=false" >> $env:GITHUB_OUTPUT
           } else {
             echo "prerelease=true" >> $env:GITHUB_OUTPUT
