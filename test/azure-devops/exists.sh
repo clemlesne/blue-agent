@@ -19,7 +19,7 @@ fi
 
 pool_name="github-actions"
 
-echo "Testing existence of agent ${agent} in pool ${pool_name}"
+echo "➡️ Testing existence of agent ${agent} in pool ${pool_name}"
 
 # Get the pool id
 pool_id=$(az pipelines pool list \

@@ -12,6 +12,8 @@ if [ -z "$prefix" ] || [ -z "$pipeline" ] || [ -z "$flavor" ] || [ -z "$version"
   exit 1
 fi
 
+echo "➡️ Running pipeline ${pipeline} for flavor ${flavor} and version ${version}"
+
 pipeline_path="test/pipeline/${pipeline}.yaml"
 if [ ! -f "${PWD}/${pipeline_path}" ]; then
   echo "Pipeline ${pipeline_path} does not exist"

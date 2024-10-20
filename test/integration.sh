@@ -14,26 +14,17 @@ fi
 
 org_url="https://dev.azure.com/blue-agent"
 
-echo "Configuring Azure DevOps organization ${org_url}"
+echo "➡️ Configuring Azure DevOps organization ${org_url}"
 az devops configure --defaults organization=${org_url}
 
 bash test/azure-devops/exists.sh "${agent}"
 
-# Run all integration tests in parallel
-pids=""
-for test in $(basename -s .yaml test/pipeline/*.yaml); do
-  bash test/azure-devops/pipeline.sh "${prefix}" "${test}" "${flavor}" "${version}" &
-  pids="$pids $!"
-done
+# Run all integration tests in parallel using GNU parallel
+parallel bash test/azure-devops/pipeline.sh "${prefix}" {} "${flavor}" "${version}" ::: $(basename -s .yaml test/pipeline/*.yaml)
 
-# Wait for all background jobs to complete
-for pid in $pids; do
-  wait $pid || let "RESULT=1"
-done
-
-# Exit if any of them failed
-if [ "$RESULT" == "1" ]; then
-  echo "One or more integration tests failed"
+# Check if any of the tests failed
+if [ $? -ne 0 ]; then
+  echo "❌ One or more integration tests failed"
   exit 1
 fi
 
