@@ -1,42 +1,54 @@
 #!/bin/bash
 set -e
 
-if [ -z "$AZP_URL" ]; then
-  echo 1>&2 "error: missing AZP_URL environment variable"
-  exit 1
-fi
-
-if [ -z "$AZP_TOKEN" ]; then
-  echo 1>&2 "error: missing AZP_TOKEN environment variable"
-  exit 1
-fi
-
-if [ -z "$AZP_POOL" ]; then
-  echo 1>&2 "error: missing AZP_POOL environment variable"
-  exit 1
-fi
-
-# If AZP_AGENT_NAME is not set, use the container hostname
-if [ -z "$AZP_AGENT_NAME" ]; then
-  echo "warn: missing AZP_AGENT_NAME environment variable"
-  AZP_AGENT_NAME=$(hostname)
-fi
-
-if [ -z "$AZP_AGENT_NAME" ]; then
-  echo 1>&2 "error: missing AZP_AGENT_NAME environment variable"
-  exit 1
-fi
-
-if [ ! -w "$AZP_WORK" ]; then
-  echo 1>&2 "error: work dir AZP_WORK (${AZP_WORK}) is not writeable or does not exist"
-  exit 1
-fi
-
 write_header() {
   lightcyan='\033[1;36m'
   nocolor='\033[0m'
   echo -e "${lightcyan}➡️ $1${nocolor}"
 }
+
+write_warning() {
+  yellow='\033[1;33m'
+  nocolor='\033[0m'
+  echo -e "${yellow}⚠️ $1${nocolor}"
+}
+
+raise_error() {
+  red='\033[1;31m'
+  nocolor='\033[0m'
+  echo 1>&2 -e "${red}❌ $1${nocolor}"
+}
+
+if [ -z "$AZP_URL" ]; then
+  raise_error "Missing AZP_URL environment variable"
+  exit 1
+fi
+
+if [ -z "$AZP_TOKEN" ]; then
+  raise_error "Missing AZP_TOKEN environment variable"
+  exit 1
+fi
+
+if [ -z "$AZP_POOL" ]; then
+  raise_error "Missing AZP_POOL environment variable"
+  exit 1
+fi
+
+# If AZP_AGENT_NAME is not set, use the container hostname
+if [ -z "$AZP_AGENT_NAME" ]; then
+  write_warning "Missing AZP_AGENT_NAME environment variable"
+  AZP_AGENT_NAME=$(hostname)
+fi
+
+if [ -z "$AZP_AGENT_NAME" ]; then
+  raise_error "Missing AZP_AGENT_NAME environment variable"
+  exit 1
+fi
+
+if [ ! -w "$AZP_WORK" ]; then
+  raise_error "Work dir AZP_WORK (${AZP_WORK}) is not writeable or does not exist"
+  exit 1
+fi
 
 unregister() {
   write_header "Unregister, removing agent from server"
@@ -55,8 +67,8 @@ unregister() {
   done
 }
 
+write_header "Adding custom SSL certificates"
 if [ -d "$AZP_CUSTOM_CERT_PEM" ] && [ "$(ls -A $AZP_CUSTOM_CERT_PEM)" ]; then
-  write_header "Adding custom SSL certificates"
   echo "Searching for *.crt in $AZP_CUSTOM_CERT_PEM"
 
   # Debian-based systems
@@ -95,7 +107,7 @@ if [ -d "$AZP_CUSTOM_CERT_PEM" ] && [ "$(ls -A $AZP_CUSTOM_CERT_PEM)" ]; then
     update-ca-trust extract
   fi
 else
-  write_header "No custom SSL certificate provided"
+  echo "No custom SSL certificate provided"
 fi
 
 write_header "Configuring agent"

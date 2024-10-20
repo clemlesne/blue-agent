@@ -1,3 +1,15 @@
+function Write-Header() {
+  Write-Host "➡️ $1" -ForegroundColor Cyan
+}
+
+function Write-Warning() {
+  Write-Host "⚠️ $1" -ForegroundColor Yellow
+}
+
+function Raise-Error() {
+  throw "❌ $1"
+}
+
 $AZP_AGENT_NAME = $Env:AZP_AGENT_NAME
 $AZP_CUSTOM_CERT_PEM = $Env:AZP_CUSTOM_CERT_PEM
 $AZP_POOL = $Env:AZP_POOL
@@ -6,33 +18,29 @@ $AZP_URL = $Env:AZP_URL
 $AZP_WORK = $Env:AZP_WORK
 
 if ($null -eq $AZP_URL -or $AZP_URL -eq "") {
-  throw "error: missing AZP_URL environment variable"
+  Raise-Error "Missing AZP_URL environment variable"
 }
 
 if ($null -eq $AZP_TOKEN -or $AZP_TOKEN -eq "") {
-  throw "error: missing AZP_TOKEN environment variable"
+  Raise-Error "Missing AZP_TOKEN environment variable"
 }
 
 if ($null -eq $AZP_POOL -or $AZP_POOL -eq "") {
-  throw "error: missing AZP_POOL environment variable"
+  Raise-Error "Missing AZP_POOL environment variable"
 }
 
 # If AZP_AGENT_NAME is not set, use the container hostname
 if ($null -eq $AZP_AGENT_NAME -or $AZP_AGENT_NAME -eq "") {
-  Write-Host "warn: missing AZP_AGENT_NAME environment variable"
+  Write-Warning "Missing AZP_AGENT_NAME environment variable"
   $AZP_AGENT_NAME = $Env:COMPUTERNAME
 }
 
 if ($null -eq $AZP_WORK -or $AZP_WORK -eq "") {
-  throw "error: missing AZP_WORK environment variable"
+  Raise-Error "Missing AZP_WORK environment variable"
 }
 
 if (!(Test-Path $AZP_WORK)) {
-  throw "error: work dir AZP_WORK ($AZP_WORK) is not writeable or does not exist"
-}
-
-function Write-Header() {
-  Write-Host "> $1" -ForegroundColor Cyan
+  Raise-Error "Work dir AZP_WORK ($AZP_WORK) is not writeable or does not exist"
 }
 
 function Unregister {
@@ -54,8 +62,8 @@ function Unregister {
   }
 }
 
+Write-Header "Adding custom SSL certificates"
 if ((Test-Path $AZP_CUSTOM_CERT_PEM) -and ((Get-ChildItem $AZP_CUSTOM_CERT_PEM).Count -gt 0)) {
-  Write-Header "Adding custom SSL certificates"
   Write-Host "Searching for *.crt in $AZP_CUSTOM_CERT_PEM"
 
   Get-ChildItem $AZP_CUSTOM_CERT_PEM -Filter *.crt | ForEach-Object {
@@ -68,9 +76,8 @@ if ((Test-Path $AZP_CUSTOM_CERT_PEM) -and ((Get-ChildItem $AZP_CUSTOM_CERT_PEM).
     Write-Host "Updating certificates keychain"
     Import-Certificate -FilePath $_.FullName -CertStoreLocation Cert:\LocalMachine\Root
   }
-
 } else {
-  Write-Header "No custom SSL certificate provided"
+  Write-Host "No custom SSL certificate provided"
 }
 
 Write-Header "Configuring agent"
