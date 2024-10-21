@@ -231,7 +231,7 @@ jobs:
     name: Release Helm chart
     needs:
       - build-release-linux
-      - build-release-win
+      # - build-release-win
       - build-helm
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
@@ -305,18 +305,18 @@ jobs:
         include:
           - os: bookworm
             arch: linux/amd64,linux/arm64
-          - os: bullseye
-            arch: linux/amd64,linux/arm64
-          - os: focal
-            arch: linux/amd64,linux/arm64
-          - os: jammy
-            arch: linux/amd64,linux/arm64
-          - os: noble
-            arch: linux/amd64,linux/arm64
-          - os: ubi8
-            arch: linux/amd64,linux/arm64
-          - os: ubi9
-            arch: linux/amd64,linux/arm64
+          # - os: bullseye
+          #   arch: linux/amd64,linux/arm64
+          # - os: focal
+          #   arch: linux/amd64,linux/arm64
+          # - os: jammy
+          #   arch: linux/amd64,linux/arm64
+          # - os: noble
+          #   arch: linux/amd64,linux/arm64
+          # - os: ubi8
+          #   arch: linux/amd64,linux/arm64
+          # - os: ubi9
+          #   arch: linux/amd64,linux/arm64
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -502,208 +502,208 @@ jobs:
         with:
           sarif_file: merged.sarif
 
-  build-release-win:
-    name: Build & release image (Windows ${{ matrix.os }})
-    needs:
-      - init
-      - sast-creds
-      - sast-semgrep
-      - static-test
-    runs-on: ${{ matrix.runs-on }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: win-ltsc2022
-            runs-on: windows-2022
-          - os: win-ltsc2019
-            runs-on: windows-2019
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4.1.7
+  # build-release-win:
+  #   name: Build & release image (Windows ${{ matrix.os }})
+  #   needs:
+  #     - init
+  #     - sast-creds
+  #     - sast-semgrep
+  #     - static-test
+  #   runs-on: ${{ matrix.runs-on }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       include:
+  #         - os: win-ltsc2022
+  #           runs-on: windows-2022
+  #         - os: win-ltsc2019
+  #           runs-on: windows-2019
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4.1.7
 
-      # Container build take a lot of disk space, there is no enough space on the runner to have both tools cache and container build
-      - name: Clean up disk
-        run: Remove-Item -Path C:\hostedtoolcache -Recurse -Force
+  #     # Container build take a lot of disk space, there is no enough space on the runner to have both tools cache and container build
+  #     - name: Clean up disk
+  #       run: Remove-Item -Path C:\hostedtoolcache -Recurse -Force
 
-      # Required for running "npx" CLI
-      - name: Setup Node
-        uses: actions/setup-node@v4.0.4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
+  #     # Required for running "npx" CLI
+  #     - name: Setup Node
+  #       uses: actions/setup-node@v4.0.4
+  #       with:
+  #         node-version: ${{ env.NODE_VERSION }}
 
-      # Required for running "cosign" CLI
-      - name: Setup Cosign
-        # Only sign builds on main & develop branches
-        if: (github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/develop')
-        uses: sigstore/cosign-installer@v3.6.0
-        with:
-          cosign-release: v${{ env.COSIGN_VERSION }}
+  #     # Required for running "cosign" CLI
+  #     - name: Setup Cosign
+  #       # Only sign builds on main & develop branches
+  #       if: (github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/develop')
+  #       uses: sigstore/cosign-installer@v3.6.0
+  #       with:
+  #         cosign-release: v${{ env.COSIGN_VERSION }}
 
-      - name: Login to registry - GitHub
-        uses: docker/login-action@v3.3.0
-        with:
-          registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Login to registry - GitHub
+  #       uses: docker/login-action@v3.3.0
+  #       with:
+  #         registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Login to registry - Docker Hub
-        uses: docker/login-action@v3.3.0
-        with:
-          registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
-          username: clemlesne
-          password: ${{ secrets.DOCKER_HUB_PAT }}
+  #     - name: Login to registry - Docker Hub
+  #       uses: docker/login-action@v3.3.0
+  #       with:
+  #         registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
+  #         username: clemlesne
+  #         password: ${{ secrets.DOCKER_HUB_PAT }}
 
-      - name: Check if pre-release
-        id: prerelease
-        run: |
-          if ('${{ github.ref_name }}' -eq 'main') {
-            echo "prerelease=false" >> $env:GITHUB_OUTPUT
-          } else {
-            echo "prerelease=true" >> $env:GITHUB_OUTPUT
-          }
+  #     - name: Check if pre-release
+  #       id: prerelease
+  #       run: |
+  #         if ('${{ github.ref_name }}' -eq 'main') {
+  #           echo "prerelease=false" >> $env:GITHUB_OUTPUT
+  #         } else {
+  #           echo "prerelease=true" >> $env:GITHUB_OUTPUT
+  #         }
 
-      - name: Container meta
-        id: meta
-        uses: docker/metadata-action@v5.5.1
-        with:
-          images: |
-            ${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}
-            ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}/${{ env.CONTAINER_NAME }}
-          flavor: |
-            prefix=${{ matrix.os }}-
-          tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=ref,event=branch
-            type=ref,event=pr
-            type=schedule
-            type=schedule,pattern={{date 'YYYYMMDD'}}
-            type=semver,pattern={{version}},value=${{ needs.init.outputs.VERSION_FULL }}
-            type=sha,prefix=${{ matrix.os }}-sha-
-          labels: |
-            io.artifacthub.package.category=integration-delivery
-            io.artifacthub.package.keywords=agent,azure,azure-devops,azure-pipelines,container,devops,docker,helm,kubernetes,pipelines,self-hosted,self-hosted-agent,auto-scale,keda
-            io.artifacthub.package.license=Apache-2.0
-            io.artifacthub.package.logo-url=https://raw.githubusercontent.com/${{ env.CONTAINER_NAME }}/${{ github.sha }}/docs/static/favicon.svg
-            io.artifacthub.package.maintainers=[{"name":"${{ github.actor }}","email":"${{ github.actor }}@users.noreply.github.com"}]
-            io.artifacthub.package.prerelease=${{ steps.prerelease.outputs.prerelease }}
-            io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ env.CONTAINER_NAME }}/${{ github.sha }}/README.md
-            org.opencontainers.image.documentation=https://github.com/${{ env.CONTAINER_NAME }}
-            org.opencontainers.image.vendor=${{ github.actor }}
+  #     - name: Container meta
+  #       id: meta
+  #       uses: docker/metadata-action@v5.5.1
+  #       with:
+  #         images: |
+  #           ${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}
+  #           ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}/${{ env.CONTAINER_NAME }}
+  #         flavor: |
+  #           prefix=${{ matrix.os }}-
+  #         tags: |
+  #           type=raw,value=latest,enable={{is_default_branch}}
+  #           type=ref,event=branch
+  #           type=ref,event=pr
+  #           type=schedule
+  #           type=schedule,pattern={{date 'YYYYMMDD'}}
+  #           type=semver,pattern={{version}},value=${{ needs.init.outputs.VERSION_FULL }}
+  #           type=sha,prefix=${{ matrix.os }}-sha-
+  #         labels: |
+  #           io.artifacthub.package.category=integration-delivery
+  #           io.artifacthub.package.keywords=agent,azure,azure-devops,azure-pipelines,container,devops,docker,helm,kubernetes,pipelines,self-hosted,self-hosted-agent,auto-scale,keda
+  #           io.artifacthub.package.license=Apache-2.0
+  #           io.artifacthub.package.logo-url=https://raw.githubusercontent.com/${{ env.CONTAINER_NAME }}/${{ github.sha }}/docs/static/favicon.svg
+  #           io.artifacthub.package.maintainers=[{"name":"${{ github.actor }}","email":"${{ github.actor }}@users.noreply.github.com"}]
+  #           io.artifacthub.package.prerelease=${{ steps.prerelease.outputs.prerelease }}
+  #           io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${{ env.CONTAINER_NAME }}/${{ github.sha }}/README.md
+  #           org.opencontainers.image.documentation=https://github.com/${{ env.CONTAINER_NAME }}
+  #           org.opencontainers.image.vendor=${{ github.actor }}
 
-      - name: Store tag
-        id: tag
-        run: |
-          $branch = "${{ github.ref }}".Substring("refs/heads/".Length).Replace("/", "-")
-          $tag = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine) | Where-Object { $_ -like "*$branch*" } | Select-Object -First 1
-          echo "tag=$tag" >> $Env:GITHUB_OUTPUT
+  #     - name: Store tag
+  #       id: tag
+  #       run: |
+  #         $branch = "${{ github.ref }}".Substring("refs/heads/".Length).Replace("/", "-")
+  #         $tag = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine) | Where-Object { $_ -like "*$branch*" } | Select-Object -First 1
+  #         echo "tag=$tag" >> $Env:GITHUB_OUTPUT
 
-      - name: Build & push container
-        run: |
-          $params = @(
-            # Required build arguments
-            "--build-arg", "AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}",
-            "--build-arg", "AZP_AGENT_VERSION=${{ env.AZP_AGENT_VERSION }}",
-            "--build-arg", "AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}",
-            "--build-arg", "GCLOUD_CLI_VERSION=${{ env.GCLOUD_CLI_VERSION }}",
-            "--build-arg", "GIT_VERSION=${{ env.GIT_WIN_VERSION }}",
-            "--build-arg", "JQ_VERSION=${{ env.JQ_WIN_VERSION }}",
-            "--build-arg", "POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}",
-            "--build-arg", "PYTHON_VERSION=${{ env.PYTHON_VERSION }}",
-            "--build-arg", "VS_BUILDTOOLS_VERSION=${{ env.VS_BUILDTOOLS_WIN_VERSION }}",
-            "--build-arg", "YQ_VERSION=${{ env.YQ_VERSION }}",
-            "--build-arg", "ZSTD_VERSION=${{ env.ZSTD_WIN_VERSION }}",
+  #     - name: Build & push container
+  #       run: |
+  #         $params = @(
+  #           # Required build arguments
+  #           "--build-arg", "AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}",
+  #           "--build-arg", "AZP_AGENT_VERSION=${{ env.AZP_AGENT_VERSION }}",
+  #           "--build-arg", "AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}",
+  #           "--build-arg", "GCLOUD_CLI_VERSION=${{ env.GCLOUD_CLI_VERSION }}",
+  #           "--build-arg", "GIT_VERSION=${{ env.GIT_WIN_VERSION }}",
+  #           "--build-arg", "JQ_VERSION=${{ env.JQ_WIN_VERSION }}",
+  #           "--build-arg", "POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}",
+  #           "--build-arg", "PYTHON_VERSION=${{ env.PYTHON_VERSION }}",
+  #           "--build-arg", "VS_BUILDTOOLS_VERSION=${{ env.VS_BUILDTOOLS_WIN_VERSION }}",
+  #           "--build-arg", "YQ_VERSION=${{ env.YQ_VERSION }}",
+  #           "--build-arg", "ZSTD_VERSION=${{ env.ZSTD_WIN_VERSION }}",
 
-            "--file", "src/docker/Dockerfile-${{ matrix.os }}"
-          )
+  #           "--file", "src/docker/Dockerfile-${{ matrix.os }}"
+  #         )
 
-          $tags = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine)
-          foreach ($tag in $tags) {
-            $params += "--tag", $tag
-          }
+  #         $tags = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine)
+  #         foreach ($tag in $tags) {
+  #           $params += "--tag", $tag
+  #         }
 
-          $labels = ('${{ steps.meta.outputs.labels }}').Split([Environment]::NewLine)
-          foreach ($label in $labels) {
-            $params += "--label", $label
-          }
+  #         $labels = ('${{ steps.meta.outputs.labels }}').Split([Environment]::NewLine)
+  #         foreach ($label in $labels) {
+  #           $params += "--label", $label
+  #         }
 
-          Write-Host "Build arguments:"
-          $params | ForEach-Object -Begin { $i = 0 } -Process {
-            if ($i % 2 -eq 0) {
-              Write-Host -NoNewline "`n  $_"
-            } else {
-              Write-Host -NoNewline " $_"
-            }
-            $i++
-          }
-          Write-Host
+  #         Write-Host "Build arguments:"
+  #         $params | ForEach-Object -Begin { $i = 0 } -Process {
+  #           if ($i % 2 -eq 0) {
+  #             Write-Host -NoNewline "`n  $_"
+  #           } else {
+  #             Write-Host -NoNewline " $_"
+  #           }
+  #           $i++
+  #         }
+  #         Write-Host
 
-          Write-Host "Building"
-          docker build @params src\docker
+  #         Write-Host "Building"
+  #         docker build @params src\docker
 
-          Write-Host "Pushing"
-          foreach ($tag in $tags) {
-            docker push --quiet $tag
-          }
+  #         Write-Host "Pushing"
+  #         foreach ($tag in $tags) {
+  #           docker push --quiet $tag
+  #         }
 
-      # Cosign is voluntarily retried indefinitely to avoid breaking the build when the container registry is slow or throttle, with an exponential backoff delay with jitter
-      # See: https://github.com/clemlesne/blue-agent/issues/264
-      - name: Sign containers
-        # Only sign builds on main & develop branches
-        if: (github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/develop')
-        env:
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
-        run: |
-          $tags = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine)
-          foreach ($tag in $tags) {
-            Write-Host "Signing $tag"
-            $i = 1
-            while ($true) {
-              cosign sign `
-                --key="env://COSIGN_PRIVATE_KEY" `
-                --recursive `
-                --yes `
-                $tag
-              if ($?) {
-                break
-              }
-              $jitter = (Get-Random -Minimum -20 -Maximum 21) / 100
-              $backoff = [math]::Round([math]::Pow(3, $i) * (1 + $jitter))
-              Write-Host "retry: cosign returned $LASTEXITCODE, backing off for $backoff seconds and trying again ($i)..."
-              Start-Sleep -Seconds $backoff
-              $i++
-            }
-          }
+  #     # Cosign is voluntarily retried indefinitely to avoid breaking the build when the container registry is slow or throttle, with an exponential backoff delay with jitter
+  #     # See: https://github.com/clemlesne/blue-agent/issues/264
+  #     - name: Sign containers
+  #       # Only sign builds on main & develop branches
+  #       if: (github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/develop')
+  #       env:
+  #         COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+  #         COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+  #       run: |
+  #         $tags = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine)
+  #         foreach ($tag in $tags) {
+  #           Write-Host "Signing $tag"
+  #           $i = 1
+  #           while ($true) {
+  #             cosign sign `
+  #               --key="env://COSIGN_PRIVATE_KEY" `
+  #               --recursive `
+  #               --yes `
+  #               $tag
+  #             if ($?) {
+  #               break
+  #             }
+  #             $jitter = (Get-Random -Minimum -20 -Maximum 21) / 100
+  #             $backoff = [math]::Round([math]::Pow(3, $i) * (1 + $jitter))
+  #             Write-Host "retry: cosign returned $LASTEXITCODE, backing off for $backoff seconds and trying again ($i)..."
+  #             Start-Sleep -Seconds $backoff
+  #             $i++
+  #           }
+  #         }
 
-      - name: Run SAST Snyk against containers
-        # Snyk can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub Security
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: |
-          npx --yes snyk@${{ env.SNYK_VERSION }} container test `
-            --fail-on=upgradable `
-            --file=src/docker/Dockerfile-${{ matrix.os }} `
-            --sarif-file-output=snyk.sarif `
-            --severity-threshold=medium `
-            ${{ steps.tag.outputs.tag }}
+  #     - name: Run SAST Snyk against containers
+  #       # Snyk can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub Security
+  #       continue-on-error: true
+  #       env:
+  #         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+  #       run: |
+  #         npx --yes snyk@${{ env.SNYK_VERSION }} container test `
+  #           --fail-on=upgradable `
+  #           --file=src/docker/Dockerfile-${{ matrix.os }} `
+  #           --sarif-file-output=snyk.sarif `
+  #           --severity-threshold=medium `
+  #           ${{ steps.tag.outputs.tag }}
 
-      # Fix issue "Error: Code Scanning could not process the submitted SARIF file: rejecting SARIF, as there are more runs than allowed (XX > 20)"
-      # See: https://github.com/github/codeql-action/issues/220
-      - name: Merge SARIF files
-        run: |
-          npx --yes @microsoft/sarif-multitool@${{ env.SARIF_MULTITOOL_VERSION }} merge `
-            --automation-id ${{ github.run_id }} `
-            --merge-runs `
-            --output-file merged.sarif `
-            snyk.sarif
+  #     # Fix issue "Error: Code Scanning could not process the submitted SARIF file: rejecting SARIF, as there are more runs than allowed (XX > 20)"
+  #     # See: https://github.com/github/codeql-action/issues/220
+  #     - name: Merge SARIF files
+  #       run: |
+  #         npx --yes @microsoft/sarif-multitool@${{ env.SARIF_MULTITOOL_VERSION }} merge `
+  #           --automation-id ${{ github.run_id }} `
+  #           --merge-runs `
+  #           --output-file merged.sarif `
+  #           snyk.sarif
 
-      - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.26.13
-        continue-on-error: true
-        with:
-          sarif_file: merged.sarif
+  #     - name: Upload results to GitHub Security
+  #       uses: github/codeql-action/upload-sarif@v3.26.13
+  #       continue-on-error: true
+  #       with:
+  #         sarif_file: merged.sarif
 
   sast-semgrep:
     name: SAST - Semgrep
@@ -772,7 +772,7 @@ jobs:
     name: Update Docker Hub description
     needs:
       - build-release-linux
-      - build-release-win
+      # - build-release-win
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
     runs-on: ubuntu-24.04
@@ -884,14 +884,21 @@ jobs:
       - sast-semgrep
       - static-test
       - build-release-linux
-      - build-release-win
+      # - build-release-win
     concurrency: integration-test-${{ needs.init.outputs.BRANCH }}-${{ matrix.os }}
     strategy:
       fail-fast: false
       # Rate limiting on Azure DevOps SaaS APIs is triggered quickluy by integration tests, so we need to limit the number of parallel jobs
       max-parallel: 3
       matrix:
-        os: [bookworm, bullseye, focal, jammy, noble, ubi8, ubi9]
+        os:
+          - bookworm
+          # - bullseye
+          # - focal
+          # - jammy
+          # - noble
+          # - ubi8
+          # - ubi9
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
