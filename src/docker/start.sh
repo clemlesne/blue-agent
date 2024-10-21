@@ -50,8 +50,10 @@ if [ ! -w "$AZP_WORK" ]; then
   exit 1
 fi
 
+write_header "Running agent $AZP_AGENT_NAME in pool $AZP_POOL"
+
 unregister() {
-  write_header "Unregister, removing agent from server"
+  write_header "Removing agent"
 
   # If the agent has some running jobs, the configuration removal process will fail ; so, give it some time to finish the job
   while true; do

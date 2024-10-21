@@ -43,8 +43,10 @@ if (!(Test-Path $AZP_WORK)) {
   Raise-Error "Work dir AZP_WORK ($AZP_WORK) is not writeable or does not exist"
 }
 
+Write-Header "Running agent $AZP_AGENT_NAME in pool $AZP_POOL"
+
 function Unregister {
-  Write-Host "Unregister, removing agent from server"
+  Write-Host "Removing agent"
 
   # If the agent has some running jobs, the configuration removal process will fail; so, give it some time to finish the job
   while ($true) {
