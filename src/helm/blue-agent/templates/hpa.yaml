@@ -24,7 +24,7 @@ spec:
   failedJobsHistoryLimit: {{ .Values.pipelines.cleanup.failed | int | required "A value for .Values.pipelines.cleanup.failed is required" }}
   maxReplicaCount: {{ .Values.autoscaling.maxReplicas | int | required "A value for .Values.autoscaling.maxReplicas is required" }}
   minReplicaCount: {{ .Values.autoscaling.minReplicas | int | required "A value for .Values.autoscaling.minReplicas is required" }}
-  pollingInterval: 15
+  pollingInterval: {{ .Values.autoscaling.pollingInterval | int | required "A value for .Values.autoscaling.pollingInterval is required" }}
   successfulJobsHistoryLimit: {{ .Values.pipelines.cleanup.successful | int | required "A value for .Values.pipelines.cleanup.successful is required" }}
   jobTargetRef:
     activeDeadlineSeconds: {{ .Values.pipelines.timeout | int | required "A value for .Values.pipelines.timeout is required" }}

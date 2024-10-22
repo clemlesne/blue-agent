@@ -4,6 +4,9 @@ param autoscalingMaxReplicas int = 100
 @description('Minimum number of replicas the agent should have')
 @minValue(0)
 param autoscalingMinReplicas int = 0
+@description('Interval in seconds to poll for new jobs; Warning, a low value will cause rate limiting or throttling, and can cause high load on the Azure DevOps API')
+@minValue(1)
+param autoscalingPollingInterval int = 10
 @description('Extra environment variables to pass to the agent')
 param extraEnv array = []
 @description('Flavor of the container image, represents the Linux distribution')
@@ -75,6 +78,7 @@ module agent 'agent.bicep' = {
   params: {
     autoscalingMaxReplicas: autoscalingMaxReplicas
     autoscalingMinReplicas: autoscalingMinReplicas
+    autoscalingPollingInterval: autoscalingPollingInterval
     extraEnv: extraEnv
     imageFlavor: imageFlavor
     imageName: imageName
