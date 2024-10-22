@@ -4,7 +4,7 @@
 flavor ?= null
 version ?= null
 # Dynamic parameters
-prefix ?= $(shell hostname | tr '[:upper:]' '[:lower:]' | tr '.' '-')
+prefix ?= $(shell hostname | tr "[:upper:]" "[:lower:]" | tr "." "-")
 deployment_name ?= $(prefix)-$(flavor)
 # Deployment outputs
 job_name ?= $(shell az deployment sub show --name '$(deployment_name)' | yq '.properties.outputs["jobName"].value')
