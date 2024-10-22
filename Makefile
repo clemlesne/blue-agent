@@ -7,8 +7,9 @@ version ?= null
 prefix ?= $(shell hostname | tr "[:upper:]" "[:lower:]" | tr "." "-")
 deployment_name ?= $(prefix)-$(flavor)
 # Deployment outputs
-job_name ?= $(shell az deployment sub show --name '$(deployment_name)' | yq '.properties.outputs["jobName"].value')
-rg_name ?= $(shell az deployment sub show --name '$(deployment_name)' | yq '.properties.outputs["rgName"].value')
+bicep_outputs ?= $(shell az deployment sub show --name "$(deployment_name)" | yq '.properties.outputs')
+job_name ?= $(shell echo $(bicep_outputs) | yq '.jobName.value')
+rg_name ?= $(shell echo $(bicep_outputs) | yq '.rgName.value')
 
 test:
 	@echo "➡️ Running Prettier"
