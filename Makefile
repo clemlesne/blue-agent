@@ -38,6 +38,10 @@ lint:
 		--verbose
 
 deploy-bicep:
+	$(MAKE) deploy-bicep-iac
+	$(MAKE) deploy-bicep-template
+
+deploy-bicep-iac:
 	@echo "➡️ Decrypting Bicep parameters"
 	sops -d test/bicep/test.enc.json > test/bicep/test.json
 
@@ -58,8 +62,11 @@ deploy-bicep:
 	@echo "➡️ Wait for the Bicep output to be available"
 	sleep 10
 
-	@echo "➡️ Starting init job"
+deploy-bicep-template:
+	@echo "➡️ Starting template job"
 	az containerapp job start \
+		--env-vars $(job_env) AZP_TEMPLATE_JOB=1 \
+		--image $(job_image) \
 		--name $(job_name) \
 		--resource-group $(rg_name)
 

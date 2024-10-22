@@ -10,40 +10,33 @@ function Raise-Error() {
   throw "❌ $1"
 }
 
-$AZP_AGENT_NAME = $Env:AZP_AGENT_NAME
-$AZP_CUSTOM_CERT_PEM = $Env:AZP_CUSTOM_CERT_PEM
-$AZP_POOL = $Env:AZP_POOL
-$AZP_TOKEN = $Env:AZP_TOKEN
-$AZP_URL = $Env:AZP_URL
-$AZP_WORK = $Env:AZP_WORK
-
-if ($null -eq $AZP_URL -or $AZP_URL -eq "") {
+if ($null -eq $Env:AZP_URL -or $Env:AZP_URL -eq "") {
   Raise-Error "Missing AZP_URL environment variable"
 }
 
-if ($null -eq $AZP_TOKEN -or $AZP_TOKEN -eq "") {
+if ($null -eq $Env:AZP_TOKEN -or $Env:AZP_TOKEN -eq "") {
   Raise-Error "Missing AZP_TOKEN environment variable"
 }
 
-if ($null -eq $AZP_POOL -or $AZP_POOL -eq "") {
+if ($null -eq $Env:AZP_POOL -or $Env:AZP_POOL -eq "") {
   Raise-Error "Missing AZP_POOL environment variable"
 }
 
-# If AZP_AGENT_NAME is not set, use the container hostname
-if ($null -eq $AZP_AGENT_NAME -or $AZP_AGENT_NAME -eq "") {
-  Write-Warning "Missing AZP_AGENT_NAME environment variable"
-  $AZP_AGENT_NAME = $Env:COMPUTERNAME
+# If name is not set, use the hostname
+if ($null -eq $Env:AZP_AGENT_NAME -or $Env:AZP_AGENT_NAME -eq "") {
+  Write-Warning "Missing AZP_AGENT_NAME environment variable, using hostname"
+  $Env:AZP_AGENT_NAME = $Env:COMPUTERNAME
 }
 
-if ($null -eq $AZP_WORK -or $AZP_WORK -eq "") {
+if ($null -eq $Env:AZP_WORK -or $Env:AZP_WORK -eq "") {
   Raise-Error "Missing AZP_WORK environment variable"
 }
 
-if (!(Test-Path $AZP_WORK)) {
+if (!(Test-Path $Env:AZP_WORK)) {
   Raise-Error "Work dir AZP_WORK ($AZP_WORK) is not writeable or does not exist"
 }
 
-Write-Header "Running agent $AZP_AGENT_NAME in pool $AZP_POOL"
+Write-Header "Running agent $Env:AZP_AGENT_NAME in pool $Env:AZP_POOL"
 
 function Unregister {
   Write-Host "Removing agent"
@@ -54,7 +47,7 @@ function Unregister {
       # If the agent is removed successfully, exit the loop
       & config.cmd remove `
         --auth PAT `
-        --token $AZP_TOKEN `
+        --token $Env:AZP_TOKEN `
         --unattended
       break
     } catch {
@@ -65,10 +58,10 @@ function Unregister {
 }
 
 Write-Header "Adding custom SSL certificates"
-if ((Test-Path $AZP_CUSTOM_CERT_PEM) -and ((Get-ChildItem $AZP_CUSTOM_CERT_PEM).Count -gt 0)) {
-  Write-Host "Searching for *.crt in $AZP_CUSTOM_CERT_PEM"
+if ((Test-Path $Env:AZP_CUSTOM_CERT_PEM) -and ((Get-ChildItem $Env:AZP_CUSTOM_CERT_PEM).Count -gt 0)) {
+  Write-Host "Searching for *.crt in $Env:AZP_CUSTOM_CERT_PEM"
 
-  Get-ChildItem $AZP_CUSTOM_CERT_PEM -Filter *.crt | ForEach-Object {
+  Get-ChildItem $Env:AZP_CUSTOM_CERT_PEM -Filter *.crt | ForEach-Object {
     Write-Host "Certificate $($_.Name)"
 
     $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($_.FullName)
@@ -88,14 +81,14 @@ Set-Location $(Split-Path -Parent $MyInvocation.MyCommand.Definition)
 
 & config.cmd `
   --acceptTeeEula `
-  --agent $AZP_AGENT_NAME `
+  --agent $Env:AZP_AGENT_NAME `
   --auth PAT `
-  --pool $AZP_POOL `
+  --pool $Env:AZP_POOL `
   --replace `
-  --token $AZP_TOKEN `
+  --token $Env:AZP_TOKEN `
   --unattended `
-  --url $AZP_URL `
-  --work $AZP_WORK
+  --url $Env:AZP_URL `
+  --work $Env:AZP_WORK
 
 Write-Header "Running agent"
 

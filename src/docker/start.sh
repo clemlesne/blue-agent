@@ -34,9 +34,9 @@ if [ -z "$AZP_POOL" ]; then
   exit 1
 fi
 
-# If AZP_AGENT_NAME is not set, use the container hostname
+# If name is not set, use the hostname
 if [ -z "$AZP_AGENT_NAME" ]; then
-  write_warning "Missing AZP_AGENT_NAME environment variable"
+  write_warning "Missing AZP_AGENT_NAME environment variable, using hostname"
   AZP_AGENT_NAME=$(hostname)
 fi
 
