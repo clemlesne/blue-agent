@@ -888,7 +888,7 @@ jobs:
     concurrency: integration-test-${{ needs.init.outputs.BRANCH }}-${{ matrix.os }}
     strategy:
       fail-fast: false
-      # Rate limiting on Azure DevOps SaaS APIs is triggered quickluy by integration tests, so we need to limit the number of parallel jobs
+      # Rate limiting on Azure DevOps SaaS APIs is triggered quickly by integration tests, so we need to limit the number of parallel jobs
       max-parallel: 3
       matrix:
         os: [bookworm, bullseye, focal, jammy, noble, ubi8, ubi9]
@@ -917,6 +917,7 @@ jobs:
 
       - name: Deploy Bicep
         run: |
+          # Execute the deployment
           make deploy-bicep \
             flavor="${{ matrix.os }}" \
             prefix="${{ needs.init.outputs.BRANCH }}" \

@@ -113,8 +113,9 @@ Common definition for Pod object.
 Usage example:
 
 {{- $data := dict
+  "azpAgentName" (dict "value" (include "blue-agent.fullname" .))
+  "isTemplateJob" "1"
   "restartPolicy" "Always"
-  "azpAgentName" (dict "value" (printf "%s-%s" (include "blue-agent.fullname" .) "template"))
 }}
 {{- include "blue-agent.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 6 }}
 */}}
@@ -200,6 +201,8 @@ containers:
           secretKeyRef:
             name: {{ include "blue-agent.secretName" . }}
             key: personalAccessToken
+      - name: AZP_TEMPLATE_JOB
+        value: {{ .Args.isTemplateJob }}
       # Agent capabilities
       - name: flavor_{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}
       - name: version_{{ default .Chart.Version .Values.image.version }}
