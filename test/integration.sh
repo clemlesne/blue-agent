@@ -17,7 +17,7 @@ org_url="https://dev.azure.com/blue-agent"
 echo "➡️ Configuring Azure DevOps organization ${org_url}"
 az devops configure --defaults organization=${org_url}
 
-bash test/azure-devops/exists.sh "${agent}"
+bash test/azure-devops/template-exists.sh "${agent}"
 
 # Run all integration tests in parallel using GNU parallel
 parallel bash test/azure-devops/pipeline.sh "${prefix}" {} "${flavor}" "${version}" ::: $(basename -s .yaml test/pipeline/*.yaml)

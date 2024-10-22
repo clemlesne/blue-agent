@@ -10,6 +10,10 @@ deployment_name ?= $(prefix)-$(flavor)
 bicep_outputs ?= $(shell az deployment sub show --name "$(deployment_name)" | yq '.properties.outputs')
 job_name ?= $(shell echo $(bicep_outputs) | yq '.jobName.value')
 rg_name ?= $(shell echo $(bicep_outputs) | yq '.rgName.value')
+# Container App Job environment
+container_specs ?= $(shell az containerapp job show --name "$(job_name)" --resource-group "$(rg_name)" | yq '.properties.template.containers[0]')
+job_image ?= $(shell echo $(container_specs) | yq '.image')
+job_env ?= $(shell echo $(container_specs) | yq '.env | map("\(.name)=\(.value // \"secretref:\" + .secretRef)") | .[]')
 
 test:
 	@echo "➡️ Running Prettier"
@@ -40,6 +44,10 @@ lint:
 
 deploy-bicep:
 	$(MAKE) deploy-bicep-iac
+
+	@echo "➡️ Wait for the Bicep output to be available"
+	sleep 10
+
 	$(MAKE) deploy-bicep-template
 
 deploy-bicep-iac:
@@ -59,9 +67,6 @@ deploy-bicep-iac:
 
 	@echo "➡️ Cleaning up Bicep parameters"
 	rm test/bicep/test.json
-
-	@echo "➡️ Wait for the Bicep output to be available"
-	sleep 10
 
 deploy-bicep-template:
 	@echo "➡️ Starting template job"
