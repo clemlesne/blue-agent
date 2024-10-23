@@ -12,11 +12,13 @@ if [ -z "$prefix" ] || [ -z "$flavor" ] || [ -z "$version" ] || [ -z "$agent" ];
   exit 1
 fi
 
-org_url="https://dev.azure.com/blue-agent"
+echo "➡️ Running integration tests for agent ${agent} with prefix ${prefix}, flavor ${flavor} and version ${version}"
 
-echo "➡️ Configuring Azure DevOps organization ${org_url}"
+org_url="https://dev.azure.com/blue-agent"
+echo "Configuring Azure DevOps organization ${org_url}"
 az devops configure --defaults organization=${org_url}
 
+# Test if template exists
 bash test/azure-devops/template-exists.sh "${agent}"
 
 # Run all integration tests in parallel using GNU parallel
@@ -28,4 +30,5 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-bash test/azure-devops/has-been-cleaned.sh "${agent}"
+# Test if all jobs were cleaned automatically
+bash test/azure-devops/queue-cleaned.sh "${agent}"

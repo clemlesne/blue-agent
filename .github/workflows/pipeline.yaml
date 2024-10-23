@@ -925,7 +925,7 @@ jobs:
 
       - name: Integration
         env:
-          # Permissions: Agent Pools (Read); Build (Read & execute); Pipeline Resources (Use & manage); Project and Team (Read, write, & manage); Service Connections (Read, query, & manage)
+          # Permissions: Agent Pools (Read & manage); Build (Read & execute); Pipeline Resources (Use & manage); Project and Team (Read, write, & manage); Service Connections (Read, query, & manage)
           # Recommended group membership: Project Collection Build Service Accounts
           AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
           # Scope: clemlesne/blue-agent
@@ -934,14 +934,22 @@ jobs:
         # Script wait indefinitely for external events, so we need to timeout
         timeout-minutes: 30
         run: |
-          make integration \
+          make integration-run \
             flavor="${{ matrix.os }}" \
             prefix="${{ needs.init.outputs.BRANCH }}" \
             version="sha-$(git rev-parse --short HEAD)"
 
-      # - name: Cleanup
-      #   if: always()
-      #   run: |
-      #     make destroy-bicep \
-      #       flavor="${{ matrix.os }}" \
-      #       prefix="${{ needs.init.outputs.BRANCH }}"
+      - name: Cleanup
+        if: always()
+        env:
+          # Permissions: agent pools (read & manage); build (read & execute); pipeline resources (use & manage); project and team (read, write, & manage); service connections (read, query, & manage)
+          # Recommended group membership: Project Collection Build Service Accounts
+          AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+        run: |
+          make integration-cleanup \
+            flavor="${{ matrix.os }}" \
+            prefix="${{ needs.init.outputs.BRANCH }}"
+
+          # make destroy-bicep \
+          #   flavor="${{ matrix.os }}" \
+          #   prefix="${{ needs.init.outputs.BRANCH }}"

@@ -77,13 +77,20 @@ deploy-bicep-template:
 		--resource-group $(rg_name)
 
 destroy-bicep:
-	@echo "➡️ Destroying"
+	@echo "➡️ Destroying Azure resources"
 	az group delete \
 		--name "$(rg_name)" \
 		--yes
 
 integration:
-	@bash test/integration.sh $(prefix) $(flavor) $(version) $(job_name)
+	$(MAKE) integration-run
+	$(MAKE) integration-cleanup
+
+integration-run:
+	@bash test/integration-run.sh $(prefix) $(flavor) $(version) $(job_name)
+
+integration-cleanup:
+	@bash test/integration-cleanup.sh $(job_name)
 
 docs:
 	cd docs && hugo server
