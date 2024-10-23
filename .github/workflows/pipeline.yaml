@@ -875,17 +875,16 @@ jobs:
             git push origin gh-pages
           fi
 
-  integration-test:
+  integration-test-linux:
     name: Integration test (Linux ${{ matrix.os }})
     runs-on: ubuntu-24.04
     needs:
+      - build-release-linux
       - init
       - sast-creds
       - sast-semgrep
       - static-test
-      - build-release-linux
-      - build-release-win
-    concurrency: integration-test-${{ needs.init.outputs.BRANCH }}-${{ matrix.os }}
+    concurrency: integration-test-linux-${{ needs.init.outputs.BRANCH }}-${{ matrix.os }}
     strategy:
       fail-fast: false
       # Rate limiting on Azure DevOps SaaS APIs is triggered quickly by integration tests, so we need to limit the number of parallel jobs
