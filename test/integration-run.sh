@@ -21,8 +21,8 @@ az devops configure --defaults organization=${org_url}
 # Test if template exists
 bash test/azure-devops/template-exists.sh "${agent}"
 
-# Run all integration tests in parallel using GNU parallel
-parallel bash test/azure-devops/pipeline.sh "${prefix}" {} "${flavor}" "${version}" ::: $(basename -s .yaml test/pipeline/*.yaml)
+# Run all integration tests in parallel
+parallel -j 0 bash test/azure-devops/pipeline.sh "${prefix}" {} "${flavor}" "${version}" ::: $(basename -s .yaml test/pipeline/*.yaml)
 
 # Check if any of the tests failed
 if [ $? -ne 0 ]; then
