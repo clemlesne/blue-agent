@@ -229,12 +229,12 @@ jobs:
 
   release-helm:
     name: Release Helm chart
-    needs:
-      - build-release-linux
-      - build-release-win
-      - build-helm
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
+    needs:
+      - build-helm
+      - build-release-linux
+      - build-release-win
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -770,11 +770,11 @@ jobs:
 
   update-docker-hub-description:
     name: Update Docker Hub description
+    # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
+    if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
     needs:
       - build-release-linux
       - build-release-win
-    # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
-    if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -791,11 +791,11 @@ jobs:
 
   build-hugo:
     name: Build Hugo site
-    runs-on: ubuntu-24.04
     needs:
       - sast-creds
       - sast-semgrep
       - static-test
+    runs-on: ubuntu-24.04
     steps:
       # Required for running "hugo" CLI
       - name: Setup Hugo CLI
@@ -877,13 +877,13 @@ jobs:
 
   integration-test-linux:
     name: Integration test (Linux ${{ matrix.os }})
-    runs-on: ubuntu-24.04
     needs:
       - build-release-linux
       - init
       - sast-creds
       - sast-semgrep
       - static-test
+    runs-on: ubuntu-24.04
     concurrency: integration-test-linux-${{ needs.init.outputs.BRANCH }}-${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -916,7 +916,6 @@ jobs:
 
       - name: Deploy Bicep
         run: |
-          # Execute the deployment
           make deploy-bicep \
             flavor="${{ matrix.os }}" \
             prefix="${{ needs.init.outputs.BRANCH }}" \
@@ -924,11 +923,11 @@ jobs:
 
       - name: Integration
         env:
-          # Permissions: Agent Pools (Read & manage); Build (Read & execute); Pipeline Resources (Use & manage); Project and Team (Read, write, & manage); Service Connections (Read, query, & manage)
+          # Permissions: agent pools (read & manage); build (read & execute); pipeline resources (use & manage); project and team (read, write, & manage); service connections (read, query, & manage)
           # Recommended group membership: Project Collection Build Service Accounts
           AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
           # Scope: clemlesne/blue-agent
-          # Permissions: Contents (read-only); Metadata (read-only); Webhooks (read & write)
+          # Permissions: contents (read-only); metadata (read-only); webhooks (read & write)
           AZURE_DEVOPS_EXT_GITHUB_PAT: ${{ secrets.AZURE_DEVOPS_GITHUB_PAT }}
         # Script wait indefinitely for external events, so we need to timeout
         timeout-minutes: 30

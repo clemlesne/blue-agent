@@ -43,11 +43,10 @@ fi
 
 # Remove the agent
 az devops invoke \
+  --api-version "7.1" \
   --area distributedtask \
   --http-method DELETE \
   --resource agents \
   --route-parameters poolId="${pool_id}" agentId="${agent_id}"
-
-# ${org_url}/_apis/distributedtask/pools/${pool_id}/agents/${agent_id}?api-version=6.0-preview.1"
 
 echo "✅ Agent ${agent} removed from pool ${pool_name}"

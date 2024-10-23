@@ -28,14 +28,13 @@ fi
 for i in {1..12}; do
   agent_name=$(az pipelines agent list \
     --pool-id "${pool_id}" \
-      | jq -r "last(sort_by(.createdOn) | .[] | select((.name | startswith(\"${agent}\")) and (.name | endswith(\"-template\") | not) and .status == \"offline\")).name")
-  if [ -n "$agent_name" ] && [ "$agent_name" != "null" ]; then
-    echo "Agent ${agent_name} exists, retrying in 5 seconds"
-    sleep 5
-  else
+      | jq -r "last(sort_by(.createdOn) | .[] | select((.name | startswith(\"${agent}\")) and (.name | endswith(\"-template\") | not) and .status == \"offline\")).name // empty")
+  if [ -z "$agent_name" ]; then
     echo "✅ Agent ${agent} has been cleaned from pool ${pool_name} (${pool_id})"
     exit 0
   fi
+  echo "Agent ${agent_name} exists, retrying in 5 seconds"
+  sleep 5
 done
 
 echo "❌ Agent ${agent} has not been cleaned from pool ${pool_name} (${pool_id})"

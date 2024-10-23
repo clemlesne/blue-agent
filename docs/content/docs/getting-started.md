@@ -11,7 +11,7 @@ weight: 1
 
 ### Prepare the Azure DevOps organization
 
-Create [a new agent pool](https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/pools-queues) in Azure DevOps. Then, create [the personal access token](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/personal-access-token-agent-registration?view=azure-devops), with the scope `Agent Pools (read & manage)`, allowing access from the agent to Azure DevOps.
+Create [a new agent pool](https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/pools-queues) in Azure DevOps. Then, create [the personal access token](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/personal-access-token-agent-registration?view=azure-devops), with the scope `agent pools (read & manage)`, allowing access from the agent to Azure DevOps.
 
 ### Deploy
 
