@@ -10,7 +10,7 @@ if [ -z "$agent" ] || [ -z "$pool_id" ]; then
   exit 1
 fi
 
-echo "➡️ Testing existence of agent $agent in pool $pool_id"
+echo "➡️ Testing existence of template agent $agent in pool $pool_id"
 
 # Wait for the agent to start
 while true; do
@@ -20,7 +20,7 @@ while true; do
   if [ -n "$agent_json" ]; then
     break
   fi
-  echo "Template agent not found, retrying in 5 seconds"
+  echo "Not found, retrying in 5 seconds"
   sleep 5
 done
 
@@ -49,7 +49,7 @@ while true; do
   if [ "$agent_status" == "offline" ]; then
     break
   fi
-  echo "Template agent $agent still online, retrying in 5 seconds"
+  echo "Still online, retrying in 5 seconds"
   sleep 5
 done
 

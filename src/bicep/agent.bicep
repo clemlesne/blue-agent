@@ -136,7 +136,7 @@ resource job 'Microsoft.App/jobs@2023-11-02-preview' = {
             }
             {
               name: 'VSO_AGENT_IGNORE'
-              value: 'AZP_TOKEN,AZURE_DEVOPS_EXT_PAT'
+              value: 'AZP_TOKEN'
             }
             {
               name: 'AGENT_ALLOW_RUNASROOT'

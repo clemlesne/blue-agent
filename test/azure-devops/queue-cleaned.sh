@@ -22,7 +22,7 @@ for i in {1..12}; do
     echo "✅ Agent has been cleaned"
     exit 0
   fi
-  echo "Agent $agent_name exists, retrying in 5 seconds"
+  echo "Agent still exists, retrying in 5 seconds"
   sleep 5
 done
 

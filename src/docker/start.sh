@@ -28,8 +28,6 @@ if [ -z "$AZP_TOKEN" ]; then
   raise_error "Missing AZP_TOKEN environment variable"
   exit 1
 fi
-# Configure the Azure DevOps CLI to use the provided token
-export AZURE_DEVOPS_EXT_PAT="$AZP_TOKEN"
 
 if [ -z "$AZP_POOL" ]; then
   raise_error "Missing AZP_POOL environment variable"
@@ -53,7 +51,7 @@ if [ "$AZP_TEMPLATE_JOB" == "1" ]; then
   AZP_AGENT_NAME="${AZP_AGENT_NAME}-template"
 fi
 
-unregister_now() {
+unregister() {
   write_header "Removing agent"
 
   # A job with the deployed configuration need to be kept in the server history, so a pipeline can be run and KEDA detect it from the queue
@@ -71,36 +69,9 @@ unregister_now() {
         --unattended \
       && break
 
-    echo "Retrying in 15 secs"
+    echo "A job is still running, waiting 15 seconds before retrying the removal"
     sleep 15
   done
-}
-
-unregister_if_not_used() {
-  write_header "Checking if agent can be removed"
-
-  # Get pool id
-  pool_id=$(az pipelines pool list \
-    --pool-name "$AZP_POOL" \
-    --query "[0].id")
-  # Get agent requests
-  agent=$(az pipelines agent list \
-    --include-assigned-request \
-    --include-last-completed-request \
-    --pool-id "$pool_id" \
-    --query "[?agent.name=='$AZP_AGENT_NAME'] | [0]")
-  assignedRequest=$(echo $agent | jq -r '.assignedRequest // empty')
-  lastCompletedRequest=$(echo $agent | jq -r '.lastCompletedRequest // empty')
-
-  # If the agent has requests, abort
-  if [ ! -z "$assignedRequest" ] || [ ! -z "$lastCompletedRequest" ]; then
-    echo "Agent has requests, cannot be removed"
-    return
-  fi
-
-  # Remove the agent
-  echo "Agent has no requests, removing it"
-  unregister_now
 }
 
 add_custom_ssl_certificates() {
@@ -181,7 +152,7 @@ run_agent() {
     timeout --preserve-status 1m bash run-docker.sh "$@" --once &
   else
     # Run the countdown
-    sleep 60 && unregister_if_not_used &
+    sleep 60 && unregister &
     # Run the agent
     bash run-docker.sh "$@" --once &
   fi
@@ -195,18 +166,15 @@ run_agent() {
   cat $AGENT_DIAGLOGPATH/*.log
 }
 
-write_header "Configuring Azure CLI"
-az devops configure --defaults organization=$AZP_URL
-
 add_custom_ssl_certificates
 
 configure_agent
 
 # Unregister on success
-trap 'unregister_now; exit 0' EXIT
+trap 'unregister; exit 0' EXIT
 # Unregister on Ctrl+C
-trap 'unregister_now; exit 130' INT
+trap 'unregister; exit 130' INT
 # Unregister on SIGTERM
-trap 'unregister_now; exit 143' TERM
+trap 'unregister; exit 143' TERM
 
 run_agent

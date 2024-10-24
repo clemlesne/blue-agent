@@ -27,7 +27,7 @@ while true; do
   if [ -n "$agent_id" ]; then
     break
   fi
-  echo "Agent not found, retrying in 5 seconds"
+  echo "Not found, retrying in 5 seconds"
   sleep 5
 done
 
