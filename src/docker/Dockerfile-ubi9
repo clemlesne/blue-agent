@@ -14,7 +14,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # - fuse-overlayfs, iptables, shadow-utils, for BuildKit
 # - gzip, make, tar, unzip, wget, zip, zstd for developer ease-of-life
 # - zsh, for inter-operability
-RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
+RUN --mount=target=/var/cache/yum,type=cache,id=yum-$TARGETARCH-$TARGETVARIANT,sharing=locked \
     microdnf install -y --nodocs --setopt=install_weak_deps=0 \
         aspnetcore-runtime-8.0 \
         ca-certificates \
@@ -75,7 +75,7 @@ FROM base AS python
 # Build Python 3.12 from source, then verify installation
 ARG PYTHON_VERSION
 ENV PYTHON_VERSION=${PYTHON_VERSION}
-RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
+RUN --mount=target=/var/cache/yum,type=cache,id=yum-$TARGETARCH-$TARGETVARIANT,sharing=locked --mount=target=/Python-$PYTHON_VERSION,type=cache,id=python-$PYTHON_VERSION-$TARGETARCH-$TARGETVARIANT,sharing=locked \
     microdnf install -y --nodocs --setopt=install_weak_deps=0 \
         bzip2 \
         bzip2-devel \
@@ -104,7 +104,6 @@ RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
     && make -j$(nproc) \
     && make install \
     && cd .. \
-    && rm -rf Python-${PYTHON_VERSION} \
     && python3 --version \
     && python3 -m pip --version \
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
@@ -120,7 +119,8 @@ RUN ln -s /usr/local/bin/python3.12 /usr/local/bin/python3 \
     && python3 -m pip --version
 
 # Install Python build tools
-RUN python3 -m pip \
+RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-$TARGETARCH-$TARGETVARIANT \
+    python3 -m pip \
         --disable-pip-version-check \
         --no-cache-dir \
         --quiet \
@@ -131,7 +131,8 @@ RUN python3 -m pip \
 # Install Azure CLI, then verify installation
 ARG AZURE_CLI_VERSION
 ENV AZURE_CLI_VERSION=${AZURE_CLI_VERSION}
-RUN python3 -m pip \
+RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-$TARGETARCH-$TARGETVARIANT \
+    python3 -m pip \
         --disable-pip-version-check \
         --no-cache-dir \
         --quiet \
