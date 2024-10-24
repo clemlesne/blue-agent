@@ -105,6 +105,7 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/
         zlib1g-dev \
     && curl -LsSf --retry 8 --retry-all-errors https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz -o python.tgz \
     && tar -xzf python.tgz \
+    && rm python.tgz \
     && cd Python-${PYTHON_VERSION} \
     && ./configure \
         --enable-optimizations \
@@ -112,9 +113,11 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/
         --with-lto \
     && make -j$(nproc) \
     && make install \
-    && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null \
+    && cd .. \
+    && rm -rf Python-${PYTHON_VERSION} \
     && python3 --version \
-    && python3 -m pip --version
+    && python3 -m pip --version \
+    && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 FROM base
 
