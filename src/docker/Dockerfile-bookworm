@@ -21,7 +21,7 @@ ENV PIP_BREAK_SYSTEM_PACKAGES=1
 # - zsh, for inter-operability
 RUN rm -f /etc/apt/apt.conf.d/docker-clean \
     && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
-RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/var/cache,type=cache,sharing=locked \
+RUN --mount=target=/var/lib/apt/lists,type=cache,id=apt-lists-${TARGETPLATFORM},sharing=locked --mount=target=/var/cache,type=cache,id=var-cache-${TARGETPLATFORM},sharing=locked \
     apt-get update -q \
     && apt-get install -y -q --no-install-recommends \
         build-essential \
@@ -71,10 +71,15 @@ RUN go version
 # Install RootlessKit, then verify installation
 ARG ROOTLESSKIT_VERSION
 ENV ROOTLESSKIT_VERSION=${ROOTLESSKIT_VERSION}
-RUN git clone --depth 1 --branch v${ROOTLESSKIT_VERSION} https://github.com/rootless-containers/rootlesskit.git rootlesskit \
-    && make --directory rootlesskit \
-    && make --directory rootlesskit install \
+RUN --mount=target=/rootlesskit-${ROOTLESSKIT_VERSION},type=cache,id=rootlesskit-${ROOTLESSKIT_VERSION}-${TARGETPLATFORM},sharing=locked \
+    git clone --depth 1 --branch v${ROOTLESSKIT_VERSION} https://github.com/rootless-containers/rootlesskit.git rootlesskit \
+    # Ugly but that's work
+    && cp -r rootlesskit/* rootlesskit-${ROOTLESSKIT_VERSION} \
     && rm -rf rootlesskit \
+    && cd rootlesskit-${ROOTLESSKIT_VERSION} \
+    && make \
+    && make install \
+    && cd .. \
     && rootlesskit --version \
     && rootlessctl --version
 
@@ -83,7 +88,7 @@ FROM base AS python
 # Build Python 3.12 from source, then verify installation
 ARG PYTHON_VERSION
 ENV PYTHON_VERSION=${PYTHON_VERSION}
-RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/var/cache,type=cache,sharing=locked \
+RUN --mount=target=/var/lib/apt/lists,type=cache,id=apt-lists-${TARGETPLATFORM},sharing=locked --mount=target=/var/cache,type=cache,id=var-cache-${TARGETPLATFORM},sharing=locked --mount=target=/Python-${PYTHON_VERSION},type=cache,id=python-${PYTHON_VERSION}-${TARGETPLATFORM},sharing=locked \
     apt-get update -q \
     && apt-get install -y -q --no-install-recommends \
         g++ \
@@ -109,14 +114,18 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked --mount=target=/
     && tar -xzf python.tgz \
     && rm python.tgz \
     && cd Python-${PYTHON_VERSION} \
+    && gnu_arch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
     && ./configure \
+        --build=$gnu_arch \
         --enable-optimizations \
         --with-ensurepip=install \
         --with-lto \
-    && make -j$(nproc) \
+    && make profile-removal \
+    && extra_cflags="$(dpkg-buildflags --get CFLAGS)" \
+    && ldflags="$(dpkg-buildflags --get LDFLAGS)" \
+    && make -j $(nproc) "EXTRA_CFLAGS=${extra_cflags:-}" "LDFLAGS=${ldflags:-}" \
     && make install \
     && cd .. \
-    && rm -rf Python-${PYTHON_VERSION} \
     && python3 --version \
     && python3 -m pip --version \
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
@@ -132,9 +141,9 @@ RUN ln -s /usr/local/bin/python3.12 /usr/local/bin/python3 \
     && python3 -m pip --version
 
 # Install Python build tools
-RUN python3 -m pip \
+RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${TARGETPLATFORM} \
+    python3 -m pip \
         --disable-pip-version-check \
-        --no-cache-dir \
         --quiet \
         install  \
             setuptools wheel \
@@ -143,9 +152,9 @@ RUN python3 -m pip \
 # Install Azure CLI, then verify installation
 ARG AZURE_CLI_VERSION
 ENV AZURE_CLI_VERSION=${AZURE_CLI_VERSION}
-RUN python3 -m pip \
+RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${TARGETPLATFORM} \
+    python3 -m pip \
         --disable-pip-version-check \
-        --no-cache-dir \
         --quiet \
         install \
             azure-cli==${AZURE_CLI_VERSION} \
