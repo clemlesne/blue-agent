@@ -182,7 +182,7 @@ containers:
         value: /app-root/azp-logs
         {{- end }}
       - name: VSO_AGENT_IGNORE
-        value: AZP_TOKEN
+        value: AZP_TOKEN,AZURE_DEVOPS_EXT_PAT
       {{- if not .Values.image.isWindows }}
       - name: AGENT_ALLOW_RUNASROOT
         value: "1"

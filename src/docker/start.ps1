@@ -17,6 +17,8 @@ if ($null -eq $Env:AZP_URL -or $Env:AZP_URL -eq "") {
 if ($null -eq $Env:AZP_TOKEN -or $Env:AZP_TOKEN -eq "") {
   Raise-Error "Missing AZP_TOKEN environment variable"
 }
+# Configure the Azure DevOps CLI to use the provided token
+$env:AZURE_DEVOPS_EXT_PAT = $Env:AZP_TOKEN
 
 if ($null -eq $Env:AZP_POOL -or $Env:AZP_POOL -eq "") {
   Raise-Error "Missing AZP_POOL environment variable"
@@ -44,9 +46,7 @@ if ($Env:AZP_TEMPLATE_JOB -eq "1") {
   $Env:AZP_AGENT_NAME = "$Env:AZP_AGENT_NAME-template"
 }
 
-Write-Header "Running agent $Env:AZP_AGENT_NAME in pool $Env:AZP_POOL"
-
-function Unregister {
+function Unregister-Now {
   Write-Header "Removing agent"
 
   # A job with the deployed configuration need to be kept in the server history, so a pipeline can be run and KEDA detect it from the queue
@@ -71,8 +71,41 @@ function Unregister {
   }
 }
 
-Write-Header "Adding custom SSL certificates"
-if ((Test-Path $Env:AZP_CUSTOM_CERT_PEM) -and ((Get-ChildItem $Env:AZP_CUSTOM_CERT_PEM).Count -gt 0)) {
+function Unregister-If-Not-Used {
+  Write-Header "Checking if agent can be removed"
+
+  # Get pool id
+  $poolId = az pipelines pool list `
+    --pool-name $Env:AZP_POOL `
+    --query "[0].id"
+  # Get agent requests
+  $agent = az pipelines agent list `
+    --include-assigned-request `
+    --include-last-completed-request `
+    --pool-id $poolId `
+    --query "[?name=='$Env:AZP_AGENT_NAME'] | [0]" | ConvertFrom-Json
+  $assignedRequest = $agent.assignedRequest
+  $lastCompletedRequest = $agent.lastCompletedRequest
+
+  # If the agent has requests, abort
+  if ($null -ne $assignedRequest -or $null -ne $lastCompletedRequest) {
+    Write-Host "Agent has requests, cannot be removed"
+    return
+  }
+
+  # Remove the agent
+  Write-Host "Agent has no requests, removing it"
+  Unregister-Now
+}
+
+function Add-CustomSSLCertificates {
+  Write-Header "Adding custom SSL certificates"
+
+  if (-not (Test-Path $Env:AZP_CUSTOM_CERT_PEM) -or ((Get-ChildItem $Env:AZP_CUSTOM_CERT_PEM).Count -eq 0)) {
+    Write-Host "No custom SSL certificate provided"
+    return
+  }
+
   Write-Host "Searching for *.crt in $Env:AZP_CUSTOM_CERT_PEM"
 
   Get-ChildItem $Env:AZP_CUSTOM_CERT_PEM -Filter *.crt | ForEach-Object {
@@ -85,43 +118,61 @@ if ((Test-Path $Env:AZP_CUSTOM_CERT_PEM) -and ((Get-ChildItem $Env:AZP_CUSTOM_CE
     Write-Host "Updating certificates keychain"
     Import-Certificate -FilePath $_.FullName -CertStoreLocation Cert:\LocalMachine\Root
   }
-} else {
-  Write-Host "No custom SSL certificate provided"
 }
 
-Write-Header "Configuring agent"
+function Configure-Agent {
+  Write-Header "Configuring agent"
 
-Set-Location $(Split-Path -Parent $MyInvocation.MyCommand.Definition)
+  Set-Location $(Split-Path -Parent $MyInvocation.MyCommand.Definition)
 
-& config.cmd `
-  --acceptTeeEula `
-  --agent $Env:AZP_AGENT_NAME `
-  --auth PAT `
-  --pool $Env:AZP_POOL `
-  --replace `
-  --token $Env:AZP_TOKEN `
-  --unattended `
-  --url $Env:AZP_URL `
-  --work $Env:AZP_WORK
+  & config.cmd `
+    --acceptTeeEula `
+    --agent $Env:AZP_AGENT_NAME `
+    --auth PAT `
+    --pool $Env:AZP_POOL `
+    --replace `
+    --token $Env:AZP_TOKEN `
+    --unattended `
+    --url $Env:AZP_URL `
+    --work $Env:AZP_WORK
+}
 
-Write-Header "Running agent"
+function Run-Agent {
+  Write-Header "Running agent $Env:AZP_AGENT_NAME in pool $Env:AZP_POOL"
 
-# Running it with the --once flag at the end will shut down the agent after the build is executed
-try {
-  if ($isTemplateJob) {
-    Write-Host "Agent will be stopped after 1 min"
-    Start-Job -ScriptBlock {
-      Start-Sleep -Seconds 60
+  # Running it with the --once flag at the end will shut down the agent after the build is executed
+  try {
+    if ($isTemplateJob) {
+      Write-Host "Agent will be stopped after 1 min"
+      # Run the agent for a minute
+      Start-Job -ScriptBlock {
+        Start-Sleep -Seconds 60
+        & run.cmd $Args --once
+      }
+    } else {
+      # Run the countdown
+      Start-Job -ScriptBlock {
+        Start-Sleep -Seconds 60
+        Unregister-If-Not-Used
+      }
+      # Run the agent
       & run.cmd $Args --once
     }
-  } else {
-    & run.cmd $Args --once
+  } finally {
+    # Unregister on success, Ctrl+C, and SIGTERM
+    Unregister-Now
   }
-} finally {
-  # Unregister on success, Ctrl+C, and SIGTERM
-  Unregister
+
+  Write-Header "Printing agent diag logs"
+
+  Get-Content $AGENT_DIAGLOGPATH/*.log
 }
 
-Write-Header "Printing agent diag logs"
+Write-Header "Configuring Azure CLI"
+az devops configure --defaults organization=$Env:AZP_URL
 
-Get-Content $AGENT_DIAGLOGPATH/*.log
+Add-CustomSSLCertificates
+
+Configure-Agent
+
+Run-Agent

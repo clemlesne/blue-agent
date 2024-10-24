@@ -87,7 +87,7 @@ integration:
 	$(MAKE) integration-cleanup
 
 integration-run:
-	@bash test/integration-run.sh $(prefix) $(flavor) $(version) $(job_name)
+	@bash test/integration-run.sh $(prefix) $(flavor) $(version) $(job_name) $(rg_name)
 
 integration-cleanup:
 	@bash test/integration-cleanup.sh $(job_name)

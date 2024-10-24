@@ -28,6 +28,8 @@ if [ -z "$AZP_TOKEN" ]; then
   raise_error "Missing AZP_TOKEN environment variable"
   exit 1
 fi
+# Configure the Azure DevOps CLI to use the provided token
+export AZURE_DEVOPS_EXT_PAT="$AZP_TOKEN"
 
 if [ -z "$AZP_POOL" ]; then
   raise_error "Missing AZP_POOL environment variable"
@@ -51,9 +53,7 @@ if [ "$AZP_TEMPLATE_JOB" == "1" ]; then
   AZP_AGENT_NAME="${AZP_AGENT_NAME}-template"
 fi
 
-write_header "Running agent $AZP_AGENT_NAME in pool $AZP_POOL"
-
-unregister() {
+unregister_now() {
   write_header "Removing agent"
 
   # A job with the deployed configuration need to be kept in the server history, so a pipeline can be run and KEDA detect it from the queue
@@ -76,8 +76,41 @@ unregister() {
   done
 }
 
-write_header "Adding custom SSL certificates"
-if [ -d "$AZP_CUSTOM_CERT_PEM" ] && [ "$(ls -A $AZP_CUSTOM_CERT_PEM)" ]; then
+unregister_if_not_used() {
+  write_header "Checking if agent can be removed"
+
+  # Get pool id
+  pool_id=$(az pipelines pool list \
+    --pool-name "$AZP_POOL" \
+    --query "[0].id")
+  # Get agent requests
+  agent=$(az pipelines agent list \
+    --include-assigned-request \
+    --include-last-completed-request \
+    --pool-id "$pool_id" \
+    --query "[?agent.name=='$AZP_AGENT_NAME'] | [0]")
+  assignedRequest=$(echo $agent | jq -r '.assignedRequest // empty')
+  lastCompletedRequest=$(echo $agent | jq -r '.lastCompletedRequest // empty')
+
+  # If the agent has requests, abort
+  if [ ! -z "$assignedRequest" ] || [ ! -z "$lastCompletedRequest" ]; then
+    echo "Agent has requests, cannot be removed"
+    return
+  fi
+
+  # Remove the agent
+  echo "Agent has no requests, removing it"
+  unregister_now
+}
+
+add_custom_ssl_certificates() {
+  write_header "Adding custom SSL certificates"
+
+  if [ ! -d "$AZP_CUSTOM_CERT_PEM" ] || [ -z "$(ls -A $AZP_CUSTOM_CERT_PEM)" ]; then
+    echo "No custom SSL certificate provided"
+    return
+  fi
+
   echo "Searching for *.crt in $AZP_CUSTOM_CERT_PEM"
 
   # Debian-based systems
@@ -115,50 +148,65 @@ if [ -d "$AZP_CUSTOM_CERT_PEM" ] && [ "$(ls -A $AZP_CUSTOM_CERT_PEM)" ]; then
     echo "Updating certificates keychain"
     update-ca-trust extract
   fi
-else
-  echo "No custom SSL certificate provided"
-fi
+}
 
-write_header "Configuring agent"
+configure_agent() {
+  write_header "Configuring agent"
 
-cd $(dirname "$0")
+  cd $(dirname "$0")
 
-bash config.sh \
-  --acceptTeeEula \
-  --agent "$AZP_AGENT_NAME" \
-  --auth PAT \
-  --pool "$AZP_POOL" \
-  --replace \
-  --token "$AZP_TOKEN" \
-  --unattended \
-  --url "$AZP_URL" \
-  --work "$AZP_WORK" &
+  bash config.sh \
+    --acceptTeeEula \
+    --agent "$AZP_AGENT_NAME" \
+    --auth PAT \
+    --pool "$AZP_POOL" \
+    --replace \
+    --token "$AZP_TOKEN" \
+    --unattended \
+    --url "$AZP_URL" \
+    --work "$AZP_WORK" &
 
-# Fake the exit code of the agent for the prevent Kubernetes to detect the pod as failed (this is intended)
-# See: https://stackoverflow.com/a/62183992/12732154
-wait $!
+  # Fake the exit code of the agent for the prevent Kubernetes to detect the pod as failed (this is intended)
+  # See: https://stackoverflow.com/a/62183992/12732154
+  wait $!
+}
+
+run_agent() {
+  write_header "Running agent $AZP_AGENT_NAME in pool $AZP_POOL"
+
+  # Running it with the --once flag at the end will shut down the agent after the build is executed
+  if [ "$isTemplateJob" == "true" ]; then
+    echo "Agent will be stopped after 1 min"
+    # Run the agent for a minute
+    timeout --preserve-status 1m bash run-docker.sh "$@" --once &
+  else
+    # Run the countdown
+    sleep 60 && unregister_if_not_used &
+    # Run the agent
+    bash run-docker.sh "$@" --once &
+  fi
+
+  # Fake the exit code of the agent for the prevent Kubernetes to detect the pod as failed (this is intended)
+  # See: https://stackoverflow.com/a/62183992/12732154
+  wait $!
+
+  write_header "Printing agent diag logs"
+
+  cat $AGENT_DIAGLOGPATH/*.log
+}
+
+write_header "Configuring Azure CLI"
+az devops configure --defaults organization=$AZP_URL
+
+add_custom_ssl_certificates
+
+configure_agent
 
 # Unregister on success
-trap 'unregister; exit 0' EXIT
+trap 'unregister_now; exit 0' EXIT
 # Unregister on Ctrl+C
-trap 'unregister; exit 130' INT
+trap 'unregister_now; exit 130' INT
 # Unregister on SIGTERM
-trap 'unregister; exit 143' TERM
+trap 'unregister_now; exit 143' TERM
 
-write_header "Running agent"
-
-# Running it with the --once flag at the end will shut down the agent after the build is executed
-if [ "$isTemplateJob" == "true" ]; then
-  echo "Agent will be stopped after 1 min"
-  timeout --preserve-status 1m bash run-docker.sh "$@" --once &
-else
-  bash run-docker.sh "$@" --once &
-fi
-
-# Fake the exit code of the agent for the prevent Kubernetes to detect the pod as failed (this is intended)
-# See: https://stackoverflow.com/a/62183992/12732154
-wait $!
-
-write_header "Printing agent diag logs"
-
-cat $AGENT_DIAGLOGPATH/*.log
+run_agent
