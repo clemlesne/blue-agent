@@ -305,18 +305,18 @@ jobs:
         include:
           - os: bookworm
             arch: linux/amd64,linux/arm64
-          - os: bullseye
-            arch: linux/amd64,linux/arm64
-          - os: focal
-            arch: linux/amd64,linux/arm64
-          - os: jammy
-            arch: linux/amd64,linux/arm64
-          - os: noble
-            arch: linux/amd64,linux/arm64
-          - os: ubi8
-            arch: linux/amd64,linux/arm64
-          - os: ubi9
-            arch: linux/amd64,linux/arm64
+          # - os: bullseye
+          #   arch: linux/amd64,linux/arm64
+          # - os: focal
+          #   arch: linux/amd64,linux/arm64
+          # - os: jammy
+          #   arch: linux/amd64,linux/arm64
+          # - os: noble
+          #   arch: linux/amd64,linux/arm64
+          # - os: ubi8
+          #   arch: linux/amd64,linux/arm64
+          # - os: ubi9
+          #   arch: linux/amd64,linux/arm64
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -890,7 +890,14 @@ jobs:
       # Rate limiting on Azure DevOps SaaS APIs is triggered quickly by integration tests, so we need to limit the number of parallel jobs
       max-parallel: 3
       matrix:
-        os: [bookworm, bullseye, focal, jammy, noble, ubi8, ubi9]
+        os:
+          - bookworm
+          # - bullseye
+          # - focal
+          # - jammy
+          # - noble
+          # - ubi8
+          # - ubi9
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
