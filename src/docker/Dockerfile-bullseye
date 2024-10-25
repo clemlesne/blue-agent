@@ -1,3 +1,6 @@
+# syntax=docker/dockerfile:1
+# check=skip=UndefinedVar
+
 FROM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim@sha256:3717ce4bc6e34336ac100762eb766dc9cb739543686d0189001c1cafa57ba29c AS base
 
 # Force apt-get to not use TTY

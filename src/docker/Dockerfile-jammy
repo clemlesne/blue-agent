@@ -1,3 +1,6 @@
+# syntax=docker/dockerfile:1
+# check=skip=UndefinedVar
+
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-jammy@sha256:d41af821cc90286d7c0d81c6a25733846ee7eebb2b55479934af909afd36471a AS base
 
 # Force apt-get to not use TTY

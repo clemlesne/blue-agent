@@ -1,3 +1,6 @@
+# syntax=docker/dockerfile:1
+# check=skip=UndefinedVar,WorkdirRelativePath
+
 FROM mcr.microsoft.com/dotnet/sdk:8.0-windowsservercore-ltsc2022@sha256:a5daa91a8bbf6dbbdfde03490343c3234b356dcbb0740cd33fd1417b34670c38
 
 # Configure local user
