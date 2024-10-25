@@ -81,7 +81,7 @@ RUN --mount=target=/rootlesskit-${ROOTLESSKIT_VERSION},type=cache,id=rootlesskit
 
 FROM base AS python
 
-# Build Python 3.12 from source, then verify installation
+# Build Python from source, then verify installation
 ARG PYTHON_VERSION
 ENV PYTHON_VERSION=${PYTHON_VERSION}
 RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=locked --mount=target=/Python-${PYTHON_VERSION},type=cache,id=python-${PYTHON_VERSION}-${TARGETPLATFORM},sharing=locked \
@@ -126,10 +126,10 @@ RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=lo
 FROM base
 
 # Install Python, then verify installation
-COPY --from=python /usr/local/bin/python3.12 /usr/local/bin/python3.12
-COPY --from=python /usr/local/lib/python3.12 /usr/local/lib/python3.12
-RUN ln -s /usr/local/bin/python3.12 /usr/local/bin/python3 \
-    && ln -s /usr/local/bin/python3.12 /usr/local/bin/python \
+COPY --from=python /usr/local/bin/python3.13 /usr/local/bin/python3.13
+COPY --from=python /usr/local/lib/python3.13 /usr/local/lib/python3.13
+RUN ln -s /usr/local/bin/python3.13 /usr/local/bin/python3 \
+    && ln -s /usr/local/bin/python3.13 /usr/local/bin/python \
     && python3 --version \
     && python3 -m pip --version
 
