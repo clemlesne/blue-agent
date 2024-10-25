@@ -47,7 +47,7 @@ fi
 
 if [ "$AZP_TEMPLATE_JOB" == "1" ]; then
   write_warning "Template job enabled, agent cannot be used for running jobs"
-  isTemplateJob="true"
+  is_template_job="true"
   AZP_AGENT_NAME="${AZP_AGENT_NAME}-template"
 fi
 
@@ -57,7 +57,7 @@ unregister() {
   write_header "Removing agent"
 
   # A job with the deployed configuration need to be kept in the server history, so a pipeline can be run and KEDA detect it from the queue
-  if [ "$isTemplateJob" == "true" ]; then
+  if [ "$is_template_job" == "true" ]; then
     echo "Ignoring cleanup"
     return
   fi
@@ -82,16 +82,16 @@ if [ -d "$AZP_CUSTOM_CERT_PEM" ] && [ "$(ls -A $AZP_CUSTOM_CERT_PEM)" ]; then
 
   # Debian-based systems
   if [ -s /etc/debian_version ]; then
-    certPath="/usr/local/share/ca-certificates"
-    mkdir -p $certPath
+    cert_path="/usr/local/share/ca-certificates"
+    mkdir -p $cert_path
 
     # Copy certificates to the certificate path
-    cp $AZP_CUSTOM_CERT_PEM/*.crt $certPath
+    cp $AZP_CUSTOM_CERT_PEM/*.crt $cert_path
 
     # Display certificates information
-    for certFile in $AZP_CUSTOM_CERT_PEM/*.crt; do
-      echo "Certificate $(basename $certFile)"
-      openssl x509 -inform PEM -in $certFile -noout -issuer -subject -dates
+    for cert_file in $AZP_CUSTOM_CERT_PEM/*.crt; do
+      echo "Certificate $(basename $cert_file)"
+      openssl x509 -inform PEM -in $cert_file -noout -issuer -subject -dates
     done
 
     echo "Updating certificates keychain"
@@ -100,16 +100,16 @@ if [ -d "$AZP_CUSTOM_CERT_PEM" ] && [ "$(ls -A $AZP_CUSTOM_CERT_PEM)" ]; then
 
   # RHEL-based systems
   if [ -s /etc/redhat-release ]; then
-    certPath="/etc/ca-certificates/trust-source/anchors"
-    mkdir -p $certPath
+    cert_path="/etc/ca-certificates/trust-source/anchors"
+    mkdir -p $cert_path
 
     # Copy certificates to the certificate path
-    cp $AZP_CUSTOM_CERT_PEM/*.crt $certPath
+    cp $AZP_CUSTOM_CERT_PEM/*.crt $cert_path
 
     # Display certificates information
-    for certFile in $AZP_CUSTOM_CERT_PEM/*.crt; do
-      echo "Certificate $(basename $certFile)"
-      openssl x509 -inform PEM -in $certFile -noout -issuer -subject -dates
+    for cert_file in $AZP_CUSTOM_CERT_PEM/*.crt; do
+      echo "Certificate $(basename $cert_file)"
+      openssl x509 -inform PEM -in $cert_file -noout -issuer -subject -dates
     done
 
     echo "Updating certificates keychain"
@@ -148,7 +148,7 @@ trap 'unregister; exit 143' TERM
 write_header "Running agent"
 
 # Running it with the --once flag at the end will shut down the agent after the build is executed
-if [ "$isTemplateJob" == "true" ]; then
+if [ "$is_template_job" == "true" ]; then
   echo "Agent will be stopped after 1 min"
   timeout --preserve-status 1m bash run-docker.sh "$@" --once &
 else
