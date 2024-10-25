@@ -54,7 +54,8 @@ for suffix in ${SUFFIXES}; do
     --build-arg "VS_BUILDTOOLS_VERSION=${VS_BUILDTOOLS_WIN_VERSION}" \
     --build-arg "YQ_VERSION=${YQ_VERSION}" \
     --build-arg "ZSTD_VERSION=${ZSTD_WIN_VERSION}" \
-    --tag $tag \
     --file ${PREFIX}${suffix} \
+    --platform linux/amd64,linux/arm64 \
+    --tag $tag \
     $FOLDER
 done
