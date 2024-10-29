@@ -45,7 +45,7 @@ lint:
 deploy-bicep:
 	$(MAKE) deploy-bicep-iac
 
-	@echo "➡️ Wait for the Bicep output to be available"
+	@echo "⏳ Wait for the Bicep output to be available"
 	sleep 10
 
 	$(MAKE) deploy-bicep-template
@@ -87,7 +87,7 @@ integration:
 	$(MAKE) integration-cleanup
 
 integration-run:
-	@bash test/integration-run.sh $(prefix) $(flavor) $(version) $(job_name)
+	@bash test/integration-run.sh $(prefix) $(flavor) $(version) $(job_name) $(rg_name) github-actions
 
 integration-cleanup:
 	@bash test/integration-cleanup.sh $(job_name)

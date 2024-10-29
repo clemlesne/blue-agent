@@ -1,3 +1,20 @@
+# Start the Azure DevOps agent in a Windows container
+#
+# Agent is always registered. It is removed from the server only when the agent is not a template job. After 60 secs, it tries to shut down the agent gracefully, waiting for the current job to finish, if any.
+#
+# Environment variables:
+# - AZP_AGENT_NAME: Agent name (default: hostname)
+# - AZP_CUSTOM_CERT_PEM: Custom SSL certificates directory (default: empty)
+# - AZP_POOL: Agent pool name
+# - AZP_TEMPLATE_JOB: Template job flag (default: 0)
+# - AZP_TOKEN: Personal access token
+# - AZP_URL: Server URL
+# - AZP_WORK: Work directory
+
+##
+# Misc functions
+##
+
 function Write-Header() {
   Write-Host "➡️ $1" -ForegroundColor Cyan
 }
@@ -9,6 +26,10 @@ function Write-Warning() {
 function Raise-Error() {
   throw "❌ $1"
 }
+
+##
+# Argument parsing
+##
 
 if ($null -eq $Env:AZP_URL -or $Env:AZP_URL -eq "") {
   Raise-Error "Missing AZP_URL environment variable"
@@ -46,14 +67,12 @@ if ($Env:AZP_TEMPLATE_JOB -eq "1") {
 
 Write-Header "Running agent $Env:AZP_AGENT_NAME in pool $Env:AZP_POOL"
 
+##
+# Cleanup function
+##
+
 function Unregister {
   Write-Header "Removing agent"
-
-  # A job with the deployed configuration need to be kept in the server history, so a pipeline can be run and KEDA detect it from the queue
-  if ($isTemplateJob) {
-    Write-Host "Ignoring cleanup"
-    return
-  }
 
   # If the agent has some running jobs, the configuration removal process will fail; so, give it some time to finish the job
   while ($true) {
@@ -65,13 +84,18 @@ function Unregister {
         --unattended
       break
     } catch {
-      Write-Host "Retrying in 15 secs"
+      Write-Host "A job is still running, waiting 15 seconds before retrying the removal"
       Start-Sleep -Seconds 15
     }
   }
 }
 
+##
+# Custom SSL certificates
+##
+
 Write-Header "Adding custom SSL certificates"
+
 if ((Test-Path $Env:AZP_CUSTOM_CERT_PEM) -and ((Get-ChildItem $Env:AZP_CUSTOM_CERT_PEM).Count -gt 0)) {
   Write-Host "Searching for *.crt in $Env:AZP_CUSTOM_CERT_PEM"
 
@@ -89,6 +113,10 @@ if ((Test-Path $Env:AZP_CUSTOM_CERT_PEM) -and ((Get-ChildItem $Env:AZP_CUSTOM_CE
   Write-Host "No custom SSL certificate provided"
 }
 
+##
+# Agent configuration
+##
+
 Write-Header "Configuring agent"
 
 Set-Location $(Split-Path -Parent $MyInvocation.MyCommand.Definition)
@@ -104,23 +132,38 @@ Set-Location $(Split-Path -Parent $MyInvocation.MyCommand.Definition)
   --url $Env:AZP_URL `
   --work $Env:AZP_WORK
 
+##
+# Agent execution
+##
+
 Write-Header "Running agent"
 
 # Running it with the --once flag at the end will shut down the agent after the build is executed
-try {
-  if ($isTemplateJob) {
-    Write-Host "Agent will be stopped after 1 min"
-    Start-Job -ScriptBlock {
-      Start-Sleep -Seconds 60
-      & run.cmd $Args --once
-    }
-  } else {
+if ($isTemplateJob) {
+  Write-Host "Agent will be stopped after 1 min"
+  # Run the agent for a minute
+  Start-Job -ScriptBlock {
+    Start-Sleep -Seconds 60
     & run.cmd $Args --once
   }
-} finally {
-  # Unregister on success, Ctrl+C, and SIGTERM
-  Unregister
+} else {
+  try {
+    # Run the countdown for fast-clean if no job is using the agent after a delay
+    Start-Job -ScriptBlock {
+      Start-Sleep -Seconds 60
+      Unregister
+    }
+    # Run the agent
+    & run.cmd $Args --once
+  } finally {
+    # Unregister on success, Ctrl+C, and SIGTERM
+    Unregister
+  }
 }
+
+##
+# Diagnostics
+##
 
 Write-Header "Printing agent diag logs"
 
