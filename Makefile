@@ -90,7 +90,7 @@ integration-run:
 	@bash test/integration-run.sh $(prefix) $(flavor) $(version) $(job_name) $(rg_name) github-actions
 
 integration-cleanup:
-	@bash test/integration-cleanup.sh $(job_name)
+	@bash test/integration-cleanup.sh $(job_name) github-actions
 
 docs:
 	cd docs && hugo server

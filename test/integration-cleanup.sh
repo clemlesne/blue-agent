@@ -2,10 +2,11 @@
 set -e
 
 agent="$1"
+pool_name="$2"
 
-if [ -z "$agent" ]; then
+if [ -z "$agent" ] || [ -z "$pool_name" ]; then
   echo "Clean up integration tests."
-  echo "Usage: $1 <agent>"
+  echo "Usage: $1 <agent> $2 <pool_name>"
   exit 1
 fi
 
