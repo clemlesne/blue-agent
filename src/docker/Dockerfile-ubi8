@@ -96,12 +96,15 @@ RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=lo
         libffi-devel \
         libstdc++-devel \
         libuuid-devel \
+        libxml2-devel \
         mpdecimal \
+        ncurses-devel \
         redhat-rpm-config \
         sqlite \
         sqlite-devel \
         sqlite-libs \
         xz-devel \
+        xz-libs \
         zlib-devel \
     && curl -LsSf --retry 8 https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz -o python.tgz \
     && tar -xzf python.tgz \
