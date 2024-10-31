@@ -64,7 +64,7 @@ ARG GO_VERSION
 ENV GO_VERSION=${GO_VERSION}
 RUN rm -rf /usr/local/go \
     && curl -LsSf --retry 8 --retry-all-errors https://go.dev/dl/go${GO_VERSION}.linux-$(ARCH_X64=amd64 bash arch.sh).tar.gz | tar -xz -C /usr/local
-ENV PATH="${PATH}:/usr/local/go/bin"
+ENV PATH=${PATH}:/usr/local/go/bin
 RUN go version
 
 # Install RootlessKit, then verify installation
@@ -84,7 +84,7 @@ RUN --mount=target=/rootlesskit-${ROOTLESSKIT_VERSION},type=cache,id=rootlesskit
 
 FROM base AS python
 
-# Build Python 3.12 from source, then verify installation
+# Build Python from source, then verify installation
 ARG PYTHON_VERSION
 ENV PYTHON_VERSION=${PYTHON_VERSION}
 RUN --mount=target=/var/lib/apt/lists,type=cache,id=apt-lists-${TARGETPLATFORM},sharing=locked --mount=target=/var/cache,type=cache,id=var-cache-${TARGETPLATFORM},sharing=locked --mount=target=/Python-${PYTHON_VERSION},type=cache,id=python-${PYTHON_VERSION}-${TARGETPLATFORM},sharing=locked \
@@ -132,10 +132,10 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,id=apt-lists-${TARGETPLATFORM},
 FROM base
 
 # Install Python, then verify installation
-COPY --from=python /usr/local/bin/python3.12 /usr/local/bin/python3.12
-COPY --from=python /usr/local/lib/python3.12 /usr/local/lib/python3.12
-RUN ln -s /usr/local/bin/python3.12 /usr/local/bin/python3 \
-    && ln -s /usr/local/bin/python3.12 /usr/local/bin/python \
+COPY --from=python /usr/local/bin/python3.13 /usr/local/bin/python3.13
+COPY --from=python /usr/local/lib/python3.13 /usr/local/lib/python3.13
+RUN ln -s /usr/local/bin/python3.13 /usr/local/bin/python3 \
+    && ln -s /usr/local/bin/python3.13 /usr/local/bin/python \
     && python3 --version \
     && python3 -m pip --version
 
@@ -229,12 +229,12 @@ ENV AZP_AGENT_VERSION=${AZP_AGENT_VERSION}
 ENV AZP_HOME=${HOME}/azp-agent
 # Disable agent auto-updates
 # See: https://github.com/microsoft/azure-pipelines-agent/blob/b5ff4408239f3e938560f8b2e3848df76489a8d0/src/Agent.Listener/Agent.cs#L354C24-L354C24
-ENV agent.disableupdate="1"
+ENV agent.disableupdate=1
 RUN mkdir -p ${AZP_HOME} \
     && curl -LsSf --retry 8 --retry-all-errors https://vstsagentpackage.azureedge.net/agent/${AZP_AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AZP_AGENT_VERSION}.tar.gz | tar -xz -C ${AZP_HOME} \
     && cd ${AZP_HOME} \
     && chmod +x run-docker.sh config.sh \
-    && AGENT_ALLOW_RUNASROOT="1" bash run-docker.sh --version \
+    && AGENT_ALLOW_RUNASROOT=1 bash run-docker.sh --version \
     && rm -rf _diag \
     # Allow local user to R/W to agent home
     && chmod -R a+w .

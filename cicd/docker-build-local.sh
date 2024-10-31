@@ -51,7 +51,6 @@ for suffix in ${SUFFIXES}; do
     --build-arg "PYTHON_VERSION=${PYTHON_VERSION}" \
     --build-arg "ROOTLESSKIT_VERSION=${ROOTLESSKIT_VERSION}" \
     --build-arg "TINI_VERSION=${TINI_VERSION}" \
-    --build-arg "VS_BUILDTOOLS_VERSION=${VS_BUILDTOOLS_WIN_VERSION}" \
     --build-arg "YQ_VERSION=${YQ_VERSION}" \
     --build-arg "ZSTD_VERSION=${ZSTD_WIN_VERSION}" \
     --file ${PREFIX}${suffix} \

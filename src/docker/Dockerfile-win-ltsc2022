@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # check=skip=UndefinedVar,WorkdirRelativePath
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0-windowsservercore-ltsc2022@sha256:a5daa91a8bbf6dbbdfde03490343c3234b356dcbb0740cd33fd1417b34670c38
+FROM mcr.microsoft.com/dotnet/sdk:8.0-windowsservercore-ltsc2022@sha256:fbc92dbcb0fb7105b94847196ceb6cf245d438cd69ae75619e3dd19d13bd1373
 
 # Configure local user
 USER ContainerAdministrator
@@ -18,13 +18,31 @@ RUN curl -LsSf --retry 8 --retry-all-errors "https://github.com/PowerShell/Power
     && msiexec.exe /i powershell.msi /qn /norestart \
     && del /q powershell.msi
 RUN pwsh -Version
-SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+SHELL ["pwsh", "-NoLogo", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+# Install Microsoft Visual C++
+RUN curl -LsSf --retry 8 --retry-all-errors https://aka.ms/vs/17/release/vs_BuildTools.exe -o vs_buildtools.exe \
+    && Start-Process \
+        vs_buildtools.exe \
+        -ArgumentList '--installPath ''C:\BuildTools'' --nocache --norestart --quiet --wait --add Microsoft.VisualStudio.Workload.AzureBuildTools --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.WebBuildTools --add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools --add Microsoft.VisualStudio.Workload.OfficeBuildTools --add Microsoft.VisualStudio.Workload.UniversalBuildTools' \
+        -Wait \
+    && Get-ChildItem -Path "${Env:TEMP}" -Filter "dd_setup_*" -Recurse | ForEach-Object { \
+        Write-Output "Log file: $($_.FullName)" \
+        && Get-Content -Path $_.FullName \
+    } \
+    && Remove-Item vs_buildtools.exe \
+    && Remove-Item -Force -Recurse "${Env:TEMP}\*" \
+    && [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\BuildTools\MSBuild\Current\Bin', [EnvironmentVariableTarget]::Machine)
+RUN msbuild -version
 
 # Install Git, then verify installation
 ARG GIT_VERSION
 ENV GIT_VERSION=${GIT_VERSION}
 RUN curl -LsSf --retry 8 --retry-all-errors "https://github.com/git-for-windows/git/releases/download/v${Env:GIT_VERSION}.windows.1/Git-${Env:GIT_VERSION}-64-bit.exe" -o git.exe \
-    && Start-Process git.exe -Wait -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /NOCANCEL /SP-' \
+    && Start-Process \
+        git.exe \
+        -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /NOCANCEL /SP-' \
+        -Wait \
     && Remove-Item git.exe
 RUN git --version
 
@@ -42,13 +60,16 @@ RUN jq --version
 ARG PYTHON_VERSION
 ENV PYTHON_VERSION=${PYTHON_VERSION}
 RUN curl -LsSf --retry 8 --retry-all-errors "https://python.org/ftp/python/${Env:PYTHON_VERSION}/python-${Env:PYTHON_VERSION}-amd64.exe" -o python.exe \
-    && Start-Process python.exe -Wait -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1 Include_test=0' \
+    && Start-Process \
+        python.exe \
+        -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1 Include_test=0' \
+        -Wait \
     && Remove-Item python.exe
+RUN python --version
 
 # Install Python build tools
 # TODO: Clean up "__pycache__" folders on disk
-RUN python --version \
-    && python -m pip \
+RUN python -m pip \
         --disable-pip-version-check \
         --no-cache-dir \
         --quiet \
@@ -71,7 +92,10 @@ RUN python -m pip \
 ARG AWS_CLI_VERSION
 ENV AWS_CLI_VERSION=${AWS_CLI_VERSION}
 RUN curl -LsSf --retry 8 --retry-all-errors "https://awscli.amazonaws.com/AWSCLIV2-${Env:AWS_CLI_VERSION}.msi" -o awscli.msi \
-    && Start-Process msiexec.exe -Wait -ArgumentList '/I awscli.msi /qn /norestart' \
+    && Start-Process \
+        msiexec.exe \
+        -ArgumentList '/I awscli.msi /qn /norestart' \
+        -Wait \
     && Remove-Item awscli.msi
 RUN aws --version
 
@@ -82,7 +106,10 @@ RUN curl -LsSf --retry 8 --retry-all-errors "https://dl.google.com/dl/cloudsdk/c
     && Expand-Archive -Force gcloud.zip -DestinationPath 'C:\Program Files' \
     && Remove-Item gcloud.zip \
     && Rename-Item 'C:\Program Files\google-cloud-sdk' 'gcloud' \
-    && Start-Process cmd.exe -Wait -ArgumentList '/c ''C:\Program Files\gcloud\install.bat'' --additional-components beta --quiet' \
+    && Start-Process \
+        cmd.exe \
+        -ArgumentList '/c ''C:\Program Files\gcloud\install.bat'' --additional-components beta --quiet' \
+        -Wait \
     && [Environment]::SetEnvironmentVariable('Path', $Env:Path + ';C:\Program Files\gcloud\bin', [EnvironmentVariableTarget]::Machine)
 RUN gcloud version
 
@@ -101,7 +128,7 @@ ENV AZP_AGENT_VERSION=${AZP_AGENT_VERSION}
 ENV AZP_HOME=${HOME}\\azp-agent
 # Disable agent auto-updates
 # See: https://github.com/microsoft/azure-pipelines-agent/blob/b5ff4408239f3e938560f8b2e3848df76489a8d0/src/Agent.Listener/Agent.cs#L354C24-L354C24
-ENV agent.disableupdate="1"
+ENV agent.disableupdate=1
 RUN mkdir $Env:AZP_HOME \
     && curl -LsSf --retry 8 --retry-all-errors "https://vstsagentpackage.azureedge.net/agent/${Env:AZP_AGENT_VERSION}/vsts-agent-win-x64-${Env:AZP_AGENT_VERSION}.zip" -o azp-agent.zip \
     && Expand-Archive -Force azp-agent.zip -DestinationPath $Env:AZP_HOME \
@@ -120,30 +147,6 @@ RUN curl -LsSf --retry 8 --retry-all-errors "https://github.com/facebook/zstd/re
 # hadolint ignore=DL3059
 RUN zstd --version
 
-# Install Visual Studio Build Tools, then verify installation
-# See: https://learn.microsoft.com/en-us/visualstudio/install/build-tools-container?view=vs-2022#create-and-build-the-dockerfile
-ARG VS_BUILDTOOLS_VERSION
-ENV VS_BUILDTOOLS_VERSION=${VS_BUILDTOOLS_VERSION}
-# TODO: Delete the installer, but it's seems locked, receiving "Remove-Item: Access to the path 'C:\buildtools.exe' is denied."
-RUN curl -LsSf --retry 8 --retry-all-errors "https://download.visualstudio.microsoft.com/download/pr/${Env:VS_BUILDTOOLS_VERSION}/vs_BuildTools.exe" -o buildtools.exe \
-    && .\buildtools.exe \
-        --installPath 'C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools' \
-        --nocache \
-        --norestart \
-        --quiet \
-        --wait \
-        # https://learn.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-build-tools?view=vs-2022#azure-development-build-tools
-        --add Microsoft.VisualStudio.Workload.AzureBuildTools \
-        # https://learn.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-build-tools?view=vs-2022#desktop-development-with-c
-        --add Microsoft.VisualStudio.Workload.VCTools \
-        # https://learn.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-build-tools?view=vs-2022#web-development-build-tools
-        --add Microsoft.VisualStudio.Workload.WebBuildTools \
-        # https://learn.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-build-tools?view=vs-2022#net-desktop-build-tools
-        --add Microsoft.VisualStudio.Workload.ManagedDesktopBuildTools \
-        # https://learn.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-build-tools?view=vs-2022#officesharepoint-build-tools
-        --add Microsoft.VisualStudio.Workload.OfficeBuildTools
-RUN Start-Process cmd.exe -Wait -ArgumentList '/c ''C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat'' && msbuild --version'
-
 # Define path for the custom SSL certificate
 ENV AZP_CUSTOM_CERT_PEM=${HOME}\\azp-custom-certs
 
@@ -153,6 +156,4 @@ ENV PYTHONDONTWRITEBYTECODE=
 # Install Azure Pipelines Agent startup script
 WORKDIR ${AZP_HOME}
 COPY start.ps1 .
-# Escaping antislash, containerd is bugged
-# See: https://github.com/containerd/containerd/issues/6300#issuecomment-988048374
-CMD ["pwsh", ".\\start.ps1"]
+CMD [".\\start.ps1"]
