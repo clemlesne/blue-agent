@@ -103,6 +103,12 @@ windowsOptions:
 allowPrivilegeEscalation: false
 runAsUser: 0
 capabilities:
+  # Add enough default capabilities to allow the agent to unzip files and change file ownership
+  # See: https://github.com/clemlesne/blue-agent/issues/23#issuecomment-2444929885
+  add:
+    - CHOWN
+    - FOWNER
+  # Remove all default root capabilities to ensure the container is running with the least privileges
   drop: ["ALL"]
 {{- end }}
 {{- end }}
