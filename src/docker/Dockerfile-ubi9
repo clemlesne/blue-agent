@@ -140,7 +140,7 @@ RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${TARGETPLATFORM} \
     python3 -m pip \
         --disable-pip-version-check \
         --quiet \
-        install  \
+        install \
             setuptools wheel \
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
