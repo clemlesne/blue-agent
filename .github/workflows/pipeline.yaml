@@ -265,6 +265,9 @@ jobs:
 
   static-test:
     name: Static test
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -285,7 +288,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2.2.0
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
 
       - name: Run tests
         run: |
@@ -877,6 +882,9 @@ jobs:
 
   integration-test-linux:
     name: Integration test (Linux ${{ matrix.os }})
+    permissions:
+      contents: read
+      id-token: write
     needs:
       - build-release-linux
       - init
@@ -912,7 +920,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2.2.0
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
 
       - name: Deploy Bicep
         run: |
