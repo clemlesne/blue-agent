@@ -433,8 +433,10 @@ jobs:
             ROOTLESSKIT_VERSION=${{ env.ROOTLESSKIT_VERSION }}
             TINI_VERSION=${{ env.TINI_VERSION }}
             YQ_VERSION=${{ env.YQ_VERSION }}
-          cache-from: ${{ steps.tag.outputs.tag }}-cache
-          cache-to: ${{ steps.tag.outputs.tag }}-cache
+          cache-from: |
+            type=azblob,account_url=${{ secrets.BUILDKIT_AZURE_STORAGE_ACCOUNT_URL }},secret_access_key=${{ secrets.BUILDKIT_AZURE_STORAGE_SECRET_ACCESS_KEY }},name=${{ matrix.os }}-${{ github.ref_name }}
+            type=azblob,account_url=${{ secrets.BUILDKIT_AZURE_STORAGE_ACCOUNT_URL }},secret_access_key=${{ secrets.BUILDKIT_AZURE_STORAGE_SECRET_ACCESS_KEY }},name=${{ matrix.os }}-${{ github.sha }}
+          cache-to: type=azblob,account_url=${{ secrets.BUILDKIT_AZURE_STORAGE_ACCOUNT_URL }},secret_access_key=${{ secrets.BUILDKIT_AZURE_STORAGE_SECRET_ACCESS_KEY }},mode=max,name=${{ matrix.os }}-${{ github.ref_name }};${{ matrix.os }}-${{ github.sha }}
           context: src/docker
           file: src/docker/Dockerfile-${{ matrix.os }}
           labels: ${{ steps.meta.outputs.labels }}
