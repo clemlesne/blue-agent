@@ -428,8 +428,8 @@ jobs:
             ROOTLESSKIT_VERSION=${{ env.ROOTLESSKIT_VERSION }}
             TINI_VERSION=${{ env.TINI_VERSION }}
             YQ_VERSION=${{ env.YQ_VERSION }}
-          cache-from: ${{ steps.tag.outputs.tag }}-cache
-          cache-to: ${{ steps.tag.outputs.tag }}-cache
+          cache-from: type=gha
+          cache-to: type=gha
           context: src/docker
           file: src/docker/Dockerfile-${{ matrix.os }}
           labels: ${{ steps.meta.outputs.labels }}
