@@ -53,8 +53,9 @@ env:
   GIT_WIN_VERSION: 2.47.0
   # https://github.com/facebook/zstd/releases
   ZSTD_WIN_VERSION: 1.5.6
-  # https://www.python.org/downloads/windows
-  PYTHON_VERSION: 3.12.7
+  # https://www.python.org/downloads
+  PYTHON_VERSION_MAJOR_MINOR: 3.12
+  PYTHON_VERSION_PATCH: 7
   # https://nodejs.org/en/download/releases
   NODE_VERSION: 20.18.0
   # https://github.com/helm/helm/releases
@@ -429,7 +430,8 @@ jobs:
             GCLOUD_CLI_VERSION=${{ env.GCLOUD_CLI_VERSION }}
             GO_VERSION=${{ env.GO_VERSION }}
             POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}
-            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
+            PYTHON_VERSION_MAJOR_MINOR=${{ env.PYTHON_VERSION_MAJOR_MINOR }}
+            PYTHON_VERSION_PATCH=${{ env.PYTHON_VERSION_PATCH }}
             ROOTLESSKIT_VERSION=${{ env.ROOTLESSKIT_VERSION }}
             TINI_VERSION=${{ env.TINI_VERSION }}
             YQ_VERSION=${{ env.YQ_VERSION }}
@@ -614,7 +616,8 @@ jobs:
             "--build-arg", "GIT_VERSION=${{ env.GIT_WIN_VERSION }}",
             "--build-arg", "JQ_VERSION=${{ env.JQ_WIN_VERSION }}",
             "--build-arg", "POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}",
-            "--build-arg", "PYTHON_VERSION=${{ env.PYTHON_VERSION }}",
+            "--build-arg", "PYTHON_VERSION_MAJOR_MINOR=${{ env.PYTHON_VERSION_MAJOR_MINOR }}",
+            "--build-arg", "PYTHON_VERSION_PATCH=${{ env.PYTHON_VERSION_PATCH }}",
             "--build-arg", "VS_BUILDTOOLS_VERSION=${{ env.VS_BUILDTOOLS_WIN_VERSION }}",
             "--build-arg", "YQ_VERSION=${{ env.YQ_VERSION }}",
             "--build-arg", "ZSTD_VERSION=${{ env.ZSTD_WIN_VERSION }}",

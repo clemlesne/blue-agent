@@ -58,6 +58,11 @@ COPY arch.sh .
 RUN chmod +x arch.sh \
     && bash arch.sh
 
+# Persist Python version
+ARG PYTHON_VERSION_MAJOR_MINOR
+ARG PYTHON_VERSION_PATCH
+ENV PYTHON_VERSION=${PYTHON_VERSION_MAJOR_MINOR}.${PYTHON_VERSION_PATCH}
+
 FROM base AS rootlesskit
 
 # Install Go, then verify installation
@@ -85,7 +90,7 @@ RUN --mount=target=/rootlesskit-${ROOTLESSKIT_VERSION},type=cache,id=rootlesskit
 
 FROM base AS python
 
-# Build Python 3.12 from source, then verify installation
+# Build Python from source, then verify installation
 ARG PYTHON_VERSION
 ENV PYTHON_VERSION=${PYTHON_VERSION}
 RUN --mount=target=/var/lib/apt/lists,type=cache,id=apt-lists-${TARGETPLATFORM},sharing=locked --mount=target=/var/cache,type=cache,id=var-cache-${TARGETPLATFORM},sharing=locked --mount=target=/Python-${PYTHON_VERSION},type=cache,id=python-${PYTHON_VERSION}-${TARGETPLATFORM},sharing=locked \
@@ -133,15 +138,17 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,id=apt-lists-${TARGETPLATFORM},
 FROM base
 
 # Install Python, then verify installation
-COPY --from=python /usr/local/bin/python3.12 /usr/local/bin/python3.12
-COPY --from=python /usr/local/lib/python3.12 /usr/local/lib/python3.12
-RUN ln -s /usr/local/bin/python3.12 /usr/local/bin/python3 \
-    && ln -s /usr/local/bin/python3.12 /usr/local/bin/python \
+COPY --from=python /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR}
+COPY --from=python /usr/local/lib/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/lib/python${PYTHON_VERSION_MAJOR_MINOR}
+RUN ln -s /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python3 \
+    && ln -s /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python \
+    && python --version \
     && python3 --version \
+    && python${PYTHON_VERSION_MAJOR_MINOR} --version \
     && python3 -m pip --version
 
 # Install Python build tools
-RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${TARGETPLATFORM} \
+RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_VERSION_MAJOR_MINOR}-${TARGETPLATFORM},sharing=locked \
     python3 -m pip \
         --disable-pip-version-check \
         --quiet \
@@ -152,7 +159,7 @@ RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${TARGETPLATFORM} \
 # Install Azure CLI, then verify installation
 ARG AZURE_CLI_VERSION
 ENV AZURE_CLI_VERSION=${AZURE_CLI_VERSION}
-RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${TARGETPLATFORM} \
+RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_VERSION_MAJOR_MINOR}-${TARGETPLATFORM},sharing=locked \
     python3 -m pip \
         --disable-pip-version-check \
         --quiet \
