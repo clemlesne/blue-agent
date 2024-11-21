@@ -318,7 +318,9 @@ jobs:
           - os: jammy
             arch: linux/amd64,linux/arm64
           - os: noble
-            arch: linux/amd64,linux/arm64
+            # On GitHub Actions, build is too slow to be done on ARM64 virtialized on QEMU
+            # TODO: Re-enable ARM64 when GitHub Actions will provide native ARM64 runners
+            arch: linux/amd64
           - os: ubi8
             arch: linux/amd64,linux/arm64
           - os: ubi9
