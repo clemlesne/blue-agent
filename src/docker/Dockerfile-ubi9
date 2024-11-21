@@ -12,7 +12,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 # Install:
 # - ASP.NET Core runtime
-# - Azure CLI system requirements (Python 3.11, C/Rust build tools for libs non pre-built on this platform)
+# - Azure CLI system requirements (C/Rust build tools for libs non pre-built on this platform)
 # - Azure Pipelines agent system requirements
 # - fuse-overlayfs, iptables, shadow-utils, for BuildKit
 # - gzip, make, tar, unzip, wget, zip, zstd for developer ease-of-life
