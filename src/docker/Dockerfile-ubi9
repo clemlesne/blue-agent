@@ -15,13 +15,14 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # - Azure CLI system requirements (C/Rust build tools for libs non pre-built on this platform)
 # - Azure Pipelines agent system requirements
 # - fuse-overlayfs, iptables, shadow-utils, for BuildKit
-# - gzip, make, tar, unzip, wget, zip, zstd for developer ease-of-life
+# - gzip, make, tar, unzip, wget, zip, zstd, dnsutils, rsync, for developer ease-of-life
 # - zsh, for inter-operability
 RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=locked \
     microdnf install -y --nodocs --setopt=install_weak_deps=0 \
         aspnetcore-runtime-8.0 \
         ca-certificates \
         cargo \
+        dnsutils \
         findutils \
         fuse-overlayfs \
         gcc \
@@ -38,6 +39,7 @@ RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=lo
         openssl \
         openssl-devel \
         pkg-config \
+        rsync \
         shadow-utils \
         sudo \
         tar \

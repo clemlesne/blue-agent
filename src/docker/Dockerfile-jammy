@@ -17,7 +17,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # - Azure CLI system requirements (C/Rust build tools for libs non pre-built on this platform)
 # - Azure Pipelines agent system requirements
 # - dbus-user-session, iptables, uidmap, for BuildKit
-# - gzip, make, tar, unzip, wget, zip, zstd for developer ease-of-life
+# - gzip, make, tar, unzip, wget, zip, zstd, dnsutils, rsync, for developer ease-of-life
 # - zsh, for inter-operability
 RUN rm -f /etc/apt/apt.conf.d/docker-clean \
     && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
@@ -29,6 +29,7 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,id=apt-lists-${TARGETPLATFORM},
         cargo \
         curl \
         dbus-user-session \
+        dnsutils \
         git \
         git-lfs \
         gnupg \
@@ -41,6 +42,7 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,id=apt-lists-${TARGETPLATFORM},
         lsb-release \
         make \
         pkg-config \
+        rsync \
         software-properties-common \
         sudo \
         tar \
