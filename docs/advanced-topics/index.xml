@@ -102,6 +102,10 @@ title="Copy code"
 &lt;td style="text-align: left">✅&lt;/td>
 &lt;/tr>
 &lt;tr>
+&lt;td style="text-align: left">&lt;code>ghcr.io/clemlesne/blue-agent:noble-main&lt;/code>&lt;/td>
+&lt;td style="text-align: left">✅&lt;/td>
+&lt;/tr>
+&lt;tr>
 &lt;td style="text-align: left">&lt;code>ghcr.io/clemlesne/blue-agent:ubi8-main&lt;/code>&lt;/td>
 &lt;td style="text-align: left">✅&lt;/td>
 &lt;/tr>
@@ -435,13 +439,18 @@ title="Copy code"
 &lt;td style="text-align: left">&lt;code>0&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
+&lt;td style="text-align: left">&lt;code>autoscalingPollingInterval&lt;/code>&lt;/td>
+&lt;td style="text-align: left">Minimum number of replicas the agent should have; Warning, a low value will cause rate limiting or throttling, and can cause high load on the Azure DevOps API&lt;/td>
+&lt;td style="text-align: left">&lt;code>10&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
 &lt;td style="text-align: left">&lt;code>extraEnv&lt;/code>&lt;/td>
 &lt;td style="text-align: left">Extra environment variables to pass to the agent&lt;/td>
 &lt;td style="text-align: left">&lt;code>[]&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td style="text-align: left">&lt;code>imageFlavor&lt;/code>&lt;/td>
-&lt;td style="text-align: left">Flavor of the container image, represents the Linux distribution. Allowed values: &lt;code>bookworm&lt;/code>, &lt;code>bullseye&lt;/code>, &lt;code>focal&lt;/code>, &lt;code>jammy&lt;/code>, &lt;code>ubi8&lt;/code>, &lt;code>ubi9&lt;/code>&lt;/td>
+&lt;td style="text-align: left">Flavor of the container image, represents the Linux distribution. Allowed values: &lt;code>bookworm&lt;/code>, &lt;code>bullseye&lt;/code>, &lt;code>focal&lt;/code>, &lt;code>jammy&lt;/code>, &lt;code>noble&lt;/code>, &lt;code>ubi8&lt;/code>, &lt;code>ubi9&lt;/code>&lt;/td>
 &lt;td style="text-align: left">&lt;code>bookworm&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
@@ -538,9 +547,19 @@ title="Copy code"
 &lt;td style="text-align: left">&lt;code>true&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
+&lt;td style="text-align: left">&lt;code>autoscaling.minReplicas&lt;/code>&lt;/td>
+&lt;td style="text-align: left">Minimum number of replicas&lt;/td>
+&lt;td style="text-align: left">&lt;code>0&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
 &lt;td style="text-align: left">&lt;code>autoscaling.maxReplicas&lt;/code>&lt;/td>
 &lt;td style="text-align: left">Maximum number of pods, remaining jobs will be kept in queue; the default value is arbitrary, to avoid misconfiguration&lt;/td>
 &lt;td style="text-align: left">&lt;code>100&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align: left">&lt;code>autoscaling.pollingInterval&lt;/code>&lt;/td>
+&lt;td style="text-align: left">Interval in seconds to poll for new jobs; Warning, a low value will cause rate limiting or throttling, and can cause high load on the Azure DevOps API&lt;/td>
+&lt;td style="text-align: left">&lt;code>10&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td style="text-align: left">&lt;code>extraEnv&lt;/code>&lt;/td>
@@ -574,7 +593,7 @@ title="Copy code"
 &lt;/tr>
 &lt;tr>
 &lt;td style="text-align: left">&lt;code>image.flavor&lt;/code>&lt;/td>
-&lt;td style="text-align: left">Container image tag, can be &lt;code>bookworm&lt;/code>, &lt;code>bullseye&lt;/code>, &lt;code>focal&lt;/code>, &lt;code>jammy&lt;/code>, &lt;code>ubi8&lt;/code>, &lt;code>ubi9&lt;/code>, &lt;code>win-ltsc2019&lt;/code>, or &lt;code>win-ltsc2022&lt;/code>&lt;/td>
+&lt;td style="text-align: left">Container image tag, can be &lt;code>bookworm&lt;/code>, &lt;code>bullseye&lt;/code>, &lt;code>focal&lt;/code>, &lt;code>jammy&lt;/code>, &lt;code>noble&lt;/code>, &lt;code>ubi8&lt;/code>, &lt;code>ubi9&lt;/code>, &lt;code>win-ltsc2019&lt;/code>, or &lt;code>win-ltsc2022&lt;/code>&lt;/td>
 &lt;td style="text-align: left">&lt;code>bookworm&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
@@ -699,7 +718,7 @@ title="Copy code"
 &lt;/tr>
 &lt;tr>
 &lt;td style="text-align: left">&lt;code>revisionHistoryLimit&lt;/code>&lt;/td>
-&lt;td style="text-align: left">Number of revisions to keep in the history of the Deployment&lt;/td>
+&lt;td style="text-align: left">Number of revisions to keep in the history of the Deployment; Warning, &lt;a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy" target="_blank" rel="noopener">setting this to 0&lt;/a> will disable the Deployment history and cause inability to rollback&lt;/td>
 &lt;td style="text-align: left">&lt;code>10&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
@@ -755,7 +774,64 @@ title="Copy code"
 &lt;ul>
 &lt;li>Choose an ephemeral disk for the cache in &lt;code>/app-root/.local/share/buildkit&lt;/code>, instead of an emptyDir.&lt;/li>
 &lt;li>Use an high-performance disk for the cache, exemple &lt;code>managed-csi-premium&lt;/code> in Azure.&lt;/li>
-&lt;/ul></description></item><item><title>Provided software</title><link>https://clemlesne.github.io/blue-agent/docs/advanced-topics/provided-software/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/advanced-topics/provided-software/</guid><description>
+&lt;/ul></description></item><item><title>Pricing</title><link>https://clemlesne.github.io/blue-agent/docs/advanced-topics/pricing/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/advanced-topics/pricing/</guid><description>
+&lt;p>Blue Agent packages infrastructure as code ready to be deployed on two stacks, Kubernetes and Azure Container Apps.&lt;/p>
+&lt;h4>Kubernetes&lt;span class="hx-absolute -hx-mt-20" id="kubernetes">&lt;/span>
+&lt;a href="#kubernetes" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>Costs of a Kubernetes cluster vary a lot depending of your provider, region, and the resources you need.&lt;/p>
+&lt;p>For precise cost reports, you can use &lt;a href="https://github.com/opencost/opencost" target="_blank" rel="noopener">OpenCost&lt;/a>, or &lt;a href="https://learn.microsoft.com/en-us/azure/aks/cost-analysis" target="_blank" rel="noopener">Azure Kubernetes Service cost analysis addon&lt;/a>. The AKS cost analysis addon is based on OpenCost.&lt;/p>
+&lt;h4>Azure Container Apps&lt;span class="hx-absolute -hx-mt-20" id="azure-container-apps">&lt;/span>
+&lt;a href="#azure-container-apps" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>As of Oct 22, 2024, Azure Container Apps pricing is as follows:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th style="text-align: left">Meter&lt;/th>
+&lt;th style="text-align: left">Pay as you go Price*&lt;/th>
+&lt;th style="text-align: left">1-year Savings Plan Price*&lt;/th>
+&lt;th style="text-align: left">3-year Savings Plan Price*&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td style="text-align: left">vCPU (seconds)&lt;/td>
+&lt;td style="text-align: left">$0.000024 /sec&lt;/td>
+&lt;td style="text-align: left">$0.0000204 /sec&lt;br>~15% savings&lt;/td>
+&lt;td style="text-align: left">$0.00001992 /sec&lt;br>~17% savings&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td style="text-align: left">Memory (GiB-Seconds)&lt;/td>
+&lt;td style="text-align: left">$0.000003 /sec&lt;/td>
+&lt;td style="text-align: left">$0.00000255 /sec&lt;br>~15% savings&lt;/td>
+&lt;td style="text-align: left">$0.00000249 /sec&lt;br>~17% savings&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>As agents are scaled down to zero when not in use, the cost is calculated based on the time the agent is running. Default deployment is 2 vCPUs and 4GiB of memory.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-txt" data-lang="txt">&lt;span class="line">&lt;span class="cl">= ([vCPU cost] * 2 + [Memory cost] * 4) * [Time in seconds]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">= (0.000024 * 2 + 0.000003 * 4) * [Time in seconds]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">= 0.00006 * [Time in seconds]&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;p>Thus, cost per hour is:&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-txt" data-lang="txt">&lt;span class="line">&lt;span class="cl">= 0.00006 * 3600
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">= $0.216&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div></description></item><item><title>Provided software</title><link>https://clemlesne.github.io/blue-agent/docs/advanced-topics/provided-software/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/advanced-topics/provided-software/</guid><description>
 &lt;p>Softwares are operating system specific. The following table lists the softwares provided by the agent.&lt;/p>
 &lt;h4>Linux&lt;span class="hx-absolute -hx-mt-20" id="linux">&lt;/span>
 &lt;a href="#linux" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;ul>
@@ -783,10 +859,13 @@ title="Copy code"
 &lt;/li>
 &lt;li>Tools
 &lt;ul>
+&lt;li>&lt;a href="https://www.isc.org/bind" target="_blank" rel="noopener">dnsutils&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://github.com/git-for-windows/git" target="_blank" rel="noopener">git&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://www.gnu.org/software/gzip" target="_blank" rel="noopener">gzip&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://github.com/stedolan/jq" target="_blank" rel="noopener">jq&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://www.gnu.org/software/make" target="_blank" rel="noopener">make&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://www.openssl.org" target="_blank" rel="noopener">openssl&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://rsync.samba.org" target="_blank" rel="noopener">rsync&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://www.gnu.org/software/tar" target="_blank" rel="noopener">tar&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://infozip.sourceforge.net/UnZip.html" target="_blank" rel="noopener">unzip&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://www.gnu.org/software/wget" target="_blank" rel="noopener">wget&lt;/a>&lt;/li>
