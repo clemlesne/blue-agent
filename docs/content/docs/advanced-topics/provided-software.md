@@ -20,10 +20,13 @@ Softwares are operating system specific. The following table lists the softwares
   - [ASP.NET Core Runtime](https://github.com/dotnet/aspnetcore)
   - [Python 3.12](https://docs.python.org/3/whatsnew/3.12.html)
 - Tools
+  - [dnsutils](https://www.isc.org/bind)
   - [git](https://github.com/git-for-windows/git)
   - [gzip](https://www.gnu.org/software/gzip)
   - [jq](https://github.com/stedolan/jq)
   - [make](https://www.gnu.org/software/make)
+  - [openssl](https://www.openssl.org)
+  - [rsync](https://rsync.samba.org)
   - [tar](https://www.gnu.org/software/tar)
   - [unzip](https://infozip.sourceforge.net/UnZip.html)
   - [wget](https://www.gnu.org/software/wget)

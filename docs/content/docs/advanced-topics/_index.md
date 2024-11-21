@@ -15,6 +15,7 @@ Explore the following sections to learn how to use Blue Agent:
 {{< card link="docker-in-docker" title="Build container images" icon="archive" >}}
 {{< card link="helm-values" title="Helm values" icon="adjustments" >}}
 {{< card link="performance" title="Performance" icon="chart-bar" >}}
+{{< card link="pricing" title="Pricing" icon="currency-dollar" >}}
 {{< card link="provided-software" title="Provided software" icon="cube" >}}
 {{< card link="proxy" title="Proxy" icon="shield-check" >}}
 {{< /cards >}}

@@ -1,4 +1,7 @@
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.10@sha256:a47c89f02b39a98290f88204ed3d162845db0a0c464b319c2596cfd1e94b444e AS base
+# syntax=docker/dockerfile:1
+# check=skip=UndefinedVar
+
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.10@sha256:7583ca0ea52001562bd81a961da3f75222209e6192e4e413ee226cff97dbd48c AS base
 
 # Configure local user
 ENV USER=root
@@ -12,11 +15,12 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # - Azure CLI system requirements (C/Rust build tools for libs non pre-built on this platform)
 # - Azure Pipelines agent system requirements
 # - fuse-overlayfs, iptables, shadow-utils, for BuildKit
-# - gzip, make, tar, unzip, wget, zip, zstd for developer ease-of-life
+# - gzip, make, tar, unzip, wget, zip, zstd, dnsutils, rsync, for developer ease-of-life
 # - zsh, for inter-operability
-RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
+RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=locked \
     microdnf install -y --nodocs --setopt=install_weak_deps=0 \
         aspnetcore-runtime-8.0 \
+        bind-utils \
         ca-certificates \
         cargo \
         curl \
@@ -36,6 +40,7 @@ RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
         openssl \
         openssl-devel \
         pkg-config \
+        rsync \
         shadow-utils \
         sudo \
         tar \
@@ -51,6 +56,11 @@ COPY arch.sh .
 RUN chmod +x arch.sh \
     && bash arch.sh
 
+# Persist Python version
+ARG PYTHON_VERSION_MAJOR_MINOR
+ARG PYTHON_VERSION_PATCH
+ENV PYTHON_VERSION=${PYTHON_VERSION_MAJOR_MINOR}.${PYTHON_VERSION_PATCH}
+
 FROM base AS rootlesskit
 
 # Install Go, then verify installation
@@ -64,19 +74,24 @@ RUN go version
 # Install RootlessKit, then verify installation
 ARG ROOTLESSKIT_VERSION
 ENV ROOTLESSKIT_VERSION=${ROOTLESSKIT_VERSION}
-RUN git clone --depth 1 --branch v${ROOTLESSKIT_VERSION} https://github.com/rootless-containers/rootlesskit.git rootlesskit \
-    && make --directory rootlesskit \
-    && make --directory rootlesskit install \
+RUN --mount=target=/rootlesskit-${ROOTLESSKIT_VERSION},type=cache,id=rootlesskit-${ROOTLESSKIT_VERSION}-${TARGETPLATFORM},sharing=locked \
+    git clone --depth 1 --branch v${ROOTLESSKIT_VERSION} https://github.com/rootless-containers/rootlesskit.git rootlesskit \
+    # Ugly but that's work
+    && cp -r rootlesskit/* rootlesskit-${ROOTLESSKIT_VERSION} \
     && rm -rf rootlesskit \
+    && cd rootlesskit-${ROOTLESSKIT_VERSION} \
+    && make \
+    && make install \
+    && cd .. \
     && rootlesskit --version \
     && rootlessctl --version
 
 FROM base AS python
 
-# Build Python 3.12 from source, then verify installation
+# Build Python from source, then verify installation
 ARG PYTHON_VERSION
 ENV PYTHON_VERSION=${PYTHON_VERSION}
-RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
+RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=locked --mount=target=/Python-${PYTHON_VERSION},type=cache,id=python-${PYTHON_VERSION}-${TARGETPLATFORM},sharing=locked \
     microdnf install -y --nodocs --setopt=install_weak_deps=0 \
         bzip2 \
         bzip2-devel \
@@ -88,50 +103,63 @@ RUN --mount=target=/var/cache/yum,type=cache,sharing=locked \
         libffi-devel \
         libstdc++-devel \
         libuuid-devel \
+        libxml2-devel \
         mpdecimal \
+        ncurses-devel \
+        redhat-rpm-config \
         sqlite \
         sqlite-devel \
         sqlite-libs \
         xz-devel \
+        xz-libs \
         zlib-devel \
     && curl -LsSf --retry 8 https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz -o python.tgz \
     && tar -xzf python.tgz \
+    && rm python.tgz \
     && cd Python-${PYTHON_VERSION} \
+    && gnu_arch="$(rpm --eval '%{_target_cpu}')-redhat-linux" \
     && ./configure \
+        --build=$gnu_arch \
         --enable-optimizations \
         --with-ensurepip=install \
         --with-lto \
-    && make -j$(nproc) \
+    && make profile-removal \
+    && extra_cflags="$(rpm --eval '%{optflags}')" \
+    && ldflags="$(rpm --eval '%{__global_ldflags}')" \
+    && make -j $(nproc) "EXTRA_CFLAGS=${extra_cflags:-}" "LDFLAGS=${ldflags:-}" \
     && make install \
-    && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null \
+    && cd .. \
     && python3 --version \
-    && python3 -m pip --version
+    && python3 -m pip --version \
+    && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 FROM base
 
 # Install Python, then verify installation
-COPY --from=python /usr/local/bin/python3.12 /usr/local/bin/python3.12
-COPY --from=python /usr/local/lib/python3.12 /usr/local/lib/python3.12
-RUN ln -s /usr/local/bin/python3.12 /usr/local/bin/python3 \
-    && ln -s /usr/local/bin/python3.12 /usr/local/bin/python \
+COPY --from=python /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR}
+COPY --from=python /usr/local/lib/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/lib/python${PYTHON_VERSION_MAJOR_MINOR}
+RUN ln -s /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python3 \
+    && ln -s /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python \
+    && python --version \
     && python3 --version \
+    && python${PYTHON_VERSION_MAJOR_MINOR} --version \
     && python3 -m pip --version
 
 # Install Python build tools
-RUN python3 -m pip \
+RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_VERSION_MAJOR_MINOR}-${TARGETPLATFORM},sharing=locked \
+    python3 -m pip \
         --disable-pip-version-check \
-        --no-cache-dir \
         --quiet \
-        install  \
+        install \
             setuptools wheel \
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Install Azure CLI, then verify installation
 ARG AZURE_CLI_VERSION
 ENV AZURE_CLI_VERSION=${AZURE_CLI_VERSION}
-RUN python3 -m pip \
+RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_VERSION_MAJOR_MINOR}-${TARGETPLATFORM},sharing=locked \
+    python3 -m pip \
         --disable-pip-version-check \
-        --no-cache-dir \
         --quiet \
         install \
             azure-cli==${AZURE_CLI_VERSION} \

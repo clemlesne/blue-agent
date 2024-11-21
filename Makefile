@@ -4,11 +4,16 @@
 flavor ?= null
 version ?= null
 # Dynamic parameters
-prefix ?= $(shell hostname | tr '[:upper:]' '[:lower:]' | tr '.' '-')
+prefix ?= $(shell hostname | tr "[:upper:]" "[:lower:]" | tr "." "-")
 deployment_name ?= $(prefix)-$(flavor)
 # Deployment outputs
-job_name ?= $(shell az deployment sub show --name '$(deployment_name)' | yq '.properties.outputs["jobName"].value')
-rg_name ?= $(shell az deployment sub show --name '$(deployment_name)' | yq '.properties.outputs["rgName"].value')
+bicep_outputs ?= $(shell az deployment sub show --name "$(deployment_name)" | yq '.properties.outputs')
+job_name ?= $(shell echo $(bicep_outputs) | yq '.jobName.value')
+rg_name ?= $(shell echo $(bicep_outputs) | yq '.rgName.value')
+# Container App Job environment
+container_specs ?= $(shell az containerapp job show --name "$(job_name)" --resource-group "$(rg_name)" | yq '.properties.template.containers[0]')
+job_image ?= $(shell echo $(container_specs) | yq '.image')
+job_env ?= $(shell echo $(container_specs) | yq '.env | map("\(.name)=\(.value // \"secretref:\" + .secretRef)") | .[]')
 
 test:
 	@echo "➡️ Running Prettier"
@@ -38,6 +43,14 @@ lint:
 		--verbose
 
 deploy-bicep:
+	$(MAKE) deploy-bicep-iac
+
+	@echo "⏳ Wait for the Bicep output to be available"
+	sleep 10
+
+	$(MAKE) deploy-bicep-template
+
+deploy-bicep-iac:
 	@echo "➡️ Decrypting Bicep parameters"
 	sops -d test/bicep/test.enc.json > test/bicep/test.json
 
@@ -55,19 +68,29 @@ deploy-bicep:
 	@echo "➡️ Cleaning up Bicep parameters"
 	rm test/bicep/test.json
 
-	@echo "➡️ Starting init job"
+deploy-bicep-template:
+	@echo "➡️ Starting template job"
 	az containerapp job start \
+		--env-vars $(job_env) AZP_TEMPLATE_JOB=1 \
+		--image $(job_image) \
 		--name $(job_name) \
 		--resource-group $(rg_name)
 
 destroy-bicep:
-	@echo "➡️ Destroying"
+	@echo "➡️ Destroying Azure resources"
 	az group delete \
 		--name "$(rg_name)" \
 		--yes
 
 integration:
-	@bash test/integration.sh $(prefix) $(flavor) $(version) $(job_name)
+	$(MAKE) integration-run
+	$(MAKE) integration-cleanup
+
+integration-run:
+	@bash test/integration-run.sh $(prefix) $(flavor) $(version) $(job_name) $(rg_name) github-actions
+
+integration-cleanup:
+	@bash test/integration-cleanup.sh $(job_name) github-actions
 
 docs:
 	cd docs && hugo server

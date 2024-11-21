@@ -1,42 +1,78 @@
-$AZP_AGENT_NAME = $Env:AZP_AGENT_NAME
-$AZP_CUSTOM_CERT_PEM = $Env:AZP_CUSTOM_CERT_PEM
-$AZP_POOL = $Env:AZP_POOL
-$AZP_TOKEN = $Env:AZP_TOKEN
-$AZP_URL = $Env:AZP_URL
-$AZP_WORK = $Env:AZP_WORK
+# Start the Azure DevOps agent in a Windows container
+#
+# Agent is always registered. It is removed from the server only when the agent is not a template job. After 60 secs, it tries to shut down the agent gracefully, waiting for the current job to finish, if any.
+#
+# Environment variables:
+# - AZP_AGENT_NAME: Agent name (default: hostname)
+# - AZP_CUSTOM_CERT_PEM: Custom SSL certificates directory (default: empty)
+# - AZP_POOL: Agent pool name
+# - AZP_TEMPLATE_JOB: Template job flag (default: 0)
+# - AZP_TOKEN: Personal access token
+# - AZP_URL: Server URL
+# - AZP_WORK: Work directory
 
-if ($null -eq $AZP_URL -or $AZP_URL -eq "") {
-  throw "error: missing AZP_URL environment variable"
-}
-
-if ($null -eq $AZP_TOKEN -or $AZP_TOKEN -eq "") {
-  throw "error: missing AZP_TOKEN environment variable"
-}
-
-if ($null -eq $AZP_POOL -or $AZP_POOL -eq "") {
-  throw "error: missing AZP_POOL environment variable"
-}
-
-# If AZP_AGENT_NAME is not set, use the container hostname
-if ($null -eq $AZP_AGENT_NAME -or $AZP_AGENT_NAME -eq "") {
-  Write-Host "warn: missing AZP_AGENT_NAME environment variable"
-  $AZP_AGENT_NAME = $Env:COMPUTERNAME
-}
-
-if ($null -eq $AZP_WORK -or $AZP_WORK -eq "") {
-  throw "error: missing AZP_WORK environment variable"
-}
-
-if (!(Test-Path $AZP_WORK)) {
-  throw "error: work dir AZP_WORK ($AZP_WORK) is not writeable or does not exist"
-}
+##
+# Misc functions
+##
 
 function Write-Header() {
-  Write-Host "> $1" -ForegroundColor Cyan
+  Write-Host "➡️ $1" -ForegroundColor Cyan
 }
 
+function Write-Warning() {
+  Write-Host "⚠️ $1" -ForegroundColor Yellow
+}
+
+function Raise-Error() {
+  throw "❌ $1"
+}
+
+##
+# Argument parsing
+##
+
+if ($null -eq $Env:AZP_URL -or $Env:AZP_URL -eq "") {
+  Raise-Error "Missing AZP_URL environment variable"
+}
+
+if ($null -eq $Env:AZP_TOKEN -or $Env:AZP_TOKEN -eq "") {
+  Raise-Error "Missing AZP_TOKEN environment variable"
+}
+
+if ($null -eq $Env:AZP_POOL -or $Env:AZP_POOL -eq "") {
+  Raise-Error "Missing AZP_POOL environment variable"
+}
+
+# If name is not set, use the hostname
+if ($null -eq $Env:AZP_AGENT_NAME -or $Env:AZP_AGENT_NAME -eq "") {
+  Write-Warning "Missing AZP_AGENT_NAME environment variable, using hostname"
+  $Env:AZP_AGENT_NAME = $Env:COMPUTERNAME
+}
+
+if ($null -eq $Env:AZP_WORK -or $Env:AZP_WORK -eq "") {
+  Raise-Error "Missing AZP_WORK environment variable"
+}
+
+if (!(Test-Path $Env:AZP_WORK)) {
+  Write-Warning "Work dir AZP_WORK ($Env:AZP_WORK) does not exist, creating it, but reliability is not guaranteed"
+  New-Item -Path $Env:AZP_WORK -ItemType Directory
+}
+
+$isTemplateJob = $false
+if ($Env:AZP_TEMPLATE_JOB -eq "1") {
+  Write-Warning "Template job enabled, agent cannot be used for running jobs"
+  $isTemplateJob = $true
+  $Env:AZP_AGENT_NAME = "$Env:AZP_AGENT_NAME-template"
+}
+
+Write-Header "Running agent $Env:AZP_AGENT_NAME in pool $Env:AZP_POOL"
+
+##
+# Cleanup function
+##
+
 function Unregister {
-  Write-Host "Unregister, removing agent from server"
+  Write-Header "Removing agent"
 
   # If the agent has some running jobs, the configuration removal process will fail; so, give it some time to finish the job
   while ($true) {
@@ -44,21 +80,26 @@ function Unregister {
       # If the agent is removed successfully, exit the loop
       & config.cmd remove `
         --auth PAT `
-        --token $AZP_TOKEN `
+        --token $Env:AZP_TOKEN `
         --unattended
       break
     } catch {
-      Write-Host "Retrying in 15 secs"
+      Write-Host "A job is still running, waiting 15 seconds before retrying the removal"
       Start-Sleep -Seconds 15
     }
   }
 }
 
-if ((Test-Path $AZP_CUSTOM_CERT_PEM) -and ((Get-ChildItem $AZP_CUSTOM_CERT_PEM).Count -gt 0)) {
-  Write-Header "Adding custom SSL certificates"
-  Write-Host "Searching for *.crt in $AZP_CUSTOM_CERT_PEM"
+##
+# Custom SSL certificates
+##
 
-  Get-ChildItem $AZP_CUSTOM_CERT_PEM -Filter *.crt | ForEach-Object {
+Write-Header "Adding custom SSL certificates"
+
+if ((Test-Path $Env:AZP_CUSTOM_CERT_PEM) -and ((Get-ChildItem $Env:AZP_CUSTOM_CERT_PEM).Count -gt 0)) {
+  Write-Host "Searching for *.crt in $Env:AZP_CUSTOM_CERT_PEM"
+
+  Get-ChildItem $Env:AZP_CUSTOM_CERT_PEM -Filter *.crt | ForEach-Object {
     Write-Host "Certificate $($_.Name)"
 
     $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($_.FullName)
@@ -68,10 +109,13 @@ if ((Test-Path $AZP_CUSTOM_CERT_PEM) -and ((Get-ChildItem $AZP_CUSTOM_CERT_PEM).
     Write-Host "Updating certificates keychain"
     Import-Certificate -FilePath $_.FullName -CertStoreLocation Cert:\LocalMachine\Root
   }
-
 } else {
-  Write-Header "No custom SSL certificate provided"
+  Write-Host "No custom SSL certificate provided"
 }
+
+##
+# Agent configuration
+##
 
 Write-Header "Configuring agent"
 
@@ -79,24 +123,47 @@ Set-Location $(Split-Path -Parent $MyInvocation.MyCommand.Definition)
 
 & config.cmd `
   --acceptTeeEula `
-  --agent $AZP_AGENT_NAME `
+  --agent $Env:AZP_AGENT_NAME `
   --auth PAT `
-  --pool $AZP_POOL `
+  --pool $Env:AZP_POOL `
   --replace `
-  --token $AZP_TOKEN `
+  --token $Env:AZP_TOKEN `
   --unattended `
-  --url $AZP_URL `
-  --work $AZP_WORK
+  --url $Env:AZP_URL `
+  --work $Env:AZP_WORK
+
+##
+# Agent execution
+##
 
 Write-Header "Running agent"
 
-# Unregister on success, Ctrl+C, and SIGTERM
-try {
-  # Running it with the --once flag at the end will shut down the agent after the build is executed
-  & run.cmd $Args --once
-} finally {
-  Unregister
+# Running it with the --once flag at the end will shut down the agent after the build is executed
+if ($isTemplateJob) {
+  Write-Host "Agent will be stopped after 1 min"
+  # Run the agent for a minute
+  Start-Job -ScriptBlock {
+    Start-Sleep -Seconds 60
+    & run.cmd $Args --once
+  }
+} else {
+  try {
+    # Run the countdown for fast-clean if no job is using the agent after a delay
+    Start-Job -ScriptBlock {
+      Start-Sleep -Seconds 60
+      Unregister
+    }
+    # Run the agent
+    & run.cmd $Args --once
+  } finally {
+    # Unregister on success, Ctrl+C, and SIGTERM
+    Unregister
+  }
 }
+
+##
+# Diagnostics
+##
 
 Write-Header "Printing agent diag logs"
 

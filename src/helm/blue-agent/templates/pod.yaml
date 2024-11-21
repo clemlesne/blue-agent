@@ -13,8 +13,9 @@ metadata:
     {{- end }}
 spec:
   {{- $data := dict
+    "azpAgentName" (dict "value" (include "blue-agent.fullname" .))
+    "isTemplateJob" "1"
     "restartPolicy" "Never"
-    "azpAgentName" (dict "value" (printf "%s-%s" (include "blue-agent.fullname" .) "template"))
   }}
   {{- include "blue-agent.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 2 }}
 {{- end }}

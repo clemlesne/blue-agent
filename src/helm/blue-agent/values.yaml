@@ -29,6 +29,9 @@ autoscaling:
   minReplicas: 0
   # Maximum number of replicas, default is 100 to prevent misconfiguration
   maxReplicas: 100
+  # Interval in seconds to poll for new jobs
+  # Warning: A low value will cause rate limiting or throttling, and can cause high load on the Azure DevOps API
+  pollingInterval: 10
 
 # Pipeline configuration
 pipelines:

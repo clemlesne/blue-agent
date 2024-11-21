@@ -1,5 +1,6 @@
 param autoscalingMaxReplicas int
 param autoscalingMinReplicas int
+param autoscalingPollingInterval int
 param extraEnv array
 param imageFlavor string
 param imageName string
@@ -85,7 +86,7 @@ resource job 'Microsoft.App/jobs@2023-11-02-preview' = {
         scale: {
           maxExecutions: autoscalingMaxReplicas
           minExecutions: autoscalingMinReplicas
-          pollingInterval: 15
+          pollingInterval: autoscalingPollingInterval
           rules: [
             {
               name: 'azure-pipelines'

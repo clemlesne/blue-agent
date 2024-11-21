@@ -53,8 +53,9 @@ env:
   GIT_WIN_VERSION: 2.47.0
   # https://github.com/facebook/zstd/releases
   ZSTD_WIN_VERSION: 1.5.6
-  # https://www.python.org/downloads/windows
-  PYTHON_VERSION: 3.12.7
+  # https://www.python.org/downloads
+  PYTHON_VERSION_MAJOR_MINOR: 3.12
+  PYTHON_VERSION_PATCH: 7
   # https://nodejs.org/en/download/releases
   NODE_VERSION: 20.18.0
   # https://github.com/helm/helm/releases
@@ -114,9 +115,9 @@ jobs:
           submodules: recursive
 
       - name: SAST - Credentials
-        uses: trufflesecurity/trufflehog@v3.75.0
+        uses: trufflesecurity/trufflehog@v3.82.11
         with:
-          base: ${{ github.event.repository.default_branch }}
+          base: main
           extra_args: --only-verified
           head: HEAD~1
 
@@ -126,12 +127,12 @@ jobs:
       - init
       - sast-creds
       - sast-semgrep
-      - static-test
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
 
+      # Required for running "helm" CLI
       - name: Setup Helm
         uses: azure/setup-helm@v4.2.0
         with:
@@ -139,11 +140,14 @@ jobs:
 
       # Required for running "npx" CLI
       - name: Setup Node
-        uses: actions/setup-node@v4.0.2
+        uses: actions/setup-node@v4.0.4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      # Required for running "cosign" CLI
       - name: Setup Cosign
+        # Only sign builds on main branch
+        if: github.ref == 'refs/heads/main'
         uses: sigstore/cosign-installer@v3.6.0
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
@@ -166,6 +170,8 @@ jobs:
             src/helm/blue-agent
 
       - name: Sign Helm chart
+        # Only sign builds on main branch
+        if: github.ref == 'refs/heads/main'
         env:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
@@ -216,19 +222,20 @@ jobs:
             snyk.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.25.3
+        uses: github/codeql-action/upload-sarif@v3.26.13
         continue-on-error: true
         with:
           sarif_file: merged.sarif
 
   release-helm:
     name: Release Helm chart
-    needs:
-      - build-release-linux
-      - build-release-win
-      - build-helm
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
+    needs:
+      - build-helm
+      - build-release-linux
+      - build-release-win
+      - static-test
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -259,6 +266,9 @@ jobs:
 
   static-test:
     name: Static test
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -266,7 +276,7 @@ jobs:
 
       # Required for running "npx" CLI
       - name: Setup Node
-        uses: actions/setup-node@v4.0.2
+        uses: actions/setup-node@v4.0.4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -277,9 +287,11 @@ jobs:
           hadolint --version
 
       - name: Login to Azure
-        uses: azure/login@v2.1.1
+        uses: azure/login@v2.2.0
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
 
       - name: Run tests
         run: |
@@ -291,7 +303,6 @@ jobs:
       - init
       - sast-creds
       - sast-semgrep
-      - static-test
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -306,7 +317,9 @@ jobs:
           - os: jammy
             arch: linux/amd64,linux/arm64
           - os: noble
-            arch: linux/amd64,linux/arm64
+            # On GitHub Actions, build is too slow to be done on ARM64 virtialized on QEMU
+            # TODO: Re-enable ARM64 when GitHub Actions will provide native ARM64 runners
+            arch: linux/amd64
           - os: ubi8
             arch: linux/amd64,linux/arm64
           - os: ubi9
@@ -315,15 +328,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.7
 
+      # Container build take a lot of disk space, there is no enough space on the runner to have both tools cache and container build
       - name: Clean up disk
         run: rm -rf /opt/hostedtoolcache
 
+      # Required to build multi-arch images
       - name: Setup QEMU
         id: setup-qemu
         uses: docker/setup-qemu-action@v3.2.0
         with:
           platforms: ${{ matrix.arch }}
 
+      # Required for "docker build" command
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3.6.1
         with:
@@ -333,11 +349,14 @@ jobs:
 
       # Required for running "npx" CLI
       - name: Setup Node
-        uses: actions/setup-node@v4.0.2
+        uses: actions/setup-node@v4.0.4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      # Required for running "cosign" CLI
       - name: Setup Cosign
+        # Only sign builds on main branch
+        if: github.ref == 'refs/heads/main'
         uses: sigstore/cosign-installer@v3.6.0
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
@@ -359,7 +378,7 @@ jobs:
       - name: Check if pre-release
         id: prerelease
         run: |
-          if [ "${{ github.ref_name }}" == "${{ github.event.repository.default_branch }}" ]; then
+          if [ "${{ github.ref_name }}" == "main" ]; then
             echo "prerelease=false" >> $GITHUB_OUTPUT
           else
             echo "prerelease=true" >> $GITHUB_OUTPUT
@@ -412,36 +431,47 @@ jobs:
             GCLOUD_CLI_VERSION=${{ env.GCLOUD_CLI_VERSION }}
             GO_VERSION=${{ env.GO_VERSION }}
             POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}
-            PYTHON_VERSION=${{ env.PYTHON_VERSION }}
+            PYTHON_VERSION_MAJOR_MINOR=${{ env.PYTHON_VERSION_MAJOR_MINOR }}
+            PYTHON_VERSION_PATCH=${{ env.PYTHON_VERSION_PATCH }}
             ROOTLESSKIT_VERSION=${{ env.ROOTLESSKIT_VERSION }}
             TINI_VERSION=${{ env.TINI_VERSION }}
             YQ_VERSION=${{ env.YQ_VERSION }}
-          cache-from:
-            ${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-${{ github.event.repository.default_branch }}-cache
-            ${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-develop-cache
-            ${{ steps.tag.outputs.tag }}-cache
-          cache-to: ${{ steps.tag.outputs.tag }}-cache
+          cache-from: type=gha,scope=buildkit-${{ matrix.os }}-${{ github.ref_name }}
+          cache-to: type=gha,scope=buildkit-${{ matrix.os }}-${{ github.ref_name }}
           context: src/docker
           file: src/docker/Dockerfile-${{ matrix.os }}
           labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=registry,oci-mediatypes=true,compression=estargz,compression-level=9,force-compression=true
           platforms: ${{ matrix.arch }}
           provenance: true
-          outputs: type=registry,oci-mediatypes=true,compression=estargz,compression-level=9,force-compression=true
           sbom: true
           tags: ${{ steps.meta.outputs.tags }}
 
+      # Cosign is voluntarily retried indefinitely to avoid breaking the build when the container registry is slow or throttle, with an exponential backoff delay with jitter
+      # See: https://github.com/clemlesne/blue-agent/issues/264
       - name: Sign containers
+        # Only sign builds on main branch
+        if: github.ref == 'refs/heads/main'
         env:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
         run: |
           while IFS= read -r tag; do
             echo "Signing $tag"
-            cosign sign \
-              --key="env://COSIGN_PRIVATE_KEY" \
-              --recursive \
-              --yes \
-              $tag
+            i=1
+            while true; do
+                cosign sign \
+                --key="env://COSIGN_PRIVATE_KEY" \
+                --recursive \
+                --yes \
+                $tag \
+                  && break
+                jitter=$(python3 -c "import random; print(random.randint(-20, 20))")
+                backoff=$(python3 -c "import math; print(int(math.pow(3, $i) * (1 + $jitter / 100)))")
+              echo "retry: cosign returned $?, backing off for $backoff seconds and trying again ($i)..."
+              sleep $backoff
+              i=$((i + 1))
+            done
           done <<< "${{ steps.meta.outputs.tags }}"
 
       - name: Run SAST Snyk against containers
@@ -475,7 +505,7 @@ jobs:
             *.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.25.3
+        uses: github/codeql-action/upload-sarif@v3.26.13
         continue-on-error: true
         with:
           sarif_file: merged.sarif
@@ -486,7 +516,6 @@ jobs:
       - init
       - sast-creds
       - sast-semgrep
-      - static-test
     runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
@@ -500,16 +529,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.7
 
+      # Container build take a lot of disk space, there is no enough space on the runner to have both tools cache and container build
       - name: Clean up disk
         run: Remove-Item -Path C:\hostedtoolcache -Recurse -Force
 
       # Required for running "npx" CLI
       - name: Setup Node
-        uses: actions/setup-node@v4.0.2
+        uses: actions/setup-node@v4.0.4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      # Required for running "cosign" CLI
       - name: Setup Cosign
+        # Only sign builds on main branch
+        if: github.ref == 'refs/heads/main'
         uses: sigstore/cosign-installer@v3.6.0
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
@@ -531,7 +564,7 @@ jobs:
       - name: Check if pre-release
         id: prerelease
         run: |
-          if ('${{ github.ref_name }}' -eq '${{ github.event.repository.default_branch }}') {
+          if ('${{ github.ref_name }}' -eq 'main') {
             echo "prerelease=false" >> $env:GITHUB_OUTPUT
           } else {
             echo "prerelease=true" >> $env:GITHUB_OUTPUT
@@ -583,7 +616,8 @@ jobs:
             "--build-arg", "GIT_VERSION=${{ env.GIT_WIN_VERSION }}",
             "--build-arg", "JQ_VERSION=${{ env.JQ_WIN_VERSION }}",
             "--build-arg", "POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}",
-            "--build-arg", "PYTHON_VERSION=${{ env.PYTHON_VERSION }}",
+            "--build-arg", "PYTHON_VERSION_MAJOR_MINOR=${{ env.PYTHON_VERSION_MAJOR_MINOR }}",
+            "--build-arg", "PYTHON_VERSION_PATCH=${{ env.PYTHON_VERSION_PATCH }}",
             "--build-arg", "VS_BUILDTOOLS_VERSION=${{ env.VS_BUILDTOOLS_WIN_VERSION }}",
             "--build-arg", "YQ_VERSION=${{ env.YQ_VERSION }}",
             "--build-arg", "ZSTD_VERSION=${{ env.ZSTD_WIN_VERSION }}",
@@ -595,11 +629,6 @@ jobs:
           foreach ($tag in $tags) {
             $params += "--tag", $tag
           }
-
-          # Cache input
-          $params += "--cache-from", "${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-${{ github.event.repository.default_branch }}"
-          $params += "--cache-from", "${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:${{ matrix.os }}-develop"
-          $params += "--cache-from", "${{ steps.tag.outputs.tag }}"
 
           $labels = ('${{ steps.meta.outputs.labels }}').Split([Environment]::NewLine)
           foreach ($label in $labels) {
@@ -617,12 +646,6 @@ jobs:
           }
           Write-Host
 
-          Write-Host "Pulling cache images:"
-          foreach ($tag in $tags) {
-            Write-Host " $tag"
-            docker pull --quiet $tag || true
-          }
-
           Write-Host "Building"
           docker build @params src\docker
 
@@ -631,7 +654,11 @@ jobs:
             docker push --quiet $tag
           }
 
+      # Cosign is voluntarily retried indefinitely to avoid breaking the build when the container registry is slow or throttle, with an exponential backoff delay with jitter
+      # See: https://github.com/clemlesne/blue-agent/issues/264
       - name: Sign containers
+        # Only sign builds on main branch
+        if: github.ref == 'refs/heads/main'
         env:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
@@ -639,11 +666,22 @@ jobs:
           $tags = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine)
           foreach ($tag in $tags) {
             Write-Host "Signing $tag"
-            cosign sign `
-              --key="env://COSIGN_PRIVATE_KEY" `
-              --recursive `
-              --yes `
-              $tag
+            $i = 1
+            while ($true) {
+              cosign sign `
+                --key="env://COSIGN_PRIVATE_KEY" `
+                --recursive `
+                --yes `
+                $tag
+              if ($?) {
+                break
+              }
+              $jitter = (Get-Random -Minimum -20 -Maximum 21) / 100
+              $backoff = [math]::Round([math]::Pow(3, $i) * (1 + $jitter))
+              Write-Host "retry: cosign returned $LASTEXITCODE, backing off for $backoff seconds and trying again ($i)..."
+              Start-Sleep -Seconds $backoff
+              $i++
+            }
           }
 
       - name: Run SAST Snyk against containers
@@ -670,7 +708,7 @@ jobs:
             snyk.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.25.3
+        uses: github/codeql-action/upload-sarif@v3.26.13
         continue-on-error: true
         with:
           sarif_file: merged.sarif
@@ -692,7 +730,7 @@ jobs:
         run: semgrep ci --sarif --output=semgrep.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.25.3
+        uses: github/codeql-action/upload-sarif@v3.26.13
         continue-on-error: true
         with:
           sarif_file: semgrep.sarif
@@ -706,6 +744,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.7
 
+      # Required for running "oras" CLI
       - name: Setup ORAS
         uses: oras-project/setup-oras@v1.2.0
         with:
@@ -739,11 +778,12 @@ jobs:
 
   update-docker-hub-description:
     name: Update Docker Hub description
+    # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
+    if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
     needs:
       - build-release-linux
       - build-release-win
-    # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
-    if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
+      - static-test
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -760,17 +800,18 @@ jobs:
 
   build-hugo:
     name: Build Hugo site
-    runs-on: ubuntu-24.04
     needs:
       - sast-creds
       - sast-semgrep
-      - static-test
+    runs-on: ubuntu-24.04
     steps:
+      # Required for running "hugo" CLI
       - name: Setup Hugo CLI
         run: |
           wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${{ env.HUGO_VERSION }}/hugo_extended_${{ env.HUGO_VERSION }}_linux-amd64.deb
           sudo dpkg -i ${{ runner.temp }}/hugo.deb
 
+      # Required as a Hugo build dependency
       - name: Setup Dart Sass
         run: sudo snap install dart-sass
 
@@ -808,6 +849,7 @@ jobs:
     needs:
       - build-hugo
       - init
+      - static-test
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
     runs-on: ubuntu-24.04
@@ -842,20 +884,20 @@ jobs:
             git push origin gh-pages
           fi
 
-  integration-test:
+  integration-test-linux:
     name: Integration test (Linux ${{ matrix.os }})
-    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
     needs:
-      - init
-      - sast-creds
-      - sast-semgrep
-      - static-test
       - build-release-linux
-      - build-release-win
-    concurrency: integration-test-${{ needs.init.outputs.BRANCH }}-${{ matrix.os }}
+      - init
+      - static-test
+    runs-on: ubuntu-24.04
+    concurrency: integration-test-linux-${{ needs.init.outputs.BRANCH }}-${{ matrix.os }}
     strategy:
       fail-fast: false
-      # Rate limiting on Azure DevOps SaaS APIs is triggered quickluy by integration tests, so we need to limit the number of parallel jobs
+      # Rate limiting on Azure DevOps SaaS APIs is triggered quickly by integration tests, so we need to limit the number of parallel jobs
       max-parallel: 3
       matrix:
         os: [bookworm, bullseye, focal, jammy, noble, ubi8, ubi9]
@@ -863,12 +905,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.7
 
+      # Required for running "sops" CLI
       - name: Setup SOPS
         run: |
           curl -LO https://github.com/getsops/sops/releases/download/v${{ env.SOPS_VERSION }}/sops-v${{ env.SOPS_VERSION }}.linux.amd64
           mv sops-v${{ env.SOPS_VERSION }}.linux.amd64 /usr/local/bin/sops
           chmod +x /usr/local/bin/sops
 
+      # Configure local configuration encryption key
       - name: Setup AGE key
         run: |
           age_folder="$XDG_CONFIG_HOME/sops/age"
@@ -876,9 +920,11 @@ jobs:
           echo "${{ secrets.AGE_KEY }}" > ${age_folder}/keys.txt
 
       - name: Login to Azure
-        uses: azure/login@v2.1.1
+        uses: azure/login@v2.2.0
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
 
       - name: Deploy Bicep
         run: |
@@ -889,23 +935,31 @@ jobs:
 
       - name: Integration
         env:
-          # Permissions: Agent Pools (Read); Build (Read & execute); Pipeline Resources (Use & manage); Project and Team (Read, write, & manage); Service Connections (Read, query, & manage)
+          # Permissions: agent pools (read & manage); build (read & execute); pipeline resources (use & manage); project and team (read, write, & manage); service connections (read, query, & manage)
           # Recommended group membership: Project Collection Build Service Accounts
           AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
           # Scope: clemlesne/blue-agent
-          # Permissions: Contents (read-only); Metadata (read-only); Webhooks (read & write)
+          # Permissions: contents (read-only); metadata (read-only); webhooks (read & write)
           AZURE_DEVOPS_EXT_GITHUB_PAT: ${{ secrets.AZURE_DEVOPS_GITHUB_PAT }}
         # Script wait indefinitely for external events, so we need to timeout
         timeout-minutes: 30
         run: |
-          make integration \
+          make integration-run \
             flavor="${{ matrix.os }}" \
             prefix="${{ needs.init.outputs.BRANCH }}" \
             version="sha-$(git rev-parse --short HEAD)"
 
-      # - name: Cleanup
-      #   if: always()
-      #   run: |
-      #     make destroy-bicep \
-      #       flavor="${{ matrix.os }}" \
-      #       prefix="${{ needs.init.outputs.BRANCH }}"
+      - name: Cleanup
+        if: always()
+        env:
+          # Permissions: agent pools (read & manage); build (read & execute); pipeline resources (use & manage); project and team (read, write, & manage); service connections (read, query, & manage)
+          # Recommended group membership: Project Collection Build Service Accounts
+          AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+        run: |
+          make integration-cleanup \
+            flavor="${{ matrix.os }}" \
+            prefix="${{ needs.init.outputs.BRANCH }}"
+
+          # make destroy-bicep \
+          #   flavor="${{ matrix.os }}" \
+          #   prefix="${{ needs.init.outputs.BRANCH }}"

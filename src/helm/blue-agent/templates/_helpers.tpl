@@ -103,6 +103,12 @@ windowsOptions:
 allowPrivilegeEscalation: false
 runAsUser: 0
 capabilities:
+  # Add enough default capabilities to allow the agent to unzip files and change file ownership
+  # See: https://github.com/clemlesne/blue-agent/issues/23#issuecomment-2444929885
+  add:
+    - CHOWN
+    - FOWNER
+  # Remove all default root capabilities to ensure the container is running with the least privileges
   drop: ["ALL"]
 {{- end }}
 {{- end }}
@@ -113,8 +119,9 @@ Common definition for Pod object.
 Usage example:
 
 {{- $data := dict
+  "azpAgentName" (dict "value" (include "blue-agent.fullname" .))
+  "isTemplateJob" "1"
   "restartPolicy" "Always"
-  "azpAgentName" (dict "value" (printf "%s-%s" (include "blue-agent.fullname" .) "template"))
 }}
 {{- include "blue-agent.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 6 }}
 */}}
@@ -200,6 +207,8 @@ containers:
           secretKeyRef:
             name: {{ include "blue-agent.secretName" . }}
             key: personalAccessToken
+      - name: AZP_TEMPLATE_JOB
+        value: {{ .Args.isTemplateJob }}
       # Agent capabilities
       - name: flavor_{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}
       - name: version_{{ default .Chart.Version .Values.image.version }}
