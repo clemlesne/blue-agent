@@ -127,7 +127,6 @@ jobs:
       - init
       - sast-creds
       - sast-semgrep
-      - static-test
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -236,6 +235,7 @@ jobs:
       - build-helm
       - build-release-linux
       - build-release-win
+      - static-test
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -303,7 +303,6 @@ jobs:
       - init
       - sast-creds
       - sast-semgrep
-      - static-test
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -517,7 +516,6 @@ jobs:
       - init
       - sast-creds
       - sast-semgrep
-      - static-test
     runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
@@ -785,6 +783,7 @@ jobs:
     needs:
       - build-release-linux
       - build-release-win
+      - static-test
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -804,7 +803,6 @@ jobs:
     needs:
       - sast-creds
       - sast-semgrep
-      - static-test
     runs-on: ubuntu-24.04
     steps:
       # Required for running "hugo" CLI
@@ -851,6 +849,7 @@ jobs:
     needs:
       - build-hugo
       - init
+      - static-test
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
     runs-on: ubuntu-24.04
@@ -893,8 +892,6 @@ jobs:
     needs:
       - build-release-linux
       - init
-      - sast-creds
-      - sast-semgrep
       - static-test
     runs-on: ubuntu-24.04
     concurrency: integration-test-linux-${{ needs.init.outputs.BRANCH }}-${{ matrix.os }}
