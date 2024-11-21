@@ -25,6 +25,7 @@ Softwares are operating system specific. The following table lists the softwares
   - [gzip](https://www.gnu.org/software/gzip)
   - [jq](https://github.com/stedolan/jq)
   - [make](https://www.gnu.org/software/make)
+  - [openssl](https://www.openssl.org)
   - [rsync](https://rsync.samba.org)
   - [tar](https://www.gnu.org/software/tar)
   - [unzip](https://infozip.sourceforge.net/UnZip.html)
