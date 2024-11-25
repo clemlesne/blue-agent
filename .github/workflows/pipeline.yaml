@@ -436,7 +436,10 @@ jobs:
             ROOTLESSKIT_VERSION=${{ env.ROOTLESSKIT_VERSION }}
             TINI_VERSION=${{ env.TINI_VERSION }}
             YQ_VERSION=${{ env.YQ_VERSION }}
-          cache-from: type=gha,scope=buildkit-${{ matrix.os }}-${{ github.ref_name }}
+          cache-from: |
+            type=gha,scope=buildkit-${{ matrix.os }}-${{ github.ref_name }}
+            type=gha,scope=buildkit-${{ matrix.os }}-develop
+            type=gha,scope=buildkit-${{ matrix.os }}-main
           cache-to: type=gha,scope=buildkit-${{ matrix.os }}-${{ github.ref_name }}
           context: src/docker
           file: src/docker/Dockerfile-${{ matrix.os }}

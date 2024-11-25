@@ -149,8 +149,11 @@ RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_VERSION_MAJOR_
     python3 -m pip \
         --disable-pip-version-check \
         --quiet \
+        --retries 8 \
+        --timeout 120 \
         install \
-            setuptools wheel \
+            --upgrade \
+            pip setuptools wheel \
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Install Azure CLI, then verify installation
@@ -160,6 +163,8 @@ RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_VERSION_MAJOR_
     python3 -m pip \
         --disable-pip-version-check \
         --quiet \
+        --retries 8 \
+        --timeout 120 \
         install \
             azure-cli==${AZURE_CLI_VERSION} \
     && az version \
