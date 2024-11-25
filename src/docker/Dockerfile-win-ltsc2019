@@ -53,8 +53,11 @@ RUN python --version \
         --disable-pip-version-check \
         --no-cache-dir \
         --quiet \
+        --retries 8 \
+        --timeout 120 \
         install \
-            setuptools wheel
+            --upgrade \
+            pip setuptools wheel
 
 # Install Azure CLI, then verify installation
 # TODO: Clean up "__pycache__" folders on disk
@@ -64,6 +67,8 @@ RUN python -m pip \
         --disable-pip-version-check \
         --no-cache-dir \
         --quiet \
+        --retries 8 \
+        --timeout 120 \
         install \
             "azure-cli==${Env:AZURE_CLI_VERSION}" \
     && az version
