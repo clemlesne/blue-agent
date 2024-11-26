@@ -1905,6 +1905,44 @@ entries:
       artifacthub.io/prerelease: "false"
     apiVersion: v2
     appVersion: 3.244.1
+    created: "2024-11-26T00:59:38.155424723Z"
+    description: Deploy Azure Pipelines agent on Kubernetes. Easy way. Cheap. Windows
+      and Linux. X64 and ARM compatible.
+    digest: 20414851e79b6d3c374798ba6ce9e055af16b5552149aae1b800e3e70fe94377
+    home: https://github.com/clemlesne/blue-agent
+    icon: https://raw.githubusercontent.com/clemlesne/blue-agent/master/docs/static/favicon.svg
+    keywords:
+    - agent
+    - auto-scale
+    - azure
+    - azure-devops
+    - azure-pipelines
+    - container
+    - devops
+    - docker
+    - helm
+    - keda
+    - kubernetes
+    - pipelines
+    - self-hosted
+    - self-hosted-agent
+    kubeVersion: '>= 1.19.0-0'
+    maintainers:
+    - email: clemlesne@users.noreply.github.com
+      name: Clémence Lesné
+    name: blue-agent
+    sources:
+    - https://github.com/clemlesne/blue-agent
+    type: application
+    urls:
+    - https://github.com/clemlesne/blue-agent/releases/download/blue-agent-9.0.2/blue-agent-9.0.2.tgz
+    version: 9.0.2
+  - annotations:
+      artifacthub.io/category: integration-delivery
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/prerelease: "false"
+    apiVersion: v2
+    appVersion: 3.244.1
     created: "2024-11-21T22:31:57.342478896Z"
     description: Deploy Azure Pipelines agent on Kubernetes. Easy way. Cheap. Windows
       and Linux. X64 and ARM compatible.
@@ -2203,4 +2241,4 @@ entries:
     urls:
     - https://github.com/clemlesne/blue-agent/releases/download/blue-agent-7.0.0/blue-agent-7.0.0.tgz
     version: 7.0.0
-generated: "2024-11-21T22:31:57.342676967Z"
+generated: "2024-11-26T00:59:38.155575543Z"
