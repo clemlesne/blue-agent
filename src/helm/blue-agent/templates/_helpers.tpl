@@ -208,7 +208,7 @@ containers:
             name: {{ include "blue-agent.secretName" . }}
             key: personalAccessToken
       - name: AZP_TEMPLATE_JOB
-        value: {{ .Args.isTemplateJob }}
+        value: {{ .Args.isTemplateJob | quote }}
       # Agent capabilities
       - name: flavor_{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}
       - name: version_{{ default .Chart.Version .Values.image.version }}
