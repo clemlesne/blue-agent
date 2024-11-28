@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # check=skip=UndefinedVar
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0-focal@sha256:fe64a7f5bf2e300e52ad4eadc8d59c0ec7f096e22107d910c478366ee99c903d AS base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-focal@sha256:eb64d9af3c637a16533d4e510e4ff9dba7397ede73593b13a93dcc332058c182 AS base
 
 # Force apt-get to not use TTY
 ENV DEBIAN_FRONTEND=noninteractive
