@@ -25,53 +25,53 @@ env:
   # https://npmjs.com/package/@microsoft/sarif-multitool?activeTab=versions
   SARIF_MULTITOOL_VERSION: 4.5.4
   # https://npmjs.com/package/snyk?activeTab=versions
-  SNYK_VERSION: 1.1293.1
+  SNYK_VERSION: 1.1294.3
   # https://github.com/microsoft/azure-pipelines-agent/releases
   AZP_AGENT_VERSION: 4.248.0
   # https://github.com/PowerShell/PowerShell/releases
-  POWERSHELL_VERSION: 7.2.23
+  POWERSHELL_VERSION: 7.2.24
   # https://github.com/krallin/tini/releases
   TINI_VERSION: 0.19.0
   # https://github.com/mikefarah/yq/releases
-  YQ_VERSION: 4.44.3
+  YQ_VERSION: 4.44.6
   # https://go.dev/dl
-  GO_VERSION: 1.23.2
+  GO_VERSION: 1.23.4
   # https://github.com/rootless-containers/rootlesskit/releases
   ROOTLESSKIT_VERSION: 2.3.1
   # https://github.com/moby/buildkit/releases
-  BUILDKIT_VERSION: 0.16.0
+  BUILDKIT_VERSION: 0.18.2
   # https://github.com/Azure/azure-cli/releases
-  AZURE_CLI_VERSION: 2.65.0
+  AZURE_CLI_VERSION: 2.67.0
   # https://github.com/stedolan/jq/releases
   JQ_WIN_VERSION: 1.7.1
   # https://github.com/aws/aws-cli/tags
-  AWS_CLI_VERSION: 2.18.4
+  AWS_CLI_VERSION: 2.22.29
   # https://console.cloud.google.com/artifacts/docker/google.com:cloudsdktool/us/gcr.io/google-cloud-cli
   # Note: To get thhe version number, spot the version tag on the latest pushed container
-  GCLOUD_CLI_VERSION: 490.0.0
+  GCLOUD_CLI_VERSION: 497.0.0
   # https://github.com/git-for-windows/git/releases
-  GIT_WIN_VERSION: 2.47.0
+  GIT_WIN_VERSION: 2.47.1
   # https://github.com/facebook/zstd/releases
   ZSTD_WIN_VERSION: 1.5.6
   # https://www.python.org/downloads
   PYTHON_VERSION_MAJOR_MINOR: 3.12
-  PYTHON_VERSION_PATCH: 7
+  PYTHON_VERSION_PATCH: 8
   # https://nodejs.org/en/download/releases
-  NODE_VERSION: 20.18.0
+  NODE_VERSION: 22.12.0
   # https://github.com/helm/helm/releases
-  HELM_VERSION: 3.16.2
+  HELM_VERSION: 3.16.4
   # https://github.com/oras-project/oras/releases
-  ORAS_VERSION: 1.2.0
+  ORAS_VERSION: 1.2.1
   # https://github.com/docker/buildx/releases
-  BUILDX_VERSION: 0.17.1
+  BUILDX_VERSION: 0.19.3
   # https://github.com/hadolint/hadolint/releases
   HADOLINT_VERSION: 2.12.0
   # https://learn.microsoft.com/en-us/visualstudio/releases/2022/release-history#fixed-version-bootstrappers
-  VS_BUILDTOOLS_WIN_VERSION: 80c57218-b55f-4260-af46-a64ffd76e7a6/7fee719abc3ba9eced84ea258ccae39a7b0cc953b539c2ea3a98c3ff588b7870
+  VS_BUILDTOOLS_WIN_VERSION: f2819554-a618-400d-bced-774bb5379965/cc7231dc668ec1fb92f694c66b5d67cba1a9e21127a6e0b31c190f772bd442f2
   # https://github.com/gohugoio/hugo/releases
-  HUGO_VERSION: 0.135.0
+  HUGO_VERSION: 0.140.2
   # See: https://github.com/getsops/sops/releases
-  SOPS_VERSION: 3.9.1
+  SOPS_VERSION: 3.9.3
 
 jobs:
   init:
