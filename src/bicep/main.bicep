@@ -13,8 +13,6 @@ param extraEnv array = []
 @allowed([
   'azurelinux3'
   'bookworm'
-  'bullseye'
-  'focal'
   'jammy'
   'noble'
   'ubi8'
