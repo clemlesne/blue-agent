@@ -27,7 +27,7 @@ env:
   # https://npmjs.com/package/snyk?activeTab=versions
   SNYK_VERSION: 1.1293.1
   # https://github.com/microsoft/azure-pipelines-agent/releases
-  AZP_AGENT_VERSION: 3.244.1
+  AZP_AGENT_VERSION: 4.248.0
   # https://github.com/PowerShell/PowerShell/releases
   POWERSHELL_VERSION: 7.2.23
   # https://github.com/krallin/tini/releases
