@@ -16,8 +16,8 @@ fi
 
 echo "➡️ Running integration tests for agent ${agent} with prefix ${prefix}, flavor ${flavor} and version ${version}"
 
-echo "Configuring Azure DevOps organization ${org_url}"
 org_url="https://dev.azure.com/blue-agent"
+echo "Configuring Azure DevOps organization ${org_url}"
 az devops configure --defaults organization=${org_url}
 
 # Get the pool id
