@@ -25,53 +25,53 @@ env:
   # https://npmjs.com/package/@microsoft/sarif-multitool?activeTab=versions
   SARIF_MULTITOOL_VERSION: 4.5.4
   # https://npmjs.com/package/snyk?activeTab=versions
-  SNYK_VERSION: 1.1293.1
+  SNYK_VERSION: 1.1294.3
   # https://github.com/microsoft/azure-pipelines-agent/releases
-  AZP_AGENT_VERSION: 3.244.1
+  AZP_AGENT_VERSION: 4.248.0
   # https://github.com/PowerShell/PowerShell/releases
-  POWERSHELL_VERSION: 7.2.23
+  POWERSHELL_VERSION: 7.2.24
   # https://github.com/krallin/tini/releases
   TINI_VERSION: 0.19.0
   # https://github.com/mikefarah/yq/releases
-  YQ_VERSION: 4.44.3
+  YQ_VERSION: 4.44.6
   # https://go.dev/dl
-  GO_VERSION: 1.23.2
+  GO_VERSION: 1.23.4
   # https://github.com/rootless-containers/rootlesskit/releases
   ROOTLESSKIT_VERSION: 2.3.1
   # https://github.com/moby/buildkit/releases
-  BUILDKIT_VERSION: 0.16.0
+  BUILDKIT_VERSION: 0.18.2
   # https://github.com/Azure/azure-cli/releases
-  AZURE_CLI_VERSION: 2.65.0
+  AZURE_CLI_VERSION: 2.67.0
   # https://github.com/stedolan/jq/releases
   JQ_WIN_VERSION: 1.7.1
   # https://github.com/aws/aws-cli/tags
-  AWS_CLI_VERSION: 2.18.4
+  AWS_CLI_VERSION: 2.22.29
   # https://console.cloud.google.com/artifacts/docker/google.com:cloudsdktool/us/gcr.io/google-cloud-cli
   # Note: To get thhe version number, spot the version tag on the latest pushed container
-  GCLOUD_CLI_VERSION: 490.0.0
+  GCLOUD_CLI_VERSION: 497.0.0
   # https://github.com/git-for-windows/git/releases
-  GIT_WIN_VERSION: 2.47.0
+  GIT_WIN_VERSION: 2.47.1
   # https://github.com/facebook/zstd/releases
   ZSTD_WIN_VERSION: 1.5.6
   # https://www.python.org/downloads
   PYTHON_VERSION_MAJOR_MINOR: 3.12
-  PYTHON_VERSION_PATCH: 7
+  PYTHON_VERSION_PATCH: 8
   # https://nodejs.org/en/download/releases
-  NODE_VERSION: 20.18.0
+  NODE_VERSION: 22.12.0
   # https://github.com/helm/helm/releases
-  HELM_VERSION: 3.16.2
+  HELM_VERSION: 3.16.4
   # https://github.com/oras-project/oras/releases
   ORAS_VERSION: 1.2.0
   # https://github.com/docker/buildx/releases
-  BUILDX_VERSION: 0.17.1
+  BUILDX_VERSION: 0.19.3
   # https://github.com/hadolint/hadolint/releases
   HADOLINT_VERSION: 2.12.0
   # https://learn.microsoft.com/en-us/visualstudio/releases/2022/release-history#fixed-version-bootstrappers
-  VS_BUILDTOOLS_WIN_VERSION: 80c57218-b55f-4260-af46-a64ffd76e7a6/7fee719abc3ba9eced84ea258ccae39a7b0cc953b539c2ea3a98c3ff588b7870
+  VS_BUILDTOOLS_WIN_VERSION: f2819554-a618-400d-bced-774bb5379965/cc7231dc668ec1fb92f694c66b5d67cba1a9e21127a6e0b31c190f772bd442f2
   # https://github.com/gohugoio/hugo/releases
-  HUGO_VERSION: 0.135.0
+  HUGO_VERSION: 0.140.2
   # See: https://github.com/getsops/sops/releases
-  SOPS_VERSION: 3.9.1
+  SOPS_VERSION: 3.9.3
 
 jobs:
   init:
@@ -148,7 +148,7 @@ jobs:
       - name: Setup Cosign
         # Only sign builds on main branch
         if: github.ref == 'refs/heads/main'
-        uses: sigstore/cosign-installer@v3.6.0
+        uses: sigstore/cosign-installer@v3.7.0
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
@@ -183,7 +183,7 @@ jobs:
             .cr-release-packages/blue-agent-${{ needs.init.outputs.VERSION }}.tgz
 
       - name: Upload Helm chart
-        uses: actions/upload-artifact@v4.4.0
+        uses: actions/upload-artifact@v4.4.3
         with:
           if-no-files-found: error # Fail if no files are uploaded
           include-hidden-files: true # Folder begins with a dot, if not checked the whole folder is ignored
@@ -308,11 +308,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - os: azurelinux3
+            arch: linux/amd64,linux/arm64
           - os: bookworm
-            arch: linux/amd64,linux/arm64
-          - os: bullseye
-            arch: linux/amd64,linux/arm64
-          - os: focal
             arch: linux/amd64,linux/arm64
           - os: jammy
             arch: linux/amd64,linux/arm64
@@ -341,7 +339,7 @@ jobs:
 
       # Required for "docker build" command
       - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3.6.1
+        uses: docker/setup-buildx-action@v3.7.1
         with:
           version: v${{ env.BUILDX_VERSION }}
           driver-opts: |
@@ -357,7 +355,7 @@ jobs:
       - name: Setup Cosign
         # Only sign builds on main branch
         if: github.ref == 'refs/heads/main'
-        uses: sigstore/cosign-installer@v3.6.0
+        uses: sigstore/cosign-installer@v3.7.0
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
@@ -421,7 +419,7 @@ jobs:
           echo "tag=$tag" >> $GITHUB_OUTPUT
 
       - name: Build & push container
-        uses: docker/build-push-action@v6.7.0
+        uses: docker/build-push-action@v6.10.0
         with:
           build-args: |
             AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
@@ -546,7 +544,7 @@ jobs:
       - name: Setup Cosign
         # Only sign builds on main branch
         if: github.ref == 'refs/heads/main'
-        uses: sigstore/cosign-installer@v3.6.0
+        uses: sigstore/cosign-installer@v3.7.0
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
@@ -749,7 +747,7 @@ jobs:
 
       # Required for running "oras" CLI
       - name: Setup ORAS
-        uses: oras-project/setup-oras@v1.2.0
+        uses: oras-project/setup-oras@v1.2.1
         with:
           version: ${{ env.ORAS_VERSION }}
 
@@ -841,7 +839,7 @@ jobs:
             --baseURL "${{ steps.pages.outputs.base_url }}/"
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4.4.0
+        uses: actions/upload-artifact@v4.4.3
         with:
           if-no-files-found: error # Fail if no files are uploaded
           name: hugo
@@ -903,7 +901,7 @@ jobs:
       # Rate limiting on Azure DevOps SaaS APIs is triggered quickly by integration tests, so we need to limit the number of parallel jobs
       max-parallel: 3
       matrix:
-        os: [bookworm, bullseye, focal, jammy, noble, ubi8, ubi9]
+        os: [azurelinux3, bookworm, jammy, noble, ubi8, ubi9]
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -938,9 +936,11 @@ jobs:
 
       - name: Integration
         env:
+          # See: https://learn.microsoft.com/en-us/azure/devops/cli/log-in-via-pat?view=azure-devops&tabs=windows#use-the-azure_devops_ext_pat-environment-variable
           # Permissions: agent pools (read & manage); build (read & execute); pipeline resources (use & manage); project and team (read, write, & manage); service connections (read, query, & manage)
           # Recommended group membership: Project Collection Build Service Accounts
           AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+          # See: https://learn.microsoft.com/en-us/cli/azure/devops/service-endpoint/github?view=azure-cli-latest#az-devops-service-endpoint-github-create
           # Scope: clemlesne/blue-agent
           # Permissions: contents (read-only); metadata (read-only); webhooks (read & write)
           AZURE_DEVOPS_EXT_GITHUB_PAT: ${{ secrets.AZURE_DEVOPS_GITHUB_PAT }}
@@ -955,6 +955,7 @@ jobs:
       - name: Cleanup
         if: always()
         env:
+          # See: https://learn.microsoft.com/en-us/azure/devops/cli/log-in-via-pat?view=azure-devops&tabs=windows#use-the-azure_devops_ext_pat-environment-variable
           # Permissions: agent pools (read & manage); build (read & execute); pipeline resources (use & manage); project and team (read, write, & manage); service connections (read, query, & manage)
           # Recommended group membership: Project Collection Build Service Accounts
           AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}

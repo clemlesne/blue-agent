@@ -11,9 +11,8 @@ param autoscalingPollingInterval int = 10
 param extraEnv array = []
 @description('Flavor of the container image, represents the Linux distribution')
 @allowed([
+  'azurelinux3'
   'bookworm'
-  'bullseye'
-  'focal'
   'jammy'
   'noble'
   'ubi8'

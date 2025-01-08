@@ -14,9 +14,8 @@ Scanned systems:
 
 | `Ref`                                            | Vulnerability scans with Snyk |
 | ------------------------------------------------ | ----------------------------- |
+| `ghcr.io/clemlesne/blue-agent:azurelinux3-main`  | ✅                            |
 | `ghcr.io/clemlesne/blue-agent:bookworm-main`     | ✅                            |
-| `ghcr.io/clemlesne/blue-agent:bullseye-main`     | ✅                            |
-| `ghcr.io/clemlesne/blue-agent:focal-main`        | ✅                            |
 | `ghcr.io/clemlesne/blue-agent:jammy-main`        | ✅                            |
 | `ghcr.io/clemlesne/blue-agent:noble-main`        | ✅                            |
 | `ghcr.io/clemlesne/blue-agent:ubi8-main`         | ✅                            |
@@ -40,8 +39,8 @@ Cosign public key is available in [`/cosign.pub`](cosign.pub).
 
 ```bash
 # Example of verification with Cosign
-❯ cosign verify --key cosign.pub ghcr.io/clemlesne/blue-agent:bullseye-main
-Verification for ghcr.io/clemlesne/blue-agent:bullseye-main --
+❯ cosign verify --key cosign.pub ghcr.io/clemlesne/blue-agent:bookworm-main
+Verification for ghcr.io/clemlesne/blue-agent:bookworm-main --
 The following checks were performed on each of these signatures:
   - The cosign claims were validated
   - Existence of the claims in the transparency log was verified offline
@@ -80,4 +79,4 @@ Systems are built every days. Each image is accompanied by a [SBOM (Software Bil
 
 Nevertheless it can happen that a package provider (e.g. Debian, Canonical, Red Hat) deploys a system update that introduces a bug. This is difficult to predict.
 
-Each image is pushed with a unique tag, which corresponds to the date of the last update (example: `bullseye-20230313` for a build on March 13, 2023). It is therefore possible to fix the download of a version by modifying the `image.version` property to `20230313`.
+Each image is pushed with a unique tag, which corresponds to the date of the last update (example: `bookworm-20230313` for a build on March 13, 2023). It is therefore possible to fix the download of a version by modifying the `image.version` property to `20230313`.

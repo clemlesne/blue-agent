@@ -1,14 +1,11 @@
-# syntax=docker/dockerfile:1
-# check=skip=UndefinedVar
-
-FROM mcr.microsoft.com/dotnet/aspnet:6.0-bullseye-slim@sha256:3717ce4bc6e34336ac100762eb766dc9cb739543686d0189001c1cafa57ba29c AS base
-
-# Force apt-get to not use TTY
-ENV DEBIAN_FRONTEND=noninteractive
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-azurelinux3.0@sha256:e1cddf0093fc04fc5ded6c475abb0205db1279ff3dc2597b34403b4853a5a00c AS base
 
 # Configure local user
 ENV USER=root
 ENV HOME=/app-root
+
+# Allow tdnf to valides TLS connections
+ENV GNUPGHOME=/root/.gnupg
 
 # Avoid Python cache during build
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -16,38 +13,38 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Install:
 # - Azure CLI system requirements (C/Rust build tools for libs non pre-built on this platform)
 # - Azure Pipelines agent system requirements
-# - dbus-user-session, fuse-overlayfs, iptables, for BuildKit
+# - iptables, for BuildKit
 # - gzip, make, tar, unzip, wget, zip, zstd, dnsutils, rsync, for developer ease-of-life
 # - zsh, for inter-operability
-RUN rm -f /etc/apt/apt.conf.d/docker-clean \
-    && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
-RUN --mount=target=/var/lib/apt/lists,type=cache,id=apt-lists-${TARGETPLATFORM},sharing=locked --mount=target=/var/cache,type=cache,id=var-cache-${TARGETPLATFORM},sharing=locked \
-    apt-get update -q \
-    && apt-get install -y -q --no-install-recommends \
+RUN --mount=target=/var/cache/tdnf,type=cache,id=yum-${TARGETPLATFORM},sharing=locked \
+    tdnf update -y \
+    && tdnf install -y \
+        bind-utils \
         build-essential \
         ca-certificates \
         cargo \
         curl \
-        dbus-user-session \
-        dnsutils \
-        fuse-overlayfs \
+        findutils \
+        gcc \
+        gcc-c++ \
         git \
+        git-core \
         git-lfs \
         gnupg \
         gzip \
+        hostname \
         iptables \
-        iputils-ping \
+        iputils \
         jq \
-        libffi-dev \
-        libssl-dev \
         lsb-release \
         make \
+        openssl \
+        openssl-devel \
         pkg-config \
         rsync \
-        software-properties-common \
+        shadow-utils \
         sudo \
         tar \
-        uidmap \
         unzip \
         wget \
         zip \
@@ -95,41 +92,41 @@ FROM base AS python
 # Build Python from source, then verify installation
 ARG PYTHON_VERSION
 ENV PYTHON_VERSION=${PYTHON_VERSION}
-RUN --mount=target=/var/lib/apt/lists,type=cache,id=apt-lists-${TARGETPLATFORM},sharing=locked --mount=target=/var/cache,type=cache,id=var-cache-${TARGETPLATFORM},sharing=locked --mount=target=/Python-${PYTHON_VERSION},type=cache,id=python-${PYTHON_VERSION}-${TARGETPLATFORM},sharing=locked \
-    apt-get update -q \
-    && apt-get install -y -q --no-install-recommends \
-        g++ \
-        lcov \
-        libbz2-dev \
-        libgdbm-compat-dev \
-        libgdbm-dev \
-        liblzma-dev  \
-        libmpdec-dev \
-        libncurses5-dev \
-        libncursesw5-dev \
-        libreadline-dev \
-        libreadline6-dev \
-        libsqlite3-dev \
-        libxml2-dev \
-        libxmlsec1-dev \
-        lzma \
-        lzma-dev \
-        uuid-dev \
-        xz-utils \
-        zlib1g-dev \
+RUN --mount=target=/var/cache/tdnf,type=cache,id=yum-${TARGETPLATFORM},sharing=locked --mount=target=/Python-${PYTHON_VERSION},type=cache,id=python-${PYTHON_VERSION}-${TARGETPLATFORM},sharing=locked \
+    tdnf update -y \
+    && tdnf install -y \
+        bzip2 \
+        bzip2-devel \
+        expat \
+        expat-devel \
+        gdb \
+        gdbm-devel \
+        glibc-devel \
+        libffi-devel \
+        libstdc++-devel \
+        libuuid-devel \
+        libxml2-devel \
+        ncurses-devel \
+        rpm-build \
+        sqlite \
+        sqlite-devel \
+        sqlite-libs \
+        xz-devel \
+        xz-libs \
+        zlib-devel \
     && curl -LsSf --retry 8 --retry-all-errors https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz -o python.tgz \
     && tar -xzf python.tgz \
     && rm python.tgz \
     && cd Python-${PYTHON_VERSION} \
-    && gnu_arch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
+    && gnu_arch="$(rpm --eval '%{_target_cpu}')-centos-linux-gnu" \
     && ./configure \
         --build=$gnu_arch \
         --enable-optimizations \
         --with-ensurepip=install \
         --with-lto \
     && make profile-removal \
-    && extra_cflags="$(dpkg-buildflags --get CFLAGS)" \
-    && ldflags="$(dpkg-buildflags --get LDFLAGS)" \
+    && extra_cflags="$(rpm --eval '%{optflags}')" \
+    && ldflags="$(rpm --eval '%{__global_ldflags}')" \
     && make -j $(nproc) "EXTRA_CFLAGS=${extra_cflags:-}" "LDFLAGS=${ldflags:-}" \
     && make install \
     && cd .. \
@@ -261,6 +258,7 @@ RUN rm arch.sh
 
 # Reset Python configs to default
 ENV PYTHONDONTWRITEBYTECODE=
+ENV PIP_BREAK_SYSTEM_PACKAGES=
 
 # Configure local user
 RUN mkdir -p /run/user/0 ${HOME}/.local/tmp ${HOME}/.local/share/buildkit \
