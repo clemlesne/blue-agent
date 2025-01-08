@@ -936,9 +936,11 @@ jobs:
 
       - name: Integration
         env:
+          # See: https://learn.microsoft.com/en-us/azure/devops/cli/log-in-via-pat?view=azure-devops&tabs=windows#use-the-azure_devops_ext_pat-environment-variable
           # Permissions: agent pools (read & manage); build (read & execute); pipeline resources (use & manage); project and team (read, write, & manage); service connections (read, query, & manage)
           # Recommended group membership: Project Collection Build Service Accounts
           AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+          # See: https://learn.microsoft.com/en-us/cli/azure/devops/service-endpoint/github?view=azure-cli-latest#az-devops-service-endpoint-github-create
           # Scope: clemlesne/blue-agent
           # Permissions: contents (read-only); metadata (read-only); webhooks (read & write)
           AZURE_DEVOPS_EXT_GITHUB_PAT: ${{ secrets.AZURE_DEVOPS_GITHUB_PAT }}
@@ -953,6 +955,7 @@ jobs:
       - name: Cleanup
         if: always()
         env:
+          # See: https://learn.microsoft.com/en-us/azure/devops/cli/log-in-via-pat?view=azure-devops&tabs=windows#use-the-azure_devops_ext_pat-environment-variable
           # Permissions: agent pools (read & manage); build (read & execute); pipeline resources (use & manage); project and team (read, write, & manage); service connections (read, query, & manage)
           # Recommended group membership: Project Collection Build Service Accounts
           AZURE_DEVOPS_EXT_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
