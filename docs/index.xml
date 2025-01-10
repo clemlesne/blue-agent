@@ -22,7 +22,6 @@
 &lt;/div>
 &lt;/div>
 &lt;/div>
-&lt;p>&lt;a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fclemlesne%2Fblue-agent%2Fmain%2Fsrc%2Fbicep%2Fmain.bicep" target="_blank" rel="noopener">&lt;img src="https://aka.ms/deploytoazurebutton" alt="Deploy to Azure" loading="lazy" />&lt;/a>&lt;/p>
 &lt;p>Deployment is using Bicep as a template language. Minimal configuration is required:&lt;/p>
 &lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
 &lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">az deployment sub create &lt;span class="se">\
