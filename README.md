@@ -38,8 +38,6 @@ We broke through 2,000,000 container pulls in August! 🎉
 
 [Deployment is available](https://clemlesne.github.io/blue-agent/docs/getting-started) using Helm on a Kubernetes cluster or Bicep on Azure Container Apps.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fclemlesne%2Fblue-agent%2Fmain%2Fsrc%2Fbicep%2Fmain.bicep)
-
 ## Documentation
 
 Documentation is available at [clemlesne.github.io/blue-agent](https://clemlesne.github.io/blue-agent/).
