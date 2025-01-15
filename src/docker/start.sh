@@ -177,7 +177,7 @@ if [ "$is_template_job" == "true" ]; then
   echo "Agent will be stopped after 1 min"
   # Run the agent for a minute
   timeout --preserve-status 1m bash run-docker.sh "$@" --once &
-elif [ "$AZP_AGENT_ONETIME" == "true" ]; then
+elif [ "${AZP_AGENT_ONETIME:-true}" == "true" ]; then
   # Unregister on success
   trap 'unregister; exit 0' EXIT
   # Unregister on Ctrl+C
