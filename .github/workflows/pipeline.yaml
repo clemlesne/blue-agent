@@ -61,7 +61,7 @@ env:
   # https://github.com/helm/helm/releases
   HELM_VERSION: 3.16.4
   # https://github.com/oras-project/oras/releases
-  ORAS_VERSION: 1.2.0
+  ORAS_VERSION: 1.2.1
   # https://github.com/docker/buildx/releases
   BUILDX_VERSION: 0.19.3
   # https://github.com/hadolint/hadolint/releases

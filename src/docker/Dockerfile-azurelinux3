@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-azurelinux3.0@sha256:e1cddf0093fc04fc5ded6c475abb0205db1279ff3dc2597b34403b4853a5a00c AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-azurelinux3.0@sha256:778b106ea51065ad40f18ebf2f819e120929c3c3c482d552217e47bc7cdbc547 AS base
 
 # Configure local user
 ENV USER=root

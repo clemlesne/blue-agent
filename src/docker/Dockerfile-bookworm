@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # check=skip=UndefinedVar
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim@sha256:d53ebf3481ea8ac8e4fa5c4213ae1f32a33e68e5b8181868edb11d0496a00432 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-bookworm-slim@sha256:b4bea3a52a0a77317fa93c5bbdb076623f81e3e2f201078d89914da71318b5d8 AS base
 
 # Force apt-get to not use TTY
 ENV DEBIAN_FRONTEND=noninteractive
