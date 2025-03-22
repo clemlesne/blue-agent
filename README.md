@@ -28,6 +28,7 @@ We broke through 2,000,000 container pulls in August! 🎉
 - 💪 Performances can be customized depending of the engineering needs, which goes far beyond the Microsoft-hosted agent.
 - 📵 Can run air-gapped (no internet access).
 - 🔄 Agent register and restart itself.
+- 🔧 Packaged with common automation tools ([jq](https://github.com/stedolan/jq), [PowerShell Core](https://github.com/PowerShell/PowerShell), [Python 3.12](https://docs.python.org/3/whatsnew/3.12.html), [rsync](https://rsync.samba.org), ...).
 - 🖥️ Available with [Azure Linux](https://github.com/microsoft/azurelinux), [Debian](https://debian.org), [Ubuntu](https://ubuntu.com), [Red Hat Enterprise Linux](https://access.redhat.com/products/red-hat-enterprise-linux) and [Windows Server](https://www.microsoft.com/en-us/windows-server)
 
 ## Best practices for safety
@@ -36,6 +37,7 @@ We broke through 2,000,000 container pulls in August! 🎉
 - 📦 [SBOM (Software Bill of Materials)](https://en.wikipedia.org/wiki/Software_supply_chain) is packaged with each container image.
 - 🔄 System updates are applied every day.
 - 🔒 Build authenticity can be cryptographically verified with [Cosign](https://github.com/sigstore/cosign) and GPG.
+- 🪶 Slim container images by design.
 
 ## How to deploy
 
