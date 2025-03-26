@@ -177,7 +177,7 @@ if [ "$is_template_job" == "true" ]; then
   echo "Agent will be stopped after 1 min"
   # Run the agent for a minute
   timeout --preserve-status 1m bash run-docker.sh "$@" --once &
-else
+elif [ "${AZP_AGENT_ONETIME:-true}" == "true" ]; then
   # Unregister on success
   trap 'unregister; exit 0' EXIT
   # Unregister on Ctrl+C
@@ -188,6 +188,8 @@ else
   sleep 60 && unregister &
   # Run the agent
   bash run-docker.sh "$@" --once &
+else
+  bash run-docker.sh "$@" &
 fi
 
 # Fake the exit code of the agent for the prevent Kubernetes to detect the pod as failed (this is intended)
