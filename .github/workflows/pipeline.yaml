@@ -83,7 +83,7 @@ jobs:
       VERSION: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
         with:
           # We need all Git history for "version.sh"
           fetch-depth: 0
@@ -107,7 +107,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
         with:
           # We need all Git history for testing credentials
           fetch-depth: 0
@@ -130,7 +130,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
 
       # Required for running "helm" CLI
       - name: Setup Helm
@@ -239,7 +239,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
         with:
           # Chart Releaser needs to have local access to "gh-pages" plus current branch
           fetch-depth: 0
@@ -272,7 +272,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
 
       # Required for running "npx" CLI
       - name: Setup Node
@@ -324,7 +324,7 @@ jobs:
             arch: linux/amd64,linux/arm64
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
 
       # Container build take a lot of disk space, there is no enough space on the runner to have both tools cache and container build
       - name: Clean up disk
@@ -528,7 +528,7 @@ jobs:
             runs-on: windows-2019
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
 
       # Container build take a lot of disk space, there is no enough space on the runner to have both tools cache and container build
       - name: Clean up disk
@@ -721,7 +721,7 @@ jobs:
       image: returntocorp/semgrep
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
 
       - name: Run tests
         # Semgrep can be used to break the build when it detects security issues. In this case we want to upload the issues to GitHub Security
@@ -743,7 +743,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
 
       # Required for running "oras" CLI
       - name: Setup ORAS
@@ -788,7 +788,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
 
       - name: Push README to Docker Hub
         uses: peter-evans/dockerhub-description@v4.0.0
@@ -817,7 +817,7 @@ jobs:
         run: sudo snap install dart-sass
 
       - name: Checkout
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
         with:
           submodules: recursive
           fetch-depth: 0
@@ -856,7 +856,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Pull from gh-pages
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
         with:
           ref: gh-pages
 
@@ -904,7 +904,7 @@ jobs:
         os: [azurelinux3, bookworm, jammy, noble, ubi8, ubi9]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
 
       # Required for running "sops" CLI
       - name: Setup SOPS
