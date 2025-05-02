@@ -748,7 +748,7 @@ jobs:
 
       # Required for running "oras" CLI
       - name: Setup ORAS
-        uses: oras-project/setup-oras@v1.2.1
+        uses: oras-project/setup-oras@v1.2.3
         with:
           version: ${{ env.ORAS_VERSION }}
 
