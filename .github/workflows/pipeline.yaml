@@ -288,12 +288,14 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      # Required for running "hadolint" CLI
       - name: Setup Hadolint
         run: |
           sudo curl -LsSf --retry 8 --retry-all-errors https://github.com/hadolint/hadolint/releases/download/v${{ env.HADOLINT_VERSION }}/hadolint-Linux-x86_64 -o /usr/bin/hadolint
           sudo chmod +x /usr/bin/hadolint
           hadolint --version
 
+      # Required for linting Bicep files
       - name: Login to Azure
         uses: azure/login@v2.2.0
         with:
@@ -302,8 +304,7 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
 
       - name: Run tests
-        run: |
-          make test
+        run: make test
 
   build-release-linux:
     name: Build & release image (Linux ${{ matrix.os }})

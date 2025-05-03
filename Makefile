@@ -28,7 +28,7 @@ test:
 		--values test/helm/blue-agent/values.yaml \
 		src/helm/blue-agent
 
-	@echo "➡️ Running Azure Bicep Validate"
+	@echo "➡️ Running Azure Bicep validate"
 	az deployment sub validate \
 		--location westeurope \
 		--no-prompt \
