@@ -276,6 +276,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
+      # Required for running "helm" CLI
+      - name: Setup Helm
+        uses: azure/setup-helm@v4.2.0
+        with:
+          version: v${{ env.HELM_VERSION }}
+
       # Required for running "npx" CLI
       - name: Setup Node
         uses: actions/setup-node@v4.4.0

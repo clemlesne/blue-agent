@@ -22,6 +22,12 @@ test:
 	@echo "➡️ Running Hadolint"
 	find . -name "Dockerfile*" -exec bash -c "echo 'File {}:' && hadolint {}" \;
 
+	@echo "➡️ Running Helm lint"
+	helm lint \
+		--strict \
+		--values test/helm/blue-agent/values.yaml \
+		src/helm/blue-agent
+
 	@echo "➡️ Running Azure Bicep Validate"
 	az deployment sub validate \
 		--location westeurope \
