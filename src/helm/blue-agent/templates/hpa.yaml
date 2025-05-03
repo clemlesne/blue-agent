@@ -21,11 +21,13 @@ metadata:
   labels:
     {{- include "blue-agent.labels" . | nindent 4 }}
 spec:
+  # Historical jobs cleanup
   failedJobsHistoryLimit: {{ .Values.pipelines.cleanup.failed | int | required "A value for .Values.pipelines.cleanup.failed is required" }}
+  successfulJobsHistoryLimit: {{ .Values.pipelines.cleanup.successful | int | required "A value for .Values.pipelines.cleanup.successful is required" }}
+  # Min/max replicas
   maxReplicaCount: {{ .Values.autoscaling.maxReplicas | int | required "A value for .Values.autoscaling.maxReplicas is required" }}
   minReplicaCount: {{ .Values.autoscaling.minReplicas | int | required "A value for .Values.autoscaling.minReplicas is required" }}
-  pollingInterval: {{ .Values.autoscaling.pollingInterval | int | required "A value for .Values.autoscaling.pollingInterval is required" }}
-  successfulJobsHistoryLimit: {{ .Values.pipelines.cleanup.successful | int | required "A value for .Values.pipelines.cleanup.successful is required" }}
+  # Target job to scale
   jobTargetRef:
     activeDeadlineSeconds: {{ .Values.pipelines.timeout | int | required "A value for .Values.pipelines.timeout is required" }}
     backoffLimit: 0 # Do not retry
@@ -48,11 +50,14 @@ spec:
           "restartPolicy" "Never"
         }}
         {{- include "blue-agent.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 8 }}
+  # Do not delete executed jobs during upgrade
   rollout:
-    # Do not delete executed jobs during upgrade
     strategy: gradual
+  # Azure Pipelines scaler returns the number of jobs in the queue, incl the current job
   scalingStrategy:
     strategy: accurate
+  # Rules to scale up/down
+  pollingInterval: {{ .Values.autoscaling.pollingInterval | int | required "A value for .Values.autoscaling.pollingInterval is required" }}
   triggers:
     - type: azure-pipelines
       metadata:
