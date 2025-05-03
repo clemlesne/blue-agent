@@ -29,7 +29,8 @@ env:
   # https://github.com/microsoft/azure-pipelines-agent/releases
   AZP_AGENT_VERSION: 4.255.0
   # https://github.com/PowerShell/PowerShell/releases
-  POWERSHELL_VERSION: 7.2.24
+  # Note: Current LTS is the v7.4.x, as of 2025-05-03
+  POWERSHELL_VERSION: 7.4.7
   # https://github.com/krallin/tini/releases
   TINI_VERSION: 0.19.0
   # https://github.com/mikefarah/yq/releases
