@@ -120,9 +120,9 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,id=apt-lists-${TARGETPLATFORM},
     && tar -xzf python.tgz \
     && rm python.tgz \
     && cd Python-${PYTHON_VERSION} \
-    && gnu_arch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
+    && gcc_arch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
     && ./configure \
-        --build=$gnu_arch \
+        --build=$gcc_arch \
         --enable-optimizations \
         --with-ensurepip=install \
         --with-lto \

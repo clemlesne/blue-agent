@@ -116,9 +116,9 @@ RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=lo
     && tar -xzf python.tgz \
     && rm python.tgz \
     && cd Python-${PYTHON_VERSION} \
-    && gnu_arch="$(rpm --eval '%{_target_cpu}')-redhat-linux" \
+    && gcc_arch="$(rpm --eval '%{_target_cpu}')-redhat-linux" \
     && ./configure \
-        --build=$gnu_arch \
+        --build=$gcc_arch \
         --enable-optimizations \
         --with-ensurepip=install \
         --with-lto \

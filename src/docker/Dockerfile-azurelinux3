@@ -118,9 +118,9 @@ RUN --mount=target=/var/cache/tdnf,type=cache,id=yum-${TARGETPLATFORM},sharing=l
     && tar -xzf python.tgz \
     && rm python.tgz \
     && cd Python-${PYTHON_VERSION} \
-    && gnu_arch="$(rpm --eval '%{_target_cpu}')-centos-linux-gnu" \
+    && gcc_arch="$(rpm --eval '%{_target_cpu}')-centos-linux-gnu" \
     && ./configure \
-        --build=$gnu_arch \
+        --build=$gcc_arch \
         --enable-optimizations \
         --with-ensurepip=install \
         --with-lto \
