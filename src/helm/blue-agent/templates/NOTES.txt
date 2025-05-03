@@ -5,9 +5,9 @@ Secret creation disabled, remember to create/update the secret {{ include "blue-
 {{- end -}}
 
 {{- if and (.Values.autoscaling.enabled) (.Capabilities.APIVersions.Has "keda.sh/v1alpha1") -}}
-Your cluster is KEDA enabled, your pipelines agents will scale based on your usage. When you won't use them, they will be automatically removed.
+KEDA detected, your pipelines agents will scale based on your usage. When you won't use them, they will be automatically removed.
 {{- else -}}
-Your cluster is not KEDA enabled, your pipelines agents will not be autoscaled. Pipelines are still usable. You can install KEDA on Azure (https://learn.microsoft.com/en-us/azure/aks/keda-about) or others (https://keda.sh/docs/2.10/deploy).
+KEDA not configured, your pipelines agents cannot be autoscaled. Pipelines can still be used, but their quantity will remain constant. This configuration is supported but not recommended (for reasons of developer experience and FinOps). You can install KEDA on Azure (https://learn.microsoft.com/en-us/azure/aks/keda-about) or others (https://keda.sh/docs/2.10/deploy).
 {{- end -}}
 
 Feel free to contribute on this project on GitHub (https://github.com/clemlesne/blue-agent). Happy pipelines! 🙂
