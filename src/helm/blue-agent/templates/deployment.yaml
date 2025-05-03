@@ -29,7 +29,7 @@ spec:
     spec:
       {{- $data := dict
         "azpAgentName" (dict "valueFrom" (dict "fieldRef" (dict "apiVersion" "v1" "fieldPath" "metadata.name" )))
-        "isTemplateJob" "1"
+        "isTemplateJob" "0"
         "restartPolicy" "Always"
       }}
       {{- include "blue-agent.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 6 }}
