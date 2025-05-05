@@ -22,11 +22,19 @@ output jobName string = job.name
 
 var prefix = instance
 
-var pipelinesCapabilitiesEnhanced = union(pipelinesCapabilities, [
-  'flavor_${imageFlavor}'
-  'version_${imageVersion}'
-])
+// Capabilities are used to filter the agents that are triggered by the KEDA scaler, allowing developers to select the right agent for their job
+var pipelinesCapabilitiesEnhanced = union(
+  [
+    // OS flavor
+    'flavor_${imageFlavor}'
+    // Blue Agent version
+    'version_${imageVersion}'
+  ],
+  // Custom capabilities
+  pipelinesCapabilities
+)
 
+// Convert the capabilities to environment variables dictionary
 var pipelinesCapabilitiesEnhancedDict = [
   for capability in pipelinesCapabilitiesEnhanced: {
     name: capability
@@ -34,6 +42,7 @@ var pipelinesCapabilitiesEnhancedDict = [
   }
 ]
 
+// Convert the custom environment variables k/v to environment variables dictionary
 var extraEnvDict = [
   for env in extraEnv: {
     name: env.name
@@ -115,10 +124,13 @@ resource job 'Microsoft.App/jobs@2023-11-02-preview' = {
       replicaTimeout: pipelinesTimeout
       replicaRetryLimit: 0 // Do not retry
       secrets: [
+        // Static token (PAT) allowing the agent to register itself to the pool
         {
           name: 'personal-access-token'
           value: pipelinesPersonalAccessToken
         }
+        // Azure DevOps org URL
+        // Note: This shouldn't be a secret, but we need to pass it as a secret to be able to consume it in the KEDA trigger
         {
           name: 'organization-url'
           value: pipelinesOrganizationURL
@@ -132,26 +144,32 @@ resource job 'Microsoft.App/jobs@2023-11-02-preview' = {
           name: 'azp-agent'
           env: union(
             [
+              // File logging, should be in a separate volume for performance reasons
               {
                 name: 'AGENT_DIAGLOGPATH'
                 value: '/app-root/azp-logs'
               }
+              // Hide the agent PAT from the logs, for obvious security reasons
               {
                 name: 'VSO_AGENT_IGNORE'
                 value: 'AZP_TOKEN'
               }
+              // Allow agent to run as root (Linux only)
               {
                 name: 'AGENT_ALLOW_RUNASROOT'
                 value: '1'
               }
+              // Azure DevOps org URL
               {
                 name: 'AZP_URL'
                 secretRef: 'organization-url'
               }
+              // Azure DevOps org pool name
               {
                 name: 'AZP_POOL'
                 value: pipelinesPoolName
               }
+              // Azure DevOps PAT allowing the agent to register itself to the pool
               {
                 name: 'AZP_TOKEN'
                 secretRef: 'personal-access-token'

@@ -181,40 +181,54 @@ containers:
             {{- end }}
     {{- end }}
     env:
+      # File logging, should be in a separate volume for performance reasons
       - name: AGENT_DIAGLOGPATH
         {{- if .Values.image.isWindows }}
         value: C:\\app-root\\azp-logs
         {{- else }}
         value: /app-root/azp-logs
         {{- end }}
+      # Hide the agent PAT from the logs, for obvious security reasons
       - name: VSO_AGENT_IGNORE
         value: AZP_TOKEN
       {{- if not .Values.image.isWindows }}
+      # Allow agent to run as root (Linux only)
       - name: AGENT_ALLOW_RUNASROOT
         value: "1"
       {{- end }}
+      # Agent name is dynamically set from arguments
       - name: AZP_AGENT_NAME
         {{- toYaml .Args.azpAgentName | nindent 8 }}
+      # Azure DevOps org URL
       - name: AZP_URL
         valueFrom:
           secretKeyRef:
             name: {{ include "blue-agent.secretName" . }}
             key: organizationURL
+      # Azure DevOps org pool name
       - name: AZP_POOL
         value: {{ .Values.pipelines.poolName | quote | required "A value for .Values.pipelines.poolName is required" }}
+      # Azure DevOps PAT allowing the agent to register itself to the pool
       - name: AZP_TOKEN
         valueFrom:
           secretKeyRef:
             name: {{ include "blue-agent.secretName" . }}
             key: personalAccessToken
+      # Register the agent as a template for future scaling (if requested)
       - name: AZP_TEMPLATE_JOB
         value: {{ .Args.isTemplateJob | quote }}
-      # Agent capabilities
+      # Capabilities: START
+      # Note: Used to filter the agents that are triggered by the KEDA scaler, allowing developers to select the right agent for their job.
+      # OS flavor
       - name: flavor_{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}
+      # Blue Agent version
       - name: version_{{ default .Chart.Version .Values.image.version }}
+      # Custom
       {{- range .Values.pipelines.capabilities }}
       - name: {{ . }}
       {{- end }}
+      # Capabilities: END
+      # Custom environment variables
       {{- with .Values.extraEnv }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
