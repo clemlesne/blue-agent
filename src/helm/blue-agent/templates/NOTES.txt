@@ -11,5 +11,15 @@ Checks:
 {{- else -}}
 ⚠️ KEDA not configured, your pipelines agents cannot be autoscaled. Pipelines can still be used, but their quantity will remain constant. This configuration is supported but not recommended (for reasons of developer experience and FinOps). You can install KEDA on Azure (https://learn.microsoft.com/en-us/azure/aks/keda-about) or others (https://keda.sh/docs/2.10/deploy).
 {{- end -}}
+{{- if .Values.pipelines.cache.volumeEnabled -}}
+✅ Work dir is configured to use a separated volume.
+{{- else -}}
+⚠️ Work dir is configured to use an host dir. Be careful with performance and data leakage!
+{{- end -}}
+{{- if .Values.pipelines.tmpdir.volumeEnabled -}}
+✅ Local temporary folder is configured to use a separated volume.
+{{- else -}}
+⚠️ Local temporary folder is configured to use an host dir. Be careful with performance and data leakage!
+{{- end -}}
 
 Contribute to this project on GitHub (https://github.com/clemlesne/blue-agent). Happy pipelines! 🙂
