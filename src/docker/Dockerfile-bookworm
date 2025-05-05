@@ -3,6 +3,9 @@
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim@sha256:6159cf66274cf52730d7a0c7bb05cf0af94b79370176886ac58286ab6cbb7faf AS base
 
+# Source platform from buildx "platform" argument
+ARG TARGETPLATFORM
+
 # Force apt-get to not use TTY
 ENV DEBIAN_FRONTEND=noninteractive
 

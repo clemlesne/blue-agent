@@ -3,6 +3,9 @@
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-jammy@sha256:47039d0924f72736d02561e064e051ffdd975d78b3b6126d7d8640798c9daf6e AS base
 
+# Source platform from buildx "platform" argument
+ARG TARGETPLATFORM
+
 # Force apt-get to not use TTY
 ENV DEBIAN_FRONTEND=noninteractive
 

@@ -3,6 +3,9 @@
 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:8.0-alpine3.21@sha256:6faef52a037435524fcda33d94a23cada50eed3775849efa863bf0d45327403c AS base
 
+# Source platform from buildx "platform" argument
+ARG TARGETPLATFORM
+
 # Configure local user
 ENV USER=root
 ENV HOME=/app-root
