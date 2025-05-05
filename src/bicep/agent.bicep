@@ -22,23 +22,24 @@ output jobName string = job.name
 
 var prefix = instance
 
-var pipelinesCapabilitiesEnhanced = union(
-  pipelinesCapabilities,
-  [
-    'flavor_${imageFlavor}'
-    'version_${imageVersion}'
-  ]
-)
+var pipelinesCapabilitiesEnhanced = union(pipelinesCapabilities, [
+  'flavor_${imageFlavor}'
+  'version_${imageVersion}'
+])
 
-var pipelinesCapabilitiesEnhancedDict = [for capability in pipelinesCapabilitiesEnhanced: {
-  name: capability
-  value: ''
-}]
+var pipelinesCapabilitiesEnhancedDict = [
+  for capability in pipelinesCapabilitiesEnhanced: {
+    name: capability
+    value: ''
+  }
+]
 
-var extraEnvDict = [for env in extraEnv: {
-  name: env.name
-  value: env.value
-}]
+var extraEnvDict = [
+  for env in extraEnv: {
+    name: env.name
+    value: env.value
+  }
+]
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   name: prefix
@@ -75,14 +76,14 @@ resource acaEnv 'Microsoft.App/managedEnvironments@2023-11-02-preview' = {
 }
 
 resource job 'Microsoft.App/jobs@2023-11-02-preview' = {
-  name: substring(prefix, 0, min(32, length(prefix)))  // Max length is 32
+  name: substring(prefix, 0, min(32, length(prefix))) // Max length is 32
   location: location
   tags: tags
   properties: {
     environmentId: acaEnv.id
     configuration: {
       eventTriggerConfig: {
-        parallelism: 1  // Only one pod at a time
+        parallelism: 1 // Only one pod at a time
         scale: {
           maxExecutions: autoscalingMaxReplicas
           minExecutions: autoscalingMinReplicas
@@ -112,7 +113,7 @@ resource job 'Microsoft.App/jobs@2023-11-02-preview' = {
       }
       triggerType: 'Event'
       replicaTimeout: pipelinesTimeout
-      replicaRetryLimit: 0  // Do not retry
+      replicaRetryLimit: 0 // Do not retry
       secrets: [
         {
           name: 'personal-access-token'
@@ -129,36 +130,40 @@ resource job 'Microsoft.App/jobs@2023-11-02-preview' = {
         {
           image: '${imageRegistry}/${imageName}:${imageFlavor}-${imageVersion}'
           name: 'azp-agent'
-          env: union([
-            {
-              name: 'AGENT_DIAGLOGPATH'
-              value: '/app-root/azp-logs'
-            }
-            {
-              name: 'VSO_AGENT_IGNORE'
-              value: 'AZP_TOKEN'
-            }
-            {
-              name: 'AGENT_ALLOW_RUNASROOT'
-              value: '1'
-            }
-            {
-              name: 'AZP_URL'
-              secretRef: 'organization-url'
-            }
-            {
-              name: 'AZP_POOL'
-              value: pipelinesPoolName
-            }
-            {
-              name: 'AZP_TOKEN'
-              secretRef: 'personal-access-token'
-            }
-            {
-              name: 'flavor_${imageFlavor}'
-              value: ''
-            }
-          ], pipelinesCapabilitiesEnhancedDict, extraEnvDict)
+          env: union(
+            [
+              {
+                name: 'AGENT_DIAGLOGPATH'
+                value: '/app-root/azp-logs'
+              }
+              {
+                name: 'VSO_AGENT_IGNORE'
+                value: 'AZP_TOKEN'
+              }
+              {
+                name: 'AGENT_ALLOW_RUNASROOT'
+                value: '1'
+              }
+              {
+                name: 'AZP_URL'
+                secretRef: 'organization-url'
+              }
+              {
+                name: 'AZP_POOL'
+                value: pipelinesPoolName
+              }
+              {
+                name: 'AZP_TOKEN'
+                secretRef: 'personal-access-token'
+              }
+              {
+                name: 'flavor_${imageFlavor}'
+                value: ''
+              }
+            ],
+            pipelinesCapabilitiesEnhancedDict,
+            extraEnvDict
+          )
           resources: {
             cpu: resourcesCpu
             memory: resourcesMemory
