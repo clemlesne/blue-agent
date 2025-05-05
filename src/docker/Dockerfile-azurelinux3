@@ -1,3 +1,6 @@
+# syntax=docker/dockerfile:1
+# check=skip=UndefinedVar
+
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-azurelinux3.0@sha256:8d72d9da4a4deb6e586bf69e2d73288bc6da9e2891ea3790ab17b620cddad5ce AS base
 
 # Configure local user
