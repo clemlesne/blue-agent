@@ -120,6 +120,7 @@ Blue Agent provides Python pre-installed with specific versions optimized for ea
 
 | Flavor        | Python Version | Installation Method |
 | ------------- | -------------- | ------------------- |
+| `alpine`      | 3.13           | Built from source   |
 | `azurelinux3` | 3.12           | Built from source   |
 | `bookworm`    | 3.13           | Built from source   |
 | `jammy`       | 3.13           | Built from source   |
