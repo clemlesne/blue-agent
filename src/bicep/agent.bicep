@@ -156,10 +156,6 @@ resource job 'Microsoft.App/jobs@2023-11-02-preview' = {
                 name: 'AZP_TOKEN'
                 secretRef: 'personal-access-token'
               }
-              {
-                name: 'flavor_${imageFlavor}'
-                value: ''
-              }
             ],
             pipelinesCapabilitiesEnhancedDict,
             extraEnvDict
