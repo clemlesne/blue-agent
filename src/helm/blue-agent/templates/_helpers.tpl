@@ -94,14 +94,15 @@ Can be overriden by setting ".Values.securityContext".
 See: https://kubernetes.io/docs/concepts/windows/intro/#compatibility-v1-pod-spec-containers
 */}}
 {{- define "blue-agent.defaultSecurityContext" -}}
-runAsNonRoot: false
+runAsNonRoot: true
 readOnlyRootFilesystem: false
 {{- if .Values.image.isWindows }}
 windowsOptions:
   runAsUserName: ContainerAdministrator
 {{- else }}
 allowPrivilegeEscalation: false
-runAsUser: 0
+# Standard user for Red Hat OpenShift
+runAsUser: 1000920000
 capabilities:
   # Add enough default capabilities to allow the agent to unzip files and change file ownership
   # See: https://github.com/clemlesne/blue-agent/issues/23#issuecomment-2444929885
@@ -191,11 +192,6 @@ containers:
       # Hide the agent PAT from the logs, for obvious security reasons
       - name: VSO_AGENT_IGNORE
         value: AZP_TOKEN
-      {{- if not .Values.image.isWindows }}
-      # Allow agent to run as root (Linux only)
-      - name: AGENT_ALLOW_RUNASROOT
-        value: "1"
-      {{- end }}
       # Agent name is dynamically set from arguments
       - name: AZP_AGENT_NAME
         {{- toYaml .Args.azpAgentName | nindent 8 }}

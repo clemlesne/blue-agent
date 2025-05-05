@@ -12,6 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Configure local user
 ENV USER=root
 ENV HOME=/app-root
+USER ${USER}
 
 # Avoid Python cache during build
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -232,7 +233,12 @@ ENV TINI_VERSION=${TINI_VERSION}
 RUN curl -LsSf --retry 8 --retry-all-errors https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$(ARCH_X64=amd64 bash arch.sh) -o /tini \
     && chmod +x /tini \
     && /tini --version
-ENTRYPOINT ["/tini", "--"]
+
+# Configure startup
+COPY uid_entrypoint.sh /
+RUN chmod a+rx /uid_entrypoint.sh \
+    && chmod a+w /etc/passwd /etc/shadow
+ENTRYPOINT ["/tini", "--", "/uid_entrypoint.sh"]
 
 # Install BuildKit, then verify installation
 ARG BUILDKIT_VERSION
@@ -256,6 +262,11 @@ ENV AZP_HOME=${HOME}/azp-agent
 # Disable agent auto-updates
 # See: https://github.com/microsoft/azure-pipelines-agent/blob/b5ff4408239f3e938560f8b2e3848df76489a8d0/src/Agent.Listener/Agent.cs#L354C24-L354C24
 ENV agent.disableupdate="1"
+# Disable .NET Core diagnostics, error "Failed to create CoreCLR, HRESULT: 0x80004005"
+# See: https://learn.microsoft.com/en-us/dotnet/core/runtime-config/debugging-profiling#enable-diagnostics
+# See: https://github.com/microsoft/azure-pipelines-agent/issues/3459#issuecomment-878449087
+ENV COMPlus_EnableDiagnostics="0"
+# Download and install binaries
 RUN mkdir -p ${AZP_HOME} \
     && curl -LsSf --retry 8 --retry-all-errors https://download.agent.dev.azure.com/agent/${AZP_AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AZP_AGENT_VERSION}.tar.gz | tar -xz -C ${AZP_HOME} \
     && cd ${AZP_HOME} \
@@ -275,16 +286,16 @@ ENV PYTHONDONTWRITEBYTECODE=
 ENV PIP_BREAK_SYSTEM_PACKAGES=
 
 # Configure local user
-RUN mkdir -p /run/user/0 ${HOME}/.local/tmp ${HOME}/.local/share/buildkit \
-    && chown -R ${USER} /run/user/0 ${HOME} \
+ENV USER=1001
+RUN mkdir -p ${HOME}/.local/tmp ${HOME}/.local/share/buildkit \
+    && chown -R ${USER}:0 ${HOME} \
     && echo ${USER}:100000:65536 | tee /etc/subuid | tee /etc/subgid
-USER 0:0
-ENV XDG_RUNTIME_DIR=/run/user/0
 ENV TMPDIR=${HOME}/.local/tmp
-ENV BUILDKIT_HOST=unix:///run/user/0/buildkit/buildkitd.sock
 
 # Install Azure Pipelines Agent startup script
 WORKDIR ${AZP_HOME}
 COPY start.sh .
+
 # Run as exec form, so that it can receive signals from Tini
+USER ${USER}
 CMD ["bash", "start.sh"]

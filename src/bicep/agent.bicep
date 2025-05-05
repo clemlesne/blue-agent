@@ -156,11 +156,6 @@ resource job 'Microsoft.App/jobs@2023-11-02-preview' = {
                 name: 'VSO_AGENT_IGNORE'
                 value: 'AZP_TOKEN'
               }
-              // Allow agent to run as root (Linux only)
-              {
-                name: 'AGENT_ALLOW_RUNASROOT'
-                value: '1'
-              }
               // Azure DevOps org URL
               {
                 name: 'AZP_URL'

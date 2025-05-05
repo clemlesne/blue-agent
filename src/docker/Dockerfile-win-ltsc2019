@@ -108,6 +108,11 @@ ENV AZP_HOME=${HOME}\\azp-agent
 # Disable agent auto-updates
 # See: https://github.com/microsoft/azure-pipelines-agent/blob/b5ff4408239f3e938560f8b2e3848df76489a8d0/src/Agent.Listener/Agent.cs#L354C24-L354C24
 ENV agent.disableupdate="1"
+# Disable .NET Core diagnostics, error "Failed to create CoreCLR, HRESULT: 0x80004005"
+# See: https://learn.microsoft.com/en-us/dotnet/core/runtime-config/debugging-profiling#enable-diagnostics
+# See: https://github.com/microsoft/azure-pipelines-agent/issues/3459#issuecomment-878449087
+ENV COMPlus_EnableDiagnostics="0"
+# Download and install binaries
 RUN mkdir $Env:AZP_HOME \
     && curl -LsSf --retry 8 --retry-all-errors "https://download.agent.dev.azure.com/agent/${Env:AZP_AGENT_VERSION}/pipelines-agent-win-x64-${Env:AZP_AGENT_VERSION}.zip" -o azp-agent.zip \
     && Expand-Archive -Force azp-agent.zip -DestinationPath $Env:AZP_HOME \
@@ -159,6 +164,9 @@ ENV PYTHONDONTWRITEBYTECODE=
 # Install Azure Pipelines Agent startup script
 WORKDIR ${AZP_HOME}
 COPY start.ps1 .
+
+# Run as non-admin user
+USER ContainerUser
 # Escaping antislash, containerd is bugged
 # See: https://github.com/containerd/containerd/issues/6300#issuecomment-988048374
 CMD ["pwsh", ".\\start.ps1"]
