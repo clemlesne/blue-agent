@@ -17,7 +17,6 @@ Linux systems are supported, but not Windows:
 
 | `Ref`                                            | Container build inside of the agent with BuildKit |
 | ------------------------------------------------ | ------------------------------------------------- |
-| `ghcr.io/clemlesne/blue-agent:alpine-main`       | ✅                                                |
 | `ghcr.io/clemlesne/blue-agent:azurelinux3-main`  | ✅                                                |
 | `ghcr.io/clemlesne/blue-agent:bookworm-main`     | ✅                                                |
 | `ghcr.io/clemlesne/blue-agent:jammy-main`        | ✅                                                |

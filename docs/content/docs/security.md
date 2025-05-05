@@ -14,7 +14,6 @@ Scanned systems:
 
 | `Ref`                                            | Vulnerability scans with Snyk |
 | ------------------------------------------------ | ----------------------------- |
-| `ghcr.io/clemlesne/blue-agent:alpine-main`       | ✅                            |
 | `ghcr.io/clemlesne/blue-agent:azurelinux3-main`  | ✅                            |
 | `ghcr.io/clemlesne/blue-agent:bookworm-main`     | ✅                            |
 | `ghcr.io/clemlesne/blue-agent:jammy-main`        | ✅                            |
