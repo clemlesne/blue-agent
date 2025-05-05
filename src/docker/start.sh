@@ -111,43 +111,36 @@ unregister() {
 
 write_header "Adding custom SSL certificates"
 
-if [ -d "$AZP_CUSTOM_CERT_PEM" ] && [ "$(ls -A $AZP_CUSTOM_CERT_PEM)" ]; then
+copy_and_show() {
+  local src_dir=$1
+  local dest_dir=$2
+  mkdir -p "$dest_dir"
+  cp "$src_dir"/*.crt "$dest_dir"/
+  for cert_file in "$src_dir"/*.crt; do
+    echo "Adding certificate $(basename "$cert_file")"
+    openssl x509 -inform PEM -in "$cert_file" -noout -issuer -subject -dates
+  done
+}
+
+if [ -d "$AZP_CUSTOM_CERT_PEM" ] && [ "$(ls -A "$AZP_CUSTOM_CERT_PEM")" ]; then
   echo "Searching for *.crt in $AZP_CUSTOM_CERT_PEM"
 
-  # Debian-based systems
-  if [ -s /etc/debian_version ]; then
-    cert_path="/usr/local/share/ca-certificates"
-    mkdir -p $cert_path
-
-    # Copy certificates to the certificate path
-    cp $AZP_CUSTOM_CERT_PEM/*.crt $cert_path
-
-    # Display certificates information
-    for cert_file in $AZP_CUSTOM_CERT_PEM/*.crt; do
-      echo "Certificate $(basename $cert_file)"
-      openssl x509 -inform PEM -in $cert_file -noout -issuer -subject -dates
-    done
-
+  # Debian-family or Alpine
+  if [ -f /etc/debian_version ] || [ -f /etc/alpine-release ]; then
+    copy_and_show "$AZP_CUSTOM_CERT_PEM" /usr/local/share/ca-certificates
     echo "Updating certificates keychain"
     update-ca-certificates
-  fi
 
-  # RHEL-based systems
-  if [ -s /etc/redhat-release ]; then
-    cert_path="/etc/ca-certificates/trust-source/anchors"
-    mkdir -p $cert_path
-
-    # Copy certificates to the certificate path
-    cp $AZP_CUSTOM_CERT_PEM/*.crt $cert_path
-
-    # Display certificates information
-    for cert_file in $AZP_CUSTOM_CERT_PEM/*.crt; do
-      echo "Certificate $(basename $cert_file)"
-      openssl x509 -inform PEM -in $cert_file -noout -issuer -subject -dates
-    done
-
+  # RHEL-family
+  elif [ -f /etc/redhat-release ]; then
+    copy_and_show "$AZP_CUSTOM_CERT_PEM" /etc/ca-certificates/trust-source/anchors
     echo "Updating certificates keychain"
     update-ca-trust extract
+
+  # Unknown distro
+  else
+    echo "Unrecognised distribution – manual certificate installation required" >&2
+    exit 1
   fi
 else
   echo "No custom SSL certificate provided"

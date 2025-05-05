@@ -23,6 +23,10 @@ jobs:
             echo "Using apt-get"
             sudo apt-get update
             sudo apt-get install -y wget
+          elif command -v apk &> /dev/null; then
+            echo "Using apk"
+            sudo apk update
+            sudo apk add --no-cache wget
           elif command -v microdnf &> /dev/null; then
             echo "Using microdnf"
             sudo microdnf install -y wget
@@ -31,7 +35,7 @@ jobs:
             sudo tdnf update -y
             sudo tdnf install -y wget
           else
-            echo "No suported package manager"
+            echo "No supported package manager"
             exit 1
           fi
         displayName: Test package installation

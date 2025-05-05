@@ -1,0 +1,302 @@
+# syntax=docker/dockerfile:1
+# check=skip=UndefinedVar
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine3.21@sha256:d600a99dbc2076ceadc60c4ba60afc294e7916a652cffd88a0f62630d1b3c1fa AS base
+
+# Source platform from buildx "platform" argument
+ARG TARGETPLATFORM
+
+# Configure local user
+ENV USER=root
+ENV HOME=/app-root
+
+# Avoid Python cache during build
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Ensure reliable Python pip installation
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+ENV PIP_QUIET=1
+ENV PIP_RETRIES=8
+ENV PIP_TIMEOUT=120
+
+# Install:
+# - Azure CLI system requirements (C/Rust build tools for libs non pre-built on this platform, plus GNU coreutils for entrypoint)
+# - Azure Pipelines agent system requirements
+# - dbus, fuse-overlayfs, iptables, for BuildKit
+# - gzip, make, tar, unzip, wget, zip, zstd, dnsutils, rsync, gnupg, findutils, ca-certificates, for developer ease-of-life
+# - zsh, for inter-operability
+RUN --mount=target=/var/cache/apk,type=cache,id=apk-${TARGETPLATFORM},sharing=locked \
+    apk update \
+    && apk add \
+        bash \
+        build-base \
+        ca-certificates \
+        cargo \
+        coreutils \
+        curl \
+        dbus \
+        findutils \
+        fuse-overlayfs \
+        gcompat \
+        git \
+        git-lfs \
+        gnupg \
+        gzip \
+        icu \
+        icu-libs \
+        iptables \
+        iputils \
+        jq \
+        libffi-dev \
+        linux-headers \
+        lsb-release \
+        openssl \
+        openssl-dev \
+        py3-pip \
+        rsync \
+        shadow \
+        sudo \
+        tar \
+        unzip \
+        wget \
+        zip \
+        zsh \
+        zstd \
+    && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null \
+    # Replace timeout from BusyBox with GNU coreutils version
+    && ln -sf /usr/bin/timeout /bin/timeout
+
+# Copy helper script, then verify installation
+COPY arch.sh .
+RUN chmod +x arch.sh \
+    && bash arch.sh
+
+# Persist Python version
+ARG PYTHON_313_VERSION_MAJOR_MINOR
+ARG PYTHON_313_VERSION_PATCH
+ENV PYTHON_VERSION=${PYTHON_313_VERSION_MAJOR_MINOR}.${PYTHON_313_VERSION_PATCH}
+
+FROM base AS rootlesskit
+
+# Install Go, then verify installation
+ARG GO_VERSION
+ENV GO_VERSION=${GO_VERSION}
+RUN rm -rf /usr/local/go \
+    && curl -LsSf --retry 8 --retry-all-errors --connect-timeout 120 https://go.dev/dl/go${GO_VERSION}.linux-$(ARCH_X64=amd64 bash arch.sh).tar.gz | tar -xz -C /usr/local
+ENV PATH="${PATH}:/usr/local/go/bin"
+RUN go version
+
+# Install RootlessKit, then verify installation
+ARG ROOTLESSKIT_VERSION
+ENV ROOTLESSKIT_VERSION=${ROOTLESSKIT_VERSION}
+RUN --mount=target=/rootlesskit-${ROOTLESSKIT_VERSION},type=cache,id=rootlesskit-${ROOTLESSKIT_VERSION}-${TARGETPLATFORM},sharing=locked \
+    git clone --depth 1 --branch v${ROOTLESSKIT_VERSION} https://github.com/rootless-containers/rootlesskit.git rootlesskit \
+    # Ugly but that's work
+    && cp -r rootlesskit/* rootlesskit-${ROOTLESSKIT_VERSION} \
+    && rm -rf rootlesskit \
+    && cd rootlesskit-${ROOTLESSKIT_VERSION} \
+    && make \
+    && make install \
+    && cd .. \
+    && rootlesskit --version \
+    && rootlessctl --version
+
+FROM base AS python
+
+# Build Python from source, then verify installation
+ARG PYTHON_VERSION
+ENV PYTHON_VERSION=${PYTHON_VERSION}
+RUN --mount=target=/var/cache/apk,type=cache,id=apk-${TARGETPLATFORM},sharing=locked --mount=target=/Python-${PYTHON_VERSION},type=cache,id=python-${PYTHON_VERSION}-${TARGETPLATFORM},sharing=locked \
+    apk update \
+    && apk add \
+        bzip2 \
+        bzip2-dev \
+        dpkg \
+        dpkg-dev \
+        expat \
+        expat-devel \
+        gdb \
+        gdbm-devel \
+        glibc-devel \
+        libffi-devel \
+        libstdc++-devel \
+        libuuid-devel \
+        libxml2-devel \
+        ncurses-devel \
+        readline-dev \
+        sqlite \
+        sqlite-dev \
+        tk-dev \
+        xz-dev \
+        zlib-dev \
+    && curl -LsSf --retry 8 --retry-all-errors --connect-timeout 120 https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz -o python.tgz \
+    && tar -xzf python.tgz \
+    && rm python.tgz \
+    && cd Python-${PYTHON_VERSION} \
+    && gcc_arch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
+    && ./configure \
+        --build=$gcc_arch \
+        --enable-optimizations \
+        --with-ensurepip=install \
+        --with-lto \
+    && make profile-removal \
+    && extra_cflags="$(dpkg-buildflags --get CFLAGS)" \
+    && ldflags="$(dpkg-buildflags --get LDFLAGS)" \
+    && make -j $(nproc) "EXTRA_CFLAGS=${extra_cflags:-}" "LDFLAGS=${ldflags:-}" \
+    && make install \
+    && cd .. \
+    && python3 --version \
+    && python3 -m pip --version \
+    && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
+
+FROM base
+
+# Install Python, then verify installation
+COPY --from=python /usr/local/bin/python${PYTHON_313_VERSION_MAJOR_MINOR} /usr/local/bin/python${PYTHON_313_VERSION_MAJOR_MINOR}
+COPY --from=python /usr/local/lib/python${PYTHON_313_VERSION_MAJOR_MINOR} /usr/local/lib/python${PYTHON_313_VERSION_MAJOR_MINOR}
+COPY --from=python /usr/local/include/python${PYTHON_313_VERSION_MAJOR_MINOR} /usr/local/include/python${PYTHON_313_VERSION_MAJOR_MINOR}
+RUN ln -s /usr/local/bin/python${PYTHON_313_VERSION_MAJOR_MINOR} /usr/local/bin/python3 \
+    && ln -s /usr/local/bin/python${PYTHON_313_VERSION_MAJOR_MINOR} /usr/local/bin/python \
+    && python --version \
+    && python3 --version \
+    && python${PYTHON_313_VERSION_MAJOR_MINOR} --version \
+    && python3 -m pip --version \
+    # BusyBox env sets a minimal $PATH, local bin requires to be explicited
+    && echo 'export PATH=/usr/local/bin:$PATH' > /etc/profile.d/localbin.sh
+
+# Install Python build tools
+RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_313_VERSION_MAJOR_MINOR}-${TARGETPLATFORM},sharing=locked \
+    python3 -m pip install \
+            --upgrade \
+            pip setuptools wheel \
+    && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
+
+# Install Azure CLI, then verify installation
+ARG AZURE_CLI_VERSION
+ENV AZURE_CLI_VERSION=${AZURE_CLI_VERSION}
+RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_313_VERSION_MAJOR_MINOR}-${TARGETPLATFORM},sharing=locked \
+    python3 -m pip install \
+            azure-cli==${AZURE_CLI_VERSION} \
+    && az version \
+    && rm -rf ${HOME}/.azure ${HOME}/.cache/pip \
+    && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
+
+FROM base AS awscli
+
+# Install AWS CLI from sources as bins are published with glibc, then verify installation
+# See: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-source-install.html
+ARG AWS_CLI_VERSION
+ENV AWS_CLI_VERSION=${AWS_CLI_VERSION}
+RUN --mount=target=/var/cache/apk,type=cache,id=apk-${TARGETPLATFORM},sharing=locked \
+    apk add \
+        cmake \
+        g++ \
+        gcc \
+        libc-dev \
+    && curl -LsSf --retry 8 --retry-all-errors --connect-timeout 120 https://awscli.amazonaws.com/awscli-${AWS_CLI_VERSION}.tar.gz | tar -xz \
+    && cd awscli-${AWS_CLI_VERSION} \
+    && ./configure \
+        --prefix=/usr/local/aws-cli/ \
+        --with-download-deps \
+    && make \
+    && make install \
+    && /usr/local/aws-cli/bin/aws --version
+
+FROM base
+
+# Copy AWS CLI bins, then verify installation
+COPY --from=awscli /usr/local/aws-cli/ /usr/local/aws-cli/
+ENV PATH="${PATH}:/usr/local/aws-cli/bin"
+RUN aws --version
+
+# Install Google Cloud CLI, then verify installation
+ARG GCLOUD_CLI_VERSION
+ENV GCLOUD_CLI_VERSION=${GCLOUD_CLI_VERSION}
+RUN curl -LsSf --retry 8 --retry-all-errors --connect-timeout 120 https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-${GCLOUD_CLI_VERSION}-linux-$(ARCH_X64=x86_64 ARCH_ARM64=arm bash arch.sh).tar.gz | tar -xz -C /usr/local \
+    && /usr/local/google-cloud-sdk/install.sh \
+        --additional-components beta \
+        --quiet \
+    && ln -s /usr/local/google-cloud-sdk/bin/gcloud /usr/bin/gcloud \
+    && ln -s /usr/local/google-cloud-sdk/bin/gsutil /usr/bin/gsutil \
+    && gcloud version \
+    && rm -rf /usr/local/google-cloud-sdk/.install ${HOME}/.config/gcloud \
+    && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
+
+# TODO: Install PowerShell here once it'll be distribued with both X64 and ARM64 targets (only X64 today, see: https://github.com/PowerShell/PowerShell/issues/25762)
+
+# Install YQ, then verify installation
+ARG YQ_VERSION
+ENV YQ_VERSION=${YQ_VERSION}
+RUN curl -LsSf --retry 8 --retry-all-errors --connect-timeout 120 https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_$(ARCH_X64=amd64 bash arch.sh) -o /usr/bin/yq \
+    && chmod +x /usr/bin/yq \
+    && yq --version
+
+# Install Tini, then verify installation
+# TODO: Use binary from GitHub releases once ARM64 build will be available (see: https://github.com/krallin/tini/releases)
+ARG TINI_VERSION
+ENV TINI_VERSION=${TINI_VERSION}
+RUN --mount=target=/var/cache/apk,type=cache,id=apk-${TARGETPLATFORM},sharing=locked \
+    apk add --no-cache \
+        tini~=${TINI_VERSION} \
+    && tini --version
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Install BuildKit, then verify installation
+ARG BUILDKIT_VERSION
+ENV BUILDKIT_VERSION=${BUILDKIT_VERSION}
+RUN mkdir buildkit \
+    && curl -LsSf --retry 8 --retry-all-errors --connect-timeout 120 https://github.com/moby/buildkit/releases/download/v${BUILDKIT_VERSION}/buildkit-v${BUILDKIT_VERSION}.linux-$(ARCH_X64=amd64 bash arch.sh).tar.gz | tar -xz -C buildkit \
+    && mv buildkit/bin/* /usr/local/bin \
+    && rm -rf buildkit \
+    && buildctl --version \
+    && buildkitd --version
+
+# Install RootlessKit, then verify installation
+COPY --from=rootlesskit /usr/local/bin/rootless* /usr/bin/
+RUN rootlesskit --version \
+    && rootlessctl --version
+
+# Install Azure Pipelines Agent sources, then verify installation
+ARG AZP_AGENT_VERSION
+ENV AZP_AGENT_VERSION=${AZP_AGENT_VERSION}
+ENV AZP_HOME=${HOME}/azp-agent
+# Disable agent auto-updates
+# See: https://github.com/microsoft/azure-pipelines-agent/blob/b5ff4408239f3e938560f8b2e3848df76489a8d0/src/Agent.Listener/Agent.cs#L354C24-L354C24
+ENV agent.disableupdate="1"
+RUN mkdir -p ${AZP_HOME} \
+    && curl -LsSf --retry 8 --retry-all-errors --connect-timeout 120 https://download.agent.dev.azure.com/agent/${AZP_AGENT_VERSION}/vsts-agent-linux-musl-$(bash arch.sh)-${AZP_AGENT_VERSION}.tar.gz | tar -xz -C ${AZP_HOME} \
+    && cd ${AZP_HOME} \
+    && chmod +x run-docker.sh config.sh \
+    && AGENT_ALLOW_RUNASROOT="1" bash run-docker.sh --version \
+    && rm -rf _diag \
+    # Allow local user to R/W to agent home
+    && chmod -R a+w .
+ENV AZP_WORK=${HOME}/azp-work
+ENV AZP_CUSTOM_CERT_PEM=${HOME}/azp-custom-certs
+
+# Cleanup helper script
+RUN rm arch.sh
+
+# Reset Python cache flag
+ENV PYTHONDONTWRITEBYTECODE=
+
+# Reset Python pip reliability configs
+ENV PIP_DISABLE_PIP_VERSION_CHECK=
+ENV PIP_QUIET=
+ENV PIP_RETRIES=
+ENV PIP_TIMEOUT=
+
+# Configure local user
+RUN mkdir -p /run/user/0 ${HOME}/.local/tmp ${HOME}/.local/share/buildkit \
+    && chown -R ${USER} /run/user/0 ${HOME} \
+    && echo ${USER}:100000:65536 | tee /etc/subuid | tee /etc/subgid
+USER 0:0
+ENV XDG_RUNTIME_DIR=/run/user/0
+ENV TMPDIR=${HOME}/.local/tmp
+ENV BUILDKIT_HOST=unix:///run/user/0/buildkit/buildkitd.sock
+
+# Install Azure Pipelines Agent startup script
+WORKDIR ${AZP_HOME}
+COPY start.sh .
+# Run as exec form, so that it can receive signals from Tini
+CMD ["bash", "start.sh"]

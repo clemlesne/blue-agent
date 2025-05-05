@@ -319,6 +319,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Alpine Linux
+          - os: alpine
+            platform: linux/amd64
+          - os: alpine
+            platform: linux/arm64
           # Azure Linux 3
           - os: azurelinux3
             platform: linux/amd64
@@ -461,6 +466,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [
+            # Alpine Linux
+            alpine,
             # Azure Linux 3
             azurelinux3,
             # Debian Bookworm
@@ -1040,7 +1047,7 @@ jobs:
       # Rate limiting on Azure DevOps SaaS APIs is triggered quickly by integration tests, so we need to limit the number of parallel jobs
       max-parallel: 3
       matrix:
-        os: [azurelinux3, bookworm, jammy, noble, ubi8, ubi9]
+        os: [alpine, azurelinux3, bookworm, jammy, noble, ubi8, ubi9]
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
