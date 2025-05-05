@@ -94,8 +94,10 @@ resource job 'Microsoft.App/jobs@2023-11-02-preview' = {
       eventTriggerConfig: {
         parallelism: 1 // Only one pod at a time
         scale: {
+          // Min/max replicas
           maxExecutions: autoscalingMaxReplicas
           minExecutions: autoscalingMinReplicas
+          // Rules to scale up/down
           pollingInterval: autoscalingPollingInterval
           rules: [
             {
