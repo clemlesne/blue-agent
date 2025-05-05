@@ -185,14 +185,17 @@ resource job 'Microsoft.App/jobs@2023-11-02-preview' = {
             memory: resourcesMemory
           }
           volumeMounts: [
+            // Separate volume for file logs
             {
               volumeName: 'azp-logs'
               mountPath: '/app-root/azp-logs'
             }
+            // Separate volume for job working directory
             {
               volumeName: 'azp-work'
               mountPath: '/app-root/azp-work'
             }
+            // Separate volume for system temp files (Linux only)
             {
               volumeName: 'local-tmp'
               mountPath: '/app-root/.local/tmp'
@@ -201,14 +204,17 @@ resource job 'Microsoft.App/jobs@2023-11-02-preview' = {
         }
       ]
       volumes: [
+        // Separate volume for file logs
         {
           name: 'azp-logs'
           storageType: 'EmptyDir'
         }
+        // Separate volume for job working directory
         {
           name: 'azp-work'
           storageType: 'EmptyDir'
         }
+        // Separate volume for system temp files (Linux only)
         {
           name: 'local-tmp'
           storageType: 'EmptyDir'

@@ -235,12 +235,14 @@ containers:
     resources:
       {{- toYaml .Values.resources | nindent 6 | required "A value for .Values.resources is required" }}
     volumeMounts:
+      # Separate volume for file logs
       - name: azp-logs
         {{- if .Values.image.isWindows }}
         mountPath: C:\\app-root\\azp-logs
         {{- else }}
         mountPath: /app-root/azp-logs
         {{- end }}
+      # Separate volume for job working directory
       - name: azp-work
         {{- if .Values.image.isWindows }}
         mountPath: C:\\app-root\\azp-work
@@ -248,6 +250,7 @@ containers:
         mountPath: /app-root/azp-work
         {{- end }}
       {{- if not .Values.image.isWindows }}
+      # Separate volume for system temp files (Linux only)
       - name: local-tmp
         mountPath: /app-root/.local/tmp
       {{- end }}
@@ -255,11 +258,14 @@ containers:
       {{- toYaml . | nindent 6 }}
       {{- end }}
 volumes:
+  # Separate volume for file logs
   - name: azp-logs
     emptyDir:
       sizeLimit: 1Gi
+  # Separate volume for job working directory
   - name: azp-work
     {{- if .Values.pipelines.cache.volumeEnabled }}
+    # Avoid using the host tmpdir for size limitations, performance concerns and data leakage in multi-tenant environments
     ephemeral:
       volumeClaimTemplate:
         spec:
@@ -269,12 +275,15 @@ volumes:
             requests:
               storage: {{ .Values.pipelines.cache.size | required "A value for .Values.pipelines.cache.size is required" }}
     {{- else }}
+    # Host tmpdir is used, be careful with performance and data leakage
     emptyDir:
       sizeLimit: {{ .Values.pipelines.cache.size | required "A value for .Values.pipelines.cache.size is required" }}
     {{- end }}
   {{- if not .Values.image.isWindows }}
+  # Separate volume for system temp files (Linux only)
   - name: local-tmp
     {{- if .Values.pipelines.tmpdir.volumeEnabled }}
+    # Avoid using the host tmpdir for size limitations, performance concerns and data leakage in multi-tenant environments
     ephemeral:
       volumeClaimTemplate:
         spec:
@@ -284,11 +293,13 @@ volumes:
             requests:
               storage: {{ .Values.pipelines.tmpdir.size | required "A value for .Values.pipelines.tmpdir.size is required" }}
     {{- else }}
+    # Host tmpdir is used, be careful with performance and data leakage
     emptyDir:
       sizeLimit: {{ .Values.pipelines.tmpdir.size | required "A value for .Values.pipelines.tmpdir.size is required" }}
     {{- end }}
   {{- end }}
   {{- with .Values.extraVolumes }}
+  # Custom volumes
   {{- toYaml . | nindent 2 }}
   {{- end }}
 nodeSelector:
