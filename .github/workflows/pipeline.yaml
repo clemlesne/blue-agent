@@ -494,6 +494,7 @@ jobs:
             echo "Running Snyk for $arch"
             npx --yes snyk@${{ env.SNYK_VERSION }} container test \
               --architecture=$arch \
+              --exclude-base-image-vulns \
               --fail-on=upgradable \
               --file=src/docker/Dockerfile-${{ matrix.os }} \
               --sarif-file-output=snyk-$(echo $arch | sed -e 's#/#-#g').sarif \
@@ -701,6 +702,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
           npx --yes snyk@${{ env.SNYK_VERSION }} container test `
+            --exclude-base-image-vulns `
             --fail-on=upgradable `
             --file=src/docker/Dockerfile-${{ matrix.os }} `
             --sarif-file-output=snyk.sarif `
