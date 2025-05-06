@@ -6,6 +6,20 @@ metadata:
   labels:
     {{- include "blue-agent.labels" . | nindent 4 }}
 spec:
+  {{- if and .Values.secret.create .Values.secret.azureKeyVault.enabled (.Capabilities.APIVersions.Has "secrets-store.csi.x-k8s.io/v1") }}
+  # Azure Key Vault secret authentication provider, for KEDA
+  azureKeyVault:
+    vaultUri: https://{{ .Values.secret.azureKeyVault.name | quote | required "A value for .Values.secret.azureKeyVault.name is required" }}.vault.azure.net
+    podIdentity:
+      provider: azure-workload
+      identityId: {{ .Values.secret.azureKeyVault.managedIdentityId | quote | required "A value for .Values.secret.azureKeyVault.managedIdentityId is required" }}
+    secrets:
+      - parameter: organizationURL
+        name: organization-url
+      - parameter: personalAccessToken
+        name: personal-access-token
+  {{- else }}
+  # Secret is backed natively by Kubernetes
   secretTargetRef:
     - parameter: organizationURL
       name: {{ include "blue-agent.secretName" . }}
@@ -13,6 +27,7 @@ spec:
     - parameter: personalAccessToken
       name: {{ include "blue-agent.secretName" . }}
       key: personalAccessToken
+  {{- end }}
 ---
 apiVersion: keda.sh/v1alpha1
 kind: ScaledJob

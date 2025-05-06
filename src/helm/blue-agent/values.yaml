@@ -72,10 +72,19 @@ pipelines:
 
 # Secret configuration
 secret:
-  # Indicates if a secret should be created
+  # Indicates if the secret should be managed by the chart
   create: true
   # Name of the secret, auto-generated if not set
   name: ""
+  azureKeyVault:
+    # Indicates if the secret should be synced from Azure Key Vault with pod-managed identities (see: https://learn.microsoft.com/en-us/azure/aks/use-azure-ad-pod-identity)
+    enabled: false
+    # ID of the Entra ID managed identity
+    managedIdentityId: null
+    # Name of the Azure Key Vault resource
+    name: null
+    # Tenant ID of the Azure Key Vault resource
+    tenantId: null
 
 # Service account configuration
 serviceAccount:

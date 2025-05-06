@@ -254,6 +254,16 @@ containers:
       - name: local-tmp
         mountPath: /app-root/.local/tmp
       {{- end }}
+      {{- if and .Values.secret.create .Values.secret.azureKeyVault.enabled (.Capabilities.APIVersions.Has "secrets-store.csi.x-k8s.io/v1") }}
+      # Register the Azure Key Vault secret sync
+      - name: secrets-store-inline
+        {{- if .Values.image.isWindows }}
+        mountPath: C:\\secrets-store
+        {{- else }}
+        mountPath: /mnt/secrets-store
+        {{- end }}
+        readOnly: true
+      {{- end }}
       {{- with .Values.extraVolumeMounts }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
@@ -297,6 +307,17 @@ volumes:
     emptyDir:
       sizeLimit: {{ .Values.pipelines.tmpdir.size | required "A value for .Values.pipelines.tmpdir.size is required" }}
     {{- end }}
+  {{- end }}
+  {{- if and .Values.secret.create .Values.secret.azureKeyVault.enabled (.Capabilities.APIVersions.Has "secrets-store.csi.x-k8s.io/v1") }}
+  # Register the Azure Key Vault secret sync
+  - name: secrets-store-inline
+    csi:
+      driver: secrets-store.csi.k8s.io
+      readOnly: true
+      volumeAttributes:
+        secretProviderClass: {{ include "blue-agent.fullname" . }}-azure
+      nodePublishSecretRef:
+        name: {{ include "blue-agent.secretName" . }}
   {{- end }}
   {{- with .Values.extraVolumes }}
   # Custom volumes

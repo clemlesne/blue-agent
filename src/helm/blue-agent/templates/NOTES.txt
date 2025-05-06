@@ -1,8 +1,10 @@
 Agent pool: {{ .Values.pipelines.organizationURL | quote | required "A value for .Values.pipelines.organizationURL is required" }}/_settings/agentpools.
 
 Checks:
-{{- if .Values.secret.create -}}
-✅ Secrets are managed by Helm.
+{{- if and .Values.secret.create .Values.secret.azureKeyVault.enabled (.Capabilities.APIVersions.Has "secrets-store.csi.x-k8s.io/v1") -}}
+✅ Secrets are synchronized to Azure Key Vault with 0-trust, remember to create secrets in it.
+{{- else if .Values.secret.create -}}
+⚠️ Secrets are written as is in Secret objects, be careful to your RBAC.
 {{- else -}}
 ⚠️ You choose to manually manage the secrets, remember to 1) create the object {{ include "blue-agent.secretName" . | quote }} and 2) to include the fields "personalAccessToken" and "organizationURL".
 {{- end -}}
