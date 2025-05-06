@@ -4,14 +4,14 @@ updates:
     directory: ""
     target-branch: develop
     schedule:
-      interval: daily
+      interval: weekly
   - package-ecosystem: docker
     directory: src/docker
     target-branch: develop
     schedule:
-      interval: daily
+      interval: weekly
   - package-ecosystem: gitsubmodule
     directory: cicd/version
     target-branch: develop
     schedule:
-      interval: daily
+      interval: weekly
