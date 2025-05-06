@@ -181,52 +181,68 @@ containers:
             {{- end }}
     {{- end }}
     env:
+      # File logging, should be in a separate volume for performance reasons
       - name: AGENT_DIAGLOGPATH
         {{- if .Values.image.isWindows }}
         value: C:\\app-root\\azp-logs
         {{- else }}
         value: /app-root/azp-logs
         {{- end }}
+      # Hide the agent PAT from the logs, for obvious security reasons
       - name: VSO_AGENT_IGNORE
         value: AZP_TOKEN
       {{- if not .Values.image.isWindows }}
+      # Allow agent to run as root (Linux only)
       - name: AGENT_ALLOW_RUNASROOT
         value: "1"
       {{- end }}
+      # Agent name is dynamically set from arguments
       - name: AZP_AGENT_NAME
         {{- toYaml .Args.azpAgentName | nindent 8 }}
+      # Azure DevOps org URL
       - name: AZP_URL
         valueFrom:
           secretKeyRef:
             name: {{ include "blue-agent.secretName" . }}
             key: organizationURL
+      # Azure DevOps org pool name
       - name: AZP_POOL
         value: {{ .Values.pipelines.poolName | quote | required "A value for .Values.pipelines.poolName is required" }}
+      # Azure DevOps PAT allowing the agent to register itself to the pool
       - name: AZP_TOKEN
         valueFrom:
           secretKeyRef:
             name: {{ include "blue-agent.secretName" . }}
             key: personalAccessToken
+      # Register the agent as a template for future scaling (if requested)
       - name: AZP_TEMPLATE_JOB
         value: {{ .Args.isTemplateJob | quote }}
-      # Agent capabilities
+      # Capabilities: START
+      # Note: Used to filter the agents that are triggered by the KEDA scaler, allowing developers to select the right agent for their job.
+      # OS flavor
       - name: flavor_{{ .Values.image.flavor | required "A value for .Values.image.flavor is required" }}
+      # Blue Agent version
       - name: version_{{ default .Chart.Version .Values.image.version }}
+      # Custom
       {{- range .Values.pipelines.capabilities }}
       - name: {{ . }}
       {{- end }}
+      # Capabilities: END
+      # Custom environment variables
       {{- with .Values.extraEnv }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
     resources:
       {{- toYaml .Values.resources | nindent 6 | required "A value for .Values.resources is required" }}
     volumeMounts:
+      # Separate volume for file logs
       - name: azp-logs
         {{- if .Values.image.isWindows }}
         mountPath: C:\\app-root\\azp-logs
         {{- else }}
         mountPath: /app-root/azp-logs
         {{- end }}
+      # Separate volume for job working directory
       - name: azp-work
         {{- if .Values.image.isWindows }}
         mountPath: C:\\app-root\\azp-work
@@ -234,18 +250,32 @@ containers:
         mountPath: /app-root/azp-work
         {{- end }}
       {{- if not .Values.image.isWindows }}
+      # Separate volume for system temp files (Linux only)
       - name: local-tmp
         mountPath: /app-root/.local/tmp
+      {{- end }}
+      {{- if and .Values.secret.create .Values.secret.azureKeyVault.enabled (.Capabilities.APIVersions.Has "secrets-store.csi.x-k8s.io/v1") }}
+      # Register the Azure Key Vault secret sync
+      - name: secrets-store-inline
+        {{- if .Values.image.isWindows }}
+        mountPath: C:\\secrets-store
+        {{- else }}
+        mountPath: /mnt/secrets-store
+        {{- end }}
+        readOnly: true
       {{- end }}
       {{- with .Values.extraVolumeMounts }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
 volumes:
+  # Separate volume for file logs
   - name: azp-logs
     emptyDir:
       sizeLimit: 1Gi
+  # Separate volume for job working directory
   - name: azp-work
     {{- if .Values.pipelines.cache.volumeEnabled }}
+    # Avoid using the host tmpdir for size limitations, performance concerns and data leakage in multi-tenant environments
     ephemeral:
       volumeClaimTemplate:
         spec:
@@ -255,12 +285,15 @@ volumes:
             requests:
               storage: {{ .Values.pipelines.cache.size | required "A value for .Values.pipelines.cache.size is required" }}
     {{- else }}
+    # Host tmpdir is used, be careful with performance and data leakage
     emptyDir:
       sizeLimit: {{ .Values.pipelines.cache.size | required "A value for .Values.pipelines.cache.size is required" }}
     {{- end }}
   {{- if not .Values.image.isWindows }}
+  # Separate volume for system temp files (Linux only)
   - name: local-tmp
     {{- if .Values.pipelines.tmpdir.volumeEnabled }}
+    # Avoid using the host tmpdir for size limitations, performance concerns and data leakage in multi-tenant environments
     ephemeral:
       volumeClaimTemplate:
         spec:
@@ -270,17 +303,32 @@ volumes:
             requests:
               storage: {{ .Values.pipelines.tmpdir.size | required "A value for .Values.pipelines.tmpdir.size is required" }}
     {{- else }}
+    # Host tmpdir is used, be careful with performance and data leakage
     emptyDir:
       sizeLimit: {{ .Values.pipelines.tmpdir.size | required "A value for .Values.pipelines.tmpdir.size is required" }}
     {{- end }}
   {{- end }}
+  {{- if and .Values.secret.create .Values.secret.azureKeyVault.enabled (.Capabilities.APIVersions.Has "secrets-store.csi.x-k8s.io/v1") }}
+  # Register the Azure Key Vault secret sync
+  - name: secrets-store-inline
+    csi:
+      driver: secrets-store.csi.k8s.io
+      readOnly: true
+      volumeAttributes:
+        secretProviderClass: {{ include "blue-agent.fullname" . }}-azure
+      nodePublishSecretRef:
+        name: {{ include "blue-agent.secretName" . }}
+  {{- end }}
   {{- with .Values.extraVolumes }}
+  # Custom volumes
   {{- toYaml . | nindent 2 }}
   {{- end }}
 nodeSelector:
   {{- if .Values.image.isWindows }}
+  # Run on Windows nodes
   kubernetes.io/os: windows
   {{- else }}
+  # Run on Linux nodes
   kubernetes.io/os: linux
   {{- end }}
   {{- with .Values.extraNodeSelectors }}

@@ -72,10 +72,19 @@ pipelines:
 
 # Secret configuration
 secret:
-  # Indicates if a secret should be created
+  # Indicates if the secret should be managed by the chart
   create: true
   # Name of the secret, auto-generated if not set
   name: ""
+  azureKeyVault:
+    # Indicates if the secret should be synced from Azure Key Vault with pod-managed identities (see: https://learn.microsoft.com/en-us/azure/aks/use-azure-ad-pod-identity)
+    enabled: false
+    # ID of the Entra ID managed identity
+    managedIdentityId: null
+    # Name of the Azure Key Vault resource
+    name: null
+    # Tenant ID of the Azure Key Vault resource
+    tenantId: null
 
 # Service account configuration
 serviceAccount:
@@ -130,7 +139,6 @@ tolerations: []
 affinity: {}
 
 # Number of revisions to keep in the history of the Deployment
-# Warning: setting this to 0 will disable the Deployment history and cause inability to rollback (see: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy)
 revisionHistoryLimit: 10
 
 # Annotations for scheduling and security behaviors

@@ -10,7 +10,8 @@ spec:
     matchLabels:
       {{- include "blue-agent.selectorLabels" . | nindent 6 }}
   replicas: {{ .Values.replicaCount | int | required "A value for .Values.replicaCount is required" }}
-  revisionHistoryLimit: {{ .Values.revisionHistoryLimit | int | required "A value for .Values.revisionHistoryLimit is required" }}
+  # Force >= 1, because otherwise it will cause inability to rollback (see: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy)
+  revisionHistoryLimit: {{ max 1 (.Values.revisionHistoryLimit | int | required "A value for .Values.revisionHistoryLimit is required") }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -29,7 +30,7 @@ spec:
     spec:
       {{- $data := dict
         "azpAgentName" (dict "valueFrom" (dict "fieldRef" (dict "apiVersion" "v1" "fieldPath" "metadata.name" )))
-        "isTemplateJob" "1"
+        "isTemplateJob" "0"
         "restartPolicy" "Always"
       }}
       {{- include "blue-agent.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 6 }}

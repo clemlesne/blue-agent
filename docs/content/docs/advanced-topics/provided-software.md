@@ -47,7 +47,7 @@ Softwares are operating system specific. The following table lists the softwares
 - Programming languages
   - [.NET SDK](https://dotnet.microsoft.com)
   - [Python 3.12](https://docs.python.org/3/whatsnew/3.12.html)
-  - [Visual Studio Build Tools](https://learn.microsoft.com/en-us/visualstudio/ide/?view=vs-2022) (with `AzureBuildTools`, `VCTools`, `WebBuildTools`, `ManagedDesktopBuildTools`, `OfficeBuildTools` workloads)
+  - [Visual Studio Build Tools (LTSC 17.12)](https://learn.microsoft.com/en-us/visualstudio/ide/?view=vs-2022) (with `AzureBuildTools`, `VCTools`, `WebBuildTools`, `ManagedDesktopBuildTools`, `OfficeBuildTools` workloads)
 - Tools
   - [git](https://github.com/git-for-windows/git)
   - [jq](https://github.com/stedolan/jq)

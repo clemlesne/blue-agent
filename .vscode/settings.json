@@ -1,5 +1,44 @@
 {
+  // Completions
   "yaml.schemas": {
     "https://raw.githubusercontent.com/microsoft/azure-pipelines-vscode/master/service-schema.json": "test/pipeline/*.yaml"
+  },
+  // Documentation
+  "[markdown]": {
+    "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true
+  },
+  // Sources
+  "[dockerfile]": {
+    "editor.defaultFormatter": "ms-azuretools.vscode-docker",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": false // The extension messes up the formatting with multiline run commands
+  },
+  "[shellscript]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true
+  },
+  // Infrastructure as code
+  "[bicep]": {
+    "editor.defaultFormatter": "ms-azuretools.vscode-bicep",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true
+  },
+  "[helm]": {
+    "editor.defaultFormatter": "ms-kubernetes-tools.vscode-kubernetes-tools",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true
   }
 }

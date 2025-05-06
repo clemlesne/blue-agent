@@ -1,5 +1,5 @@
 > [!IMPORTANT]
-> Projet name is now Blue Agent! Was previously known as Azure Pipelines Agent.
+> Project name is now Blue Agent! Was previously known as Azure Pipelines Agent.
 
 # Blue Agent
 

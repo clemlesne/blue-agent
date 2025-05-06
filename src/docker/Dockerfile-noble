@@ -1,7 +1,10 @@
 # syntax=docker/dockerfile:1
 # check=skip=UndefinedVar
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-noble@sha256:d1f7c5f0ef897b62d8580f5a51dbc9add024c273d06b67ff28580c882e9ff672 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-noble@sha256:88f0b54c4bcd92352bb205c0292e851634b65e7a538940cb952e7d46654e32d6 AS base
+
+# Source platform from buildx "platform" argument
+ARG TARGETPLATFORM
 
 # Force apt-get to not use TTY
 ENV DEBIAN_FRONTEND=noninteractive
@@ -56,6 +59,9 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,id=apt-lists-${TARGETPLATFORM},
         zip \
         zsh \
         zstd \
+    # Strip latent init & desktop junk that drags CVEs
+    && apt-get purge -y --auto-remove 'dbus*' 'polkit*' 'systemd*' \
+    # Cleanup Python cache
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Copy helper script, then verify installation
@@ -121,9 +127,9 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,id=apt-lists-${TARGETPLATFORM},
     && tar -xzf python.tgz \
     && rm python.tgz \
     && cd Python-${PYTHON_VERSION} \
-    && gnu_arch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
+    && gcc_arch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
     && ./configure \
-        --build=$gnu_arch \
+        --build=$gcc_arch \
         --enable-optimizations \
         --with-ensurepip=install \
         --with-lto \
@@ -135,6 +141,7 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,id=apt-lists-${TARGETPLATFORM},
     && cd .. \
     && python3 --version \
     && python3 -m pip --version \
+    # Cleanup Python cache
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 FROM base
@@ -142,6 +149,7 @@ FROM base
 # Install Python, then verify installation
 COPY --from=python /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR}
 COPY --from=python /usr/local/lib/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/lib/python${PYTHON_VERSION_MAJOR_MINOR}
+COPY --from=python /usr/local/include/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/include/python${PYTHON_VERSION_MAJOR_MINOR}
 RUN ln -s /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python3 \
     && ln -s /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python \
     && python --version \
@@ -159,6 +167,7 @@ RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_VERSION_MAJOR_
         install \
             --upgrade \
             pip setuptools wheel \
+    # Cleanup Python cache
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Install Azure CLI, then verify installation
@@ -174,6 +183,7 @@ RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_VERSION_MAJOR_
             azure-cli==${AZURE_CLI_VERSION} \
     && az version \
     && rm -rf ${HOME}/.azure ${HOME}/.cache/pip \
+    # Cleanup Python cache
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Install AWS CLI, then verify installation
@@ -196,6 +206,7 @@ RUN curl -LsSf --retry 8 --retry-all-errors https://dl.google.com/dl/cloudsdk/ch
     && ln -s /usr/local/google-cloud-sdk/bin/gsutil /usr/bin/gsutil \
     && gcloud version \
     && rm -rf /usr/local/google-cloud-sdk/.install ${HOME}/.config/gcloud \
+    # Cleanup Python cache
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Install Powershell, then verify installation
@@ -246,7 +257,7 @@ ENV AZP_HOME=${HOME}/azp-agent
 # See: https://github.com/microsoft/azure-pipelines-agent/blob/b5ff4408239f3e938560f8b2e3848df76489a8d0/src/Agent.Listener/Agent.cs#L354C24-L354C24
 ENV agent.disableupdate="1"
 RUN mkdir -p ${AZP_HOME} \
-    && curl -LsSf --retry 8 --retry-all-errors https://vstsagentpackage.azureedge.net/agent/${AZP_AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AZP_AGENT_VERSION}.tar.gz | tar -xz -C ${AZP_HOME} \
+    && curl -LsSf --retry 8 --retry-all-errors https://download.agent.dev.azure.com/agent/${AZP_AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AZP_AGENT_VERSION}.tar.gz | tar -xz -C ${AZP_HOME} \
     && cd ${AZP_HOME} \
     && chmod +x run-docker.sh config.sh \
     && AGENT_ALLOW_RUNASROOT="1" bash run-docker.sh --version \

@@ -6,6 +6,20 @@ metadata:
   labels:
     {{- include "blue-agent.labels" . | nindent 4 }}
 spec:
+  {{- if and .Values.secret.create .Values.secret.azureKeyVault.enabled (.Capabilities.APIVersions.Has "secrets-store.csi.x-k8s.io/v1") }}
+  # Azure Key Vault secret authentication provider, for KEDA
+  azureKeyVault:
+    vaultUri: https://{{ .Values.secret.azureKeyVault.name | quote | required "A value for .Values.secret.azureKeyVault.name is required" }}.vault.azure.net
+    podIdentity:
+      provider: azure-workload
+      identityId: {{ .Values.secret.azureKeyVault.managedIdentityId | quote | required "A value for .Values.secret.azureKeyVault.managedIdentityId is required" }}
+    secrets:
+      - parameter: organizationURL
+        name: organization-url
+      - parameter: personalAccessToken
+        name: personal-access-token
+  {{- else }}
+  # Secret is backed natively by Kubernetes
   secretTargetRef:
     - parameter: organizationURL
       name: {{ include "blue-agent.secretName" . }}
@@ -13,6 +27,7 @@ spec:
     - parameter: personalAccessToken
       name: {{ include "blue-agent.secretName" . }}
       key: personalAccessToken
+  {{- end }}
 ---
 apiVersion: keda.sh/v1alpha1
 kind: ScaledJob
@@ -21,11 +36,13 @@ metadata:
   labels:
     {{- include "blue-agent.labels" . | nindent 4 }}
 spec:
+  # Historical jobs cleanup
   failedJobsHistoryLimit: {{ .Values.pipelines.cleanup.failed | int | required "A value for .Values.pipelines.cleanup.failed is required" }}
+  successfulJobsHistoryLimit: {{ .Values.pipelines.cleanup.successful | int | required "A value for .Values.pipelines.cleanup.successful is required" }}
+  # Min/max replicas
   maxReplicaCount: {{ .Values.autoscaling.maxReplicas | int | required "A value for .Values.autoscaling.maxReplicas is required" }}
   minReplicaCount: {{ .Values.autoscaling.minReplicas | int | required "A value for .Values.autoscaling.minReplicas is required" }}
-  pollingInterval: {{ .Values.autoscaling.pollingInterval | int | required "A value for .Values.autoscaling.pollingInterval is required" }}
-  successfulJobsHistoryLimit: {{ .Values.pipelines.cleanup.successful | int | required "A value for .Values.pipelines.cleanup.successful is required" }}
+  # Target job to scale
   jobTargetRef:
     activeDeadlineSeconds: {{ .Values.pipelines.timeout | int | required "A value for .Values.pipelines.timeout is required" }}
     backoffLimit: 0 # Do not retry
@@ -48,11 +65,14 @@ spec:
           "restartPolicy" "Never"
         }}
         {{- include "blue-agent.podSharedTemplate" (merge (dict "Args" $data) . ) | nindent 8 }}
+  # Do not delete executed jobs during upgrade
   rollout:
-    # Do not delete executed jobs during upgrade
     strategy: gradual
+  # Azure Pipelines scaler returns the number of jobs in the queue, incl the current job
   scalingStrategy:
     strategy: accurate
+  # Rules to scale up/down
+  pollingInterval: {{ .Values.autoscaling.pollingInterval | int | required "A value for .Values.autoscaling.pollingInterval is required" }}
   triggers:
     - type: azure-pipelines
       metadata:

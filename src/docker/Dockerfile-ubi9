@@ -1,7 +1,10 @@
 # syntax=docker/dockerfile:1
 # check=skip=UndefinedVar
 
-FROM registry.access.redhat.com/ubi9-minimal:9.5@sha256:6907fbacb294ab6ba988f8bcc6bd5127f589966e5808fcb454de3e104983ae5b AS base
+FROM registry.access.redhat.com/ubi9-minimal:9.5@sha256:e1c4703364c5cb58f5462575dc90345bcd934ddc45e6c32f9c162f2b5617681c AS base
+
+# Source platform from buildx "platform" argument
+ARG TARGETPLATFORM
 
 # Configure local user
 ENV USER=root
@@ -18,7 +21,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # - gzip, make, tar, unzip, wget, zip, zstd, dnsutils, rsync, for developer ease-of-life
 # - zsh, for inter-operability
 RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=locked \
-    microdnf install -y --nodocs --setopt=install_weak_deps=0 \
+    microdnf install -y --nodocs --setopt=install_weak_deps=0 --setopt=tsflags=nodocs \
         aspnetcore-runtime-8.0 \
         ca-certificates \
         cargo \
@@ -48,6 +51,7 @@ RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=lo
         zip \
         zsh \
         zstd \
+    # Cleanup Python cache
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Copy helper script, then verify installation
@@ -91,7 +95,7 @@ FROM base AS python
 ARG PYTHON_VERSION
 ENV PYTHON_VERSION=${PYTHON_VERSION}
 RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=locked --mount=target=/Python-${PYTHON_VERSION},type=cache,id=python-${PYTHON_VERSION}-${TARGETPLATFORM},sharing=locked \
-    microdnf install -y --nodocs --setopt=install_weak_deps=0 \
+    microdnf install -y --nodocs --setopt=install_weak_deps=0 --setopt=tsflags=nodocs \
         bzip2 \
         bzip2-devel \
         expat \
@@ -116,9 +120,9 @@ RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=lo
     && tar -xzf python.tgz \
     && rm python.tgz \
     && cd Python-${PYTHON_VERSION} \
-    && gnu_arch="$(rpm --eval '%{_target_cpu}')-redhat-linux" \
+    && gcc_arch="$(rpm --eval '%{_target_cpu}')-redhat-linux" \
     && ./configure \
-        --build=$gnu_arch \
+        --build=$gcc_arch \
         --enable-optimizations \
         --with-ensurepip=install \
         --with-lto \
@@ -130,6 +134,7 @@ RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=lo
     && cd .. \
     && python3 --version \
     && python3 -m pip --version \
+    # Cleanup Python cache
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 FROM base
@@ -137,6 +142,7 @@ FROM base
 # Install Python, then verify installation
 COPY --from=python /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR}
 COPY --from=python /usr/local/lib/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/lib/python${PYTHON_VERSION_MAJOR_MINOR}
+COPY --from=python /usr/local/include/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/include/python${PYTHON_VERSION_MAJOR_MINOR}
 RUN ln -s /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python3 \
     && ln -s /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python \
     && python --version \
@@ -154,6 +160,7 @@ RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_VERSION_MAJOR_
         install \
             --upgrade \
             pip setuptools wheel \
+    # Cleanup Python cache
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Install Azure CLI, then verify installation
@@ -169,6 +176,7 @@ RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_VERSION_MAJOR_
             azure-cli==${AZURE_CLI_VERSION} \
     && az version \
     && rm -rf ${HOME}/.azure ${HOME}/.cache/pip \
+    # Cleanup Python cache
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Install AWS CLI, then verify installation
@@ -191,6 +199,7 @@ RUN curl -LsSf --retry 8 --retry-all-errors https://dl.google.com/dl/cloudsdk/ch
     && ln -s /usr/local/google-cloud-sdk/bin/gsutil /usr/bin/gsutil \
     && gcloud version \
     && rm -rf /usr/local/google-cloud-sdk/.install ${HOME}/.config/gcloud \
+    # Cleanup Python cache
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Install Powershell, then verify installation
@@ -241,7 +250,7 @@ ENV AZP_HOME=${HOME}/azp-agent
 # See: https://github.com/microsoft/azure-pipelines-agent/blob/b5ff4408239f3e938560f8b2e3848df76489a8d0/src/Agent.Listener/Agent.cs#L354C24-L354C24
 ENV agent.disableupdate="1"
 RUN mkdir -p ${AZP_HOME} \
-    && curl -LsSf --retry 8 --retry-all-errors https://vstsagentpackage.azureedge.net/agent/${AZP_AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AZP_AGENT_VERSION}.tar.gz | tar -xz -C ${AZP_HOME} \
+    && curl -LsSf --retry 8 --retry-all-errors https://download.agent.dev.azure.com/agent/${AZP_AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AZP_AGENT_VERSION}.tar.gz | tar -xz -C ${AZP_HOME} \
     && cd ${AZP_HOME} \
     && chmod +x run-docker.sh config.sh \
     && AGENT_ALLOW_RUNASROOT="1" bash run-docker.sh --version \

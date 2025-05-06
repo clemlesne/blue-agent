@@ -1,4 +1,10 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-azurelinux3.0@sha256:e1cddf0093fc04fc5ded6c475abb0205db1279ff3dc2597b34403b4853a5a00c AS base
+# syntax=docker/dockerfile:1
+# check=skip=UndefinedVar
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-azurelinux3.0@sha256:8940c10f1223d4c3f895c703fd48f78c041ea5e5016575fca3a6efb96051a12c AS base
+
+# Source platform from buildx "platform" argument
+ARG TARGETPLATFORM
 
 # Configure local user
 ENV USER=root
@@ -18,7 +24,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # - zsh, for inter-operability
 RUN --mount=target=/var/cache/tdnf,type=cache,id=yum-${TARGETPLATFORM},sharing=locked \
     tdnf update -y \
-    && tdnf install -y \
+    && tdnf install -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs \
         bind-utils \
         build-essential \
         ca-certificates \
@@ -50,6 +56,7 @@ RUN --mount=target=/var/cache/tdnf,type=cache,id=yum-${TARGETPLATFORM},sharing=l
         zip \
         zsh \
         zstd \
+    # Cleanup Python cache
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Copy helper script, then verify installation
@@ -94,7 +101,7 @@ ARG PYTHON_VERSION
 ENV PYTHON_VERSION=${PYTHON_VERSION}
 RUN --mount=target=/var/cache/tdnf,type=cache,id=yum-${TARGETPLATFORM},sharing=locked --mount=target=/Python-${PYTHON_VERSION},type=cache,id=python-${PYTHON_VERSION}-${TARGETPLATFORM},sharing=locked \
     tdnf update -y \
-    && tdnf install -y \
+    && tdnf install -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs \
         bzip2 \
         bzip2-devel \
         expat \
@@ -118,9 +125,9 @@ RUN --mount=target=/var/cache/tdnf,type=cache,id=yum-${TARGETPLATFORM},sharing=l
     && tar -xzf python.tgz \
     && rm python.tgz \
     && cd Python-${PYTHON_VERSION} \
-    && gnu_arch="$(rpm --eval '%{_target_cpu}')-centos-linux-gnu" \
+    && gcc_arch="$(rpm --eval '%{_target_cpu}')-centos-linux-gnu" \
     && ./configure \
-        --build=$gnu_arch \
+        --build=$gcc_arch \
         --enable-optimizations \
         --with-ensurepip=install \
         --with-lto \
@@ -139,6 +146,7 @@ FROM base
 # Install Python, then verify installation
 COPY --from=python /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR}
 COPY --from=python /usr/local/lib/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/lib/python${PYTHON_VERSION_MAJOR_MINOR}
+COPY --from=python /usr/local/include/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/include/python${PYTHON_VERSION_MAJOR_MINOR}
 RUN ln -s /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python3 \
     && ln -s /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python \
     && python --version \
@@ -243,7 +251,7 @@ ENV AZP_HOME=${HOME}/azp-agent
 # See: https://github.com/microsoft/azure-pipelines-agent/blob/b5ff4408239f3e938560f8b2e3848df76489a8d0/src/Agent.Listener/Agent.cs#L354C24-L354C24
 ENV agent.disableupdate="1"
 RUN mkdir -p ${AZP_HOME} \
-    && curl -LsSf --retry 8 --retry-all-errors https://vstsagentpackage.azureedge.net/agent/${AZP_AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AZP_AGENT_VERSION}.tar.gz | tar -xz -C ${AZP_HOME} \
+    && curl -LsSf --retry 8 --retry-all-errors https://download.agent.dev.azure.com/agent/${AZP_AGENT_VERSION}/pipelines-agent-linux-$(bash arch.sh)-${AZP_AGENT_VERSION}.tar.gz | tar -xz -C ${AZP_HOME} \
     && cd ${AZP_HOME} \
     && chmod +x run-docker.sh config.sh \
     && AGENT_ALLOW_RUNASROOT="1" bash run-docker.sh --version \

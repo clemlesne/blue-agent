@@ -125,6 +125,7 @@ Set-Location $(Split-Path -Parent $MyInvocation.MyCommand.Definition)
   --acceptTeeEula `
   --agent $Env:AZP_AGENT_NAME `
   --auth PAT `
+  --gitUseSChannel `
   --pool $Env:AZP_POOL `
   --replace `
   --token $Env:AZP_TOKEN `
