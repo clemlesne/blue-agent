@@ -304,8 +304,10 @@ volumes:
   {{- end }}
 nodeSelector:
   {{- if .Values.image.isWindows }}
+  # Run on Windows nodes
   kubernetes.io/os: windows
   {{- else }}
+  # Run on Linux nodes
   kubernetes.io/os: linux
   {{- end }}
   {{- with .Values.extraNodeSelectors }}
