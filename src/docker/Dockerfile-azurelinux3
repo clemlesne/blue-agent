@@ -56,6 +56,7 @@ RUN --mount=target=/var/cache/tdnf,type=cache,id=yum-${TARGETPLATFORM},sharing=l
         zip \
         zsh \
         zstd \
+    # Cleanup Python cache
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Copy helper script, then verify installation

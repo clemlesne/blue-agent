@@ -52,6 +52,7 @@ RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=lo
         zip \
         zsh \
         zstd \
+    # Cleanup Python cache
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Copy helper script, then verify installation
@@ -134,6 +135,7 @@ RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=lo
     && cd .. \
     && python3 --version \
     && python3 -m pip --version \
+    # Cleanup Python cache
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 FROM base
@@ -159,6 +161,7 @@ RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_VERSION_MAJOR_
         install \
             --upgrade \
             pip setuptools wheel \
+    # Cleanup Python cache
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Install Azure CLI, then verify installation
@@ -174,6 +177,7 @@ RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_VERSION_MAJOR_
             azure-cli==${AZURE_CLI_VERSION} \
     && az version \
     && rm -rf ${HOME}/.azure ${HOME}/.cache/pip \
+    # Cleanup Python cache
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Install AWS CLI, then verify installation
@@ -196,6 +200,7 @@ RUN curl -LsSf --retry 8 https://dl.google.com/dl/cloudsdk/channels/rapid/downlo
     && ln -s /usr/local/google-cloud-sdk/bin/gsutil /usr/bin/gsutil \
     && gcloud version \
     && rm -rf /usr/local/google-cloud-sdk/.install ${HOME}/.config/gcloud \
+    # Cleanup Python cache
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Install Powershell, then verify installation
