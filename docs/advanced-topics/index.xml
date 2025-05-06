@@ -1,4 +1,49 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Blue Agent – Advanced topics</title><link>https://clemlesne.github.io/blue-agent/docs/advanced-topics/</link><description>Recent content in Advanced topics on Blue Agent</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://clemlesne.github.io/blue-agent/docs/advanced-topics/index.xml" rel="self" type="application/rss+xml"/><item><title>Build ASP.NET applications</title><link>https://clemlesne.github.io/blue-agent/docs/advanced-topics/build-aspnet/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/advanced-topics/build-aspnet/</guid><description>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Blue Agent – Advanced topics</title><link>https://clemlesne.github.io/blue-agent/docs/advanced-topics/</link><description>Recent content in Advanced topics on Blue Agent</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="https://clemlesne.github.io/blue-agent/docs/advanced-topics/index.xml" rel="self" type="application/rss+xml"/><item><title>0 trust</title><link>https://clemlesne.github.io/blue-agent/docs/advanced-topics/0-trust/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/advanced-topics/0-trust/</guid><description>
+&lt;p>By design, Blue Agent must be able to use a token to register itself to the Azure DevOps server. Centrally manage the tokens storage, their lifecycle and their access &lt;a href="https://en.wikipedia.org/wiki/Zero_trust_architecture" target="_blank" rel="noopener">greatly improve operational security&lt;/a>.&lt;/p>
+&lt;h4>Kubernetes (Helm)&lt;span class="hx-absolute -hx-mt-20" id="kubernetes-helm">&lt;/span>
+&lt;a href="#kubernetes-helm" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;h5>Azure Kubernetes Service&lt;span class="hx-absolute -hx-mt-20" id="azure-kubernetes-service">&lt;/span>
+&lt;a href="#azure-kubernetes-service" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;p>Azure Kubernetes Service implements &lt;a href="https://learn.microsoft.com/en-us/azure/aks/use-azure-ad-pod-identity" target="_blank" rel="noopener">Pod Identity&lt;/a>, which allows to use a Managed Identity from a Kubernetes Pod. This will allow components on the cluster to access the secrets stored in Azure Key Vault.&lt;/p>
+&lt;p>Prerequisites to the deployment are:&lt;/p>
+&lt;ul>
+&lt;li>The Key Vault provider for Secrets Store CSI Driver add-on &lt;a href="https://learn.microsoft.com/en-us/azure/aks/csi-secrets-store-driver" target="_blank" rel="noopener">installed in the cluster&lt;/a>.&lt;/li>
+&lt;li>An Key Vault with two secrets named &lt;code>organization-url&lt;/code> and &lt;code>personal-access-token&lt;/code>, both of type &lt;code>secret&lt;/code>.&lt;/li>
+&lt;li>A Managed Identity (system or user managed) with the &lt;code>Key Vault Secrets User&lt;/code> role on the Key Vault.&lt;/li>
+&lt;/ul>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># values.yaml&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">secret&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">create&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">azureKeyVault&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">enabled&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">false&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">managedIdentityId&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">MY_MANAGED_IDENTITY_ID&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">MY_KEY_VAULT_NAME&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">tenantId&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">MY_TENANT_ID&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h5>Other distributions&lt;span class="hx-absolute -hx-mt-20" id="other-distributions">&lt;/span>
+&lt;a href="#other-distributions" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h5>&lt;p>Disable the secret creation in the Helm chart, and integrate yourself with your own secret management solution.&lt;/p>
+&lt;div class="hextra-code-block hx-relative hx-mt-6 first:hx-mt-0 hx-group/code">
+&lt;div>&lt;div class="highlight">&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># values.yaml&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">secret&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">create&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">false&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;button
+class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
+title="Copy code"
+>
+&lt;div class="copy-icon group-[.copied]/copybtn:hx-hidden hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;div class="success-icon hx-hidden group-[.copied]/copybtn:hx-block hx-pointer-events-none hx-h-4 hx-w-4">&lt;/div>
+&lt;/button>
+&lt;/div>
+&lt;/div>
+&lt;h4>Azure Container Apps (Bicep)&lt;span class="hx-absolute -hx-mt-20" id="azure-container-apps-bicep">&lt;/span>
+&lt;a href="#azure-container-apps-bicep" class="subheading-anchor" aria-label="Permalink for this section">&lt;/a>&lt;/h4>&lt;p>Bicep is not supported out of the box. But, integration between Azure Key Vault and Azure Container Apps is native and can be done in an hour. &lt;a href="https://learn.microsoft.com/en-us/azure/container-apps/manage-secrets?tabs=azure-cli" target="_blank" rel="noopener">See the documentation.&lt;/a>&lt;/p></description></item><item><title>Build ASP.NET applications</title><link>https://clemlesne.github.io/blue-agent/docs/advanced-topics/build-aspnet/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/advanced-topics/build-aspnet/</guid><description>
 &lt;p>It was chosen arbitrarily to install the LTS non SDK version of ASNP.NET. Because :&lt;/p>
 &lt;ul>
 &lt;li>LTS is better supported by Microsoft than STS&lt;/li>
@@ -213,13 +258,9 @@ title="Copy code"
 &lt;/div></description></item><item><title>Capabilities</title><link>https://clemlesne.github.io/blue-agent/docs/advanced-topics/capabilities/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://clemlesne.github.io/blue-agent/docs/advanced-topics/capabilities/</guid><description>
 &lt;p>Capabilities are declarative variables you can add to the agents, to allow developers to select the right agent for their pipeline (&lt;a href="https://learn.microsoft.com/en-us/azure/devops/pipelines/process/demands?view=azure-devops&amp;amp;tabs=yaml" target="_blank" rel="noopener">official documentation&lt;/a>).&lt;/p>
 &lt;div class="hx-overflow-x-auto hx-mt-6 hx-flex hx-rounded-lg hx-border hx-py-2 ltr:hx-pr-4 rtl:hx-pl-4 contrast-more:hx-border-current contrast-more:dark:hx-border-current hx-border-blue-200 hx-bg-blue-100 hx-text-blue-900 dark:hx-border-blue-200/30 dark:hx-bg-blue-900/30 dark:hx-text-blue-200">
-&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">
-ℹ️
-&lt;/div>&lt;/div>
+&lt;div class="ltr:hx-pl-3 ltr:hx-pr-2 rtl:hx-pr-3 rtl:hx-pl-2">&lt;div class="hx-select-none hx-text-xl" style="font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">ℹ️&lt;/div>&lt;/div>
 &lt;div class="hx-w-full hx-min-w-0 hx-leading-7">
-&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">
-Multiple Helm instances can be deployed using the same agent pool name (see &lt;code>pipelines.poolName&lt;/code>). It will result in a single pool with multiple capabilities. Be warning, if a capability is not unique accross the pool, all the agents will scale. This will create &amp;ldquo;zoombies&amp;rdquo; agents, scaled for nothing, waiting their timeout.
-&lt;/div>
+&lt;div class="hx-mt-6 hx-leading-7 first:hx-mt-0">Multiple Helm instances can be deployed using the same agent pool name (see &lt;code>pipelines.poolName&lt;/code>). It will result in a single pool with multiple capabilities. Be warning, if a capability is not unique accross the pool, all the agents will scale. This will create &amp;ldquo;zoombies&amp;rdquo; agents, scaled for nothing, waiting their timeout.&lt;/div>
 &lt;/div>
 &lt;/div>
 &lt;p>Disctinct the agents by capabilities. For examples:&lt;/p>
@@ -380,7 +421,7 @@ title="Copy code"
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">root-2.crt&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">|&lt;/span>&lt;span class="sd">
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> -----BEGIN CERTIFICATE-----
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> ...
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> -----END CERTIFICATE-----&lt;/span>&lt;span class="w"> &lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sd"> -----END CERTIFICATE-----&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/div>&lt;div class="hextra-code-copy-btn-container hx-opacity-0 hx-transition group-hover/code:hx-opacity-100 hx-flex hx-gap-1 hx-absolute hx-m-[11px] hx-right-0 hx-top-0">
 &lt;button
 class="hextra-code-copy-btn hx-group/copybtn hx-transition-all active:hx-opacity-50 hx-bg-primary-700/5 hx-border hx-border-black/5 hx-text-gray-600 hover:hx-text-gray-900 hx-rounded-md hx-p-1.5 dark:hx-bg-primary-300/10 dark:hx-border-white/10 dark:hx-text-gray-400 dark:hover:hx-text-gray-50"
 title="Copy code"
@@ -710,18 +751,38 @@ title="Copy code"
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>revisionHistoryLimit&lt;/code>&lt;/td>
-&lt;td>Number of revisions to keep in the history of the Deployment; Warning, &lt;a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy" target="_blank" rel="noopener">setting this to 0&lt;/a> will disable the Deployment history and cause inability to rollback&lt;/td>
+&lt;td>Number of revisions to keep in the history of the Deployment&lt;/td>
 &lt;td>&lt;code>10&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>secret.create&lt;/code>&lt;/td>
-&lt;td>Create Secret, must contains &lt;code>personalAccessToken&lt;/code> and &lt;code>organizationURL&lt;/code> variables&lt;/td>
+&lt;td>Indicates if the secret should be managed by the chart&lt;/td>
 &lt;td>&lt;code>true&lt;/code>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>secret.name&lt;/code>&lt;/td>
 &lt;td>Secret name&lt;/td>
 &lt;td>&lt;em>Release name&lt;/em>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>secret.azureKeyVault.enabled&lt;/code>&lt;/td>
+&lt;td>Indicates if the secret should be synced from Azure Key Vault with pod-managed identities (&lt;a href="https://learn.microsoft.com/en-us/azure/aks/use-azure-ad-pod-identity" target="_blank" rel="noopener">more details&lt;/a>)&lt;/td>
+&lt;td>&lt;code>false&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>secret.azureKeyVault.managedIdentityId&lt;/code>&lt;/td>
+&lt;td>ID of the Entra ID managed identity&lt;/td>
+&lt;td>&lt;em>None&lt;/em>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>secret.azureKeyVault.name&lt;/code>&lt;/td>
+&lt;td>Name of the Azure Key Vault resource&lt;/td>
+&lt;td>&lt;em>None&lt;/em>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>secret.azureKeyVault.tenantId&lt;/code>&lt;/td>
+&lt;td>Tenant ID of the Azure Key Vault resource&lt;/td>
+&lt;td>&lt;em>None&lt;/em>&lt;/td>
 &lt;/tr>
 &lt;tr>
 &lt;td>&lt;code>securityContext&lt;/code>&lt;/td>
@@ -887,7 +948,7 @@ title="Copy code"
 &lt;ul>
 &lt;li>&lt;a href="https://dotnet.microsoft.com" target="_blank" rel="noopener">.NET SDK&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://docs.python.org/3/whatsnew/3.12.html" target="_blank" rel="noopener">Python 3.12&lt;/a>&lt;/li>
-&lt;li>&lt;a href="https://learn.microsoft.com/en-us/visualstudio/ide/?view=vs-2022" target="_blank" rel="noopener">Visual Studio Build Tools&lt;/a> (with &lt;code>AzureBuildTools&lt;/code>, &lt;code>VCTools&lt;/code>, &lt;code>WebBuildTools&lt;/code>, &lt;code>ManagedDesktopBuildTools&lt;/code>, &lt;code>OfficeBuildTools&lt;/code> workloads)&lt;/li>
+&lt;li>&lt;a href="https://learn.microsoft.com/en-us/visualstudio/ide/?view=vs-2022" target="_blank" rel="noopener">Visual Studio Build Tools (LTSC 17.12)&lt;/a> (with &lt;code>AzureBuildTools&lt;/code>, &lt;code>VCTools&lt;/code>, &lt;code>WebBuildTools&lt;/code>, &lt;code>ManagedDesktopBuildTools&lt;/code>, &lt;code>OfficeBuildTools&lt;/code> workloads)&lt;/li>
 &lt;/ul>
 &lt;/li>
 &lt;li>Tools
