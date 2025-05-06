@@ -297,7 +297,7 @@ jobs:
 
       # Required for linting Bicep files
       - name: Login to Azure
-        uses: azure/login@v2.2.0
+        uses: azure/login@v2.3.0
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -932,7 +932,7 @@ jobs:
           echo "${{ secrets.AGE_KEY }}" > ${age_folder}/keys.txt
 
       - name: Login to Azure
-        uses: azure/login@v2.2.0
+        uses: azure/login@v2.3.0
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
