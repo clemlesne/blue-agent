@@ -59,6 +59,8 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,id=apt-lists-${TARGETPLATFORM},
         zip \
         zsh \
         zstd \
+    # Strip latent init & desktop junk that drags CVEs
+    && apt-get purge -y --auto-remove 'dbus*' 'polkit*' 'systemd*' \
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
 # Copy helper script, then verify installation

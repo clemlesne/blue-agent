@@ -21,7 +21,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # - gzip, make, tar, unzip, wget, zip, zstd, dnsutils, rsync, for developer ease-of-life
 # - zsh, for inter-operability
 RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=locked \
-    microdnf install -y --nodocs --setopt=install_weak_deps=0 \
+    microdnf install -y --nodocs --setopt=install_weak_deps=0 --setopt=tsflags=nodocs \
         aspnetcore-runtime-8.0 \
         bind-utils \
         ca-certificates \
@@ -95,7 +95,7 @@ FROM base AS python
 ARG PYTHON_VERSION
 ENV PYTHON_VERSION=${PYTHON_VERSION}
 RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=locked --mount=target=/Python-${PYTHON_VERSION},type=cache,id=python-${PYTHON_VERSION}-${TARGETPLATFORM},sharing=locked \
-    microdnf install -y --nodocs --setopt=install_weak_deps=0 \
+    microdnf install -y --nodocs --setopt=install_weak_deps=0 --setopt=tsflags=nodocs \
         bzip2 \
         bzip2-devel \
         expat \
