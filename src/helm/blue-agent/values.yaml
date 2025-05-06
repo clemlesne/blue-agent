@@ -139,7 +139,6 @@ tolerations: []
 affinity: {}
 
 # Number of revisions to keep in the history of the Deployment
-# Warning: setting this to 0 will disable the Deployment history and cause inability to rollback (see: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy)
 revisionHistoryLimit: 10
 
 # Annotations for scheduling and security behaviors
