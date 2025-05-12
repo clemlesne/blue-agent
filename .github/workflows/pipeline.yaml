@@ -117,7 +117,7 @@ jobs:
           submodules: recursive
 
       - name: SAST - Credentials
-        uses: trufflesecurity/trufflehog@v3.88.27
+        uses: trufflesecurity/trufflehog@v3.88.29
         with:
           base: main
           extra_args: --only-verified
