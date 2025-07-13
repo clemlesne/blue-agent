@@ -78,37 +78,9 @@ helm upgrade --install agent clemlesne-blue-agent/blue-agent
 
 ## Template Container Behavior
 
-When deploying Blue Agent with KEDA auto-scaling enabled, you will notice a "template" container that runs briefly during deployment. This is expected behavior and serves an important purpose:
+When deploying Blue Agent with KEDA auto-scaling enabled, a "template" container will run briefly during deployment. This is expected behavior that registers agent capabilities with Azure DevOps and enables KEDA scaling. The template container runs for 1 minute then stops (remaining as "offline" in the agent pool).
 
-### What is a Template Container?
-
-A template container is a special agent that:
-
-- Registers with Azure DevOps with the suffix "-template" in its name
-- Runs for 1 minute to establish agent capabilities
-- Does not process actual pipeline jobs
-- Automatically stops after capability registration
-
-### Why is it Needed?
-
-The template container is essential for KEDA auto-scaling:
-
-- **Capability Discovery**: KEDA needs to understand what agent capabilities are available
-- **Intelligent Scaling**: Enables proper job-to-agent matching when scaling up
-- **Prevents Errors**: Avoids scaling failures when no agents are initially present
-- **Reference Point**: Provides a stable reference for the KEDA scaler configuration
-
-### Expected Behavior
-
-When you deploy Blue Agent:
-
-1. A template container will start immediately
-2. It will register with Azure DevOps (you'll see it in the agent pool)
-3. After 1 minute, the template container will stop
-4. The template agent will remain in the pool as "offline" (this is normal)
-5. KEDA will use this template agent as a reference for future scaling
-
-This process is completely normal and does not indicate any issues with your deployment.
+For detailed information about template container behavior, common errors, and troubleshooting, see the [troubleshooting documentation](/docs/troubleshooting/).
 
 ## OS support matrix
 
