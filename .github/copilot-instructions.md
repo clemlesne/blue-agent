@@ -2,6 +2,27 @@
 
 This file contains project-specific guidelines for GitHub Copilot to ensure code suggestions align with Blue Agent's mandatory conventions and best practices.
 
+## Project Overview
+
+Blue Agent is a self-hosted Azure Pipelines agent designed to run in Kubernetes environments. The project aims to provide a cost-effective, secure, auto-scaled, and easy-to-deploy alternative to Microsoft-hosted agents.
+
+### Key Features and Motivations
+
+- **Cost Efficiency**: Dynamic provisioning with KEDA auto-scaling (0 to 100+ agents in seconds)
+- **Performance**: Customizable performance beyond Microsoft-hosted agent limitations
+- **Security**: SBOM generation, Cosign signing, daily system updates, air-gapped capability
+- **Flexibility**: Multi-OS support (Azure Linux, Debian, Ubuntu, RHEL, Windows Server)
+- **Container Building**: Built-in BuildKit support for container builds
+- **Self-Management**: Agent auto-registration and restart capabilities
+
+### General Constraints
+
+- **Kubernetes-First**: All deployments target Kubernetes environments
+- **Security-First**: All images must be signed, include SBOM, and follow SLSA 4 requirements
+- **Multi-Architecture**: Support for both amd64 and arm64 architectures is mandatory
+- **Cloud-Native**: Designed for cloud-native environments with KEDA integration
+- **Documentation-Driven**: All features must be documented and examples provided
+
 ## Security and Compliance
 
 ### SLSA 4 Supply Chain Requirements
@@ -122,6 +143,9 @@ LABEL org.opencontainers.image.vendor="clemlesne"
 ### Hugo Documentation
 
 - Use Hugo for all documentation generation
+- Documentation is compiled into a website and published at clemlesne.github.io/blue-agent
+- The compiled website is accessible from files, search engines, and provides easy discovery for developers
+- Documentation includes examples, configuration guides, performance advice, deployment instructions, and usage guidance
 - Follow existing documentation structure and themes
 - Include front matter with proper metadata
 - Use shortcodes for consistent formatting
