@@ -29,6 +29,9 @@ spec:
       key: personalAccessToken
   {{- end }}
 ---
+# KEDA ScaledJob Configuration
+# This creates job-running agents that are scaled based on Azure DevOps queue demand
+# The template container (created by pod.yaml) allows KEDA to monitor the pool
 apiVersion: keda.sh/v1alpha1
 kind: ScaledJob
 metadata:
@@ -77,6 +80,8 @@ spec:
     - type: azure-pipelines
       metadata:
         poolName: {{ .Values.pipelines.poolName | quote | required "A value for .Values.pipelines.poolName is required" }}
+        # Reference to the template container that establishes the pool connection
+        # This template agent allows KEDA to monitor the Azure DevOps pool for pending jobs
         parent: {{ include "blue-agent.fullname" . }}-template
       authenticationRef:
         name: {{ include "blue-agent.fullname" . }}

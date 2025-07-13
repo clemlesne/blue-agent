@@ -2,11 +2,19 @@
 #
 # Agent is always registered. It is removed from the server only when the agent is not a template job. After 60 secs, it tries to shut down the agent gracefully, waiting for the current job to finish, if any.
 #
+# TEMPLATE CONTAINER MECHANISM:
+# When autoscaling is enabled (KEDA), a first "template" container is created (AZP_TEMPLATE_JOB=1) that:
+# - Registers with Azure DevOps for 1 minute to establish pool connection
+# - Allows KEDA to monitor the pool for pending jobs and trigger scaling
+# - Serves as a "parent" agent that KEDA references for scaling decisions
+# - This template container will show "no deploy tasks available" - this is expected behavior
+# - Without this template container, KEDA cannot monitor the Azure DevOps pool for autoscaling
+#
 # Environment variables:
 # - AZP_AGENT_NAME: Agent name (default: hostname)
 # - AZP_CUSTOM_CERT_PEM: Custom SSL certificates directory (default: empty)
 # - AZP_POOL: Agent pool name
-# - AZP_TEMPLATE_JOB: Template job flag (default: 0)
+# - AZP_TEMPLATE_JOB: Template job flag (default: 0, set to 1 for template containers)
 # - AZP_TOKEN: Personal access token
 # - AZP_URL: Server URL
 # - AZP_WORK: Work directory
@@ -61,6 +69,11 @@ if (!(Test-Path $Env:AZP_WORK)) {
 $isTemplateJob = $false
 if ($Env:AZP_TEMPLATE_JOB -eq "1") {
   Write-Warning "Template job enabled, agent cannot be used for running jobs"
+  Write-Header "Template Container: This container serves as a 'parent' agent for KEDA autoscaling"
+  Write-Host "PURPOSE: The template container registers with Azure DevOps to establish pool connection"
+  Write-Host "SCALING: KEDA monitors this template agent to determine when to scale up/down based on job queue"
+  Write-Host "BEHAVIOR: This template agent will run for 1 minute and then terminate - this is expected"
+  Write-Host "IMPORTANCE: Without this template container, KEDA cannot monitor the Azure DevOps pool for autoscaling"
   $isTemplateJob = $true
   $Env:AZP_AGENT_NAME = "$Env:AZP_AGENT_NAME-template"
 }
@@ -141,6 +154,12 @@ Write-Header "Running agent"
 
 # Running it with the --once flag at the end will shut down the agent after the build is executed
 if ($isTemplateJob) {
+  Write-Header "Starting template agent (1-minute lifecycle for KEDA autoscaling setup)"
+  Write-Host "This template agent will:"
+  Write-Host "  • Register with Azure DevOps pool to establish connection"
+  Write-Host "  • Allow KEDA to monitor the pool for pending jobs"
+  Write-Host "  • Automatically terminate after 1 minute (this is expected behavior)"
+  Write-Host "  • Enable autoscaling of actual job-running agents based on queue demand"
   Write-Host "Agent will be stopped after 1 min"
   # Run the agent for a minute
   Start-Job -ScriptBlock {
@@ -148,6 +167,7 @@ if ($isTemplateJob) {
     & run.cmd $Args --once
   }
 } else {
+  Write-Header "Starting regular agent (will process actual jobs)"
   try {
     # Run the countdown for fast-clean if no job is using the agent after a delay
     Start-Job -ScriptBlock {

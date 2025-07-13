@@ -107,3 +107,36 @@ Set a technical pipeline timeout longer than the functional pipeline timeout to 
 {{< /callout >}}
 
 ![Configuration in the web interface.](build-job-timeout-in-minutes.png)
+
+## Template container shows "no deploy tasks available" on first run
+
+When autoscaling is enabled (KEDA), you may notice a first "template" container that runs for about 1 minute and then terminates with a message like "no deploy tasks available". **This is expected behavior**.
+
+### Why template containers exist
+
+Template containers serve as "parent" agents that:
+
+- Register with Azure DevOps to establish the pool connection
+- Allow KEDA to monitor the Azure DevOps pool for pending jobs
+- Trigger autoscaling when jobs are queued
+- Provide a reference point for KEDA's scaling decisions
+
+### Expected behavior
+
+The template container will:
+
+1. Start with a name ending in `-template`
+2. Register with your Azure DevOps pool
+3. Run for approximately 1 minute
+4. Show "no deploy tasks available" (because it's not meant to run jobs)
+5. Terminate automatically
+
+### How scaling works
+
+1. Template container establishes pool connection
+2. KEDA monitors the pool through this template agent
+3. When jobs are queued, KEDA creates new job-running agents
+4. These job-running agents process the actual pipeline jobs
+5. After jobs complete, the job-running agents are cleaned up
+
+This mechanism enables efficient autoscaling from 0 to 100+ agents based on your pipeline queue demand.

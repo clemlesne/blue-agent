@@ -215,6 +215,9 @@ containers:
             name: {{ include "blue-agent.secretName" . }}
             key: personalAccessToken
       # Register the agent as a template for future scaling (if requested)
+      # Template containers (isTemplateJob=1) serve as "parent" agents for KEDA autoscaling
+      # They register with Azure DevOps for 1 minute to establish pool connection
+      # This allows KEDA to monitor the pool for pending jobs and trigger scaling
       - name: AZP_TEMPLATE_JOB
         value: {{ .Args.isTemplateJob | quote }}
       # Capabilities: START

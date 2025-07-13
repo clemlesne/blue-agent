@@ -1,4 +1,7 @@
 {{- if not (and (.Values.autoscaling.enabled) (.Capabilities.APIVersions.Has "keda.sh/v1alpha1")) -}}
+# Regular Agent Deployment (when autoscaling is disabled)
+# These agents run continuously and process jobs directly
+# When autoscaling is enabled, this deployment is not created and jobs are handled by ScaledJob
 apiVersion: apps/v1
 kind: Deployment
 metadata:

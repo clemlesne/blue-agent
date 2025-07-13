@@ -1,15 +1,23 @@
 #!/bin/bash
 set -e
 
-# Start the Azure DevOps agent in a Windows container
+# Start the Azure DevOps agent in a Linux container
 #
 # Agent is always registered. It is removed from the server only when the agent is not a template job. After 60 secs, it tries to shut down the agent gracefully, waiting for the current job to finish, if any.
+#
+# TEMPLATE CONTAINER MECHANISM:
+# When autoscaling is enabled (KEDA), a first "template" container is created (AZP_TEMPLATE_JOB=1) that:
+# - Registers with Azure DevOps for 1 minute to establish pool connection
+# - Allows KEDA to monitor the pool for pending jobs and trigger scaling
+# - Serves as a "parent" agent that KEDA references for scaling decisions
+# - This template container will show "no deploy tasks available" - this is expected behavior
+# - Without this template container, KEDA cannot monitor the Azure DevOps pool for autoscaling
 #
 # Environment variables:
 # - AZP_AGENT_NAME: Agent name (default: hostname)
 # - AZP_CUSTOM_CERT_PEM: Custom SSL certificates directory (default: empty)
 # - AZP_POOL: Agent pool name
-# - AZP_TEMPLATE_JOB: Template job flag (default: 0)
+# - AZP_TEMPLATE_JOB: Template job flag (default: 0, set to 1 for template containers)
 # - AZP_TOKEN: Personal access token
 # - AZP_URL: Server URL
 # - AZP_WORK: Work directory
@@ -68,6 +76,11 @@ fi
 
 if [ "$AZP_TEMPLATE_JOB" == "1" ]; then
   write_warning "Template job enabled, agent cannot be used for running jobs"
+  write_header "Template Container: This container serves as a 'parent' agent for KEDA autoscaling"
+  echo "PURPOSE: The template container registers with Azure DevOps to establish pool connection"
+  echo "SCALING: KEDA monitors this template agent to determine when to scale up/down based on job queue"
+  echo "BEHAVIOR: This template agent will run for 1 minute and then terminate - this is expected"
+  echo "IMPORTANCE: Without this template container, KEDA cannot monitor the Azure DevOps pool for autoscaling"
   is_template_job="true"
   AZP_AGENT_NAME="${AZP_AGENT_NAME}-template"
 fi
@@ -84,7 +97,7 @@ unregister() {
   # If the agent has some running jobs, the configuration removal process will fail ; so, give it some time to finish the job
   while true; do
     # If the agent is removed successfully, exit the loop
-    bash config.sh remove \
+    /tmp/config.sh remove \
         --auth PAT \
         --token "$AZP_TOKEN" \
         --unattended \
@@ -151,7 +164,7 @@ write_header "Configuring agent"
 
 cd $(dirname "$0")
 
-bash config.sh \
+/tmp/config.sh \
   --acceptTeeEula \
   --agent "$AZP_AGENT_NAME" \
   --auth PAT \
@@ -174,10 +187,17 @@ write_header "Running agent"
 
 # Running it with the --once flag at the end will shut down the agent after the build is executed
 if [ "$is_template_job" == "true" ]; then
+  write_header "Starting template agent (1-minute lifecycle for KEDA autoscaling setup)"
+  echo "This template agent will:"
+  echo "  • Register with Azure DevOps pool to establish connection"
+  echo "  • Allow KEDA to monitor the pool for pending jobs"
+  echo "  • Automatically terminate after 1 minute (this is expected behavior)"
+  echo "  • Enable autoscaling of actual job-running agents based on queue demand"
   echo "Agent will be stopped after 1 min"
   # Run the agent for a minute
-  timeout --preserve-status 1m bash run-docker.sh "$@" --once &
+  timeout --preserve-status 1m /tmp/run-docker.sh "$@" --once &
 else
+  write_header "Starting regular agent (will process actual jobs)"
   # Unregister on success
   trap 'unregister; exit 0' EXIT
   # Unregister on Ctrl+C
@@ -187,7 +207,7 @@ else
   # Run the countdown for fast-clean if no job is using the agent after a delay
   sleep 60 && unregister &
   # Run the agent
-  bash run-docker.sh "$@" --once &
+  /tmp/run-docker.sh "$@" --once &
 fi
 
 # Fake the exit code of the agent for the prevent Kubernetes to detect the pod as failed (this is intended)

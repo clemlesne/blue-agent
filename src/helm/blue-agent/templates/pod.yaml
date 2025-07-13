@@ -1,4 +1,8 @@
 {{- if and (.Values.autoscaling.enabled) (.Capabilities.APIVersions.Has "keda.sh/v1alpha1") -}}
+# Template Container for KEDA Autoscaling
+# This pod serves as a "parent" agent that KEDA uses to monitor the Azure DevOps pool
+# It registers with Azure DevOps for 1 minute to establish pool connection and then terminates
+# This is essential for KEDA to determine when to scale up/down based on job queue
 apiVersion: v1
 kind: Pod
 metadata:
