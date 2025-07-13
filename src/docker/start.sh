@@ -1,7 +1,17 @@
 #!/bin/bash
 set -e
 
-# Start the Azure DevOps agent in a Windows container
+# Start the Azure DevOps agent in a Linux container
+#
+# This script handles both regular agent execution and template container creation.
+# Template containers are special agents that serve as references for KEDA auto-scaling.
+#
+# Template Container Logic:
+# - When AZP_TEMPLATE_JOB=1, the agent runs as a template container
+# - Template containers register with Azure DevOps but don't process jobs
+# - They run for 1 minute to establish capabilities, then stop
+# - KEDA uses the template agent as a reference for scaling decisions
+# - This prevents scaling errors when no agents are initially available
 #
 # Agent is always registered. It is removed from the server only when the agent is not a template job. After 60 secs, it tries to shut down the agent gracefully, waiting for the current job to finish, if any.
 #
@@ -9,7 +19,7 @@ set -e
 # - AZP_AGENT_NAME: Agent name (default: hostname)
 # - AZP_CUSTOM_CERT_PEM: Custom SSL certificates directory (default: empty)
 # - AZP_POOL: Agent pool name
-# - AZP_TEMPLATE_JOB: Template job flag (default: 0)
+# - AZP_TEMPLATE_JOB: Template job flag (default: 0) - when set to 1, creates template container
 # - AZP_TOKEN: Personal access token
 # - AZP_URL: Server URL
 # - AZP_WORK: Work directory
@@ -68,6 +78,17 @@ fi
 
 if [ "$AZP_TEMPLATE_JOB" == "1" ]; then
   write_warning "Template job enabled, agent cannot be used for running jobs"
+  write_header "Template Container Explanation"
+  echo "This is a template container that serves as a reference for KEDA auto-scaling."
+  echo "Purpose:"
+  echo "  - Registers with Azure DevOps to establish agent capabilities"
+  echo "  - Provides KEDA with agent metadata for intelligent scaling decisions"
+  echo "  - Runs for 1 minute then stops (this is expected behavior)"
+  echo "  - Does not process actual pipeline jobs"
+  echo "Why this is needed:"
+  echo "  - KEDA needs a reference agent to understand available capabilities"
+  echo "  - Enables proper job-to-agent matching during scaling"
+  echo "  - Prevents scaling errors when no agents are initially available"
   is_template_job="true"
   AZP_AGENT_NAME="${AZP_AGENT_NAME}-template"
 fi
@@ -174,8 +195,11 @@ write_header "Running agent"
 
 # Running it with the --once flag at the end will shut down the agent after the build is executed
 if [ "$is_template_job" == "true" ]; then
+  write_header "Template Container Execution"
+  echo "This template container will run for 1 minute to establish agent capabilities"
+  echo "and then stop. This is normal behavior for template containers."
   echo "Agent will be stopped after 1 min"
-  # Run the agent for a minute
+  # Run the agent for a minute to allow registration and capability detection
   timeout --preserve-status 1m bash run-docker.sh "$@" --once &
 else
   # Unregister on success

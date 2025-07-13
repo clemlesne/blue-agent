@@ -1,4 +1,17 @@
 {{- if and (.Values.autoscaling.enabled) (.Capabilities.APIVersions.Has "keda.sh/v1alpha1") -}}
+{{/*
+Template Container Pod:
+This pod creates a "template" agent that serves as a reference for KEDA auto-scaling.
+The template container:
+- Registers with Azure DevOps with agent name suffix "-template"
+- Provides KEDA with capability information for intelligent scaling
+- Runs for 1 minute then stops (expected behavior)
+- Does not process actual pipeline jobs
+- Enables KEDA to make proper job-to-agent matching decisions
+
+This is required for KEDA to understand what agents are available and their capabilities,
+preventing scaling errors when no agents are initially present in the pool.
+*/}}
 apiVersion: v1
 kind: Pod
 metadata:
