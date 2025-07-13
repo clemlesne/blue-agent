@@ -214,9 +214,6 @@ containers:
           secretKeyRef:
             name: {{ include "blue-agent.secretName" . }}
             key: personalAccessToken
-      # Register the agent as a template for future scaling (if requested)
-      # Template jobs (AZP_TEMPLATE_JOB=1) are used by KEDA for scaling reference
-      # They register with Azure DevOps but don't process actual pipeline jobs
       - name: AZP_TEMPLATE_JOB
         value: {{ .Args.isTemplateJob | quote }}
       # Capabilities: START

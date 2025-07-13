@@ -70,18 +70,7 @@ if (!(Test-Path $Env:AZP_WORK)) {
 
 $isTemplateJob = $false
 if ($Env:AZP_TEMPLATE_JOB -eq "1") {
-  Write-Warning "Template job enabled, agent cannot be used for running jobs"
-  Write-Header "Template Container Explanation"
-  Write-Host "This is a template container that serves as a reference for KEDA auto-scaling."
-  Write-Host "Purpose:"
-  Write-Host "  - Registers with Azure DevOps to establish agent capabilities"
-  Write-Host "  - Provides KEDA with agent metadata for intelligent scaling decisions"
-  Write-Host "  - Runs for 1 minute then stops (this is expected behavior)"
-  Write-Host "  - Does not process actual pipeline jobs"
-  Write-Host "Why this is needed:"
-  Write-Host "  - KEDA needs a reference agent to understand available capabilities"
-  Write-Host "  - Enables proper job-to-agent matching during scaling"
-  Write-Host "  - Prevents scaling errors when no agents are initially available"
+  Write-Warning "Template job enabled, agent cannot be used for running jobs - see documentation for details"
   $isTemplateJob = $true
   $Env:AZP_AGENT_NAME = "$Env:AZP_AGENT_NAME-template"
 }
@@ -162,9 +151,6 @@ Write-Header "Running agent"
 
 # Running it with the --once flag at the end will shut down the agent after the build is executed
 if ($isTemplateJob) {
-  Write-Header "Template Container Execution"
-  Write-Host "This template container will run for 1 minute to establish agent capabilities"
-  Write-Host "and then stop. This is normal behavior for template containers."
   Write-Host "Agent will be stopped after 1 min"
   # Run the agent for a minute to allow registration and capability detection
   Start-Job -ScriptBlock {

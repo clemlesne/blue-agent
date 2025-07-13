@@ -77,18 +77,7 @@ if [ ! -w "$AZP_WORK" ]; then
 fi
 
 if [ "$AZP_TEMPLATE_JOB" == "1" ]; then
-  write_warning "Template job enabled, agent cannot be used for running jobs"
-  write_header "Template Container Explanation"
-  echo "This is a template container that serves as a reference for KEDA auto-scaling."
-  echo "Purpose:"
-  echo "  - Registers with Azure DevOps to establish agent capabilities"
-  echo "  - Provides KEDA with agent metadata for intelligent scaling decisions"
-  echo "  - Runs for 1 minute then stops (this is expected behavior)"
-  echo "  - Does not process actual pipeline jobs"
-  echo "Why this is needed:"
-  echo "  - KEDA needs a reference agent to understand available capabilities"
-  echo "  - Enables proper job-to-agent matching during scaling"
-  echo "  - Prevents scaling errors when no agents are initially available"
+  write_warning "Template job enabled, agent cannot be used for running jobs - see documentation for details"
   is_template_job="true"
   AZP_AGENT_NAME="${AZP_AGENT_NAME}-template"
 fi
@@ -195,9 +184,6 @@ write_header "Running agent"
 
 # Running it with the --once flag at the end will shut down the agent after the build is executed
 if [ "$is_template_job" == "true" ]; then
-  write_header "Template Container Execution"
-  echo "This template container will run for 1 minute to establish agent capabilities"
-  echo "and then stop. This is normal behavior for template containers."
   echo "Agent will be stopped after 1 min"
   # Run the agent for a minute to allow registration and capability detection
   timeout --preserve-status 1m bash run-docker.sh "$@" --once &

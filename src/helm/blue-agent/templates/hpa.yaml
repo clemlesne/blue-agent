@@ -77,9 +77,6 @@ spec:
     - type: azure-pipelines
       metadata:
         poolName: {{ .Values.pipelines.poolName | quote | required "A value for .Values.pipelines.poolName is required" }}
-        # Reference to the template agent created by pod.yaml
-        # KEDA uses this template agent to understand available capabilities
-        # and make intelligent scaling decisions when new jobs are queued
         parent: {{ include "blue-agent.fullname" . }}-template
       authenticationRef:
         name: {{ include "blue-agent.fullname" . }}
