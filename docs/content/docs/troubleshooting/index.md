@@ -3,6 +3,38 @@ title: Troubleshooting
 weight: 4
 ---
 
+## Understanding Template Container Behavior
+
+### Template container runs for 1 minute then stops
+
+This is expected behavior. Template containers are designed to run briefly to:
+
+- Register with Azure DevOps
+- Establish agent capabilities for KEDA
+- Provide scaling reference information
+- Then stop after 1 minute
+
+The template agent will remain in your Azure DevOps agent pool as "offline" - this is normal and required for KEDA to function properly.
+
+### "No deploy tasks available" error on first run
+
+This error typically occurs when:
+
+- The template container starts before any pipeline jobs are queued
+- KEDA has not yet scaled up regular worker agents
+- The system is operating normally during the initial deployment phase
+
+**Solution**: This is expected behavior during deployment. The template container will stop after 1 minute, and KEDA will scale up regular agents when actual jobs are queued.
+
+### Template agent appears in Azure DevOps but shows as offline
+
+This is normal behavior. The template agent:
+
+- Registers with Azure DevOps to provide capability information
+- Runs for 1 minute then stops (showing as "offline")
+- Remains in the pool as a reference for KEDA scaling decisions
+- Should not be manually removed from the pool
+
 ## Pods are evicted by Kubernetes with the message `Pod ephemeral local storage usage exceeds the total limit of containers`
 
 This error is due to the fact that the default ephemeral storage limit is set to a lower value than the one used by the pipeline. You can fix it by setting the value to more than default value in `resources.limits.ephemeral-storage`.

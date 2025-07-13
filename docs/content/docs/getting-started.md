@@ -76,6 +76,12 @@ helm upgrade --install agent clemlesne-blue-agent/blue-agent
 
 {{% /steps %}}
 
+## Template Container Behavior
+
+When deploying Blue Agent with KEDA auto-scaling enabled, a "template" container will run briefly during deployment. This is expected behavior that registers agent capabilities with Azure DevOps and enables KEDA scaling. The template container runs for 1 minute then stops (remaining as "offline" in the agent pool).
+
+For detailed information about template container behavior, common errors, and troubleshooting, see the [troubleshooting documentation](/docs/troubleshooting/).
+
 ## OS support matrix
 
 OS support is generally called "flavor" in this documentation. The following table shows the supported flavors and their characteristics.
