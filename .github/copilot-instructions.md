@@ -17,7 +17,7 @@ Blue Agent is a self-hosted Azure Pipelines agent designed to run in Kubernetes 
 
 ### General Constraints
 
-- **Kubernetes-First**: All deployments target Kubernetes environments
+- **Container-First**: All deployments target container environments including Kubernetes and Azure Container Apps
 - **Security-First**: All images must be signed, include SBOM, and follow SLSA 4 requirements
 - **Multi-Architecture**: Support for both amd64 and arm64 architectures is mandatory
 - **Cloud-Native**: Designed for cloud-native environments with KEDA integration
