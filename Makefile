@@ -13,7 +13,7 @@ rg_name ?= $(shell echo $(bicep_outputs) | yq '.rgName.value')
 # Container App Job environment
 container_specs ?= $(shell az containerapp job show --name "$(job_name)" --resource-group "$(rg_name)" | yq '.properties.template.containers[0]')
 job_image ?= $(shell echo $(container_specs) | yq '.image')
-job_env ?= $(shell echo $(container_specs) | yq '.env | map("\(.name)=\(.value // \"secretref:\" + .secretRef)") | .[]')
+job_env ?= $(shell echo $(container_specs) | yq '.env[] | select(.secretRef) | .name + "=secretref:" + .secretRef') $(shell echo $(container_specs) | yq '.env[] | select(has("secretRef") | not) | .name + "=" + (.value // "")')
 
 test:
 	@echo "➡️ Running Prettier"
