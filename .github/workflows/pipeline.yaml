@@ -424,7 +424,7 @@ jobs:
         run: |
           ref="${{ github.ref }}"
           branch=$(echo "${ref#refs/heads/}" | sed 's/\//-/g')
-          tag=$(echo "${{ steps.meta.outputs.tags }}" | grep -m1 $branch)
+          tag=$(echo "${{ steps.meta.outputs.tags }}" | grep -m1 $branch || echo "${{ steps.meta.outputs.tags }}" | grep -m1 sha)
           echo "tag=$tag" >> $GITHUB_OUTPUT
 
       - name: Build & push container
@@ -614,6 +614,9 @@ jobs:
         run: |
           $branch = "${{ github.ref }}".Substring("refs/heads/".Length).Replace("/", "-")
           $tag = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine) | Where-Object { $_ -like "*$branch*" } | Select-Object -First 1
+          if (-not $tag) {
+            $tag = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine) | Where-Object { $_ -like "*sha*" } | Select-Object -First 1
+          }
           echo "tag=$tag" >> $Env:GITHUB_OUTPUT
 
       - name: Build & push container
