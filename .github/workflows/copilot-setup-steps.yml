@@ -1,0 +1,85 @@
+name: Copilot setup steps
+
+# Allow manual testing through the repository's "Actions" tab
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+env:
+  QEMU_PLATFORMS: linux/amd64,linux/arm64
+  # Tool versions
+  # https://github.com/helm/helm/releases
+  HELM_VERSION: 3.18.4
+  # https://nodejs.org/en/download/releases
+  NODE_VERSION: 22.17.0
+  # https://github.com/sigstore/cosign/releases
+  COSIGN_VERSION: 2.5.2
+  # https://github.com/docker/buildx/releases
+  BUILDX_VERSION: 0.25.0
+  # https://github.com/moby/buildkit/releases
+  BUILDKIT_VERSION: 0.23.2
+  # https://github.com/hadolint/hadolint/releases
+  HADOLINT_VERSION: 2.12.0
+
+jobs:
+  # Job must be called `copilot-setup-steps` or it will not be picked up by Copilot
+  copilot-setup-steps:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+        with:
+          # We need all Git history for "version.sh"
+          fetch-depth: 0
+          # Ensure "version.sh" submodule are up-to-date
+          submodules: recursive
+
+      # Required for running "helm" CLI
+      - name: Setup Helm
+        uses: azure/setup-helm@v4.3.0
+        with:
+          version: v${{ env.HELM_VERSION }}
+
+      # Required for running "npx" CLI
+      - name: Setup Node
+        uses: actions/setup-node@v4.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # Required for running "cosign" CLI
+      - name: Setup Cosign
+        # Only sign builds on main branch
+        if: github.ref == 'refs/heads/main'
+        uses: sigstore/cosign-installer@v3.9.1
+        with:
+          cosign-release: v${{ env.COSIGN_VERSION }}
+
+      # Required for running "hadolint" CLI
+      - name: Setup Hadolint
+        run: |
+          sudo curl -LsSf --retry 8 --retry-all-errors https://github.com/hadolint/hadolint/releases/download/v${{ env.HADOLINT_VERSION }}/hadolint-Linux-x86_64 -o /usr/bin/hadolint
+          sudo chmod +x /usr/bin/hadolint
+          hadolint --version
+
+      # Required to build multi-arch images
+      - name: Setup QEMU
+        id: setup-qemu
+        uses: docker/setup-qemu-action@v3.6.0
+        with:
+          platforms: ${{ env.QEMU_PLATFORMS }}
+
+      # Required for "docker build" command
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3.10.0
+        with:
+          version: v${{ env.BUILDX_VERSION }}
+          driver-opts: |
+            image=moby/buildkit:v${{ env.BUILDKIT_VERSION }}
