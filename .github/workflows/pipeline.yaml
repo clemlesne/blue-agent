@@ -185,7 +185,7 @@ jobs:
             .cr-release-packages/blue-agent-${{ needs.init.outputs.VERSION }}.tgz
 
       - name: Upload Helm chart
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v4.6.2
         with:
           if-no-files-found: error # Fail if no files are uploaded
           include-hidden-files: true # Folder begins with a dot, if not checked the whole folder is ignored
@@ -850,7 +850,7 @@ jobs:
             --baseURL "${{ steps.pages.outputs.base_url }}/"
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v4.6.2
         with:
           if-no-files-found: error # Fail if no files are uploaded
           name: hugo
