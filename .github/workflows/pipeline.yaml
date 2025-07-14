@@ -150,7 +150,7 @@ jobs:
       - name: Setup Cosign
         # Only sign builds on main branch
         if: github.ref == 'refs/heads/main'
-        uses: sigstore/cosign-installer@v3.8.2
+        uses: sigstore/cosign-installer@v3.9.1
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
@@ -364,7 +364,7 @@ jobs:
       - name: Setup Cosign
         # Only sign builds on main branch
         if: github.ref == 'refs/heads/main'
-        uses: sigstore/cosign-installer@v3.8.2
+        uses: sigstore/cosign-installer@v3.9.1
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
@@ -554,7 +554,7 @@ jobs:
       - name: Setup Cosign
         # Only sign builds on main branch
         if: github.ref == 'refs/heads/main'
-        uses: sigstore/cosign-installer@v3.8.2
+        uses: sigstore/cosign-installer@v3.9.1
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
