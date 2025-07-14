@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # check=skip=UndefinedVar
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-noble@sha256:5d5abe42f74ba1d91ec1ede78a6a430473691117689c7c84fb40beb76a4bf2cb AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-noble@sha256:5f051412395aa54164d146478b27fa5b911a868fd0b4f26fcb43aa632e5be072 AS base
 
 # Source platform from buildx "platform" argument
 ARG TARGETPLATFORM
