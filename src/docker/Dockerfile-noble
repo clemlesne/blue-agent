@@ -120,6 +120,7 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,id=apt-lists-${TARGETPLATFORM},
         libxmlsec1-dev \
         lzma \
         lzma-dev \
+        tk-dev \
         uuid-dev \
         xz-utils \
         zlib1g-dev \

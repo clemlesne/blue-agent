@@ -110,10 +110,12 @@ RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=lo
         libxml2-devel \
         mpdecimal \
         ncurses-devel \
+        readline \
         redhat-rpm-config \
         sqlite \
         sqlite-devel \
         sqlite-libs \
+        tk \
         xz-devel \
         xz-libs \
         zlib-devel \
