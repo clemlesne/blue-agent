@@ -56,7 +56,7 @@ All Dockerfiles follow the pattern `src/docker/Dockerfile-{flavor}` where flavor
 
 - `azurelinux3`, `bookworm`, `jammy`, `noble` (Linux variants)
 - `ubi8`, `ubi9` (Red Hat Enterprise Linux)
-- `win-ltsc2019`, `win-ltsc2022` (Windows Server)
+- `win-ltsc2022`, `win-ltsc2025` (Windows Server)
 
 Build argument pattern is consistent across all flavors - check `cicd/docker-build-local.sh` for the canonical build argument list.
 
@@ -213,7 +213,7 @@ All container flavors include standardized tool versions (defined in `cicd/env-g
 - Prefer official base images from Microsoft, Red Hat, or Canonical
 - Support multiple OS flavors: azurelinux3, bookworm, jammy, noble, ubi8, ubi9
 - Use minimal/slim variants when available
-- Include Windows support with ltsc2019 and ltsc2022 variants
+- Include Windows support with ltsc2022 and ltsc2025 variants
 
 ### Container Labels and Metadata
 
