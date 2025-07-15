@@ -11,7 +11,7 @@ PREFIX="${FOLDER}/Dockerfile-"
 SUFFIXES="$1"
 
 # Check if docker is installed
-if ! command -v docker &> /dev/null; then
+if ! command -v docker &>/dev/null; then
   echo "Docker is not installed, please install it to proceed."
   exit
 fi
