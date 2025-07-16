@@ -65,7 +65,7 @@ jobs:
       # Required for running "hadolint" CLI
       - name: Setup Hadolint
         run: |
-          sudo curl -LsSf --retry 8 --retry-all-errors https://github.com/hadolint/hadolint/releases/download/v${{ env.HADOLINT_VERSION }}/hadolint-Linux-x86_64 -o /usr/bin/hadolint
+          sudo curl -LsSf --retry 8 --retry-all-errors --connect-timeout 120 https://github.com/hadolint/hadolint/releases/download/v${{ env.HADOLINT_VERSION }}/hadolint-Linux-x86_64 -o /usr/bin/hadolint
           sudo chmod +x /usr/bin/hadolint
           hadolint --version
 
