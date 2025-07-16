@@ -108,7 +108,7 @@ title="Copy code"
 &lt;td>&lt;code>ghcr.io/clemlesne/blue-agent:noble-main&lt;/code>&lt;/td>
 &lt;td>&lt;a href="https://www.releases.ubuntu.com/noble" target="_blank" rel="noopener">Ubuntu Noble (24.04)&lt;/a> minimal&lt;/td>
 &lt;td>&lt;img src="https://img.shields.io/docker/image-size/clemlesne/blue-agent/noble-main?label=" alt="Docker Image Size (tag)" loading="lazy" />&lt;/td>
-&lt;td>&lt;code>amd64&lt;/code>&lt;/td>
+&lt;td>&lt;code>amd64&lt;/code>, &lt;code>arm64/v8&lt;/code>&lt;/td>
 &lt;td>&lt;a href="https://wiki.ubuntu.com/Releases" target="_blank" rel="noopener">See Ubuntu LTS wiki.&lt;/a>&lt;/td>
 &lt;/tr>
 &lt;tr>
