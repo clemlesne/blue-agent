@@ -17,7 +17,7 @@ Softwares are operating system specific. The following table lists the softwares
   - [PowerShell Core](https://github.com/PowerShell/PowerShell)
   - [zsh](https://www.zsh.org)
 - Programming languages
-  - [ASP.NET Core Runtime](https://github.com/dotnet/aspnetcore)
+  - [ASP.NET Core Runtime](https://github.com/dotnet/aspnetcore) ([dedicated section](./build-aspnet.md))
   - [Python 3](https://python.org) ([dedicated section](./build-python.md))
 - Tools
   - [dnsutils](https://www.isc.org/bind)
@@ -45,7 +45,7 @@ Softwares are operating system specific. The following table lists the softwares
   - [PowerShell Core](https://github.com/PowerShell/PowerShell) (default)
   - [Windows PowerShell](https://learn.microsoft.com/en-us/powershell/scripting/windows-powershell/install/installing-windows-powershell?view=powershell-7.3)
 - Programming languages
-  - [.NET SDK](https://dotnet.microsoft.com)
+  - [.NET SDK](https://dotnet.microsoft.com) ([dedicated section](./build-aspnet.md))
   - [Python 3](https://python.org) ([dedicated section](./build-python.md))
   - [Visual Studio Build Tools (LTSC 17.12)](https://learn.microsoft.com/en-us/visualstudio/ide/?view=vs-2022) (with `AzureBuildTools`, `VCTools`, `WebBuildTools`, `ManagedDesktopBuildTools`, `OfficeBuildTools` workloads)
 - Tools
