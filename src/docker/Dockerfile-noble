@@ -70,9 +70,9 @@ RUN chmod +x arch.sh \
     && bash arch.sh
 
 # Persist Python version
-ARG PYTHON_VERSION_MAJOR_MINOR
-ARG PYTHON_VERSION_PATCH
-ENV PYTHON_VERSION=${PYTHON_VERSION_MAJOR_MINOR}.${PYTHON_VERSION_PATCH}
+ARG PYTHON_313_VERSION_MAJOR_MINOR
+ARG PYTHON_313_VERSION_PATCH
+ENV PYTHON_VERSION=${PYTHON_313_VERSION_MAJOR_MINOR}.${PYTHON_313_VERSION_PATCH}
 
 FROM base AS rootlesskit
 
@@ -120,6 +120,7 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,id=apt-lists-${TARGETPLATFORM},
         libxmlsec1-dev \
         lzma \
         lzma-dev \
+        tk-dev \
         uuid-dev \
         xz-utils \
         zlib1g-dev \
@@ -147,18 +148,18 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,id=apt-lists-${TARGETPLATFORM},
 FROM base
 
 # Install Python, then verify installation
-COPY --from=python /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR}
-COPY --from=python /usr/local/lib/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/lib/python${PYTHON_VERSION_MAJOR_MINOR}
-COPY --from=python /usr/local/include/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/include/python${PYTHON_VERSION_MAJOR_MINOR}
-RUN ln -s /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python3 \
-    && ln -s /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python \
+COPY --from=python /usr/local/bin/python${PYTHON_313_VERSION_MAJOR_MINOR} /usr/local/bin/python${PYTHON_313_VERSION_MAJOR_MINOR}
+COPY --from=python /usr/local/lib/python${PYTHON_313_VERSION_MAJOR_MINOR} /usr/local/lib/python${PYTHON_313_VERSION_MAJOR_MINOR}
+COPY --from=python /usr/local/include/python${PYTHON_313_VERSION_MAJOR_MINOR} /usr/local/include/python${PYTHON_313_VERSION_MAJOR_MINOR}
+RUN ln -s /usr/local/bin/python${PYTHON_313_VERSION_MAJOR_MINOR} /usr/local/bin/python3 \
+    && ln -s /usr/local/bin/python${PYTHON_313_VERSION_MAJOR_MINOR} /usr/local/bin/python \
     && python --version \
     && python3 --version \
-    && python${PYTHON_VERSION_MAJOR_MINOR} --version \
+    && python${PYTHON_313_VERSION_MAJOR_MINOR} --version \
     && python3 -m pip --version
 
 # Install Python build tools
-RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_VERSION_MAJOR_MINOR}-${TARGETPLATFORM},sharing=locked \
+RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_313_VERSION_MAJOR_MINOR}-${TARGETPLATFORM},sharing=locked \
     python3 -m pip \
         --disable-pip-version-check \
         --quiet \
@@ -173,7 +174,7 @@ RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_VERSION_MAJOR_
 # Install Azure CLI, then verify installation
 ARG AZURE_CLI_VERSION
 ENV AZURE_CLI_VERSION=${AZURE_CLI_VERSION}
-RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_VERSION_MAJOR_MINOR}-${TARGETPLATFORM},sharing=locked \
+RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_313_VERSION_MAJOR_MINOR}-${TARGETPLATFORM},sharing=locked \
     python3 -m pip \
         --disable-pip-version-check \
         --quiet \

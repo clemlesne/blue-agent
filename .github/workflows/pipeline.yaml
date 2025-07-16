@@ -55,8 +55,10 @@ env:
   # https://github.com/facebook/zstd/releases
   ZSTD_WIN_VERSION: 1.5.7
   # https://www.python.org/downloads
-  PYTHON_VERSION_MAJOR_MINOR: 3.12
-  PYTHON_VERSION_PATCH: 10
+  PYTHON_312_VERSION_MAJOR_MINOR: 3.12
+  PYTHON_312_VERSION_PATCH: 11
+  PYTHON_313_VERSION_MAJOR_MINOR: 3.13
+  PYTHON_313_VERSION_PATCH: 5
   # https://nodejs.org/en/download/releases
   NODE_VERSION: 22.17.0
   # https://github.com/helm/helm/releases
@@ -438,8 +440,10 @@ jobs:
             GCLOUD_CLI_VERSION=${{ env.GCLOUD_CLI_VERSION }}
             GO_VERSION=${{ env.GO_VERSION }}
             POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}
-            PYTHON_VERSION_MAJOR_MINOR=${{ env.PYTHON_VERSION_MAJOR_MINOR }}
-            PYTHON_VERSION_PATCH=${{ env.PYTHON_VERSION_PATCH }}
+            PYTHON_312_VERSION_MAJOR_MINOR=${{ env.PYTHON_312_VERSION_MAJOR_MINOR }}
+            PYTHON_312_VERSION_PATCH=${{ env.PYTHON_312_VERSION_PATCH }}
+            PYTHON_313_VERSION_MAJOR_MINOR=${{ env.PYTHON_313_VERSION_MAJOR_MINOR }}
+            PYTHON_313_VERSION_PATCH=${{ env.PYTHON_313_VERSION_PATCH }}
             ROOTLESSKIT_VERSION=${{ env.ROOTLESSKIT_VERSION }}
             TINI_VERSION=${{ env.TINI_VERSION }}
             YQ_VERSION=${{ env.YQ_VERSION }}
@@ -630,8 +634,10 @@ jobs:
             "--build-arg", "GIT_VERSION=${{ env.GIT_WIN_VERSION }}",
             "--build-arg", "JQ_VERSION=${{ env.JQ_WIN_VERSION }}",
             "--build-arg", "POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}",
-            "--build-arg", "PYTHON_VERSION_MAJOR_MINOR=${{ env.PYTHON_VERSION_MAJOR_MINOR }}",
-            "--build-arg", "PYTHON_VERSION_PATCH=${{ env.PYTHON_VERSION_PATCH }}",
+            "--build-arg", "PYTHON_312_VERSION_MAJOR_MINOR=${{ env.PYTHON_312_VERSION_MAJOR_MINOR }}",
+            "--build-arg", "PYTHON_312_VERSION_PATCH=${{ env.PYTHON_312_VERSION_PATCH }}",
+            "--build-arg", "PYTHON_313_VERSION_MAJOR_MINOR=${{ env.PYTHON_313_VERSION_MAJOR_MINOR }}",
+            "--build-arg", "PYTHON_313_VERSION_PATCH=${{ env.PYTHON_313_VERSION_PATCH }}",
             "--build-arg", "VS_BUILDTOOLS_VERSION=${{ env.VS_BUILDTOOLS_WIN_VERSION }}",
             "--build-arg", "YQ_VERSION=${{ env.YQ_VERSION }}",
             "--build-arg", "ZSTD_VERSION=${{ env.ZSTD_WIN_VERSION }}",

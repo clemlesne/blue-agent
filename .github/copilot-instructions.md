@@ -17,7 +17,7 @@ Blue Agent is a self-hosted Azure Pipelines agent designed to run in Kubernetes 
 
 ### Core Architecture Components
 
-- **Agent Runtime**: Multi-flavor container images with pre-installed tools (jq, PowerShell, Python 3.12, etc.)
+- **Agent Runtime**: Multi-flavor container images with pre-installed tools (jq, PowerShell, Python 3.12/3.13, etc.)
 - **Template Job System**: Special "template" containers (`AZP_TEMPLATE_JOB=1`) that register briefly to establish KEDA scaling capabilities
 - **Multi-Deployment Target**: Both Kubernetes (via Helm) and Azure Container Apps (via Bicep)
 - **Build Orchestration**: Make-based workflow with environment variable injection from `cicd/env-github-actions.sh`
@@ -204,7 +204,7 @@ Both support `managed-csi` type for Azure integration and can be disabled via `v
 All container flavors include standardized tool versions (defined in `cicd/env-github-actions.sh`):
 
 - Azure CLI, AWS CLI, GCloud CLI for multi-cloud support
-- PowerShell Core (LTS 7.4.x), Python 3.12, Node.js 22.x
+- PowerShell Core (LTS 7.4.x), Python 3.12/3.13, Node.js 22.x
 - Build tools: BuildKit, Git, JQ, YQ, Helm
 - OS-specific: Tini for Linux, BuildTools for Windows
 

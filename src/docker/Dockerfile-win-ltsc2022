@@ -39,9 +39,9 @@ RUN jq --version
 
 # Install Python, then verify installation
 # TODO: Clean up "__pycache__" folders on disk
-ARG PYTHON_VERSION_MAJOR_MINOR
-ARG PYTHON_VERSION_PATCH
-ENV PYTHON_VERSION=${PYTHON_VERSION_MAJOR_MINOR}.${PYTHON_VERSION_PATCH}
+ARG PYTHON_313_VERSION_MAJOR_MINOR
+ARG PYTHON_313_VERSION_PATCH
+ENV PYTHON_VERSION=${PYTHON_313_VERSION_MAJOR_MINOR}.${PYTHON_313_VERSION_PATCH}
 RUN curl -LsSf --retry 8 --retry-all-errors "https://python.org/ftp/python/${Env:PYTHON_VERSION}/python-${Env:PYTHON_VERSION}-amd64.exe" -o python.exe \
     && Start-Process python.exe -Wait -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1 Include_test=0' \
     && Remove-Item python.exe
