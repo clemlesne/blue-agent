@@ -237,7 +237,7 @@ jobs:
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
     needs:
       - build-helm
-      - build-release-linux
+      - merge-linux
       - build-release-win
       - static-test
     runs-on: ubuntu-24.04
@@ -308,31 +308,47 @@ jobs:
       - name: Run tests
         run: make test
 
-  build-release-linux:
-    name: Build & release image (Linux ${{ matrix.os }})
+  build-linux:
+    name: Build image (Linux ${{ matrix.os }} - ${{ matrix.platform }})
     needs:
       - init
       - sast-creds
       - sast-semgrep
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.platform == 'linux/amd64' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
     strategy:
       fail-fast: false
       matrix:
         include:
+          # Azure Linux 3
           - os: azurelinux3
-            arch: linux/amd64,linux/arm64
+            platform: linux/amd64
+          - os: azurelinux3
+            platform: linux/arm64
+          # Debian Bookworm
           - os: bookworm
-            arch: linux/amd64,linux/arm64
+            platform: linux/amd64
+          - os: bookworm
+            platform: linux/arm64
+          # Ubuntu Jammy
           - os: jammy
-            arch: linux/amd64,linux/arm64
+            platform: linux/amd64
+          - os: jammy
+            platform: linux/arm64
+          # Ubuntu Noble
           - os: noble
-            # On GitHub Actions, build is too slow to be done on ARM64 virtialized on QEMU
-            # TODO: Re-enable ARM64 when GitHub Actions will provide native ARM64 runners
-            arch: linux/amd64
+            platform: linux/amd64
+          - os: noble
+            platform: linux/arm64
+          # Red Hat UBI 8
           - os: ubi8
-            arch: linux/amd64,linux/arm64
+            platform: linux/amd64
+          - os: ubi8
+            platform: linux/arm64
+          # Red Hat UBI 9
           - os: ubi9
-            arch: linux/amd64,linux/arm64
+            platform: linux/amd64
+          - os: ubi9
+            platform: linux/arm64
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
@@ -343,10 +359,9 @@ jobs:
 
       # Required to build multi-arch images
       - name: Setup QEMU
-        id: setup-qemu
         uses: docker/setup-qemu-action@v3.6.0
         with:
-          platforms: ${{ matrix.arch }}
+          platforms: ${{ matrix.platform }}
 
       # Required for "docker build" command
       - name: Setup Docker Buildx
@@ -355,6 +370,119 @@ jobs:
           version: v${{ env.BUILDX_VERSION }}
           driver-opts: |
             image=moby/buildkit:v${{ env.BUILDKIT_VERSION }}
+
+      - name: Login to registry (GitHub Container Registry)
+        uses: docker/login-action@v3.4.0
+        with:
+          registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to registry (Docker Hub)
+        uses: docker/login-action@v3.4.0
+        with:
+          registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
+          username: clemlesne
+          password: ${{ secrets.DOCKER_HUB_PAT }}
+
+      - name: Container meta
+        id: meta
+        uses: docker/metadata-action@v5.7.0
+        with:
+          images: |
+            ${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}
+            ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}/${{ env.CONTAINER_NAME }}
+          flavor: |
+            prefix=${{ matrix.os }}-
+
+      - name: Build and push by digest
+        id: build
+        uses: docker/build-push-action@v6.18.0
+        with:
+          build-args: |
+            AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
+            AZP_AGENT_VERSION=${{ env.AZP_AGENT_VERSION }}
+            AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}
+            BUILDKIT_VERSION=${{ env.BUILDKIT_VERSION }}
+            GCLOUD_CLI_VERSION=${{ env.GCLOUD_CLI_VERSION }}
+            GO_VERSION=${{ env.GO_VERSION }}
+            POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}
+            PYTHON_312_VERSION_MAJOR_MINOR=${{ env.PYTHON_312_VERSION_MAJOR_MINOR }}
+            PYTHON_312_VERSION_PATCH=${{ env.PYTHON_312_VERSION_PATCH }}
+            PYTHON_313_VERSION_MAJOR_MINOR=${{ env.PYTHON_313_VERSION_MAJOR_MINOR }}
+            PYTHON_313_VERSION_PATCH=${{ env.PYTHON_313_VERSION_PATCH }}
+            ROOTLESSKIT_VERSION=${{ env.ROOTLESSKIT_VERSION }}
+            TINI_VERSION=${{ env.TINI_VERSION }}
+            YQ_VERSION=${{ env.YQ_VERSION }}
+          cache-from: |
+            type=gha,scope=buildkit-${{ matrix.os }}-${{ matrix.platform }}-${{ github.ref_name }}
+            type=gha,scope=buildkit-${{ matrix.os }}-${{ matrix.platform }}-develop
+            type=gha,scope=buildkit-${{ matrix.os }}-${{ matrix.platform }}-main
+          cache-to: type=gha,scope=buildkit-${{ matrix.os }}-${{ matrix.platform }}-${{ github.ref_name }}
+          context: src/docker
+          file: src/docker/Dockerfile-${{ matrix.os }}
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=image,push-by-digest=true,name-canonical=true,push=true,oci-mediatypes=true,compression=estargz,compression-level=9,force-compression=true
+          platforms: ${{ matrix.platform }}
+          provenance: true
+          sbom: true
+          tags: |
+            ${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}
+            ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}/${{ env.CONTAINER_NAME }}
+
+      - name: Export digest
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+
+      - name: Prepare artifact name
+        id: artifact-name
+        run: |
+          platform_safe=$(echo "${{ matrix.platform }}" | sed 's/\//-/g')
+          echo "name=digests-${{ matrix.os }}-${platform_safe}" >> $GITHUB_OUTPUT
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: ${{ steps.artifact-name.outputs.name }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge-linux:
+    name: Release image (Linux ${{ matrix.os }})
+    needs:
+      - init
+      - build-linux
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [
+            # Azure Linux 3
+            azurelinux3,
+            # Debian Bookworm
+            bookworm,
+            # Ubuntu Jammy
+            jammy,
+            # Ubuntu Noble
+            noble,
+            # Red Hat UBI 8
+            ubi8,
+            # Red Hat UBI 9
+            ubi9,
+          ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Download digests
+        uses: actions/download-artifact@v4.3.0
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-${{ matrix.os }}-*
+          merge-multiple: true
 
       # Required for running "npx" CLI
       - name: Setup Node
@@ -383,6 +511,14 @@ jobs:
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
           username: clemlesne
           password: ${{ secrets.DOCKER_HUB_PAT }}
+
+      # Required for "docker buildx imagetools" command
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3.11.1
+        with:
+          version: v${{ env.BUILDX_VERSION }}
+          driver-opts: |
+            image=moby/buildkit:v${{ env.BUILDKIT_VERSION }}
 
       - name: Check if pre-release
         id: prerelease
@@ -429,37 +565,21 @@ jobs:
           tag=$(echo "${{ steps.meta.outputs.tags }}" | grep -m1 $branch || echo "${{ steps.meta.outputs.tags }}" | grep -m1 sha)
           echo "tag=$tag" >> $GITHUB_OUTPUT
 
-      - name: Build & push container
-        uses: docker/build-push-action@v6.18.0
-        with:
-          build-args: |
-            AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
-            AZP_AGENT_VERSION=${{ env.AZP_AGENT_VERSION }}
-            AZURE_CLI_VERSION=${{ env.AZURE_CLI_VERSION }}
-            BUILDKIT_VERSION=${{ env.BUILDKIT_VERSION }}
-            GCLOUD_CLI_VERSION=${{ env.GCLOUD_CLI_VERSION }}
-            GO_VERSION=${{ env.GO_VERSION }}
-            POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}
-            PYTHON_312_VERSION_MAJOR_MINOR=${{ env.PYTHON_312_VERSION_MAJOR_MINOR }}
-            PYTHON_312_VERSION_PATCH=${{ env.PYTHON_312_VERSION_PATCH }}
-            PYTHON_313_VERSION_MAJOR_MINOR=${{ env.PYTHON_313_VERSION_MAJOR_MINOR }}
-            PYTHON_313_VERSION_PATCH=${{ env.PYTHON_313_VERSION_PATCH }}
-            ROOTLESSKIT_VERSION=${{ env.ROOTLESSKIT_VERSION }}
-            TINI_VERSION=${{ env.TINI_VERSION }}
-            YQ_VERSION=${{ env.YQ_VERSION }}
-          cache-from: |
-            type=gha,scope=buildkit-${{ matrix.os }}-${{ github.ref_name }}
-            type=gha,scope=buildkit-${{ matrix.os }}-develop
-            type=gha,scope=buildkit-${{ matrix.os }}-main
-          cache-to: type=gha,scope=buildkit-${{ matrix.os }}-${{ github.ref_name }}
-          context: src/docker
-          file: src/docker/Dockerfile-${{ matrix.os }}
-          labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=registry,oci-mediatypes=true,compression=estargz,compression-level=9,force-compression=true
-          platforms: ${{ matrix.arch }}
-          provenance: true
-          sbom: true
-          tags: ${{ steps.meta.outputs.tags }}
+      - name: Create manifest list and push (GitHub Container Registry)
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map(select(startswith("${{ env.CONTAINER_REGISTRY_GHCR }}")) | "-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}@sha256:%s ' *)
+
+      - name: Create manifest list and push (Docker Hub)
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map(select(startswith("${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}")) | "-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}/${{ env.CONTAINER_NAME }}@sha256:%s ' *)
+
+      - name: Inspect image
+        run: |
+          docker buildx imagetools inspect ${{ steps.tag.outputs.tag }}
 
       # Cosign is voluntarily retried indefinitely to avoid breaking the build when the container registry is slow or throttle, with an exponential backoff delay with jitter
       # See: https://github.com/clemlesne/blue-agent/issues/264
@@ -494,17 +614,13 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
-          for arch in $(echo ${{ matrix.arch }} | tr "," "\n"); do
-            echo "Running Snyk for $arch"
-            npx --yes snyk@${{ env.SNYK_VERSION }} container test \
-              --architecture=$arch \
-              --exclude-base-image-vulns \
-              --fail-on=upgradable \
-              --file=src/docker/Dockerfile-${{ matrix.os }} \
-              --sarif-file-output=snyk-$(echo $arch | sed -e 's#/#-#g').sarif \
-              --severity-threshold=medium \
-              ${{ steps.tag.outputs.tag }}
-          done
+          npx --yes snyk@${{ env.SNYK_VERSION }} container test \
+            --exclude-base-image-vulns \
+            --fail-on=upgradable \
+            --file=src/docker/Dockerfile-${{ matrix.os }} \
+            --sarif-file-output=snyk.sarif \
+            --severity-threshold=medium \
+            ${{ steps.tag.outputs.tag }}
 
       # Fix issue "Error: Code Scanning could not process the submitted SARIF file: rejecting SARIF, as there are more runs than allowed (XX > 20)"
       # See: https://github.com/github/codeql-action/issues/220
@@ -517,7 +633,7 @@ jobs:
             --automation-id ${{ github.run_id }} \
             --merge-runs \
             --output-file merged.sarif \
-            *.sarif
+            snyk.sarif
 
       - name: Upload results to GitHub Security
         uses: github/codeql-action/upload-sarif@v3.29.2
@@ -802,7 +918,7 @@ jobs:
     # Only deploy on non-scheduled main branch, as there is only one Helm repo and we cannot override an existing version
     if: (github.event_name != 'schedule') && (github.ref == 'refs/heads/main')
     needs:
-      - build-release-linux
+      - merge-linux
       - build-release-win
       - static-test
     runs-on: ubuntu-24.04
@@ -911,7 +1027,7 @@ jobs:
       contents: read
       id-token: write
     needs:
-      - build-release-linux
+      - merge-linux
       - init
       - static-test
     runs-on: ubuntu-24.04
