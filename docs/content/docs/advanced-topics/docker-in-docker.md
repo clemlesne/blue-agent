@@ -23,8 +23,8 @@ Linux systems are supported, but not Windows:
 | `ghcr.io/clemlesne/blue-agent:noble-main`        | ✅                                                |
 | `ghcr.io/clemlesne/blue-agent:ubi8-main`         | ✅                                                |
 | `ghcr.io/clemlesne/blue-agent:ubi9-main`         | ✅                                                |
-| `ghcr.io/clemlesne/blue-agent:win-ltsc2019-main` | ❌                                                |
 | `ghcr.io/clemlesne/blue-agent:win-ltsc2022-main` | ❌                                                |
+| `ghcr.io/clemlesne/blue-agent:win-ltsc2025-main` | ❌                                                |
 
 #### How to use the bundled BuildKit
 

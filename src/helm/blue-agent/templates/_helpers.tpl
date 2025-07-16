@@ -214,7 +214,6 @@ containers:
           secretKeyRef:
             name: {{ include "blue-agent.secretName" . }}
             key: personalAccessToken
-      # Register the agent as a template for future scaling (if requested)
       - name: AZP_TEMPLATE_JOB
         value: {{ .Args.isTemplateJob | quote }}
       # Capabilities: START

@@ -11,7 +11,7 @@ PREFIX="${FOLDER}/Dockerfile-"
 SUFFIXES="$1"
 
 # Check if docker is installed
-if ! command -v docker &> /dev/null; then
+if ! command -v docker &>/dev/null; then
   echo "Docker is not installed, please install it to proceed."
   exit
 fi
@@ -48,8 +48,10 @@ for suffix in ${SUFFIXES}; do
     --build-arg "GO_VERSION=${GO_VERSION}" \
     --build-arg "JQ_VERSION=${JQ_VERSION}" \
     --build-arg "POWERSHELL_VERSION=${POWERSHELL_VERSION}" \
-    --build-arg "PYTHON_VERSION_MAJOR_MINOR=${PYTHON_VERSION_MAJOR_MINOR}" \
-    --build-arg "PYTHON_VERSION_PATCH=${PYTHON_VERSION_PATCH}" \
+    --build-arg "PYTHON_312_VERSION_MAJOR_MINOR=${PYTHON_312_VERSION_MAJOR_MINOR}" \
+    --build-arg "PYTHON_312_VERSION_PATCH=${PYTHON_312_VERSION_PATCH}" \
+    --build-arg "PYTHON_313_VERSION_MAJOR_MINOR=${PYTHON_313_VERSION_MAJOR_MINOR}" \
+    --build-arg "PYTHON_313_VERSION_PATCH=${PYTHON_313_VERSION_PATCH}" \
     --build-arg "ROOTLESSKIT_VERSION=${ROOTLESSKIT_VERSION}" \
     --build-arg "TINI_VERSION=${TINI_VERSION}" \
     --build-arg "VS_BUILDTOOLS_VERSION=${VS_BUILDTOOLS_WIN_VERSION}" \

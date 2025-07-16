@@ -10,6 +10,7 @@ Explore the following sections to learn how to use Blue Agent:
 {{< cards >}}
 {{< card link="build-aspnet" title="Build ASP.NET applications" icon="code" >}}
 {{< card link="build-java" title="Build Java applications" icon="code" >}}
+{{< card link="build-python" title="Build Python applications" icon="code" >}}
 {{< card link="ca-certificate" title="Custom root certificate" icon="lock-closed" >}}
 {{< card link="capabilities" title="Capabilities" icon="star" >}}
 {{< card link="docker-in-docker" title="Build container images" icon="archive" >}}

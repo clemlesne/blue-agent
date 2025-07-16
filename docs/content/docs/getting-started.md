@@ -76,6 +76,12 @@ helm upgrade --install agent clemlesne-blue-agent/blue-agent
 
 {{% /steps %}}
 
+## Template Container Behavior
+
+When deploying Blue Agent with KEDA auto-scaling enabled, a "template" container will run briefly during deployment. This is expected behavior that registers agent capabilities with Azure DevOps and enables KEDA scaling. The template container runs for 1 minute then stops (remaining as "offline" in the agent pool).
+
+For detailed information about template container behavior, common errors, and troubleshooting, see the [troubleshooting documentation](/docs/troubleshooting/).
+
 ## OS support matrix
 
 OS support is generally called "flavor" in this documentation. The following table shows the supported flavors and their characteristics.
@@ -89,7 +95,7 @@ OS support is generally called "flavor" in this documentation. The following tab
 | `ghcr.io/clemlesne/blue-agent:ubi9-main`         | [Red Hat UBI 9](https://developers.redhat.com/articles/ubi-faq) minimal      | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/blue-agent/ubi9-main?label=)         | `amd64`, `arm64/v8` | [See Red Hat product life cycles.](https://access.redhat.com/product-life-cycles/?product=Red%20Hat%20Enterprise%20Linux)                         |
 | `ghcr.io/clemlesne/blue-agent:ubi8-main`         | [Red Hat UBI 8](https://developers.redhat.com/articles/ubi-faq) minimal      | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/blue-agent/ubi8-main?label=)         | `amd64`, `arm64/v8` | [See Red Hat product life cycles.](https://access.redhat.com/product-life-cycles/?product=Red%20Hat%20Enterprise%20Linux)                         |
 | `ghcr.io/clemlesne/blue-agent:win-ltsc2022-main` | [Windows Server 2022](https://learn.microsoft.com/en-us/windows-server) Core | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/blue-agent/win-ltsc2022-main?label=) | `amd64`             | [See base image servicing lifecycles.](https://learn.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/base-image-lifecycle) |
-| `ghcr.io/clemlesne/blue-agent:win-ltsc2019-main` | [Windows Server 2019](https://learn.microsoft.com/en-us/windows-server) Core | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/blue-agent/win-ltsc2019-main?label=) | `amd64`             | [See base image servicing lifecycles.](https://learn.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/base-image-lifecycle) |
+| `ghcr.io/clemlesne/blue-agent:win-ltsc2025-main` | [Windows Server 2025](https://learn.microsoft.com/en-us/windows-server) Core | ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/clemlesne/blue-agent/win-ltsc2025-main?label=) | `amd64`             | [See base image servicing lifecycles.](https://learn.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/base-image-lifecycle) |
 
 ## Docker Hub images
 

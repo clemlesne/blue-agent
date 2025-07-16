@@ -4,5 +4,5 @@ pipelines:
   organizationURL: https://dev.azure.com/shopping-cart-devops-demo
 
 image:
-  flavor: win-ltsc2022
+  flavor: win-ltsc2025
   isWindows: true

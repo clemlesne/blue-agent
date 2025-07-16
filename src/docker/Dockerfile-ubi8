@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # check=skip=UndefinedVar
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.10@sha256:b2a1bec3dfbc7a14a1d84d98934dfe8fdde6eb822a211286601cf109cbccb075 AS base
+FROM registry.access.redhat.com/ubi8/ubi-minimal:8.10@sha256:5b195cf0b8eb2262ce81334ee44066fdb5026022803f55bfe607be7d08d4fe43 AS base
 
 # Source platform from buildx "platform" argument
 ARG TARGETPLATFORM
@@ -12,6 +12,12 @@ ENV HOME=/app-root
 
 # Avoid Python cache during build
 ENV PYTHONDONTWRITEBYTECODE=1
+
+# Ensure reliable Python pip installation
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+ENV PIP_QUIET=1
+ENV PIP_RETRIES=8
+ENV PIP_TIMEOUT=120
 
 # Install:
 # - ASP.NET Core runtime
@@ -61,9 +67,9 @@ RUN chmod +x arch.sh \
     && bash arch.sh
 
 # Persist Python version
-ARG PYTHON_VERSION_MAJOR_MINOR
-ARG PYTHON_VERSION_PATCH
-ENV PYTHON_VERSION=${PYTHON_VERSION_MAJOR_MINOR}.${PYTHON_VERSION_PATCH}
+ARG PYTHON_313_VERSION_MAJOR_MINOR
+ARG PYTHON_313_VERSION_PATCH
+ENV PYTHON_VERSION=${PYTHON_313_VERSION_MAJOR_MINOR}.${PYTHON_313_VERSION_PATCH}
 
 FROM base AS rootlesskit
 
@@ -110,10 +116,12 @@ RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=lo
         libxml2-devel \
         mpdecimal \
         ncurses-devel \
+        readline \
         redhat-rpm-config \
         sqlite \
         sqlite-devel \
         sqlite-libs \
+        tk \
         xz-devel \
         xz-libs \
         zlib-devel \
@@ -141,24 +149,19 @@ RUN --mount=target=/var/cache/yum,type=cache,id=yum-${TARGETPLATFORM},sharing=lo
 FROM base
 
 # Install Python, then verify installation
-COPY --from=python /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR}
-COPY --from=python /usr/local/lib/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/lib/python${PYTHON_VERSION_MAJOR_MINOR}
-COPY --from=python /usr/local/include/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/include/python${PYTHON_VERSION_MAJOR_MINOR}
-RUN ln -s /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python3 \
-    && ln -s /usr/local/bin/python${PYTHON_VERSION_MAJOR_MINOR} /usr/local/bin/python \
+COPY --from=python /usr/local/bin/python${PYTHON_313_VERSION_MAJOR_MINOR} /usr/local/bin/python${PYTHON_313_VERSION_MAJOR_MINOR}
+COPY --from=python /usr/local/lib/python${PYTHON_313_VERSION_MAJOR_MINOR} /usr/local/lib/python${PYTHON_313_VERSION_MAJOR_MINOR}
+COPY --from=python /usr/local/include/python${PYTHON_313_VERSION_MAJOR_MINOR} /usr/local/include/python${PYTHON_313_VERSION_MAJOR_MINOR}
+RUN ln -s /usr/local/bin/python${PYTHON_313_VERSION_MAJOR_MINOR} /usr/local/bin/python3 \
+    && ln -s /usr/local/bin/python${PYTHON_313_VERSION_MAJOR_MINOR} /usr/local/bin/python \
     && python --version \
     && python3 --version \
-    && python${PYTHON_VERSION_MAJOR_MINOR} --version \
+    && python${PYTHON_313_VERSION_MAJOR_MINOR} --version \
     && python3 -m pip --version
 
 # Install Python build tools
-RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_VERSION_MAJOR_MINOR}-${TARGETPLATFORM},sharing=locked \
-    python3 -m pip \
-        --disable-pip-version-check \
-        --quiet \
-        --retries 8 \
-        --timeout 120 \
-        install \
+RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_313_VERSION_MAJOR_MINOR}-${TARGETPLATFORM},sharing=locked \
+    python3 -m pip install \
             --upgrade \
             pip setuptools wheel \
     # Cleanup Python cache
@@ -167,13 +170,8 @@ RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_VERSION_MAJOR_
 # Install Azure CLI, then verify installation
 ARG AZURE_CLI_VERSION
 ENV AZURE_CLI_VERSION=${AZURE_CLI_VERSION}
-RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_VERSION_MAJOR_MINOR}-${TARGETPLATFORM},sharing=locked \
-    python3 -m pip \
-        --disable-pip-version-check \
-        --quiet \
-        --retries 8 \
-        --timeout 120 \
-        install \
+RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_313_VERSION_MAJOR_MINOR}-${TARGETPLATFORM},sharing=locked \
+    python3 -m pip install \
             azure-cli==${AZURE_CLI_VERSION} \
     && az version \
     && rm -rf ${HOME}/.azure ${HOME}/.cache/pip \
@@ -264,8 +262,14 @@ ENV AZP_CUSTOM_CERT_PEM=${HOME}/azp-custom-certs
 # Cleanup helper script
 RUN rm arch.sh
 
-# Reset Python configs to default
+# Reset Python cache flag
 ENV PYTHONDONTWRITEBYTECODE=
+
+# Reset Python pip reliability configs
+ENV PIP_DISABLE_PIP_VERSION_CHECK=
+ENV PIP_QUIET=
+ENV PIP_RETRIES=
+ENV PIP_TIMEOUT=
 
 # Configure local user
 RUN mkdir -p /run/user/0 ${HOME}/.local/tmp ${HOME}/.local/share/buildkit \

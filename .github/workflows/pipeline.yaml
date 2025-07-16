@@ -21,57 +21,59 @@ env:
   CONTAINER_REGISTRY_GHCR: ghcr.io
   CONTAINER_REGISTRY_DOCKER_HUB: docker.io
   # https://github.com/sigstore/cosign/releases
-  COSIGN_VERSION: 2.5.0
+  COSIGN_VERSION: 2.5.2
   # https://npmjs.com/package/@microsoft/sarif-multitool?activeTab=versions
   SARIF_MULTITOOL_VERSION: 4.5.4
   # https://npmjs.com/package/snyk?activeTab=versions
-  SNYK_VERSION: 1.1296.2
+  SNYK_VERSION: 1.1297.3
   # https://github.com/microsoft/azure-pipelines-agent/releases
-  AZP_AGENT_VERSION: 4.255.0
+  AZP_AGENT_VERSION: 4.258.1
   # https://github.com/PowerShell/PowerShell/releases
   # Note: Current LTS is the v7.4.x, as of 2025-05-03
-  POWERSHELL_VERSION: 7.4.7
+  POWERSHELL_VERSION: 7.4.11
   # https://github.com/krallin/tini/releases
   TINI_VERSION: 0.19.0
   # https://github.com/mikefarah/yq/releases
-  YQ_VERSION: 4.45.1
+  YQ_VERSION: 4.46.1
   # https://go.dev/dl
-  GO_VERSION: 1.24.2
+  GO_VERSION: 1.24.5
   # https://github.com/rootless-containers/rootlesskit/releases
-  ROOTLESSKIT_VERSION: 2.3.4
+  ROOTLESSKIT_VERSION: 2.3.5
   # https://github.com/moby/buildkit/releases
-  BUILDKIT_VERSION: 0.21.1
+  BUILDKIT_VERSION: 0.23.2
   # https://github.com/Azure/azure-cli/releases
-  AZURE_CLI_VERSION: 2.71.0
+  AZURE_CLI_VERSION: 2.75.0
   # https://github.com/stedolan/jq/releases
-  JQ_WIN_VERSION: 1.7.1
+  JQ_WIN_VERSION: 1.8.1
   # https://github.com/aws/aws-cli/tags
-  AWS_CLI_VERSION: 2.27.5
+  AWS_CLI_VERSION: 2.27.50
   # https://console.cloud.google.com/artifacts/docker/google.com:cloudsdktool/us/gcr.io/google-cloud-cli
   # Note: To get thhe version number, spot the version tag on the latest pushed container
-  GCLOUD_CLI_VERSION: 520.0.0
+  GCLOUD_CLI_VERSION: 529.0.0
   # https://github.com/git-for-windows/git/releases
-  GIT_WIN_VERSION: 2.49.0
+  GIT_WIN_VERSION: 2.50.1
   # https://github.com/facebook/zstd/releases
   ZSTD_WIN_VERSION: 1.5.7
   # https://www.python.org/downloads
-  PYTHON_VERSION_MAJOR_MINOR: 3.12
-  PYTHON_VERSION_PATCH: 10
+  PYTHON_312_VERSION_MAJOR_MINOR: 3.12
+  PYTHON_312_VERSION_PATCH: 11
+  PYTHON_313_VERSION_MAJOR_MINOR: 3.13
+  PYTHON_313_VERSION_PATCH: 5
   # https://nodejs.org/en/download/releases
-  NODE_VERSION: 22.15.0
+  NODE_VERSION: 22.17.0
   # https://github.com/helm/helm/releases
-  HELM_VERSION: 3.17.3
+  HELM_VERSION: 3.18.4
   # https://github.com/oras-project/oras/releases
   ORAS_VERSION: 1.2.3
   # https://github.com/docker/buildx/releases
-  BUILDX_VERSION: 0.23.0
+  BUILDX_VERSION: 0.25.0
   # https://github.com/hadolint/hadolint/releases
   HADOLINT_VERSION: 2.12.0
   # https://learn.microsoft.com/en-us/visualstudio/releases/2022/release-history#fixed-version-bootstrappers
   # Note: Currently used is the LTSC 17.12
-  VS_BUILDTOOLS_WIN_VERSION: 286c67ca-51f4-409d-ade8-3036a5184667/a8a9a3b82f278f504156a940dcfd5619e9f214eb7e9071c5f5571a0f8baa94f3
+  VS_BUILDTOOLS_WIN_VERSION: 87b94407-0aa3-45fc-b53f-d224027a42b3/00e8cad9ef34839c57f9be8bc4f93c517804777bdef770e8dbdc8ba0e06bc348
   # https://github.com/gohugoio/hugo/releases
-  HUGO_VERSION: 0.147.1
+  HUGO_VERSION: 0.148.1
   # See: https://github.com/getsops/sops/releases
   SOPS_VERSION: 3.10.2
 
@@ -117,7 +119,7 @@ jobs:
           submodules: recursive
 
       - name: SAST - Credentials
-        uses: trufflesecurity/trufflehog@v3.88.27
+        uses: trufflesecurity/trufflehog@v3.89.2
         with:
           base: main
           extra_args: --only-verified
@@ -150,7 +152,7 @@ jobs:
       - name: Setup Cosign
         # Only sign builds on main branch
         if: github.ref == 'refs/heads/main'
-        uses: sigstore/cosign-installer@v3.8.2
+        uses: sigstore/cosign-installer@v3.9.1
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
@@ -185,7 +187,7 @@ jobs:
             .cr-release-packages/blue-agent-${{ needs.init.outputs.VERSION }}.tgz
 
       - name: Upload Helm chart
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v4.6.2
         with:
           if-no-files-found: error # Fail if no files are uploaded
           include-hidden-files: true # Folder begins with a dot, if not checked the whole folder is ignored
@@ -224,7 +226,7 @@ jobs:
             snyk.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.28.17
+        uses: github/codeql-action/upload-sarif@v3.29.2
         continue-on-error: true
         with:
           sarif_file: merged.sarif
@@ -252,13 +254,13 @@ jobs:
           git config user.email "${{ github.actor }}@users.noreply.github.com"
 
       - name: Download Helm chart
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v4.3.0
         with:
           name: helm-chart
           path: .cr-release-packages
 
       - name: Archive Helm chart
-        uses: helm/chart-releaser-action@v1.5.0
+        uses: helm/chart-releaser-action@v1.7.0
         with:
           charts_dir: src/helm
           skip_packaging: true
@@ -291,13 +293,13 @@ jobs:
       # Required for running "hadolint" CLI
       - name: Setup Hadolint
         run: |
-          sudo curl -LsSf --retry 8 --retry-all-errors https://github.com/hadolint/hadolint/releases/download/v${{ env.HADOLINT_VERSION }}/hadolint-Linux-x86_64 -o /usr/bin/hadolint
+          sudo curl -LsSf --retry 8 --retry-all-errors --connect-timeout 120 https://github.com/hadolint/hadolint/releases/download/v${{ env.HADOLINT_VERSION }}/hadolint-Linux-x86_64 -o /usr/bin/hadolint
           sudo chmod +x /usr/bin/hadolint
           hadolint --version
 
       # Required for linting Bicep files
       - name: Login to Azure
-        uses: azure/login@v2.2.0
+        uses: azure/login@v2.3.0
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -348,7 +350,7 @@ jobs:
 
       # Required for "docker build" command
       - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3.10.0
+        uses: docker/setup-buildx-action@v3.11.1
         with:
           version: v${{ env.BUILDX_VERSION }}
           driver-opts: |
@@ -364,19 +366,19 @@ jobs:
       - name: Setup Cosign
         # Only sign builds on main branch
         if: github.ref == 'refs/heads/main'
-        uses: sigstore/cosign-installer@v3.8.2
+        uses: sigstore/cosign-installer@v3.9.1
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
       - name: Login to registry - GitHub
-        uses: docker/login-action@v3.3.0
+        uses: docker/login-action@v3.4.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Login to registry - Docker Hub
-        uses: docker/login-action@v3.3.0
+        uses: docker/login-action@v3.4.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
           username: clemlesne
@@ -424,11 +426,11 @@ jobs:
         run: |
           ref="${{ github.ref }}"
           branch=$(echo "${ref#refs/heads/}" | sed 's/\//-/g')
-          tag=$(echo "${{ steps.meta.outputs.tags }}" | grep -m1 $branch)
+          tag=$(echo "${{ steps.meta.outputs.tags }}" | grep -m1 $branch || echo "${{ steps.meta.outputs.tags }}" | grep -m1 sha)
           echo "tag=$tag" >> $GITHUB_OUTPUT
 
       - name: Build & push container
-        uses: docker/build-push-action@v6.16.0
+        uses: docker/build-push-action@v6.18.0
         with:
           build-args: |
             AWS_CLI_VERSION=${{ env.AWS_CLI_VERSION }}
@@ -438,8 +440,10 @@ jobs:
             GCLOUD_CLI_VERSION=${{ env.GCLOUD_CLI_VERSION }}
             GO_VERSION=${{ env.GO_VERSION }}
             POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}
-            PYTHON_VERSION_MAJOR_MINOR=${{ env.PYTHON_VERSION_MAJOR_MINOR }}
-            PYTHON_VERSION_PATCH=${{ env.PYTHON_VERSION_PATCH }}
+            PYTHON_312_VERSION_MAJOR_MINOR=${{ env.PYTHON_312_VERSION_MAJOR_MINOR }}
+            PYTHON_312_VERSION_PATCH=${{ env.PYTHON_312_VERSION_PATCH }}
+            PYTHON_313_VERSION_MAJOR_MINOR=${{ env.PYTHON_313_VERSION_MAJOR_MINOR }}
+            PYTHON_313_VERSION_PATCH=${{ env.PYTHON_313_VERSION_PATCH }}
             ROOTLESSKIT_VERSION=${{ env.ROOTLESSKIT_VERSION }}
             TINI_VERSION=${{ env.TINI_VERSION }}
             YQ_VERSION=${{ env.YQ_VERSION }}
@@ -516,7 +520,7 @@ jobs:
             *.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.28.17
+        uses: github/codeql-action/upload-sarif@v3.29.2
         continue-on-error: true
         with:
           sarif_file: merged.sarif
@@ -534,8 +538,8 @@ jobs:
         include:
           - os: win-ltsc2022
             runs-on: windows-2022
-          - os: win-ltsc2019
-            runs-on: windows-2019
+          - os: win-ltsc2025
+            runs-on: windows-2025
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
@@ -554,19 +558,19 @@ jobs:
       - name: Setup Cosign
         # Only sign builds on main branch
         if: github.ref == 'refs/heads/main'
-        uses: sigstore/cosign-installer@v3.8.2
+        uses: sigstore/cosign-installer@v3.9.1
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
       - name: Login to registry - GitHub
-        uses: docker/login-action@v3.3.0
+        uses: docker/login-action@v3.4.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Login to registry - Docker Hub
-        uses: docker/login-action@v3.3.0
+        uses: docker/login-action@v3.4.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
           username: clemlesne
@@ -614,6 +618,9 @@ jobs:
         run: |
           $branch = "${{ github.ref }}".Substring("refs/heads/".Length).Replace("/", "-")
           $tag = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine) | Where-Object { $_ -like "*$branch*" } | Select-Object -First 1
+          if (-not $tag) {
+            $tag = ('${{ steps.meta.outputs.tags }}').Split([Environment]::NewLine) | Where-Object { $_ -like "*sha*" } | Select-Object -First 1
+          }
           echo "tag=$tag" >> $Env:GITHUB_OUTPUT
 
       - name: Build & push container
@@ -627,8 +634,10 @@ jobs:
             "--build-arg", "GIT_VERSION=${{ env.GIT_WIN_VERSION }}",
             "--build-arg", "JQ_VERSION=${{ env.JQ_WIN_VERSION }}",
             "--build-arg", "POWERSHELL_VERSION=${{ env.POWERSHELL_VERSION }}",
-            "--build-arg", "PYTHON_VERSION_MAJOR_MINOR=${{ env.PYTHON_VERSION_MAJOR_MINOR }}",
-            "--build-arg", "PYTHON_VERSION_PATCH=${{ env.PYTHON_VERSION_PATCH }}",
+            "--build-arg", "PYTHON_312_VERSION_MAJOR_MINOR=${{ env.PYTHON_312_VERSION_MAJOR_MINOR }}",
+            "--build-arg", "PYTHON_312_VERSION_PATCH=${{ env.PYTHON_312_VERSION_PATCH }}",
+            "--build-arg", "PYTHON_313_VERSION_MAJOR_MINOR=${{ env.PYTHON_313_VERSION_MAJOR_MINOR }}",
+            "--build-arg", "PYTHON_313_VERSION_PATCH=${{ env.PYTHON_313_VERSION_PATCH }}",
             "--build-arg", "VS_BUILDTOOLS_VERSION=${{ env.VS_BUILDTOOLS_WIN_VERSION }}",
             "--build-arg", "YQ_VERSION=${{ env.YQ_VERSION }}",
             "--build-arg", "ZSTD_VERSION=${{ env.ZSTD_WIN_VERSION }}",
@@ -720,7 +729,7 @@ jobs:
             snyk.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.28.17
+        uses: github/codeql-action/upload-sarif@v3.29.2
         continue-on-error: true
         with:
           sarif_file: merged.sarif
@@ -742,7 +751,7 @@ jobs:
         run: semgrep ci --sarif --output=semgrep.sarif
 
       - name: Upload results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3.28.17
+        uses: github/codeql-action/upload-sarif@v3.29.2
         continue-on-error: true
         with:
           sarif_file: semgrep.sarif
@@ -763,14 +772,14 @@ jobs:
           version: ${{ env.ORAS_VERSION }}
 
       - name: Login to registry - GitHub
-        uses: docker/login-action@v3.3.0
+        uses: docker/login-action@v3.4.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Login to registry - Docker Hub
-        uses: docker/login-action@v3.3.0
+        uses: docker/login-action@v3.4.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
           username: clemlesne
@@ -802,7 +811,7 @@ jobs:
         uses: actions/checkout@v4.2.2
 
       - name: Push README to Docker Hub
-        uses: peter-evans/dockerhub-description@v4.0.0
+        uses: peter-evans/dockerhub-description@v4.0.2
         with:
           enable-url-completion: true
           password: ${{ secrets.DOCKER_HUB_PAT }}
@@ -850,7 +859,7 @@ jobs:
             --baseURL "${{ steps.pages.outputs.base_url }}/"
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v4.6.2
         with:
           if-no-files-found: error # Fail if no files are uploaded
           name: hugo
@@ -877,7 +886,7 @@ jobs:
           find . -type f -not -name "index.yaml" -not -path "*/.git/*" -delete
 
       - name: Download build artifact
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v4.3.0
         with:
           name: hugo
 
@@ -932,7 +941,7 @@ jobs:
           echo "${{ secrets.AGE_KEY }}" > ${age_folder}/keys.txt
 
       - name: Login to Azure
-        uses: azure/login@v2.2.0
+        uses: azure/login@v2.3.0
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}

@@ -1,12 +1,22 @@
 # Start the Azure DevOps agent in a Windows container
 #
+# This script handles both regular agent execution and template container creation.
+# Template containers are special agents that serve as references for KEDA auto-scaling.
+#
+# Template Container Logic:
+# - When AZP_TEMPLATE_JOB=1, the agent runs as a template container
+# - Template containers register with Azure DevOps but don't process jobs
+# - They run for 1 minute to establish capabilities, then stop
+# - KEDA uses the template agent as a reference for scaling decisions
+# - This prevents scaling errors when no agents are initially available
+#
 # Agent is always registered. It is removed from the server only when the agent is not a template job. After 60 secs, it tries to shut down the agent gracefully, waiting for the current job to finish, if any.
 #
 # Environment variables:
 # - AZP_AGENT_NAME: Agent name (default: hostname)
 # - AZP_CUSTOM_CERT_PEM: Custom SSL certificates directory (default: empty)
 # - AZP_POOL: Agent pool name
-# - AZP_TEMPLATE_JOB: Template job flag (default: 0)
+# - AZP_TEMPLATE_JOB: Template job flag (default: 0) - when set to 1, creates template container
 # - AZP_TOKEN: Personal access token
 # - AZP_URL: Server URL
 # - AZP_WORK: Work directory
@@ -60,7 +70,7 @@ if (!(Test-Path $Env:AZP_WORK)) {
 
 $isTemplateJob = $false
 if ($Env:AZP_TEMPLATE_JOB -eq "1") {
-  Write-Warning "Template job enabled, agent cannot be used for running jobs"
+  Write-Warning "Template job enabled, agent cannot be used for running jobs - see documentation for details"
   $isTemplateJob = $true
   $Env:AZP_AGENT_NAME = "$Env:AZP_AGENT_NAME-template"
 }
@@ -142,7 +152,7 @@ Write-Header "Running agent"
 # Running it with the --once flag at the end will shut down the agent after the build is executed
 if ($isTemplateJob) {
   Write-Host "Agent will be stopped after 1 min"
-  # Run the agent for a minute
+  # Run the agent for a minute to allow registration and capability detection
   Start-Job -ScriptBlock {
     Start-Sleep -Seconds 60
     & run.cmd $Args --once
