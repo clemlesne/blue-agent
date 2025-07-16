@@ -498,14 +498,14 @@ jobs:
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
-      - name: Login to registry - GitHub
+      - name: Login to registry (GitHub Container Registry)
         uses: docker/login-action@v3.4.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Login to registry - Docker Hub
+      - name: Login to registry (Docker Hub)
         uses: docker/login-action@v3.4.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
@@ -678,14 +678,14 @@ jobs:
         with:
           cosign-release: v${{ env.COSIGN_VERSION }}
 
-      - name: Login to registry - GitHub
+      - name: Login to registry (GitHub Container Registry)
         uses: docker/login-action@v3.4.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Login to registry - Docker Hub
+      - name: Login to registry (Docker Hub)
         uses: docker/login-action@v3.4.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
@@ -887,27 +887,29 @@ jobs:
         with:
           version: ${{ env.ORAS_VERSION }}
 
-      - name: Login to registry - GitHub
+      - name: Login to registry (GitHub Container Registry)
         uses: docker/login-action@v3.4.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_GHCR }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Login to registry - Docker Hub
+      - name: Login to registry (Docker Hub)
         uses: docker/login-action@v3.4.0
         with:
           registry: ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}
           username: clemlesne
           password: ${{ secrets.DOCKER_HUB_PAT }}
 
-      - name: Push to registry
+      - name: Push (GitHub Container Registry)
         run: |
           oras push \
             ${{ env.CONTAINER_REGISTRY_GHCR }}/${{ env.CONTAINER_NAME }}:artifacthub.io \
             artifacthub-repo.yml:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml \
             --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml
 
+      - name: Push (Docker Hub)
+        run: |
           oras push \
             ${{ env.CONTAINER_REGISTRY_DOCKER_HUB }}/${{ env.CONTAINER_NAME }}:artifacthub.io \
             artifacthub-repo.yml:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml \
@@ -926,7 +928,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
-      - name: Push README to Docker Hub
+      - name: Push README
         uses: peter-evans/dockerhub-description@v4.0.2
         with:
           enable-url-completion: true
