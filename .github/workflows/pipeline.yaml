@@ -422,7 +422,8 @@ jobs:
           context: src/docker
           file: src/docker/Dockerfile-${{ matrix.os }}
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=image,push-by-digest=true,name-canonical=true,push=true,oci-mediatypes=true,compression=estargz,compression-level=9,force-compression=true
+          # Force re-compression of all layers in ZSTD to lower the run latency in production (see: https://docs.docker.com/build/exporters/#compression)
+          outputs: type=image,push-by-digest=true,name-canonical=true,push=true,oci-mediatypes=true,compression=zstd,compression-level=22,force-compression=true
           platforms: ${{ matrix.platform }}
           provenance: true
           sbom: true
