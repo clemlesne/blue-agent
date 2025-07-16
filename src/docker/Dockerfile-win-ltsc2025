@@ -11,6 +11,12 @@ ENV HOME=C:\\app-root
 # Avoid Python cache during build
 ENV PYTHONDONTWRITEBYTECODE=1
 
+# Ensure reliable Python pip installation
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+ENV PIP_QUIET=1
+ENV PIP_RETRIES=8
+ENV PIP_TIMEOUT=120
+
 # Install Powershell, then verify installation
 ARG POWERSHELL_VERSION
 ENV POWERSHELL_VERSION=${POWERSHELL_VERSION}
@@ -49,13 +55,7 @@ RUN curl -LsSf --retry 8 --retry-all-errors "https://python.org/ftp/python/${Env
 # Install Python build tools
 # TODO: Clean up "__pycache__" folders on disk
 RUN python --version \
-    && python -m pip \
-        --disable-pip-version-check \
-        --no-cache-dir \
-        --quiet \
-        --retries 8 \
-        --timeout 120 \
-        install \
+    && python -m pip install \
             --upgrade \
             pip setuptools wheel
 
@@ -63,13 +63,7 @@ RUN python --version \
 # TODO: Clean up "__pycache__" folders on disk
 ARG AZURE_CLI_VERSION
 ENV AZURE_CLI_VERSION=${AZURE_CLI_VERSION}
-RUN python -m pip \
-        --disable-pip-version-check \
-        --no-cache-dir \
-        --quiet \
-        --retries 8 \
-        --timeout 120 \
-        install \
+RUN python -m pip install \
             "azure-cli==${Env:AZURE_CLI_VERSION}" \
     && az version
 
@@ -153,8 +147,14 @@ RUN Start-Process cmd.exe -Wait -ArgumentList '/c ''C:\Program Files (x86)\Micro
 # Define path for the custom SSL certificate
 ENV AZP_CUSTOM_CERT_PEM=${HOME}\\azp-custom-certs
 
-# Reset Python configs to default
+# Reset Python cache flag
 ENV PYTHONDONTWRITEBYTECODE=
+
+# Reset Python pip reliability configs
+ENV PIP_DISABLE_PIP_VERSION_CHECK=
+ENV PIP_QUIET=
+ENV PIP_RETRIES=
+ENV PIP_TIMEOUT=
 
 # Install Azure Pipelines Agent startup script
 WORKDIR ${AZP_HOME}

@@ -16,6 +16,12 @@ ENV HOME=/app-root
 # Avoid Python cache during build
 ENV PYTHONDONTWRITEBYTECODE=1
 
+# Ensure reliable Python pip installation
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+ENV PIP_QUIET=1
+ENV PIP_RETRIES=8
+ENV PIP_TIMEOUT=120
+
 # Allow install Python system packages
 ENV PIP_BREAK_SYSTEM_PACKAGES=1
 
@@ -160,12 +166,7 @@ RUN ln -s /usr/local/bin/python${PYTHON_313_VERSION_MAJOR_MINOR} /usr/local/bin/
 
 # Install Python build tools
 RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_313_VERSION_MAJOR_MINOR}-${TARGETPLATFORM},sharing=locked \
-    python3 -m pip \
-        --disable-pip-version-check \
-        --quiet \
-        --retries 8 \
-        --timeout 120 \
-        install \
+    python3 -m pip install \
             --upgrade \
             pip setuptools wheel \
     # Cleanup Python cache
@@ -175,12 +176,7 @@ RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_313_VERSION_MA
 ARG AZURE_CLI_VERSION
 ENV AZURE_CLI_VERSION=${AZURE_CLI_VERSION}
 RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_313_VERSION_MAJOR_MINOR}-${TARGETPLATFORM},sharing=locked \
-    python3 -m pip \
-        --disable-pip-version-check \
-        --quiet \
-        --retries 8 \
-        --timeout 120 \
-        install \
+    python3 -m pip install \
             azure-cli==${AZURE_CLI_VERSION} \
     && az version \
     && rm -rf ${HOME}/.azure ${HOME}/.cache/pip \
@@ -271,8 +267,16 @@ ENV AZP_CUSTOM_CERT_PEM=${HOME}/azp-custom-certs
 # Cleanup helper script
 RUN rm arch.sh
 
-# Reset Python configs to default
+# Reset Python cache flag
 ENV PYTHONDONTWRITEBYTECODE=
+
+# Reset Python pip reliability configs
+ENV PIP_DISABLE_PIP_VERSION_CHECK=
+ENV PIP_QUIET=
+ENV PIP_RETRIES=
+ENV PIP_TIMEOUT=
+
+# Reset Python pip system packages break flag
 ENV PIP_BREAK_SYSTEM_PACKAGES=
 
 # Configure local user
