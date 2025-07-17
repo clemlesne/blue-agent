@@ -226,10 +226,10 @@ RUN curl -LsSf --retry 8 --retry-all-errors --connect-timeout 120 https://github
 # Install Tini, then verify installation
 ARG TINI_VERSION
 ENV TINI_VERSION=${TINI_VERSION}
-RUN curl -LsSf --retry 8 --retry-all-errors --connect-timeout 120 https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$(ARCH_X64=amd64 bash arch.sh) -o /tini \
-    && chmod +x /tini \
-    && /tini --version
-ENTRYPOINT ["/tini", "--"]
+RUN curl -LsSf --retry 8 --retry-all-errors --connect-timeout 120 https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-$(ARCH_X64=amd64 bash arch.sh) -o /sbin/tini \
+    && chmod +x /sbin/tini \
+    && tini --version
+ENTRYPOINT ["/sbin/tini", "--"]
 
 # Install BuildKit, then verify installation
 ARG BUILDKIT_VERSION
