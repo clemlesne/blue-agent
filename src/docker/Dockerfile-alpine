@@ -222,15 +222,7 @@ RUN curl -LsSf --retry 8 --retry-all-errors --connect-timeout 120 https://dl.goo
     && rm -rf /usr/local/google-cloud-sdk/.install ${HOME}/.config/gcloud \
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; 2> /dev/null
 
-# Install Powershell, then verify installation
-ARG POWERSHELL_VERSION
-ENV POWERSHELL_VERSION=${POWERSHELL_VERSION}
-RUN mkdir -p /opt/microsoft/powershell \
-    && curl -LsSf --retry 8 --retry-all-errors --connect-timeout 120 https://github.com/PowerShell/PowerShell/releases/download/v${POWERSHELL_VERSION}/powershell-${POWERSHELL_VERSION}-linux-musl-$(bash arch.sh).tar.gz | tar -xz -C /opt/microsoft/powershell \
-    && chmod +x /opt/microsoft/powershell/pwsh \
-    && ln -s /opt/microsoft/powershell/pwsh /usr/bin/pwsh \
-    && pwsh -Version \
-    && rm -rf ${HOME}/.config/powershell ${HOME}/.cache/powershell
+# TODO: Install PowerShell here once it'll be distribued with both X64 and ARM64 targets (only X64 today)
 
 # Install YQ, then verify installation
 ARG YQ_VERSION
