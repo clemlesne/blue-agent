@@ -26,7 +26,7 @@ ENV PIP_TIMEOUT=120
 # - Azure CLI system requirements (C/Rust build tools for libs non pre-built on this platform)
 # - Azure Pipelines agent system requirements
 # - iptables, for BuildKit
-# - gzip, make, tar, unzip, wget, zip, zstd, dnsutils, rsync, for developer ease-of-life
+# - gzip, make, tar, unzip, wget, zip, zstd, dnsutils, rsync, gnupg, findutils, ca-certificates, for developer ease-of-life
 # - zsh, for inter-operability
 RUN --mount=target=/var/cache/tdnf,type=cache,id=yum-${TARGETPLATFORM},sharing=locked \
     tdnf update -y \

@@ -29,7 +29,7 @@ ENV PIP_BREAK_SYSTEM_PACKAGES=1
 # - Azure CLI system requirements (C/Rust build tools for libs non pre-built on this platform)
 # - Azure Pipelines agent system requirements
 # - dbus-user-session, fuse-overlayfs, iptables, for BuildKit
-# - gzip, make, tar, unzip, wget, zip, zstd, dnsutils, rsync, for developer ease-of-life
+# - gzip, make, tar, unzip, wget, zip, zstd, dnsutils, rsync, gnupg, findutils, ca-certificates, for developer ease-of-life
 # - zsh, for inter-operability
 RUN rm -f /etc/apt/apt.conf.d/docker-clean \
     && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
