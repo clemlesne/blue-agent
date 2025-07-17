@@ -38,6 +38,7 @@ for suffix in ${SUFFIXES}; do
   echo "➡️ Building Docker image for ${suffix} (${tag})"
 
   # Build the Docker image
+  # Note: It mimics the CI/CD environment compression settings to evaluate the image size
   DOCKER_BUILDKIT=1 docker build \
     --build-arg "AWS_CLI_VERSION=${AWS_CLI_VERSION}" \
     --build-arg "AZP_AGENT_VERSION=${AZP_AGENT_VERSION}" \
@@ -58,6 +59,7 @@ for suffix in ${SUFFIXES}; do
     --build-arg "YQ_VERSION=${YQ_VERSION}" \
     --build-arg "ZSTD_VERSION=${ZSTD_WIN_VERSION}" \
     --file ${PREFIX}${suffix} \
+    --output type=image,compression=zstd,compression-level=22,force-compression=true \
     --platform linux/amd64,linux/arm64 \
     --tag $tag \
     $FOLDER
