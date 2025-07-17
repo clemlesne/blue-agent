@@ -226,7 +226,7 @@ RUN curl -LsSf --retry 8 --retry-all-errors --connect-timeout 120 https://dl.goo
 ARG POWERSHELL_VERSION
 ENV POWERSHELL_VERSION=${POWERSHELL_VERSION}
 RUN mkdir -p /opt/microsoft/powershell \
-    && curl -LsSf --retry 8 --retry-all-errors --connect-timeout 120 https://github.com/PowerShell/PowerShell/releases/download/v${POWERSHELL_VERSION}/powershell-${POWERSHELL_VERSION}-linux-$(bash arch.sh).tar.gz | tar -xz -C /opt/microsoft/powershell \
+    && curl -LsSf --retry 8 --retry-all-errors --connect-timeout 120 https://github.com/PowerShell/PowerShell/releases/download/v${POWERSHELL_VERSION}/powershell-${POWERSHELL_VERSION}-linux-musl-$(bash arch.sh).tar.gz | tar -xz -C /opt/microsoft/powershell \
     && chmod +x /opt/microsoft/powershell/pwsh \
     && ln -s /opt/microsoft/powershell/pwsh /usr/bin/pwsh \
     && pwsh -Version \
