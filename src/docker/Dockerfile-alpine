@@ -160,9 +160,9 @@ RUN ln -s /usr/local/bin/python${PYTHON_313_VERSION_MAJOR_MINOR} /usr/local/bin/
     && python --version \
     && python3 --version \
     && python${PYTHON_313_VERSION_MAJOR_MINOR} --version \
-    && python3 -m pip --version
-# BusyBox env sets a minimal $PATH, local bin requires to be explicited
-ENV PATH="/usr/local/bin:${PATH}"
+    && python3 -m pip --version \
+    # BusyBox env sets a minimal $PATH, local bin requires to be explicited
+    && echo 'export PATH=/usr/local/bin:$PATH' > /etc/profile.d/localbin.sh
 
 # Install Python build tools
 RUN --mount=target=/${USER}/.cache/pip,type=cache,id=pip-${PYTHON_313_VERSION_MAJOR_MINOR}-${TARGETPLATFORM},sharing=locked \
