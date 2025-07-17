@@ -9,8 +9,6 @@ parameters:
 variables:
   - name: archive_path
     value: $(Pipeline.Workspace)/openjdk.tar.gz
-  - name: jdk_version_tag
-    value: jdk-21.0.7+6
 
 jobs:
   - job: test
@@ -21,21 +19,17 @@ jobs:
         - version_${{ parameters.version }}
     steps:
       - bash: |
-          # Detect libc / distro
+          # Detect distro
           if ldd --version 2>&1 | grep -qi musl; then
             suffix="alpine-linux"  # musl = Alpine
           else
             suffix="linux"  # glibc distros
           fi
 
-          # Build download URL (example: OpenJDK21U-jdk_x64_alpine-linux_hotspot_21.0.2_13.tar.gz)
-          file="OpenJDK21U-jdk_x64_${suffix}_hotspot_21.0.2_13.tar.gz"
-          url="https://github.com/adoptium/temurin21-binaries/releases/download/${JDK_TAG}/${file}"
+          # Build download URL
+          url="https://github.com/adoptium/temurin21-binaries/releases/download/21.0.2+13/OpenJDK21U-jdk_x64_${suffix}_hotspot_21.0.2_13.tar.gz"
           echo "Fetching ${url}"
-          curl -LsSf "${url}" -o "${ARCHIVE_PATH}"
-        env:
-          JDK_TAG: ${{ variables.jdk_version_tag }}
-          ARCHIVE_PATH: ${{ variables.archive_path }}
+          curl -LsSf "${url}" -o "${{ variables.archive_path }}"
         displayName: Download Eclipse Temurin
 
       - task: JavaToolInstaller@0
