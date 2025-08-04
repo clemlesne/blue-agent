@@ -35,7 +35,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v4.2.2
         with:
           # We need all Git history for "version.sh"
           fetch-depth: 0
