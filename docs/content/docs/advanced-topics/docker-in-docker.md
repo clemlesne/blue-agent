@@ -32,7 +32,7 @@ There are two components, the backend, `buildkitd`, and the CLI, `buildctl`.
 
 Requirements:
 
-- Setup special security requirements, you can find them [in the example file `container-build.yaml`](example/helm/container-build.yaml).
+- Setup special security requirements, you can find them [in the example file `container-build.yaml`](https://github.com/clemlesne/blue-agent/blob/main/example/helm/container-build.yaml).
 - In the pipeline, run `buildkitd` before using `buildctl`.
 
 ```yaml
